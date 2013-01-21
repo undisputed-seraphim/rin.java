@@ -6,7 +6,7 @@ import java.net.Socket;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Client extends JFrame {
+public class Client extends JFrame implements ProtocolCode {
 	private static final long serialVersionUID = 7L;
 	public static String server = "127.0.0.1";
 	public static final int port = 1337;
@@ -38,6 +38,6 @@ public class Client extends JFrame {
 	public void connect( String server, int port ) throws IOException {
 		this.socket = new Socket( server, port );
 		
-		new Protocol( this.socket, 1, new Packet() ).start();
+		new Protocol( this.socket, Device.CLIENT, new Packet() ).start();
 	}
 }

@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 
 import rin.network.Protocol;
 
-public class Server {
+public class Server implements ProtocolCode {
 	public static final int port = 1337;
 	
 	protected static JFrame window;
@@ -45,7 +45,7 @@ public class Server {
 		};
 		
 		while( Server.listening )
-			new Protocol( Server.socket.accept(), 0, onResponse, "rThread-" + Server.threads++ ).start();
+			new Protocol( Server.socket.accept(), Device.SERVER, onResponse, "rThread-" + Server.threads++ ).start();
 		
 		Server.socket.close();
 	}

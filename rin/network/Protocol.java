@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Protocol extends Thread {
+public class Protocol extends Thread implements ProtocolCode {
 	public static final String DELIMITER = "||";
 	
 	protected PrintWriter out;
@@ -14,10 +14,10 @@ public class Protocol extends Thread {
 	protected Packet callback;
 	protected Socket socket;
 	protected String target;
-	protected int type;
+	protected Device type;
 	
-	public Protocol( Socket socket, int type, Packet callback ) { this( socket, type, callback, "" ); }
-	public Protocol( Socket socket, int type, Packet callback, String target ) {
+	public Protocol( Socket socket, Device type, Packet callback ) { this( socket, type, callback, "" ); }
+	public Protocol( Socket socket, Device type, Packet callback, String target ) {
 		super();
 		this.callback = callback;
 		this.socket = socket;
@@ -33,9 +33,7 @@ public class Protocol extends Thread {
 			this.in = new BufferedReader( new InputStreamReader( this.socket.getInputStream() ) );
 			String input;
 			
-			if( this.type == 1 ) {
-				out.println( "hi" );
-			}
+			this.send( Code.HANDSHAKE );
 			
 			while( ( input = in.readLine() ) != null ) {
 				this.receive( input );
@@ -50,15 +48,18 @@ public class Protocol extends Thread {
 	}
 	
 	public void receive( String data ) {
-		callback.setInfo( data );
+		callback.setInfo( Code.NULL, data );
 		callback.run();
 	}
 	
+	public void send( Code code ) { this.send( code, "" ); }
+	public void send( Code code, String data ) {
+		this.out.println( code + Protocol.DELIMITER + data );
+	}
+	
 	public void destroy() {
-		if( this.type == 0 ) {
-			callback.setInfo( this.target );
-			callback.run();
-		}
+		callback.setInfo( Code.DISCONNECTED, this.target );
+		callback.run();
 		
 		try {
 			this.out.close();
