@@ -38,6 +38,6 @@ public class Client extends JFrame {
 	public void connect( String server, int port ) throws IOException {
 		this.socket = new Socket( server, port );
 		
-		new Protocol( this.socket, 1 ).start();
+		new Protocol( this.socket, 1, new Packet() ).start();
 	}
 }

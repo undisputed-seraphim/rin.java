@@ -7,16 +7,25 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Protocol extends Thread {
+	public static final String DELIMITER = "||";
+	
 	protected PrintWriter out;
 	protected BufferedReader in;
-	protected int type;
+	protected Packet callback;
 	protected Socket socket;
+	protected String target;
+	protected int type;
 	
-	public Protocol( Socket socket, int type ) {
+	public Protocol( Socket socket, int type, Packet callback ) { this( socket, type, callback, "" ); }
+	public Protocol( Socket socket, int type, Packet callback, String target ) {
 		super();
+		this.callback = callback;
 		this.socket = socket;
+		this.target = target;
 		this.type = type;
 	}
+	
+	public String getIP() { return this.socket.getInetAddress().toString(); }
 	
 	public void run() {
 		try {
@@ -29,11 +38,35 @@ public class Protocol extends Thread {
 			}
 			
 			while( ( input = in.readLine() ) != null ) {
-				System.out.println( input );
+				this.receive( input );
 			}
 			
-		} catch( IOException e ) {
+			this.destroy();
 			
+		} catch( IOException e ) {
+			System.out.println( "Connection with " + this.getIP() + " dropped." );
+			this.destroy();
+		}
+	}
+	
+	public void receive( String data ) {
+		callback.setInfo( data );
+		callback.run();
+	}
+	
+	public void destroy() {
+		if( this.type == 0 ) {
+			callback.setInfo( this.target );
+			callback.run();
+		}
+		
+		try {
+			this.out.close();
+			this.in.close();
+			this.socket.close();
+		} catch (IOException e) {
+			System.out.println( "could not close output/input/socket" );
+			e.printStackTrace();
 		}
 	}
 }
