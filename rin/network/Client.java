@@ -38,6 +38,18 @@ public class Client extends JFrame implements ProtocolCode {
 	public void connect( String server, int port ) throws IOException {
 		this.socket = new Socket( server, port );
 		
-		new Protocol( this.socket, Device.CLIENT, new Packet() ).start();
+		final Client client = this;
+		Packet callback = new Packet() {
+			public void run() {
+				System.out.println( "nope" );
+				client.process( this );
+			}
+		};
+		
+		new Protocol( this.socket, Device.CLIENT, callback, "Server" ).start();
+	}
+	
+	public void process( Packet packet ) {
+		System.out.println( "WTF" );
 	}
 }

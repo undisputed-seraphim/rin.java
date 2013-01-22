@@ -27,6 +27,8 @@ public class Server implements ProtocolCode {
 		}
 	}
 	
+	private static String nextThread() { return Protocol.THREAD_PREFIX + Server.threads++; }
+	
 	public static void createGUI() {
 		Server.window = new Window()
 			.setTitle( "rin.ai | Server" )
@@ -49,15 +51,14 @@ public class Server implements ProtocolCode {
 		Server.socket = new ServerSocket( port );
 		
 		System.out.println( "Server listening on port " + Server.port );
-		Packet onResponse = new Packet() {
+		Packet callback = new Packet() {
 			public void run() {
-				Server.process( this.ip, this.code, this.data );
+				Server.process( this );
 			}
 		};
 		
 		while( Server.listening )
-			new Protocol( Server.socket.accept(), Device.SERVER, onResponse, Protocol.THREAD_PREFIX + Server.threads++ )
-					.start();
+			new Protocol( Server.socket.accept(), Device.SERVER, callback, Server.nextThread() ).start();
 		
 		Server.socket.close();
 	}
@@ -70,17 +71,32 @@ public class Server implements ProtocolCode {
 		Server.list.toTextList().removeListItem( id );
 	}
 	
-	public static void process( String ip, Code code, String data ) {
-		System.out.println( "received " + ip + code + data );
+	public static void process( Packet packet ) {
+		System.out.println( packet.decode() );
+		
+		switch( packet.code ) {
+		
+		case ACCEPTED:
+			Server.addEntry( packet.sender, packet.data + " connected [" + packet.sender + "]" );
+			break;
+		
+		case DISCONNECTED:
+			Server.removeEntry( packet.sender );
+			break;
+		}
+	}
+	
+	public static void process( String sender, Code code, String data ) {
+		System.out.println( "received " + code + ":" + data + " from " + sender );
 		
 		switch( code ) {
 		
 		case ACCEPTED:
-			Server.addEntry( data, ip + " connected [" + data + "]" );
+			Server.addEntry( sender, data + " connected [" + sender + "]" );
 			break;
 		
 		case DISCONNECTED:
-			Server.removeEntry( data );
+			Server.removeEntry( sender );
 			break;
 		}
 	}

@@ -201,7 +201,7 @@ public class Poly extends Actor {
 				y = this.yMin, Y = this.yMax,
 				z = this.zMin, Z = this.zMax;
 		
-		System.out.println( this.name + " selected!" );
+		//System.out.println( this.name + " selected!" );
 		glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
 		glColor4f( 1.0f, 0.0f, 0.0f, 0.3f );
 		

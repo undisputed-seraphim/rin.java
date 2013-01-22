@@ -148,7 +148,7 @@ public class Scene {
 				if( picking != null ) {
 					/* get the targets that were picked and call their selected() methods */
 					//TODO: properly loop through the buffer to get the hit results
-					System.out.println( "something was hit: " + picking.get( 3 ) );
+					//System.out.println( "something was hit: " + picking.get( 3 ) );
 					( (Mesh) this.actors.get( picking.get( 3 ) ) ).selected();
 				}
 			}

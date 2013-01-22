@@ -59,7 +59,7 @@ public class GUI {
 		}
 		
 		public GUIComponent setBackgroundColor( int r, int g, int b ) { this.list.setBackground( new Color( r, g, b ) ); return this; }
-		private void applyContents() { this.list.setListData( this.contents ); }
+		private void applyContents() { this.list.setListData( this.contents ); 	this.list.repaint(); }
 		public GUIComponent addListItem( String id, String entry ) {
 			this.ids.add( id );
 			this.contents.add( entry );
