@@ -8,7 +8,6 @@ public class Game {
 	public Game() {
 		this.rin = new Engine();
 		this.rin.debug();
-		
 		/* setup all the engine options here, e.g. load data into scene, characters, etc */
 		this.rin.addCharacter( "purplesister_mk2" );
 		//this.rin.addCharacter( "blackheart_v" );

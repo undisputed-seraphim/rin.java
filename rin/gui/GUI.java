@@ -51,9 +51,10 @@ public class GUI {
 	public static class TextList extends GUIComponent {
 		protected Vector<String> contents = new Vector<String>();
 		protected Vector<String> ids = new Vector<String>();
-		protected JList list;
+		protected JList<String> list;
+		
 		public TextList() {
-			this.list = new JList();
+			this.list = new JList<String>();
 			this.target = new JScrollPane( this.list );
 		}
 		
@@ -101,7 +102,7 @@ public class GUI {
 			return this;
 		}
 		
-		/* convenience methods for obtaining proper type without casting */
+		/* convenience methods for obtaining proper type without manually casting */
 		public Panel toPanel() { return ( Panel ) this; }
 		public TextList toTextList() { return ( TextList ) this; }
 	}

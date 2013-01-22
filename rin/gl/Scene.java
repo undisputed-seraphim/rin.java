@@ -110,7 +110,7 @@ public class Scene {
 	
 	/* add something to the scene */
 	public Actor addModel( String name, Model.Format format ) {
-		String file = GL.GL_DIR + "../inc/models/" + name + "/" + name;
+		String file = GL.GL_DIR + "\\models\\" + name + "\\" + name;
 		
 		switch( format ) {
 		case DAE:
@@ -173,9 +173,9 @@ public class Scene {
 	}
 	
 	/* return a string for the vertex shader code */
-	private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "../inc/shaders/vertex.shader" ); }
+	private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\vertex.shader" ); }
 	
 	/* return a string for the fragment shader code */
-	private String getFragmentShaderStr() { return IO.file.asString( GL.GL_DIR + "../inc/shaders/fragment.shader" ); }
+	private String getFragmentShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\fragment.shader" ); }
 
 }

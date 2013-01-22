@@ -15,7 +15,7 @@ public class Engine {
 	public Engine() { this( "No Name" ); }
 	public Engine( String name ) {
 		this.name = name;
-		
+		this.getClass().getProtectionDomain().getCodeSource().getLocation();
 		/* initialize gl module */
 		this.gl = new GL();
 		if( this.gl.ready() )
