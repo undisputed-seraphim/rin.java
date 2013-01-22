@@ -70,10 +70,9 @@ public class GUI {
 				if( s.equals( id ) ) {
 					this.contents.remove( this.ids.indexOf( s ) );
 					this.ids.remove( s );
-					this.target.repaint();
+					this.applyContents();
 					return this;
 				}
-			this.applyContents();
 			return this;
 		}
 	}
