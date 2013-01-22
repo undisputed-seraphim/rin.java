@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Protocol extends Thread implements ProtocolCode {
+	public static final String THREAD_PREFIX = "rThread-";
 	public static final String DELIMITER = "||";
 	
 	protected PrintWriter out;
@@ -33,10 +34,23 @@ public class Protocol extends Thread implements ProtocolCode {
 			this.in = new BufferedReader( new InputStreamReader( this.socket.getInputStream() ) );
 			String input;
 			
-			this.send( Code.HANDSHAKE );
+			if( this.type == Device.CLIENT ) {
+				this.send( Code.HANDSHAKE );
+				
+				//TODO: add a timeout waiting for server response
+				while( ( input = this.in.readLine() ) != null ) {
+					if( input.equals( Code.ACCEPT.toString() + Protocol.DELIMITER ) ) {
+						this.send( Code.ACCEPTED );
+					}
+				}
+			}
 			
 			while( ( input = in.readLine() ) != null ) {
-				this.receive( input );
+				if( input.indexOf( Protocol.DELIMITER ) != -1 ) {
+					String left = input.substring( 0, input.indexOf( Protocol.DELIMITER ) );
+					String right = input.substring( input.indexOf( Protocol.DELIMITER ) + Protocol.DELIMITER.length() );
+					this.receive( Code.get( left ), right );
+				} else this.receive( Code.get( input ), "" );
 			}
 			
 			this.destroy();
@@ -47,8 +61,26 @@ public class Protocol extends Thread implements ProtocolCode {
 		}
 	}
 	
-	public void receive( String data ) {
-		callback.setInfo( Code.NULL, data );
+	public void receive( Code code, String data ) {
+		switch( this.type ) {
+		case SERVER:
+			switch( code ) {
+			
+			case HANDSHAKE:
+				this.send( Code.ACCEPT );
+				break;
+				
+			case ACCEPTED:
+				callback.setInfo( this.getIP(), code, this.target );
+				callback.run();
+				return;
+			}
+			break;
+			
+		case CLIENT:
+			break;
+		}
+		callback.setInfo( this.getIP(), code, data );
 		callback.run();
 	}
 	
@@ -58,7 +90,7 @@ public class Protocol extends Thread implements ProtocolCode {
 	}
 	
 	public void destroy() {
-		callback.setInfo( Code.DISCONNECTED, this.target );
+		callback.setInfo( this.getIP(), Code.DISCONNECTED, this.target );
 		callback.run();
 		
 		try {

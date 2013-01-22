@@ -11,9 +11,11 @@ public interface ProtocolCode {
 		NULL,
 		KILL,
 		HANDSHAKE,
+		ACCEPT,
+		ACCEPTED,
 		DISCONNECTED;
 		
-		public Code get( String str ) {
+		public static Code get( String str ) {
 			for( Code c : Code.values() )
 				if( c.toString().toLowerCase().equals( str.toLowerCase() ) )
 					return c;
