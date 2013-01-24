@@ -28,13 +28,13 @@ public class ModelDAE implements ModelManager {
 		/* DAE models will utilize the mesh class */
 		Mesh mesh = new Mesh();
 		float[] V_SRC, N_SRC, T_SRC;
-		//String path = file.substring( 0, file.lastIndexOf( "\\" ) + 1 );
-		String path = file.substring( 0, file.lastIndexOf( "/" ) + 1 );
+		String path = file.substring( 0, file.lastIndexOf( "\\" ) + 1 );
+		//String path = file.substring( 0, file.lastIndexOf( "/" ) + 1 );
 		for( Polylist p : polylists ) {
 			( (Mesh) mesh ).addPoly( p.getName() );
 			if( p.getName() != "" ) {
-				//( (Mesh) mesh ).setTexture( path + "textures\\" + p.getName() + ".png" );
-				( (Mesh) mesh ).setTexture( path + "textures/" + p.getName() + ".png" );
+				( (Mesh) mesh ).setTexture( path + "textures\\" + p.getName() + ".png" );
+				//( (Mesh) mesh ).setTexture( path + "textures/" + p.getName() + ".png" );
 			}
 			ArrayList<Integer> prim = p.getPrim();
 			

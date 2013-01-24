@@ -135,15 +135,15 @@ public class Poly extends Boundable {
 		if( this.ready ) {
 			glUniformMatrix4( this.scene.getUniform( "mvMatrix"), false, this.matrix.gl() );
 
-			if( this.id != -1 )
-				glPushName( this.id );
+			//if( this.id != -1 )
+				//glPushName( this.id );
 			
 			this.applyTexture();
 			this.buffer();
 			glDrawElements( renderMode, this.vba.length / 3, GL_UNSIGNED_INT, 0 );
 
-			if( this.id != -1 )
-				glPopName();
+			//if( this.id != -1 )
+				//glPopName();
 		}
 	}
 }

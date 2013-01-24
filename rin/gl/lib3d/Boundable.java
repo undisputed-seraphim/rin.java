@@ -2,6 +2,7 @@ package rin.gl.lib3d;
 
 import java.nio.IntBuffer;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL41.*;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL41;
@@ -39,10 +40,22 @@ public class Boundable extends Actor {
 	}
 	
 	public void showBoundingBox() {
-		if( this.ready )
+		if( this.ready ) {
+			//glDisable( GL_TEXTURE_2D );
+			//System.out.println( "hai" );
+			//glColor3f( 1.0f, 0.0f, 0.0f );
+			//glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
 			this.bbox.render();
+		}
 		
 		else this.createBBox();
+	}
+	
+	public boolean isIntersectedBy( Ray ray ) {
+		if( this.bbox == null )
+			return false;
+		
+		return ray.intersects( ( Mesh )this );
 	}
 	
 	public boolean isMouseOver( Mat4 view, IntBuffer viewport ) {

@@ -10,6 +10,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.Ray;
 import rin.gl.lib3d.shape.Cube;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
@@ -108,19 +109,23 @@ public class Camera extends Actor {
 		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, Mat4.multiply( this.perspective, this.matrix ).gl() );
 	}
 	
-	public void getPickingRay( Mat4 mat ) {
-		float x = Mouse.getX() * ( 2.0f / this.scene.getWidth() ) - 1.0f;
-		float y = Mouse.getY() * ( 2.0f / this.scene.getHeight() ) - 1.0f;
+	public Ray getPickingRay() {
+		return new Ray( this.matrix );
+		//float x = Mouse.getX() * ( 2.0f / this.scene.getWidth() ) - 1.0f;
+		//float y = Mouse.getY() * ( 2.0f / this.scene.getHeight() ) - 1.0f;
 		
-		Vec3 fin = Mat4.multVec4( Mat4.inverse( Mat4.multiply( this.perspective, this.matrix ) ), new Vec3( x, y, 1.0f ) );
-		fin.x -= this.position.x;
-		fin.y -= this.position.y;
-		fin.z += this.position.z;
+		//Vec3 fin = Mat4.getPos( this.matrix );
+		//fin = Mat4.multVec4( this.matrix, fin );
+		//fin.x -= this.position.x;
+		//fin.y -= this.position.y;
+		//fin.z += this.position.z;
 		
-		Cube cube = new Cube( 0.2f, fin );
+		
+		
+		/*Cube cube = new Cube( 0.2f, fin );
 		cube.setScene( this.scene );
 		cube.init();
-		cube.render();
+		cube.render();*/
 		
 	}
 	

@@ -15,6 +15,7 @@ public class Cube extends Shape {
 		super( "Cube-" + Cube.cubes++ );
 		super.renderMode = GL_TRIANGLE_STRIP;
 		
+		// left
 		this.addVertex( x, Y, z );
 		this.addVertex( x, y, z );
 		this.addVertex( x, Y, Z );

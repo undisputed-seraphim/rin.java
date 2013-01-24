@@ -40,7 +40,7 @@ public class Mesh extends Boundable {
 	public void addVertex( float x, float y, float z ) { this.addBounds( x, y, z ); this.polys.get( this.currentPoly ).addVertex( x, y, z ); }
 	public void addVertices( float[] v, ArrayList<Integer> indices, int offset, int stride, int count ) {
 		for( int i = offset; i < indices.size(); i += stride ) {
-			this.addBounds( v[ indices.get( i )*count ], v[ indices.get( i )*count+1 ], v[ indices.get( i )*count+2 ] );
+			//this.addBounds( v[ indices.get( i )*count ], v[ indices.get( i )*count+1 ], v[ indices.get( i )*count+2 ] );
 			this.addVertex( v[ indices.get( i )*count ], v[ indices.get( i )*count+1 ], v[ indices.get( i )*count+2 ] );
 		}
 	}
@@ -93,6 +93,7 @@ public class Mesh extends Boundable {
 			}
 		}
 		
+		this.createBBox();
 		this.ready = true;
 	}
 	
