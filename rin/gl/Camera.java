@@ -10,29 +10,43 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.shape.Cube;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
+import rin.util.math.Vec3;
 
 public class Camera extends Actor {
 	/* buffer used for picking results and bool for isPicking */
 	private IntBuffer pickingBuffer = Buffer.toBuffer( new int[64] );
 	public boolean	picking = false;
 	
+	protected float aspect;
+	protected float znear;
+	protected float zfar;
+	protected float fovy;
+	
 	/* camera's matrices derived from position/rotation vectors, and the camera's perspective */
 	public Mat4		perspective =	new Mat4();
 	
 	public Camera( Scene scene, float fovy, float aspect, float znear, float zfar ) {
 		this.scene = scene;
+		this.aspect = aspect;
+		this.znear = znear;
+		this.zfar = zfar;
+		this.fovy = fovy;
 		this.perspective = Mat4.perspective( fovy, aspect, znear, zfar );
 		this.position( 0.0f, -1.0f, -11.0f );
 		System.out.println( this.position.toString() );
 		this.init();
 	}
 	
+	public Mat4 getViewMatrix() { return this.matrix; }
+	public Mat4 getPerspective() { return this.perspective; }
+	
 	public void init() {
 		this.transform();
-		glUniformMatrix4( this.scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
-		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		//glUniformMatrix4( this.scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
+		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, Mat4.multiply( this.perspective, this.matrix ).gl() );
 	}
 	
 	public void update() {
@@ -91,53 +105,59 @@ public class Camera extends Actor {
 		if( changed )
 			this.move( step, side, rise );
 		
-		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, Mat4.multiply( this.perspective, this.matrix ).gl() );
 	}
 	
-	/* picking! start picking to enable mouse picking on this camera */
-	public void startPicking() {
-		/* tell the shader to use opengl's matrices */
+	public void getPickingRay( Mat4 mat ) {
+		float x = Mouse.getX() * ( 2.0f / this.scene.getWidth() ) - 1.0f;
+		float y = Mouse.getY() * ( 2.0f / this.scene.getHeight() ) - 1.0f;
+		
+		Vec3 fin = Mat4.multVec4( Mat4.inverse( Mat4.multiply( this.perspective, this.matrix ) ), new Vec3( x, y, 1.0f ) );
+		fin.x -= this.position.x;
+		fin.y -= this.position.y;
+		fin.z += this.position.z;
+		
+		Cube cube = new Cube( 0.2f, fin );
+		cube.setScene( this.scene );
+		cube.init();
+		cube.render();
+		
+	}
+	
+	/*public void startPicking() {
 		glUniform1i( this.scene.getUniform( "picking" ), GL_TRUE );
 		
-		/* set the picking buffer */
 		glSelectBuffer( this.pickingBuffer );
 		glRenderMode( GL_SELECT );
 
-		/* save the current matrix */
 		glMatrixMode( GL_PROJECTION );
 		glPushMatrix();
 		glLoadIdentity();
 		//gluPerspective( 45, 900 / 600, 0.1f, 100f );
 
-		/* obtain viewport information */
 		IntBuffer viewport = Buffer.toBuffer( new int[16] );
 		glGetInteger( GL_VIEWPORT, viewport );
 		
-		/* create a matrix whose view is a box around mouse cursor */
 		gluPickMatrix( Mouse.getX(), Mouse.getY(), 3, 3, viewport );
 		//mat4 tmp = mat4.pickMatrix( Mouse.getX(), Mouse.getY(), 3, 3, viewport );
 		glMatrixMode( GL_MODELVIEW );
 		
-		/* tell opengl to use names(ids) for objects in the scene */
 		glInitNames();
-	}
+	}*/
 	
-	/* stop picking and return the pickingBuffer if there were any hits */
-	public IntBuffer stopPicking() {
-		/* restore old matrix and reset matrices */
+	/*public IntBuffer stopPicking() {
 		glUniform1i( this.scene.getUniform( "picking" ), GL_FALSE );
 		glMatrixMode( GL_PROJECTION );
 		glPopMatrix();
 		glMatrixMode( GL_MODELVIEW );
 		glFlush();
 		
-		/* if there are any hits, return the pickingBuffer */
 		int hits = glRenderMode( GL_RENDER );
 		if( hits > 0 ) {
 			return this.pickingBuffer;
 		}
 		
 		return null;
-	}
+	}*/
 
 }

@@ -51,10 +51,10 @@ public class GUI {
 	public static class TextList extends GUIComponent {
 		protected Vector<String> contents = new Vector<String>();
 		protected Vector<String> ids = new Vector<String>();
-		protected JList<String> list;
+		protected JList list;
 		
 		public TextList() {
-			this.list = new JList<String>();
+			this.list = new JList();
 			this.target = new JScrollPane( this.list );
 		}
 		

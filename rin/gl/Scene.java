@@ -4,6 +4,9 @@ import java.nio.IntBuffer;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL41;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -11,6 +14,7 @@ import static org.lwjgl.opengl.GL20.*;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
 import rin.gl.model.Model;
+import rin.util.Buffer;
 import rin.util.IO;
 
 public class Scene {
@@ -110,7 +114,8 @@ public class Scene {
 	
 	/* add something to the scene */
 	public Actor addModel( String name, Model.Format format ) {
-		String file = GL.GL_DIR + "\\models\\" + name + "\\" + name;
+		//String file = GL.GL_DIR + "\\models\\" + name + "\\" + name;
+		String file = GL.GL_DIR + "models/" + name + "/" + name;
 		
 		switch( format ) {
 		case DAE:
@@ -135,23 +140,28 @@ public class Scene {
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			this.camera.update();
 			
-			if( this.camera.picking ) {
-				this.camera.startPicking();
-			
+			//if( this.camera.picking ) {
+				//this.camera.startPicking();
+			//glEnable( GL41.GL_SCISSOR_TEST );
+			//glScissor( Mouse.getX(), Mouse.getY(), 5, 5 );
 				for( Actor a : this.actors ) {
-					if( a instanceof Mesh )
-						if( ( ( Mesh ) a ).isPicking() )
-							( ( Mesh ) a ).render();
+					if( a instanceof Mesh ) {
+						this.camera.getPickingRay( ( (Actor) a).getMatrix() );
+						//IntBuffer viewport = Buffer.toBuffer( new int[16] );
+						//glGetInteger( GL_VIEWPORT, viewport );
+						//if( ( ( Mesh ) a ).isMouseOver( this.camera.getViewMatrix(), viewport ) )
+							//( ( Mesh ) a ).showBoundingBox();
+					}
 				}
-				
-				IntBuffer picking = this.camera.stopPicking();
-				if( picking != null ) {
+			//glDisable( GL41.GL_SCISSOR_TEST );
+				//IntBuffer picking = this.camera.stopPicking();
+				//if( picking != null ) {
 					/* get the targets that were picked and call their selected() methods */
 					//TODO: properly loop through the buffer to get the hit results
 					//System.out.println( "something was hit: " + picking.get( 3 ) );
-					( (Mesh) this.actors.get( picking.get( 3 ) ) ).selected();
-				}
-			}
+					//( (Mesh) this.actors.get( picking.get( 3 ) ) ).showBoundingBox();
+				//}
+			//}
 			
 			//TODO: add range checking for these items so that only those within range of camera are updated */
 			for( Actor a : this.actors ) {
@@ -173,9 +183,11 @@ public class Scene {
 	}
 	
 	/* return a string for the vertex shader code */
-	private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\vertex.shader" ); }
+	//private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\vertex.shader" ); }
+	private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "shaders/vertex.shader" ); }
 	
 	/* return a string for the fragment shader code */
-	private String getFragmentShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\fragment.shader" ); }
+	//private String getFragmentShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\fragment.shader" ); }
+	private String getFragmentShaderStr() { return IO.file.asString( GL.GL_DIR + "shaders/fragment.shader" ); }
 
 }

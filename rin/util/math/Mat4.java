@@ -1,6 +1,7 @@
 package rin.util.math;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import rin.util.Buffer;
 import rin.util.math.Vec3;
@@ -70,6 +71,60 @@ public class Mat4 {
     	return	Mat4.frustum( xmin, xmax, ymin, ymax, znear, zfar );
 	}
 	
+	public static Vec3 multVec4( Mat4 mat, Vec3 v ) {
+		float[] res = new float[4];
+		for( int i = 0; i < 4; i++ )
+			res[i] = v.x * mat.m[0*4+1] +
+					 v.y * mat.m[1*4+i] +
+					 v.z * mat.m[2*4+i] + mat.m[3*4+1] ;
+		return new Vec3( res[0], res[1], res[2] );
+	}
+	
+	public static Mat4 mult( Mat4 a, Mat4 b ) {
+		float[] mat = new float[16];
+		for( int i = 0; i < 4; i++ )
+			for( int j = 0; j < 4; j++ ) {
+				mat[ i*4+j ] =
+						a.m[i*4+0] * b.m[0*4+j] +
+						a.m[i*4+1] * b.m[1*4+j] +
+						a.m[i*4+2] * b.m[2*4+j] +
+						a.m[i*4+3] * b.m[3*4+j] ;
+			}
+		return new Mat4(mat[ 0], mat[ 1], mat[ 2], mat[ 3], mat[ 4], mat[ 5], mat[ 6], mat[ 7],
+						mat[ 8], mat[ 9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15] );
+	}
+	
+	public static float[] unProject( int x, int y, int z, Mat4 mod, Mat4 cam, IntBuffer viewport ) {
+		Mat4 mat;
+		float[] in = new float[4];
+		float[] out = new float[4];
+		
+		mat = Mat4.mult( mod, cam );
+		
+		in[0] = x;
+		in[1] = y;
+		in[2] = z;
+		in[3] = 1.0f;
+		
+		in[0] = ( in[0] - viewport.get( 0 ) ) / viewport.get( 2 );
+	    in[1] = ( in[1] - viewport.get( 1 ) ) / viewport.get( 3 );
+
+	    in[0] = in[0] * 2 - 1;
+	    in[1] = in[1] * 2 - 1;
+	    in[2] = in[2] * 2 - 1;
+		
+	   // out = Mat4.multVec4( mat, in );
+	    System.out.println( Buffer.toString( out ) );
+	    if( out[3] == 0 )
+	    	return new float[]{ 0.0f, 0.0f, 0.0f, 0.0f };
+	    
+	    out[0] /= out[3];
+	    out[1] /= out[3];
+	    out[2] /= out[3];
+	    
+	    return out;
+	}
+	
 	/*(public static mat4 pickMatrix( float x, float y, float deltaX, float deltaY, IntBuffer viewport ) {
 		mat4 trans = mat4.translate( new mat4(), new vec3(
 					( viewport.get(2) - 2 * ( x - viewport.get(0) ) ) / deltaX,
@@ -87,6 +142,13 @@ public class Mat4 {
 		t.m[15] = 1.0f;
 		
 		return Mat4.multiply( m, t );
+	}
+	
+	public static Vec3 transform( Mat4 m, Vec3 v ) {
+		float x = v.x * m.m[0] + v.y * m.m[4] + v.z * m.m[8] + m.m[12];
+		float y = v.x * m.m[1] + v.y * m.m[5] + v.z * m.m[9] + m.m[13];
+		float z = v.x * m.m[2] + v.y * m.m[6] + v.z * m.m[10] + m.m[14];
+		return new Vec3( x, y, z );
 	}
 	
 	/* returns a matrix used to scale other matrices */
@@ -118,7 +180,7 @@ public class Mat4 {
 							Mat4.mh(A4, B1), Mat4.mh(A4, B2), Mat4.mh(A4, B3), Mat4.mh(A4, B4) );
 	}
 	
-	/*public static mat4 inverse( mat4 m ) {
+	public static Mat4 inverse( Mat4 m ) {
 		float	a00 = m.m[0], a01 = m.m[1], a02 = m.m[2], a03 = m.m[3],
 	            a10 = m.m[4], a11 = m.m[5], a12 = m.m[6], a13 = m.m[7],
 	            a20 = m.m[8], a21 = m.m[9], a22 = m.m[10],a23 = m.m[11],
@@ -138,7 +200,7 @@ public class Mat4 {
 	            d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
 	            invDet;
 		invDet = 1 / d;
-		mat4 t = new mat4();
+		Mat4 t = new Mat4();
 		t.m[0]	= ( a11 * b11 - a12 * b10 + a13 * b09 ) * invDet;
 		t.m[1]	= ( -a01 * b11 + a02 * b10 - a03 * b09 ) * invDet;
 		t.m[2]	= ( a31 * b05 - a32 * b04 + a33 * b03 ) * invDet;
@@ -156,7 +218,7 @@ public class Mat4 {
 	    t.m[14] = ( -a30 * b03 + a31 * b01 - a32 * b00 ) * invDet;
 	    t.m[15] = ( a20 * b03 - a21 * b01 + a22 * b00 ) * invDet;
 	    return t;
-	}*/
+	}
 	
 	/* returns a FloatBuffer representing the matrix */
 	public static FloatBuffer fb( Mat4 m ) {

@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL20.*;
  *  
  *  @see {@link Actor}, {@link Poly}
  */
-public class Mesh extends Actor implements Pickable {
+public class Mesh extends Boundable {
 	public static enum VertexFormat {
 		VNT,
 		VN,
@@ -31,16 +31,18 @@ public class Mesh extends Actor implements Pickable {
 	private ArrayList<Poly> polys = new ArrayList<Poly>();
 	private int currentPoly = -1;
 	
-	public void addPoly( String name ) {
+	public void addPoly( String name ) {		
 		this.polys.add( new Poly( name ) );
 		this.currentPoly = this.polys.size() - 1;
 	}
 	
 	/* add data to a mesh's polys */
-	public void addVertex( float x, float y, float z ) { this.polys.get( this.currentPoly ).addVertex( x, y, z ); }
+	public void addVertex( float x, float y, float z ) { this.addBounds( x, y, z ); this.polys.get( this.currentPoly ).addVertex( x, y, z ); }
 	public void addVertices( float[] v, ArrayList<Integer> indices, int offset, int stride, int count ) {
-		for( int i = offset; i < indices.size(); i += stride )
+		for( int i = offset; i < indices.size(); i += stride ) {
+			this.addBounds( v[ indices.get( i )*count ], v[ indices.get( i )*count+1 ], v[ indices.get( i )*count+2 ] );
 			this.addVertex( v[ indices.get( i )*count ], v[ indices.get( i )*count+1 ], v[ indices.get( i )*count+2 ] );
+		}
 	}
 	public void addNormal( float x, float y, float z ) { this.polys.get( this.currentPoly ).addNormal( x, y, z ); }
 	public void addNormals( float[] n, ArrayList<Integer> indices, int offset, int stride, int count ) {
@@ -75,7 +77,7 @@ public class Mesh extends Actor implements Pickable {
 	/* determines whether or not any picking should happen with this mesh */
 	public boolean picking = false;
 	public boolean isPicking() { return this.picking; }
-	public Actor setPicking( boolean val ) { this.picking = val; return this; }
+	public void setPicking( boolean val ) { this.picking = val; }
 	
 	/* initialize the buffer objects for the mesh */
 	public void init() {
@@ -209,11 +211,5 @@ public class Mesh extends Actor implements Pickable {
 					glPopName();
 			}
 		}
-	}
-	
-	/* do something when a pickable has been selected */
-	public void selected() {
-		for( Poly p : this.polys )
-			p.showBoundingBox();
 	}
 }

@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.Texture;
+import rin.gl.lib3d.shape.Cube;
 import rin.util.Buffer;
 
 /**
@@ -15,12 +16,12 @@ import rin.util.Buffer;
  *  e.g. vertices, normals, texture coordinates, etc.
  *
  */
-public class Poly extends Actor {
+public class Poly extends Boundable {
 	/* name of this poly */
 	protected String name = "";
 	
 	/* if poly is ready to be rendered */
-	public boolean ready = false;
+	protected boolean ready = false;
 	
 	/* opengl render mode */
 	protected int renderMode = GL_TRIANGLES;
@@ -31,54 +32,22 @@ public class Poly extends Actor {
 	protected boolean colored = false;
 	
 	protected int[] range = new int[]{ 0, 0 };
-	//private float[] color = new float[]{ 1.0f, 0.0f, 0.0f, 1.0f };
+	protected float[] color = new float[]{ 1.0f, 0.0f, 0.0f, 1.0f };
 	
 	/* temporary lists for vertices, normals, and texcoords */
 	protected ArrayList<Float>	v = new ArrayList<Float>(),
 								n = new ArrayList<Float>(),
 								t = new ArrayList<Float>();
 	
-	/* bounding box values */
-	protected Float xMin = null, xMax = null,
-					yMin = null, yMax = null,
-					zMin = null, zMax = null;
-	
-	/* add bound values to the xmax, ymax, etc if applicable */
-	private void addBounds( float x, float y, float z ) {
-		if( xMin == null ) xMin = x;
-		else if( xMax == null ) xMax = x;
-		else {
-			if( x > xMax ) xMax = x;
-			if( x < xMin ) xMin = x;
-		}
-		
-		if( yMin == null ) yMin = y;
-		else if( yMax == null ) yMax = y;
-		else {
-			if( y > yMax ) yMax = y;
-			if( y < yMin ) yMin = y;
-		}
-		
-		if( zMin == null ) zMin = z;
-		else if( zMax == null ) zMax = z;
-		else {
-			if( z > zMax ) zMax = z;
-			if( z < zMin ) zMin = z;
-		}
-	}
-	
 	/* arrays for the final indices, vertices, normals, and texcoords */
-	protected int[] iba;
-	protected float[] vba, nba, tba;
+	protected int[] iba = new int[0];
+	protected float[] vba = new float[0], nba = new float[0], tba = new float[0];
 	
 	/* gl buffer pointers */
-	protected int ibo, vbo, nbo, tbo;
+	protected GLBuffer ibuf, vbuf, nbuf, tbuf;
 	
-	public Poly( String name ) {
-		this.name = name;
-	}
-
-	public String getName() { return this.name; }
+	public Poly( String name ) { this.name = name; }
+	
 	//public float[] getColor() { return this.color; }
 	
 	public ArrayList<Float> getVertices() { return this.v; }
@@ -95,6 +64,17 @@ public class Poly extends Actor {
 	
 	public void setTexture( String file ) { this.textureFile = file; }
 	public void createTexture() { this.texture = Texture.fromFile( this.textureFile ); }
+	public void applyTexture() {
+		if( this.texture != -1 ) {
+			glActiveTexture( GL_TEXTURE0 );
+			glUniform1i( this.scene.getUniform( "useTexture" ), GL_TRUE );
+			glBindTexture( GL_TEXTURE_2D, this.texture );
+		} else {
+			glColor4f( this.color[0], this.color[1], this.color[2], this.color[3] );
+			glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
+			glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
+		}
+	}
 	
 	public void init() { this.init( false ); }
 	public void init( boolean textureOnly ) {
@@ -108,29 +88,25 @@ public class Poly extends Actor {
 		
 		this.build();
 		
-		this.ibo = glGenBuffers();
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, this.ibo );
-		glBufferData( GL_ELEMENT_ARRAY_BUFFER, Buffer.toBuffer( this.iba ), GL_STATIC_DRAW );
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
 		
-		if( this.nba.length > 0 ) {
-			this.nbo = glGenBuffers();
-			glBindBuffer( GL_ARRAY_BUFFER, this.nbo );
-			glBufferData( GL_ARRAY_BUFFER, Buffer.toBuffer( this.nba ), GL_STATIC_DRAW );
-			glBindBuffer( GL_ARRAY_BUFFER, 0 );
+		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, this.nba )
+			.setAttribute( this.scene.getAttrib("normal" ) )
+			.setSSO( 3, 0, 0 );
+		
+		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, this.tba )
+			.setAttribute( this.scene.getAttrib("texture" ) )
+			.setSSO( 2, 0, 0 );
+		
+		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, this.vba )
+			.setAttribute( this.scene.getAttrib("vertex" ) )
+			.setSSO( 3, 0, 0 );
+		
+		if( this.bound ) {
+			this.bbox = new Cube( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
+			this.bbox.setScene( this.scene );
+			this.bbox.init();
 		}
-		
-		if( this.tba.length > 0 ) {
-			this.tbo = glGenBuffers();
-			glBindBuffer( GL_ARRAY_BUFFER, this.tbo );
-			glBufferData( GL_ARRAY_BUFFER, Buffer.toBuffer( this.tba ), GL_STATIC_DRAW );
-			glBindBuffer( GL_ARRAY_BUFFER, 0 );
-		}
-		
-		this.vbo = glGenBuffers();
-		glBindBuffer( GL_ARRAY_BUFFER, this.vbo );
-		glBufferData( GL_ARRAY_BUFFER, Buffer.toBuffer( this.vba ), GL_STATIC_DRAW );
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 		
 		this.ready = true;
 	}
@@ -142,89 +118,32 @@ public class Poly extends Actor {
 		this.iba = new int[ this.vba.length / 3 ];
 		
 		int v = 0;
-		for( int i = 0; i < this.vba.length; i++ ) {
-			if( i % 3 == 0 )
-				this.iba[v] = v++;
+		for( int i = 0; i < this.vba.length / 3; i++ ) {
+			this.iba[v] = v++;
 		}
 	}
 	
 	public void buffer() {
-		glBindBuffer( GL_ARRAY_BUFFER, this.vbo );
-		glVertexAttribPointer( this.scene.getAttrib( "vertex" ), 3, GL_FLOAT, false, 0, 0 );
-		glEnableVertexAttribArray( this.scene.getAttrib( "vertex" ) );
-		
-		if( this.nba.length > 0 ) {
-			glBindBuffer( GL_ARRAY_BUFFER, this.nbo );
-			glVertexAttribPointer( this.scene.getAttrib( "normal" ), 3, GL_FLOAT, false, 0, 0 );
-			glEnableVertexAttribArray( this.scene.getAttrib( "normal" ) );
-		} else glDisableVertexAttribArray( this.scene.getAttrib( "normal" ) );
-		
-		if( this.tba.length > 0 && !this.colored ) {
-			glBindBuffer( GL_ARRAY_BUFFER, this.tbo );
-			glVertexAttribPointer( this.scene.getAttrib( "texture" ), 2, GL_FLOAT, false, 0, 0 );
-			glEnableVertexAttribArray( this.scene.getAttrib( "texture" ) );
-		} else glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
+		this.vbuf.buffer();
+		this.nbuf.buffer();
+		this.tbuf.buffer();
+		this.ibuf.buffer();
 	}
 	
-	public void render() {
+	public void render() { this.render( this.renderMode ); }
+	public void render( int renderMode ) {
 		if( this.ready ) {
-			this.buffer();
 			glUniformMatrix4( this.scene.getUniform( "mvMatrix"), false, this.matrix.gl() );
-			/* bind the indices buffer */
-			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, this.ibo );
 
 			if( this.id != -1 )
 				glPushName( this.id );
-
-			/* if poly contains a texture */
-			if( this.texture != -1 ) {
-				glActiveTexture( GL_TEXTURE0 );
-				glUniform1i( this.scene.getUniform( "useTexture" ), GL_TRUE );
-				glBindTexture( GL_TEXTURE_2D, this.texture );
-			}
-
-			/* if not, disable texture and set a color */
-			else {
-				glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
-				glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
-			}
-
-			glDrawElements( this.renderMode, this.vba.length / 3, GL_UNSIGNED_INT, 0 );
+			
+			this.applyTexture();
+			this.buffer();
+			glDrawElements( renderMode, this.vba.length / 3, GL_UNSIGNED_INT, 0 );
 
 			if( this.id != -1 )
 				glPopName();
 		}
-	}
-	
-	public void showBoundingBox() {
-		float	x = this.xMin, X = this.xMax,
-				y = this.yMin, Y = this.yMax,
-				z = this.zMin, Z = this.zMax;
-		
-		//System.out.println( this.name + " selected!" );
-		glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
-		glColor4f( 1.0f, 0.0f, 0.0f, 0.3f );
-		
-		/* bounding box */
-		glBegin( GL_LINE_STRIP );
-		glVertex3f( x, y, z );
-		glVertex3f( x, Y, z );
-		glVertex3f( x, Y, Z );
-		glVertex3f( x, y, Z );
-		glVertex3f( x, y, z );
-		
-		glVertex3f( X, y, z );
-		glVertex3f( X, Y, z );
-		glVertex3f( X, Y, Z );
-		glVertex3f( X, y, Z );
-		glVertex3f( X, y, z );
-		glVertex3f( X, y, Z );
-		glVertex3f( x, y, Z );
-		
-		glVertex3f( x, Y, Z );
-		glVertex3f( X, Y, Z );
-		glVertex3f( X, Y, z );
-		glVertex3f( x, Y, z );
-		glEnd();
 	}
 }

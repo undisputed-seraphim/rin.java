@@ -34,6 +34,21 @@ public class Vec3 {
 		return new Vec3( v.x / mag, v.y / mag, v.z / mag );
 	}
 	
+	/* translate towards or away from matrix m's rotation */
+	public static Vec3 step( Vec3 v, Mat4 m, float d ) {
+		return new Vec3( v.x += m.m[8] * d, v.y += m.m[9] * d, v.z += m.m[10] * d );
+	}
+	
+	/* translate to the left or right of matrix m's rotation */
+	public static Vec3 strafe( Vec3 v, Mat4 m, float d ) {
+		return new Vec3( v.x += m.m[0] * d, v.y += m.m[1] * d, v.z += m.m[2] * d );
+	}
+	
+	/* translate up or down in relation to matrix m's rotation */
+	public static Vec3 elevate( Vec3 v, Mat4 m, float d ) {
+		return new Vec3( v.x += m.m[4] * d, v.y += m.m[5] * d, v.z += m.m[6] * d );
+	}
+	
 	/* returns the sum of two vectors */
 	public static Vec3 add( Vec3 v, Vec3 w ) {
 		return new Vec3( v.x + w.x, v.y + w.y, v.z + w.z );

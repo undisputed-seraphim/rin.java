@@ -6,7 +6,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
 
 public class GL {
-	public static String GL_DIR = "C:\\Users\\johall\\Desktop\\Horo\\rin.java\\rin\\inc";
+	//public static String GL_DIR = "C:\\Users\\johall\\Desktop\\Horo\\rin.java\\rin\\inc";
+	public static String GL_DIR = "/Users/Musashi/Desktop/Horo/rin.java/rin/inc/";
 	private boolean ready = false,
 					running = false,
 					paused = false;

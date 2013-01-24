@@ -38,6 +38,10 @@ public class Actor {
 		return this.position;
 	}
 	
+	public Mat4 getMatrix() {
+		return this.matrix;
+	}
+	
 	/* move positionable to a specific vector */
 	public void position( Vec3 v ) {
 		this.position = v;

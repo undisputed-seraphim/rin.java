@@ -10,10 +10,6 @@ uniform bool picking;
 varying vec2 vTexture;
 
 void main( void ) {
-	if( picking ) {
-		gl_Position = gl_ModelViewProjectionMatrix * pMatrix * vMatrix * mvMatrix * vec4( vertex, 1.0 );
-	} else {
-		gl_Position = pMatrix * vMatrix * mvMatrix * vec4( vertex, 1.0 );
-	}
+	gl_Position = vMatrix * mvMatrix * vec4( vertex, 1.0 );
 	vTexture = texture;
 }
