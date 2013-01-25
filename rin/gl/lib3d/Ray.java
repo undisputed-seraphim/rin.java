@@ -4,13 +4,12 @@ import rin.util.math.*;
 
 public class Ray {
 	protected Vec3 position;
-	protected Vec3 forward;
+	protected Vec3 direction;
 	protected Vec3 up;
 	
 	public Ray( Mat4 m ) {
 		this.position = Mat4.getPos( m );
-		this.forward = Mat4.getLookAt( m );
-		this.up = Mat4.getUp( m );
+		this.direction = Mat4.getLookAt( m );
 	}
 	
 	public boolean intersects( Mesh m ) {

@@ -2,6 +2,7 @@ package rin.gl.lib3d;
 
 import java.util.ArrayList;
 
+import rin.gl.GL;
 import rin.util.Buffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -54,7 +55,7 @@ public class Mesh extends Boundable {
 		for( int i = offset; i < indices.size(); i += stride )
 			this.addTexture( t[ indices.get( i )*count ], t[ indices.get( i )*count+1 ] );
 	}
-	public void setTexture( String file ) { this.polys.get( this.currentPoly ).setTexture( file ); }
+	public void setTexture( String file ) { this.polys.get( this.currentPoly ).setTextureFile( file ); }
 	
 	public int getVertexCount() { int v = 0; for( Poly p : this.polys ) v += p.getVertices().size(); return v; }
 	public int getNormalCount() { int n = 0; for( Poly p : this.polys ) n += p.getVertices().size(); return n; }
@@ -73,11 +74,6 @@ public class Mesh extends Boundable {
 	
 	/* mesh is ready to be rendered */
 	private boolean ready = false;
-
-	/* determines whether or not any picking should happen with this mesh */
-	public boolean picking = false;
-	public boolean isPicking() { return this.picking; }
-	public void setPicking( boolean val ) { this.picking = val; }
 	
 	/* initialize the buffer objects for the mesh */
 	public void init() {
@@ -88,7 +84,6 @@ public class Mesh extends Boundable {
 		} else {
 			/* initialize the polys so they can render themselves */
 			for( Poly p : this.polys ) {
-				p.setScene( this.scene );
 				p.init();
 			}
 		}
@@ -161,18 +156,18 @@ public class Mesh extends Boundable {
 		int offset = 0;
 			
 		glBindBuffer( GL_ARRAY_BUFFER, this.abo );
-		glVertexAttribPointer( this.scene.getAttrib( "vertex" ), 3, GL_FLOAT, false, stride, offset );
-		glEnableVertexAttribArray( this.scene.getAttrib( "vertex" ) );
+		glVertexAttribPointer( GL.scene.getAttrib( "vertex" ), 3, GL_FLOAT, false, stride, offset );
+		glEnableVertexAttribArray( GL.scene.getAttrib( "vertex" ) );
 
 		if( this.vertexFormat == VertexFormat.VN || this.vertexFormat == VertexFormat.VNT ) {
-			glVertexAttribPointer( this.scene.getAttrib( "normal" ), 3, GL_FLOAT, false, stride, 3 * 4 );
-			glEnableVertexAttribArray( this.scene.getAttrib( "normal" ) );
-		} else glDisableVertexAttribArray( this.scene.getAttrib( "normal" ) );
+			glVertexAttribPointer( GL.scene.getAttrib( "normal" ), 3, GL_FLOAT, false, stride, 3 * 4 );
+			glEnableVertexAttribArray( GL.scene.getAttrib( "normal" ) );
+		} else glDisableVertexAttribArray( GL.scene.getAttrib( "normal" ) );
 
 		if( this.vertexFormat == VertexFormat.VT || this.vertexFormat == VertexFormat.VNT ) {
-			glVertexAttribPointer( this.scene.getAttrib( "texture" ), 2, GL_FLOAT, false, stride, (3 + 3) * 4 );
-			glEnableVertexAttribArray( this.scene.getAttrib( "texture" ) );
-		} else glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
+			glVertexAttribPointer( GL.scene.getAttrib( "texture" ), 2, GL_FLOAT, false, stride, (3 + 3) * 4 );
+			glEnableVertexAttribArray( GL.scene.getAttrib( "texture" ) );
+		} else glDisableVertexAttribArray( GL.scene.getAttrib( "texture" ) );
 	}
 	
 	public void render() {
@@ -182,7 +177,7 @@ public class Mesh extends Boundable {
 					p.render();
 			else {
 				this.buffer();
-				glUniformMatrix4( this.scene.getUniform( "mvMatrix"), false, this.matrix.gl() );
+				glUniformMatrix4( GL.scene.getUniform( "mMatrix"), false, this.matrix.gl() );
 				glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, this.ibo );
 				
 				if( this.id != -1 )
@@ -195,14 +190,14 @@ public class Mesh extends Boundable {
 					/* if poly contains a texture */
 					if( p.texture != -1 ) {
 						glActiveTexture( GL_TEXTURE0 );
-						glUniform1i( this.scene.getUniform( "useTexture" ), GL_TRUE );
+						glUniform1i( GL.scene.getUniform( "useTexture" ), GL_TRUE );
 						glBindTexture( GL_TEXTURE_2D, p.texture );
 					}
 					
 					/* if not, disable texture and set a color */
 					else {
-						glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
-						glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
+						glUniform1i( GL.scene.getUniform( "useTexture" ), GL_FALSE );
+						glDisableVertexAttribArray( GL.scene.getAttrib( "texture" ) );
 					}
 					
 					glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );

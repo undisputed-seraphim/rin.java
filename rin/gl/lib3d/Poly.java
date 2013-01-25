@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import rin.gl.GL;
 import rin.gl.Texture;
 import rin.gl.lib3d.shape.Cube;
 import rin.util.Buffer;
@@ -35,9 +36,9 @@ public class Poly extends Boundable {
 	protected float[] color = new float[]{ 1.0f, 0.0f, 0.0f, 1.0f };
 	
 	/* temporary lists for vertices, normals, and texcoords */
-	protected ArrayList<Float>	v = new ArrayList<Float>(),
-								n = new ArrayList<Float>(),
-								t = new ArrayList<Float>();
+	protected ArrayList<Float>		v = new ArrayList<Float>(),
+									n = new ArrayList<Float>(),
+									t = new ArrayList<Float>();
 	
 	/* arrays for the final indices, vertices, normals, and texcoords */
 	protected int[] iba = new int[0];
@@ -60,19 +61,19 @@ public class Poly extends Boundable {
 		return this;
 	}
 	public Poly addNormal( float x, float y, float z ) { this.n.add( x ); this.n.add( y ); this.n.add( z ); return this; }
-	public Poly addTexture( float s, float t ) { this.t.add( s ); this.t.add( t ); return this; }
 	
-	public void setTexture( String file ) { this.textureFile = file; }
+	public Poly addTexture( float s, float t ) { this.t.add( s ); this.t.add( t ); return this; }
+	public void setTextureFile( String file ) { this.textureFile = file; }
 	public void createTexture() { this.texture = Texture.fromFile( this.textureFile ); }
 	public void applyTexture() {
 		if( this.texture != -1 ) {
 			glActiveTexture( GL_TEXTURE0 );
-			glUniform1i( this.scene.getUniform( "useTexture" ), GL_TRUE );
+			glUniform1i( GL.scene.getUniform( "useTexture" ), GL_TRUE );
 			glBindTexture( GL_TEXTURE_2D, this.texture );
 		} else {
 			glColor4f( this.color[0], this.color[1], this.color[2], this.color[3] );
-			glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
-			glDisableVertexAttribArray( this.scene.getAttrib( "texture" ) );
+			glUniform1i( GL.scene.getUniform( "useTexture" ), GL_FALSE );
+			glDisableVertexAttribArray( GL.scene.getAttrib( "texture" ) );
 		}
 	}
 	
@@ -91,20 +92,19 @@ public class Poly extends Boundable {
 		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
 		
 		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, this.nba )
-			.setAttribute( this.scene.getAttrib("normal" ) )
+			.setAttribute( GL.scene.getAttrib("normal" ) )
 			.setSSO( 3, 0, 0 );
 		
 		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, this.tba )
-			.setAttribute( this.scene.getAttrib("texture" ) )
+			.setAttribute( GL.scene.getAttrib("texture" ) )
 			.setSSO( 2, 0, 0 );
 		
 		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, this.vba )
-			.setAttribute( this.scene.getAttrib("vertex" ) )
+			.setAttribute( GL.scene.getAttrib("vertex" ) )
 			.setSSO( 3, 0, 0 );
 		
 		if( this.bound ) {
 			this.bbox = new Cube( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
-			this.bbox.setScene( this.scene );
 			this.bbox.init();
 		}
 		
@@ -133,7 +133,7 @@ public class Poly extends Boundable {
 	public void render() { this.render( this.renderMode ); }
 	public void render( int renderMode ) {
 		if( this.ready ) {
-			glUniformMatrix4( this.scene.getUniform( "mvMatrix"), false, this.matrix.gl() );
+			glUniformMatrix4( GL.scene.getUniform( "mMatrix"), false, this.matrix.gl() );
 
 			//if( this.id != -1 )
 				//glPushName( this.id );

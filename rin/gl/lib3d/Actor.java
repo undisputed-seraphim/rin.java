@@ -1,12 +1,8 @@
 package rin.gl.lib3d;
 
-import rin.gl.Scene;
 import rin.util.math.*;
 
-public class Actor {
-	/* scene this actor belongs to */
-	protected Scene	scene;
-	
+public class Actor {	
 	/* this actors unique id */
 	protected int id = -1;
 	protected String name = "No Name";
@@ -18,7 +14,6 @@ public class Actor {
 	public void setId( int id ) { this.id = id; }
 	public void setName( String name ) { this.name = name; }
 	public String getName() { return this.name; }
-	public void setScene( Scene scene ) { this.scene = scene; }
 	
 	/* matrices depicting the location in 3d space of this positionable */
 	protected Mat4	rotate =	new Mat4(),

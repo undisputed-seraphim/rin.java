@@ -5,7 +5,7 @@ public class Quat4 {
 	public float x, y, z, w;
 	
 	/* constructor used by create methods */
-	private Quat4( float x, float y, float z, float w ) {
+	public Quat4( float x, float y, float z, float w ) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -60,5 +60,12 @@ public class Quat4 {
 							2.0f * (xy + wz), 1.0f - 2.0f * (x2 + z2), 2.0f * (yz - wx), 0.0f,
 							2.0f * (xz - wy), 2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
 							0.0f, 0.0f, 0.0f, 1.0f );
+	}
+	
+	/* return a string representation of this matrix */
+	public String toString() {
+		String str = "quat4[ ";
+		str += this.x + " " + this.y + " " + this.z + " " + this.w;
+		return str + " ]";
 	}
 }

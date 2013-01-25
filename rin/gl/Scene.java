@@ -92,7 +92,7 @@ public class Scene {
 				( ( Mesh ) a ).init();
 		
 		glUseProgram( this.program );
-		this.camera = new Camera( this, 45, this.width / this.height, 0.1f, 100.0f );
+		this.camera = new Camera( 45, this.width / this.height, 0.1f, 100.0f );
 		this.ready = true;
 	}
 	
@@ -103,11 +103,7 @@ public class Scene {
 	
 	/* add an actor to the scene */
 	public int addActor( Actor actor ) {
-		actor.setScene( this );
 		actor.setId( this.items++ );
-		if( actor instanceof Mesh ) {
-			( ( Mesh ) actor ).setPicking( true );
-		}
 		
 		this.actors.add( actor );
 		return this.actors.size() - 1;
@@ -147,8 +143,9 @@ public class Scene {
 			//glScissor( Mouse.getX(), Mouse.getY(), 5, 5 );
 				for( Actor a : this.actors ) {
 					if( a instanceof Mesh ) {
-						if( ( (Boundable) a ).isIntersectedBy( this.camera.getPickingRay() ) )
-							( (Boundable) a ).showBoundingBox();
+						
+						//if( ( (Boundable) a ).isIntersectedBy( this.camera.getPickingRay() ) )
+						//	( (Boundable) a ).showBoundingBox();
 						//IntBuffer viewport = Buffer.toBuffer( new int[16] );
 						//glGetInteger( GL_VIEWPORT, viewport );
 						//if( ( ( Mesh ) a ).isMouseOver( this.camera.getViewMatrix(), viewport ) )
@@ -167,8 +164,10 @@ public class Scene {
 			
 			//TODO: add range checking for these items so that only those within range of camera are updated */
 			for( Actor a : this.actors ) {
-				if( a instanceof Mesh )
+				if( a instanceof Mesh ) {
 					( ( Mesh ) a ).render();
+					this.camera.getPickingRay( a.getMatrix() );
+				}
 			}
 		}
 	}

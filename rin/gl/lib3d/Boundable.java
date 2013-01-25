@@ -34,7 +34,6 @@ public class Boundable extends Actor {
 	
 	public void createBBox() {
 		this.bbox = new Cube( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
-		this.bbox.setScene( this.scene );
 		this.bbox.init();
 		this.ready = true;
 	}

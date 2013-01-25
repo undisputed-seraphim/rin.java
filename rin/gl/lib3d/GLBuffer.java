@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.util.Buffer;
 
-public class GLBuffer implements VertexFormats {
+public class GLBuffer {
 	protected int buffer = -1;
 	protected int target = -1;
 	protected int type = -1;

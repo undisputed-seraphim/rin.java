@@ -85,13 +85,4 @@ public class Engine {
 	public void addCharacter( String name ) {
 		this.gl.getScene().addModel( name, Model.Format.DAE );
 	}
-	
-	/* print to system out a debug line for all the info this object contains */
-	public void debug() {
-		System.out.print( "Debug of [Rin object] '" + this + "' {\n" +
-				"\t" + "name: " + this.name + "\n" +
-				"\t" + "ready: " + ( this.ready ? "true" : "false" ) + "\n" +
-				"\t" + "running: " + ( this.running ? "true" : "false" ) + "\n" +
-				"\t" + "gl: " + this.gl.debug() +"\n}\n" );
-	}
 }

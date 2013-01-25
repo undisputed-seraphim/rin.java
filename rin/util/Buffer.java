@@ -14,6 +14,12 @@ public class Buffer {
 	 */
 	
 	/* byte buffers */
+	public static byte[] toArray( ByteBuffer buf ) {
+		byte[] arr = new byte[ buf.capacity() ];
+		for( int i = 0; i < buf.capacity(); i++ )
+			arr[i] = buf.get( i );
+		return arr;
+	}
 	public static ByteBuffer toBuffer( byte[] arr ) { return Buffer.toBuffer( arr, false ); }
 	public static ByteBuffer toBuffer( byte[] arr, boolean endian ) {
 		ByteBuffer bb = ByteBuffer.allocateDirect( arr.length );
@@ -22,6 +28,14 @@ public class Buffer {
 			bb.put( b );
 		bb.flip();
 		return bb;
+	}
+	public static String toString( ByteBuffer buf ) {
+		byte[] arr = Buffer.toArray( buf );
+		String str = "ByteBuffer[ ";
+		for( byte b : arr )
+			str += b +" ";
+		str += "]";
+		return str;
 	}
 	
 	/* int buffers */

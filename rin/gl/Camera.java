@@ -2,42 +2,36 @@ package rin.gl;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.util.glu.GLU.gluPickMatrix;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+
 import rin.gl.lib3d.Actor;
-import rin.gl.lib3d.Ray;
 import rin.gl.lib3d.shape.Cube;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 
 public class Camera extends Actor {
-	/* buffer used for picking results and bool for isPicking */
-	private IntBuffer pickingBuffer = Buffer.toBuffer( new int[64] );
-	public boolean	picking = false;
-	
 	protected float aspect;
 	protected float znear;
 	protected float zfar;
 	protected float fovy;
 	
 	/* camera's matrices derived from position/rotation vectors, and the camera's perspective */
-	public Mat4		perspective =	new Mat4();
+	protected Mat4	perspective =	new Mat4();
 	
-	public Camera( Scene scene, float fovy, float aspect, float znear, float zfar ) {
-		this.scene = scene;
+	public Camera( float fovy, float aspect, float znear, float zfar ) {
 		this.aspect = aspect;
 		this.znear = znear;
 		this.zfar = zfar;
 		this.fovy = fovy;
 		this.perspective = Mat4.perspective( fovy, aspect, znear, zfar );
 		this.position( 0.0f, -1.0f, -11.0f );
-		System.out.println( this.position.toString() );
 		this.init();
 	}
 	
@@ -46,8 +40,8 @@ public class Camera extends Actor {
 	
 	public void init() {
 		this.transform();
-		//glUniformMatrix4( this.scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
-		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, Mat4.multiply( this.perspective, this.matrix ).gl() );
+		glUniformMatrix4( GL.scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
+		glUniformMatrix4( GL.scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
 	}
 	
 	public void update() {
@@ -55,12 +49,7 @@ public class Camera extends Actor {
 		float	step = 0.0f,
 				side = 0.0f,
 				rise = 0.0f;
-		
-		if( Mouse.isButtonDown( 0 ) ) {
-			this.picking = true;
-		} else {
-			this.picking = false;
-		}
+
 		if( Keyboard.isKeyDown( Keyboard.KEY_W ) ) {
 			changed = true;
 			step += 0.05f;
@@ -106,27 +95,22 @@ public class Camera extends Actor {
 		if( changed )
 			this.move( step, side, rise );
 		
-		glUniformMatrix4( this.scene.getUniform( "vMatrix" ), false, Mat4.multiply( this.perspective, this.matrix ).gl() );
+		glUniformMatrix4( GL.scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		glUniformMatrix4( GL.scene.getUniform( "inv_vMatrix" ), false, Mat4.invertPos( this.matrix ).gl() );
 	}
 	
-	public Ray getPickingRay() {
-		return new Ray( this.matrix );
-		//float x = Mouse.getX() * ( 2.0f / this.scene.getWidth() ) - 1.0f;
-		//float y = Mouse.getY() * ( 2.0f / this.scene.getHeight() ) - 1.0f;
+	public void getPickingRay( Mat4 modelView ) {
+		FloatBuffer buf = Buffer.toBuffer( new float[1] );
+		glReadPixels( Mouse.getX(), Mouse.getY(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, buf );
 		
-		//Vec3 fin = Mat4.getPos( this.matrix );
-		//fin = Mat4.multVec4( this.matrix, fin );
-		//fin.x -= this.position.x;
-		//fin.y -= this.position.y;
-		//fin.z += this.position.z;
+		IntBuffer viewport = Buffer.toBuffer( new int[16] );
+		glGetInteger( GL_VIEWPORT, viewport );
 		
+		Vec3 pos = Mat4.unProject( Mouse.getX(), Mouse.getY(), buf.get(0), Mat4.flatten( modelView ), Mat4.flatten( Mat4.multiply( this.perspective, this.matrix ) ), viewport );
 		
-		
-		/*Cube cube = new Cube( 0.2f, fin );
-		cube.setScene( this.scene );
+		Cube cube = new Cube( 0.2f, new Vec3( pos.x, pos.y, pos.z ) );
 		cube.init();
-		cube.render();*/
-		
+		cube.render();
 	}
 	
 	/*public void startPicking() {

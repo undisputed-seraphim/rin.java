@@ -3,6 +3,8 @@ package rin.util.math;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import org.lwjgl.BufferUtils;
+
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
@@ -38,6 +40,20 @@ public class Mat4 {
 				m.m[12], m.m[13], m.m[14], m.m[15] );
 	}
 	
+	public Mat4( FloatBuffer m ) {
+		this(	m.get(0), m.get(1), m.get(2), m.get(3),
+				m.get(4), m.get(5), m.get(6), m.get(7),
+				m.get(8), m.get(9), m.get(10), m.get(11),
+				m.get(12), m.get(13), m.get(14), m.get(15) );
+	}
+	
+	public Mat4( float[] m ) {
+		this(	m[ 0], m[ 1], m[ 2], m[ 3],
+				m[ 4], m[ 5], m[ 6], m[ 7],
+				m[ 8], m[ 9], m[10], m[11],
+				m[12], m[13], m[14], m[15] );
+	}
+	
 	/* return the matrix flattened (column/row swap) */
 	public static Mat4 flatten( Mat4 m ) {
 		return new Mat4(	m.m[ 0], m.m[ 4], m.m[ 8], m.m[12],
@@ -71,67 +87,55 @@ public class Mat4 {
     	return	Mat4.frustum( xmin, xmax, ymin, ymax, znear, zfar );
 	}
 	
-	public static Vec3 multVec4( Mat4 mat, Vec3 v ) {
+	public static Quat4 multVec3( Mat4 mat, Vec3 v ) {
 		float[] res = new float[4];
 		for( int i = 0; i < 4; i++ )
-			res[i] = v.x * mat.m[0*4+1] +
+			res[i] = v.x * mat.m[0*4+i] +
 					 v.y * mat.m[1*4+i] +
-					 v.z * mat.m[2*4+i] + mat.m[3*4+1] ;
-		return new Vec3( res[0], res[1], res[2] );
+					 v.z * mat.m[2*4+i] + mat.m[3*4+i] ;
+		return new Quat4( res[0], res[1], res[2], res[3] );
 	}
 	
 	public static Mat4 mult( Mat4 a, Mat4 b ) {
-		float[] mat = new float[16];
-		for( int i = 0; i < 4; i++ )
-			for( int j = 0; j < 4; j++ ) {
-				mat[ i*4+j ] =
-						a.m[i*4+0] * b.m[0*4+j] +
-						a.m[i*4+1] * b.m[1*4+j] +
-						a.m[i*4+2] * b.m[2*4+j] +
-						a.m[i*4+3] * b.m[3*4+j] ;
+		Mat4 r = new Mat4( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				r.m[ i*4 + j ] =
+					a.m[ i*4 + 0 ] * b.m[ 0*4 + j ] +
+					a.m[ i*4 + 1 ] * b.m[ 1*4 + j ] +
+					a.m[ i*4 + 2 ] * b.m[ 2*4 + j ] +
+					a.m[ i*4 + 3 ] * b.m[ 3*4 + j ] ;
 			}
-		return new Mat4(mat[ 0], mat[ 1], mat[ 2], mat[ 3], mat[ 4], mat[ 5], mat[ 6], mat[ 7],
-						mat[ 8], mat[ 9], mat[10], mat[11], mat[12], mat[13], mat[14], mat[15] );
+		}
+		return r;
 	}
 	
-	public static float[] unProject( int x, int y, int z, Mat4 mod, Mat4 cam, IntBuffer viewport ) {
-		Mat4 mat;
-		float[] in = new float[4];
-		float[] out = new float[4];
+	public static Vec3 unProject( float x, float y, float z, Mat4 mod, Mat4 cam, IntBuffer viewport ) {
+		Mat4 mat = new Mat4();
+		Vec3 in = new Vec3();
+		Quat4 out = new Quat4( 0.0f, 0.0f, 0.0f, 1.0f );
 		
 		mat = Mat4.mult( mod, cam );
-		
-		in[0] = x;
-		in[1] = y;
-		in[2] = z;
-		in[3] = 1.0f;
-		
-		in[0] = ( in[0] - viewport.get( 0 ) ) / viewport.get( 2 );
-	    in[1] = ( in[1] - viewport.get( 1 ) ) / viewport.get( 3 );
+		mat = Mat4.inverse( mat );
+		in.x = x;
+		in.y = y;
+		in.z = z;
 
-	    in[0] = in[0] * 2 - 1;
-	    in[1] = in[1] * 2 - 1;
-	    in[2] = in[2] * 2 - 1;
-		
-	   // out = Mat4.multVec4( mat, in );
-	    System.out.println( Buffer.toString( out ) );
-	    if( out[3] == 0 )
-	    	return new float[]{ 0.0f, 0.0f, 0.0f, 0.0f };
+		in.x = ( in.x - viewport.get( 0 ) ) / viewport.get( 2 );
+	    in.y = ( in.y - viewport.get( 1 ) ) / viewport.get( 3 );
+
+	    in.x = in.x * 2 - 1;
+	    in.y = in.y * 2 - 1;
+	    in.z = in.z * 2 - 1;
+
+	    out = Mat4.multVec3( mat, in );
+	    if( out.w == 0 )
+	    	return new Vec3( 0.0f, 0.0f, 0.0f );
 	    
-	    out[0] /= out[3];
-	    out[1] /= out[3];
-	    out[2] /= out[3];
+	    out.w = 1.0f / out.w;
 	    
-	    return out;
+	    return new Vec3( out.x * out.w, out.y * out.w, out.z * out.w );
 	}
-	
-	/*(public static mat4 pickMatrix( float x, float y, float deltaX, float deltaY, IntBuffer viewport ) {
-		mat4 trans = mat4.translate( new mat4(), new vec3(
-					( viewport.get(2) - 2 * ( x - viewport.get(0) ) ) / deltaX,
-					( viewport.get(3) - 2 * ( y - viewport.get(1) ) ) / deltaY, 0 ) );
-		mat4 scale = mat4.scale( new mat4(), new vec3( viewport.get(2) / deltaX, viewport.get(3) / deltaY, 1.0f ) );
-		return mat4.multiply( trans, scale );
-	}*/
 	
 	/* returns a matrix used to translate other matrices */
 	public static Mat4 translate( Mat4 m, Vec3 v ) {
@@ -220,6 +224,54 @@ public class Mat4 {
 	    return t;
 	}
 	
+	public static Mat4 invert( Mat4 m ) {
+		float	inv[] = new float[16],
+				res[] = new float[16];
+		
+		inv[ 0] = m.m[ 5] * m.m[10] * m.m[15] - m.m[ 5] * m.m[11] * m.m[14] - m.m[ 9] * m.m[ 6] * m.m[15] +
+				  m.m[ 9] * m.m[ 7] * m.m[14] + m.m[13] * m.m[ 6] * m.m[11] - m.m[13] * m.m[ 7] * m.m[10] ;
+		inv[ 4] =-m.m[ 4] * m.m[10] * m.m[15] + m.m[ 4] * m.m[11] * m.m[14] + m.m[ 8] * m.m[ 6] * m.m[15] -
+				  m.m[ 8] * m.m[ 7] * m.m[14] - m.m[12] * m.m[ 6] * m.m[11] + m.m[12] * m.m[ 7] * m.m[10] ;
+		inv[ 8] = m.m[ 4] * m.m[ 9] * m.m[15] - m.m[ 4] * m.m[11] * m.m[13] - m.m[ 8] * m.m[ 5] * m.m[15] +
+				  m.m[ 8] * m.m[ 7] * m.m[13] + m.m[12] * m.m[ 5] * m.m[11] - m.m[12] * m.m[ 7] * m.m[ 9] ;
+		inv[12] = -m.m[4]*m.m[9]*m.m[14] + m.m[4]*m.m[10]*m.m[13] + m.m[8]*m.m[5]*m.m[14]
+			- m.m[8]*m.m[6]*m.m[13] - m.m[12]*m.m[5]*m.m[10] + m.m[12]*m.m[6]*m.m[9];
+			inv[1] =  -m.m[1]*m.m[10]*m.m[15] + m.m[1]*m.m[11]*m.m[14] + m.m[9]*m.m[2]*m.m[15]
+			- m.m[9]*m.m[3]*m.m[14] - m.m[13]*m.m[2]*m.m[11] + m.m[13]*m.m[3]*m.m[10];
+			inv[5] =   m.m[0]*m.m[10]*m.m[15] - m.m[0]*m.m[11]*m.m[14] - m.m[8]*m.m[2]*m.m[15]
+			+ m.m[8]*m.m[3]*m.m[14] + m.m[12]*m.m[2]*m.m[11] - m.m[12]*m.m[3]*m.m[10];
+			inv[9] =  -m.m[0]*m.m[9]*m.m[15] + m.m[0]*m.m[11]*m.m[13] + m.m[8]*m.m[1]*m.m[15]
+			- m.m[8]*m.m[3]*m.m[13] - m.m[12]*m.m[1]*m.m[11] + m.m[12]*m.m[3]*m.m[9];
+			inv[13] =  m.m[0]*m.m[9]*m.m[14] - m.m[0]*m.m[10]*m.m[13] - m.m[8]*m.m[1]*m.m[14]
+			+ m.m[8]*m.m[2]*m.m[13] + m.m[12]*m.m[1]*m.m[10] - m.m[12]*m.m[2]*m.m[9];
+			inv[2] =   m.m[1]*m.m[6]*m.m[15] - m.m[1]*m.m[7]*m.m[14] - m.m[5]*m.m[2]*m.m[15]
+			+ m.m[5]*m.m[3]*m.m[14] + m.m[13]*m.m[2]*m.m[7] - m.m[13]*m.m[3]*m.m[6];
+			inv[6] =  -m.m[0]*m.m[6]*m.m[15] + m.m[0]*m.m[7]*m.m[14] + m.m[4]*m.m[2]*m.m[15]
+			- m.m[4]*m.m[3]*m.m[14] - m.m[12]*m.m[2]*m.m[7] + m.m[12]*m.m[3]*m.m[6];
+			inv[10] =  m.m[0]*m.m[5]*m.m[15] - m.m[0]*m.m[7]*m.m[13] - m.m[4]*m.m[1]*m.m[15]
+			+ m.m[4]*m.m[3]*m.m[13] + m.m[12]*m.m[1]*m.m[7] - m.m[12]*m.m[3]*m.m[5];
+			inv[14] = -m.m[0]*m.m[5]*m.m[14] + m.m[0]*m.m[6]*m.m[13] + m.m[4]*m.m[1]*m.m[14]
+			- m.m[4]*m.m[2]*m.m[13] - m.m[12]*m.m[1]*m.m[6] + m.m[12]*m.m[2]*m.m[5];
+			inv[3] =  -m.m[1]*m.m[6]*m.m[11] + m.m[1]*m.m[7]*m.m[10] + m.m[5]*m.m[2]*m.m[11]
+			- m.m[5]*m.m[3]*m.m[10] - m.m[9]*m.m[2]*m.m[7] + m.m[9]*m.m[3]*m.m[6];
+			inv[7] =   m.m[0]*m.m[6]*m.m[11] - m.m[0]*m.m[7]*m.m[10] - m.m[4]*m.m[2]*m.m[11]
+			+ m.m[4]*m.m[3]*m.m[10] + m.m[8]*m.m[2]*m.m[7] - m.m[8]*m.m[3]*m.m[6];
+			inv[11] = -m.m[0]*m.m[5]*m.m[11] + m.m[0]*m.m[7]*m.m[9] + m.m[4]*m.m[1]*m.m[11]
+			- m.m[4]*m.m[3]*m.m[9] - m.m[8]*m.m[1]*m.m[7] + m.m[8]*m.m[3]*m.m[5];
+			inv[15] =  m.m[0]*m.m[5]*m.m[10] - m.m[0]*m.m[6]*m.m[9] - m.m[4]*m.m[1]*m.m[10]
+			+ m.m[4]*m.m[2]*m.m[9] + m.m[8]*m.m[1]*m.m[6] - m.m[8]*m.m[2]*m.m[5];
+
+		float det = m.m[0]*inv[0] + m.m[1]*inv[4] + m.m[2]*inv[8] + m.m[3]*inv[12];
+		if (det == 0)
+			return m;
+
+		det = 1.0f / det;
+
+		for (int i = 0; i < 16; i++)
+			res[i] = inv[i] * det;
+		return new Mat4( res );
+	}
+	
 	/* returns a FloatBuffer representing the matrix */
 	public static FloatBuffer fb( Mat4 m ) {
 		return Buffer.toBuffer( m.m );
@@ -240,6 +292,13 @@ public class Mat4 {
 		return new Vec3( m.m[3], m.m[7], m.m[11] );
 	}
 	
+	public static Mat4 invertPos( Mat4 m ) {
+		Mat4 mat = new Mat4( m );
+		mat.m[3] = -mat.m[3];
+		mat.m[7] = -mat.m[7];
+		mat.m[11] = -mat.m[11];
+		return mat;
+	}
 	/* returns a flattened floatbuffer of the matrix */
 	public FloatBuffer gl() {
 		return Mat4.fb( Mat4.flatten( this ) );
