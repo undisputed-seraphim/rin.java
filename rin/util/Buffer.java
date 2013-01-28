@@ -45,6 +45,12 @@ public class Buffer {
 			arr[i] = buf.get( i );
 		return arr;
 	}
+	public static int[] toArrayi( ArrayList<Integer> al ) {
+		int[] arr = new int[ al.size() ];
+		for( int i = 0; i < al.size(); i++ )
+			arr[i] = al.get( i );
+		return arr;
+	}
 	public static IntBuffer toBuffer( int[] arr ) { return Buffer.toBuffer( arr, false ); }
 	public static IntBuffer toBuffer( int[] arr, boolean endian ) {
 		ByteBuffer bb = ByteBuffer.allocateDirect( arr.length * 4 );
@@ -63,6 +69,13 @@ public class Buffer {
 		str += "]";
 		return str;
 	}
+	public static String toString( int[] arr ) {
+		String str = "IntArray[ ";
+		for( int i : arr )
+			str += i+" ";
+		str += "]";
+		return str;
+	}
 	
 	/* float buffers */
 	public static float[] toArray( FloatBuffer buf ) {
@@ -71,11 +84,24 @@ public class Buffer {
 			arr[i] = buf.get( i );
 		return arr;
 	}
-	public static float[] toArray( ArrayList<Float> al ) {
+	public static float[] toArrayf( ArrayList<Float> al ) {
 		float[] arr = new float[ al.size() ];
 		for( int i = 0; i < al.size(); i++ )
 			arr[i] = al.get(i);
 		return arr;
+	}
+	public static ArrayList<Float> toArrayList( float[] arr ) {
+		ArrayList<Float> al = new ArrayList<Float>();
+		for( float f : arr )
+			al.add( f );
+		return al;
+	}
+	public static float[] getIndexedValues( float[] arr, int[] ind, int offset, int stride, int count ) {
+		ArrayList<Float> res = new ArrayList<Float>();
+		for( int i = offset; i < ind.length; i += stride )
+			for( int k = 0; k < count; k++ )
+				res.add( arr[ ind[ i ] * count + k ] );
+		return Buffer.toArrayf( res );
 	}
 	public static FloatBuffer toBuffer( float[] arr ) { return Buffer.toBuffer( arr, false ); }
 	public static FloatBuffer toBuffer( float[] arr, boolean endian ) {

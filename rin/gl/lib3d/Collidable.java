@@ -1,5 +1,7 @@
 package rin.gl.lib3d;
 
-public interface Collidable {
-
+public class Collidable extends Boundable {
+	public boolean inersectsBoundingBox() {
+		return false;
+	}
 }

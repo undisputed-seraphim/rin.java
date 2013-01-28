@@ -6,10 +6,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
 
 public class GL {
-	/* current scene, global */
-	public static Scene scene = null;
-	public static String GL_DIR = "C:\\Users\\johall\\Desktop\\Horo\\rin.java\\rin\\inc";
-	//public static String GL_DIR = "/Users/Musashi/Desktop/Horo/rin.java/rin/inc/";
+	//public static String GL_DIR = "C:\\Users\\johall\\Desktop\\Horo\\rin.java\\rin\\inc";
+	public static String GL_DIR = "/Users/Musashi/Desktop/Horo/rin.java/rin/inc/";
 	private boolean ready = false,
 					running = false,
 					paused = false;
@@ -24,7 +22,6 @@ public class GL {
 	/* getters */
 	public int getWidth() { return this.width; }
 	public int getHeight() { return this.height; }
-	public Scene getScene() { return this.scene; }
 	public boolean ready() { return this.ready; }
 	public boolean paused() { return this.paused; }
 	public boolean running() { if( !this.running ) return false; return !Display.isCloseRequested(); }
@@ -34,15 +31,14 @@ public class GL {
 		this.width = width;
 		this.height = height;
 		
-		GL.scene = new Scene();
 		this.ready = true;
 	}
 
 	/* update this modules Display object */
 	public void update() {
 		if( !this.paused && this.running ) {
-			if( GL.scene.ready() ) {
-				GL.scene.update();
+			if( Scene.isReady() ) {
+				Scene.update();
 				Display.sync( 60 );
 				Display.update();
 			}
@@ -65,7 +61,7 @@ public class GL {
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
-			GL.scene.init( this.width, this.height );
+			Scene.create( this.width, this.height );
 			this.running = true;
 		} catch (LWJGLException e) {
 			System.out.println( "lwjgl instance failed to display [" + this.width + "x" + this.height + "]" );
@@ -73,5 +69,5 @@ public class GL {
 	}
 	
 	/* hide the actual 3d display window */
-	public void hide() { Display.destroy(); }
+	public static void hide() { Display.destroy(); }
 }

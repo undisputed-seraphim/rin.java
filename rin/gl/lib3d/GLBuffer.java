@@ -19,9 +19,14 @@ public class GLBuffer {
 	protected int attribute = -1;
 	protected int usage = GL_STATIC_DRAW;
 	
-	public GLBuffer( int target, float[] arr ) {
+	public GLBuffer( int target, float[] arr, int size, int stride, int offset ) { this( target, arr, size, stride, offset, -1 ); }
+	public GLBuffer( int target, float[] arr, int size, int stride, int offset, int attr ) {
 		this.target = target;
 		this.type = GL_FLOAT;
+		this.size = size;
+		this.stride = stride;
+		this.offset = offset;
+		this.attribute = attr;
 		this.bindData( arr );
 	}
 	
@@ -31,18 +36,6 @@ public class GLBuffer {
 		if( this.target == GL_ELEMENT_ARRAY_BUFFER )
 			this.count = arr.length;
 		this.bindData( arr );
-	}
-	
-	public GLBuffer setSSO( int size, int stride, int offset ) {
-		this.size = size;
-		this.stride = stride;
-		this.offset = offset;
-		return this;
-	}
-	
-	public GLBuffer setAttribute( int attr ) {
-		this.attribute = attr;
-		return this;
 	}
 	
 	public GLBuffer bindData( float[] arr ) {
@@ -65,21 +58,30 @@ public class GLBuffer {
 		return this;
 	}
 	
-	public void buffer() {
+	public boolean buffer() {
 		if( this.buffer != -1 ) {
 			glBindBuffer( this.target, this.buffer );
 			
 			if( this.target == GL_ELEMENT_ARRAY_BUFFER )
-				return;
+				return true;
 			
 			if( this.attribute != -1 ) {
 				glVertexAttribPointer( this.attribute, this.size, this.type, false, this.stride, this.offset );
 				glEnableVertexAttribArray( this.attribute );
-				return;
+				return true;
 			}
 		}
 		
 		if( this.attribute != -1 )
 			glDisableVertexAttribArray( this.attribute );
+		
+		return false;
+	}
+	
+	public GLBuffer destroy() {
+		if( this.buffer != -1 )
+			glDeleteBuffers( Buffer.toBuffer( new int[]{ this.buffer } ) );
+		
+		return null;
 	}
 }

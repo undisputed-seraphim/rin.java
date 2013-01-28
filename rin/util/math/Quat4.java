@@ -4,6 +4,10 @@ public class Quat4 {
 	/* values for each axis, then imaginary value */
 	public float x, y, z, w;
 	
+	public Quat4() {
+		this( 0.0f, 0.0f, 0.0f, 1.0f );
+	}
+	
 	/* constructor used by create methods */
 	public Quat4( float x, float y, float z, float w ) {
 		this.x = x;
@@ -45,7 +49,7 @@ public class Quat4 {
 	}
 	
 	/* return the matrix representation of a quaternion */
-	public static Mat4 Mat4( Quat4 q ) {
+	public static Mat4 toMat4( Quat4 q ) {
 		float	x2 = q.x * q.x,
 				y2 = q.y * q.y,
 				z2 = q.z * q.z,
@@ -60,6 +64,34 @@ public class Quat4 {
 							2.0f * (xy + wz), 1.0f - 2.0f * (x2 + z2), 2.0f * (yz - wx), 0.0f,
 							2.0f * (xz - wy), 2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
 							0.0f, 0.0f, 0.0f, 1.0f );
+	}
+	
+	/* return the matrix representation of a quaternion */
+	public Mat4 toMat4() {
+		float	x2 = this.x * this.x,
+				y2 = this.y * this.y,
+				z2 = this.z * this.z,
+				xy = this.x * this.y,
+				xz = this.x * this.z,
+				yz = this.y * this.z,
+				wx = this.w * this.x,
+				wy = this.w * this.y,
+				wz = this.w * this.z;
+		
+		return new Mat4(	1.0f - 2.0f * (y2 + z2), 2.0f * (xy - wz), 2.0f * (xz + wy), 0.0f,
+							2.0f * (xy + wz), 1.0f - 2.0f * (x2 + z2), 2.0f * (yz - wx), 0.0f,
+							2.0f * (xz - wy), 2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
+							0.0f, 0.0f, 0.0f, 1.0f );
+	}
+	
+	/* redefine values in this object */
+	public Quat4 redefine( float x, float y, float z, float w ) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+		
+		return this;
 	}
 	
 	/* return a string representation of this matrix */

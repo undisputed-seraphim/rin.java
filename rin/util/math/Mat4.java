@@ -3,8 +3,6 @@ package rin.util.math;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
-
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
@@ -185,46 +183,6 @@ public class Mat4 {
 	}
 	
 	public static Mat4 inverse( Mat4 m ) {
-		float	a00 = m.m[0], a01 = m.m[1], a02 = m.m[2], a03 = m.m[3],
-	            a10 = m.m[4], a11 = m.m[5], a12 = m.m[6], a13 = m.m[7],
-	            a20 = m.m[8], a21 = m.m[9], a22 = m.m[10],a23 = m.m[11],
-	            a30 = m.m[12],a31 = m.m[13],a32 = m.m[14],a33 = m.m[15],
-	            b00 = a00 * a11 - a01 * a10,
-	            b01 = a00 * a12 - a02 * a10,
-	            b02 = a00 * a13 - a03 * a10,
-	            b03 = a01 * a12 - a02 * a11,
-	            b04 = a01 * a13 - a03 * a11,
-	            b05 = a02 * a13 - a03 * a12,
-	            b06 = a20 * a31 - a21 * a30,
-	            b07 = a20 * a32 - a22 * a30,
-	            b08 = a20 * a33 - a23 * a30,
-	            b09 = a21 * a32 - a22 * a31,
-	            b10 = a21 * a33 - a23 * a31,
-	            b11 = a22 * a33 - a23 * a32,
-	            d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06),
-	            invDet;
-		invDet = 1 / d;
-		Mat4 t = new Mat4();
-		t.m[0]	= ( a11 * b11 - a12 * b10 + a13 * b09 ) * invDet;
-		t.m[1]	= ( -a01 * b11 + a02 * b10 - a03 * b09 ) * invDet;
-		t.m[2]	= ( a31 * b05 - a32 * b04 + a33 * b03 ) * invDet;
-		t.m[3]	= ( -a21 * b05 + a22 * b04 - a23 * b03 ) * invDet;
-		t.m[4]	= ( -a10 * b11 + a12 * b08 - a13 * b07 ) * invDet;
-		t.m[5]	= ( a00 * b11 - a02 * b08 + a03 * b07 ) * invDet;
-		t.m[6]	= ( -a30 * b05 + a32 * b02 - a33 * b01 ) * invDet;
-		t.m[7]	= ( a20 * b05 - a22 * b02 + a23 * b01 ) * invDet;
-		t.m[8]	= ( a10 * b10 - a11 * b08 + a13 * b06 ) * invDet;
-		t.m[9]	= ( -a00 * b10 + a01 * b08 - a03 * b06 ) * invDet;
-		t.m[10]	= ( a30 * b04 - a31 * b02 + a33 * b00 ) * invDet;
-	    t.m[11] = ( -a20 * b04 + a21 * b02 - a23 * b00 ) * invDet;
-	    t.m[12] = ( -a10 * b09 + a11 * b07 - a12 * b06 ) * invDet;
-	    t.m[13] = ( a00 * b09 - a01 * b07 + a02 * b06 ) * invDet;
-	    t.m[14] = ( -a30 * b03 + a31 * b01 - a32 * b00 ) * invDet;
-	    t.m[15] = ( a20 * b03 - a21 * b01 + a22 * b00 ) * invDet;
-	    return t;
-	}
-	
-	public static Mat4 invert( Mat4 m ) {
 		float	inv[] = new float[16],
 				res[] = new float[16];
 		
@@ -234,34 +192,34 @@ public class Mat4 {
 				  m.m[ 8] * m.m[ 7] * m.m[14] - m.m[12] * m.m[ 6] * m.m[11] + m.m[12] * m.m[ 7] * m.m[10] ;
 		inv[ 8] = m.m[ 4] * m.m[ 9] * m.m[15] - m.m[ 4] * m.m[11] * m.m[13] - m.m[ 8] * m.m[ 5] * m.m[15] +
 				  m.m[ 8] * m.m[ 7] * m.m[13] + m.m[12] * m.m[ 5] * m.m[11] - m.m[12] * m.m[ 7] * m.m[ 9] ;
-		inv[12] = -m.m[4]*m.m[9]*m.m[14] + m.m[4]*m.m[10]*m.m[13] + m.m[8]*m.m[5]*m.m[14]
-			- m.m[8]*m.m[6]*m.m[13] - m.m[12]*m.m[5]*m.m[10] + m.m[12]*m.m[6]*m.m[9];
-			inv[1] =  -m.m[1]*m.m[10]*m.m[15] + m.m[1]*m.m[11]*m.m[14] + m.m[9]*m.m[2]*m.m[15]
-			- m.m[9]*m.m[3]*m.m[14] - m.m[13]*m.m[2]*m.m[11] + m.m[13]*m.m[3]*m.m[10];
-			inv[5] =   m.m[0]*m.m[10]*m.m[15] - m.m[0]*m.m[11]*m.m[14] - m.m[8]*m.m[2]*m.m[15]
-			+ m.m[8]*m.m[3]*m.m[14] + m.m[12]*m.m[2]*m.m[11] - m.m[12]*m.m[3]*m.m[10];
-			inv[9] =  -m.m[0]*m.m[9]*m.m[15] + m.m[0]*m.m[11]*m.m[13] + m.m[8]*m.m[1]*m.m[15]
-			- m.m[8]*m.m[3]*m.m[13] - m.m[12]*m.m[1]*m.m[11] + m.m[12]*m.m[3]*m.m[9];
-			inv[13] =  m.m[0]*m.m[9]*m.m[14] - m.m[0]*m.m[10]*m.m[13] - m.m[8]*m.m[1]*m.m[14]
-			+ m.m[8]*m.m[2]*m.m[13] + m.m[12]*m.m[1]*m.m[10] - m.m[12]*m.m[2]*m.m[9];
-			inv[2] =   m.m[1]*m.m[6]*m.m[15] - m.m[1]*m.m[7]*m.m[14] - m.m[5]*m.m[2]*m.m[15]
-			+ m.m[5]*m.m[3]*m.m[14] + m.m[13]*m.m[2]*m.m[7] - m.m[13]*m.m[3]*m.m[6];
-			inv[6] =  -m.m[0]*m.m[6]*m.m[15] + m.m[0]*m.m[7]*m.m[14] + m.m[4]*m.m[2]*m.m[15]
-			- m.m[4]*m.m[3]*m.m[14] - m.m[12]*m.m[2]*m.m[7] + m.m[12]*m.m[3]*m.m[6];
-			inv[10] =  m.m[0]*m.m[5]*m.m[15] - m.m[0]*m.m[7]*m.m[13] - m.m[4]*m.m[1]*m.m[15]
-			+ m.m[4]*m.m[3]*m.m[13] + m.m[12]*m.m[1]*m.m[7] - m.m[12]*m.m[3]*m.m[5];
-			inv[14] = -m.m[0]*m.m[5]*m.m[14] + m.m[0]*m.m[6]*m.m[13] + m.m[4]*m.m[1]*m.m[14]
-			- m.m[4]*m.m[2]*m.m[13] - m.m[12]*m.m[1]*m.m[6] + m.m[12]*m.m[2]*m.m[5];
-			inv[3] =  -m.m[1]*m.m[6]*m.m[11] + m.m[1]*m.m[7]*m.m[10] + m.m[5]*m.m[2]*m.m[11]
-			- m.m[5]*m.m[3]*m.m[10] - m.m[9]*m.m[2]*m.m[7] + m.m[9]*m.m[3]*m.m[6];
-			inv[7] =   m.m[0]*m.m[6]*m.m[11] - m.m[0]*m.m[7]*m.m[10] - m.m[4]*m.m[2]*m.m[11]
-			+ m.m[4]*m.m[3]*m.m[10] + m.m[8]*m.m[2]*m.m[7] - m.m[8]*m.m[3]*m.m[6];
-			inv[11] = -m.m[0]*m.m[5]*m.m[11] + m.m[0]*m.m[7]*m.m[9] + m.m[4]*m.m[1]*m.m[11]
-			- m.m[4]*m.m[3]*m.m[9] - m.m[8]*m.m[1]*m.m[7] + m.m[8]*m.m[3]*m.m[5];
-			inv[15] =  m.m[0]*m.m[5]*m.m[10] - m.m[0]*m.m[6]*m.m[9] - m.m[4]*m.m[1]*m.m[10]
-			+ m.m[4]*m.m[2]*m.m[9] + m.m[8]*m.m[1]*m.m[6] - m.m[8]*m.m[2]*m.m[5];
+		inv[12] =-m.m[ 4] * m.m[ 9] * m.m[14] + m.m[ 4] * m.m[10] * m.m[13] + m.m[ 8] * m.m[ 5] * m.m[14] -
+				  m.m[ 8] * m.m[ 6] * m.m[13] - m.m[12] * m.m[ 5] * m.m[10] + m.m[12] * m.m[ 6] * m.m[ 9] ;
+		inv[ 1] =-m.m[ 1] * m.m[10] * m.m[15] + m.m[ 1] * m.m[11] * m.m[14] + m.m[ 9] * m.m[ 2] * m.m[15] -
+				  m.m[ 9] * m.m[ 3] * m.m[14] - m.m[13] * m.m[ 2] * m.m[11] + m.m[13] * m.m[ 3] * m.m[10] ;
+		inv[ 5] = m.m[ 0] * m.m[10] * m.m[15] - m.m[ 0] * m.m[11] * m.m[14] - m.m[ 8] * m.m[ 2] * m.m[15] +
+				  m.m[ 8] * m.m[ 3] * m.m[14] + m.m[12] * m.m[ 2] * m.m[11] - m.m[12] * m.m[ 3] * m.m[10] ;
+		inv[ 9] =-m.m[ 0] * m.m[ 9] * m.m[15] + m.m[ 0] * m.m[11] * m.m[13] + m.m[ 8] * m.m[ 1] * m.m[15] -
+				  m.m[ 8] * m.m[ 3] * m.m[13] - m.m[12] * m.m[ 1] * m.m[11] + m.m[12] * m.m[ 3] * m.m[ 9] ;
+		inv[13] = m.m[ 0] * m.m[ 9] * m.m[14] - m.m[ 0] * m.m[10] * m.m[13] - m.m[ 8] * m.m[ 1] * m.m[14] +
+				  m.m[ 8] * m.m[ 2] * m.m[13] + m.m[12] * m.m[ 1] * m.m[10] - m.m[12] * m.m[ 2] * m.m[ 9] ;
+		inv[ 2] = m.m[ 1] * m.m[ 6] * m.m[15] - m.m[ 1] * m.m[ 7] * m.m[14] - m.m[ 5] * m.m[ 2] * m.m[15] +
+				  m.m[ 5] * m.m[ 3] * m.m[14] + m.m[13] * m.m[ 2] * m.m[ 7] - m.m[13] * m.m[ 3] * m.m[ 6] ;
+		inv[ 6] =-m.m[ 0] * m.m[ 6] * m.m[15] + m.m[ 0] * m.m[ 7] * m.m[14] + m.m[ 4] * m.m[ 2] * m.m[15] -
+				  m.m[ 4] * m.m[ 3] * m.m[14] - m.m[12] * m.m[ 2] * m.m[ 7] + m.m[12] * m.m[ 3] * m.m[ 6] ;
+		inv[10] = m.m[ 0] * m.m[ 5] * m.m[15] - m.m[ 0] * m.m[ 7] * m.m[13] - m.m[ 4] * m.m[ 1] * m.m[15] +
+				  m.m[ 4] * m.m[ 3] * m.m[13] + m.m[12] * m.m[ 1] * m.m[ 7] - m.m[12] * m.m[ 3] * m.m[ 5] ;
+		inv[14] =-m.m[ 0] * m.m[ 5] * m.m[14] + m.m[ 0] * m.m[ 6] * m.m[13] + m.m[ 4] * m.m[ 1] * m.m[14] -
+				  m.m[ 4] * m.m[ 2] * m.m[13] - m.m[12] * m.m[ 1] * m.m[ 6] + m.m[12] * m.m[ 2] * m.m[ 5] ;
+		inv[ 3] =-m.m[ 1] * m.m[ 6] * m.m[11] + m.m[ 1] * m.m[ 7] * m.m[10] + m.m[ 5] * m.m[ 2] * m.m[11] -
+				  m.m[ 5] * m.m[ 3] * m.m[10] - m.m[ 9] * m.m[ 2] * m.m[ 7] + m.m[ 9] * m.m[ 3] * m.m[ 6] ;
+		inv[ 7] = m.m[ 0] * m.m[ 6] * m.m[11] - m.m[ 0] * m.m[ 7] * m.m[10] - m.m[ 4] * m.m[ 2] * m.m[11] +
+				  m.m[ 4] * m.m[ 3] * m.m[10] + m.m[ 8] * m.m[ 2] * m.m[ 7] - m.m[ 8] * m.m[ 3] * m.m[ 6] ;
+		inv[11] =-m.m[ 0] * m.m[ 5] * m.m[11] + m.m[ 0] * m.m[ 7] * m.m[ 9] + m.m[ 4] * m.m[ 1] * m.m[11] -
+				  m.m[ 4] * m.m[ 3] * m.m[ 9] - m.m[ 8] * m.m[ 1] * m.m[ 7] + m.m[ 8] * m.m[ 3] * m.m[ 5] ;
+		inv[15] = m.m[ 0] * m.m[ 5] * m.m[10] - m.m[ 0] * m.m[ 6] * m.m[ 9] - m.m[ 4] * m.m[ 1] * m.m[10] +
+				  m.m[ 4] * m.m[ 2] * m.m[ 9] + m.m[ 8] * m.m[ 1] * m.m[ 6] - m.m[ 8] * m.m[ 2] * m.m[ 5] ;
 
-		float det = m.m[0]*inv[0] + m.m[1]*inv[4] + m.m[2]*inv[8] + m.m[3]*inv[12];
+		float det = m.m[ 0] * inv[ 0] + m.m[ 1] * inv[ 4] + m.m[ 2] * inv[ 8] + m.m[ 3] * inv[12];
 		if (det == 0)
 			return m;
 
@@ -269,6 +227,7 @@ public class Mat4 {
 
 		for (int i = 0; i < 16; i++)
 			res[i] = inv[i] * det;
+		
 		return new Mat4( res );
 	}
 	
@@ -291,14 +250,7 @@ public class Mat4 {
 	public static Vec3 getPos( Mat4 m ) {
 		return new Vec3( m.m[3], m.m[7], m.m[11] );
 	}
-	
-	public static Mat4 invertPos( Mat4 m ) {
-		Mat4 mat = new Mat4( m );
-		mat.m[3] = -mat.m[3];
-		mat.m[7] = -mat.m[7];
-		mat.m[11] = -mat.m[11];
-		return mat;
-	}
+
 	/* returns a flattened floatbuffer of the matrix */
 	public FloatBuffer gl() {
 		return Mat4.fb( Mat4.flatten( this ) );

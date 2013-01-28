@@ -7,9 +7,8 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
-import rin.gl.GL;
-import rin.gl.Texture;
-import rin.gl.lib3d.shape.Cube;
+import rin.gl.Scene;
+import rin.gl.TextureManager;
 import rin.util.Buffer;
 
 /**
@@ -17,12 +16,9 @@ import rin.util.Buffer;
  *  e.g. vertices, normals, texture coordinates, etc.
  *
  */
-public class Poly extends Boundable {
-	/* name of this poly */
-	protected String name = "";
-	
+public class Poly extends Collidable {
 	/* if poly is ready to be rendered */
-	protected boolean ready = false;
+	private boolean ready = false;
 	
 	/* opengl render mode */
 	protected int renderMode = GL_TRIANGLES;
@@ -30,120 +26,141 @@ public class Poly extends Boundable {
 	/* texture file string and opengl texture number */
 	protected String textureFile = "";
 	protected int texture = -1;
-	protected boolean colored = false;
-	
-	protected int[] range = new int[]{ 0, 0 };
 	protected float[] color = new float[]{ 1.0f, 0.0f, 0.0f, 1.0f };
+	protected int[] range = new int[]{ 0, 0 };
 	
 	/* temporary lists for vertices, normals, and texcoords */
 	protected ArrayList<Float>		v = new ArrayList<Float>(),
 									n = new ArrayList<Float>(),
 									t = new ArrayList<Float>();
 	
-	/* arrays for the final indices, vertices, normals, and texcoords */
-	protected int[] iba = new int[0];
-	protected float[] vba = new float[0], nba = new float[0], tba = new float[0];
-	
 	/* gl buffer pointers */
-	protected GLBuffer ibuf, vbuf, nbuf, tbuf;
+	protected GLBuffer ibuf = null, vbuf = null, nbuf = null, tbuf = null;
 	
-	public Poly( String name ) { this.name = name; }
+	public Poly( String name ) {
+		super.setName( name );
+	}
 	
-	//public float[] getColor() { return this.color; }
+	public Poly( String name, float[] v, float[] n, float[] t, String texture ) {
+		super.setName( name );
+		this.setVertices( v );
+		this.setNormals( n );
+		this.setTexcoords( t );
+		this.setTextureFile( texture );
+	}
+	
+	private void getBounds( float[] v ) {
+		for( int i = 0; i < v.length; i += 3 )
+			this.addBounds( v[i], v[i+1], v[i+2] );
+	}
+	
+	private Poly ready( boolean val ) { this.ready = val; return this; }
 	
 	public ArrayList<Float> getVertices() { return this.v; }
-	public ArrayList<Float> getNormals() { return this.n; }
-	public ArrayList<Float> getTexcoords() { return this.t; }
-	
-	public Poly addVertex( float x, float y, float z ) {
-		this.v.add( x ); this.v.add( y ); this.v.add( z );
-		this.addBounds( x, y, z);
-		return this;
+	public void addVertex( float x, float y, float z ) { this.addBounds( x, y, z ); this.v.add( x ); this.v.add( y ); this.v.add( z ); }
+	public Poly setVertices( float[] arr ) {
+		this.v = Buffer.toArrayList( arr );
+		this.getBounds( arr );
+		
+		return this.ready( false );
 	}
-	public Poly addNormal( float x, float y, float z ) { this.n.add( x ); this.n.add( y ); this.n.add( z ); return this; }
 	
-	public Poly addTexture( float s, float t ) { this.t.add( s ); this.t.add( t ); return this; }
-	public void setTextureFile( String file ) { this.textureFile = file; }
-	public void createTexture() { this.texture = Texture.fromFile( this.textureFile ); }
+	public ArrayList<Float> getNormals() { return this.n; }
+	public void addNormal( float x, float y, float z ) { this.n.add( x ); this.n.add( y ); this.n.add( z ); }
+	public Poly setNormals( float[] arr ) {
+		this.n = Buffer.toArrayList( arr );
+		
+		return this.ready( false );
+	}
+	
+	public ArrayList<Float> getTexcoords() { return this.t; }
+	public void addTexcoord( float s, float t ) { this.t.add( s ); this.t.add( t ); }
+	public Poly setTexcoords( float[] arr ) {
+		this.t = Buffer.toArrayList( arr );
+		
+		return this.ready( false );
+	}
+	
+	public void setTextureFile( String file ) {
+		if( this.texture != -1 )
+			TextureManager.unload( file );
+		
+		this.texture = -1;
+		this.textureFile = file;
+	}
+	
+	public void createTexture() {
+		if( !this.textureFile.equals( "" ) && this.texture == -1 )
+			this.texture = TextureManager.load( this.textureFile );
+	}
+	
 	public void applyTexture() {
 		if( this.texture != -1 ) {
 			glActiveTexture( GL_TEXTURE0 );
-			glUniform1i( GL.scene.getUniform( "useTexture" ), GL_TRUE );
+			glUniform1i( Scene.getUniform( "useTexture" ), GL_TRUE );
 			glBindTexture( GL_TEXTURE_2D, this.texture );
 		} else {
 			glColor4f( this.color[0], this.color[1], this.color[2], this.color[3] );
-			glUniform1i( GL.scene.getUniform( "useTexture" ), GL_FALSE );
-			glDisableVertexAttribArray( GL.scene.getAttrib( "texture" ) );
+			glUniform1i( Scene.getUniform( "useTexture" ), GL_FALSE );
+			glDisableVertexAttribArray( Scene.getAttrib( "texture" ) );
 		}
 	}
 	
-	public void init() { this.init( false ); }
-	public void init( boolean textureOnly ) {
+	public void init() {
 		this.ready = false;
 		
-		if( !this.textureFile.equals( "" ) )
-			this.createTexture();
+		this.createTexture();
 		
-		if( textureOnly )
-			return;
+		int[] i = new int[ this.v.size() / 3 ];
+		for( int k = 0; k < this.v.size() / 3; k++ )
+			i[k] = k;
 		
-		this.build();
+		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, i );
+		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.v ), 3, 0, 0, Scene.getAttrib( "vertex" ) );
+		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, Scene.getAttrib( "normal" ) );
+		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, Scene.getAttrib( "texture" ) );
 		
-		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
-		
-		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, this.nba )
-			.setAttribute( GL.scene.getAttrib("normal" ) )
-			.setSSO( 3, 0, 0 );
-		
-		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, this.tba )
-			.setAttribute( GL.scene.getAttrib("texture" ) )
-			.setSSO( 2, 0, 0 );
-		
-		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, this.vba )
-			.setAttribute( GL.scene.getAttrib("vertex" ) )
-			.setSSO( 3, 0, 0 );
-		
-		if( this.bound ) {
-			this.bbox = new Cube( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
-			this.bbox.init();
-		}
+		if( this.bound )
+			this.createBoundingBox();
 		
 		this.ready = true;
 	}
 	
-	public void build() {
-		this.vba = Buffer.toArray( this.v );
-		this.tba = Buffer.toArray( this.t );
-		this.nba = Buffer.toArray( this.n );
-		this.iba = new int[ this.vba.length / 3 ];
-		
-		int v = 0;
-		for( int i = 0; i < this.vba.length / 3; i++ ) {
-			this.iba[v] = v++;
-		}
-	}
-	
-	public void buffer() {
+	private boolean buffer() {
 		this.vbuf.buffer();
 		this.nbuf.buffer();
 		this.tbuf.buffer();
-		this.ibuf.buffer();
+		return this.ibuf.buffer();
 	}
 	
 	public void render() { this.render( this.renderMode ); }
 	public void render( int renderMode ) {
 		if( this.ready ) {
-			glUniformMatrix4( GL.scene.getUniform( "mMatrix"), false, this.matrix.gl() );
+			glUniformMatrix4( Scene.getUniform( "mMatrix"), false, this.matrix.gl() );
 
-			//if( this.id != -1 )
-				//glPushName( this.id );
-			
 			this.applyTexture();
-			this.buffer();
-			glDrawElements( renderMode, this.vba.length / 3, GL_UNSIGNED_INT, 0 );
-
-			//if( this.id != -1 )
-				//glPopName();
+			if( this.buffer() )
+					glDrawElements( renderMode, this.v.size() / 3, GL_UNSIGNED_INT, 0 );
 		}
+	}
+	
+	public Poly destroy() {
+		this.ready = false;
+		
+		this.vbuf = this.vbuf != null ? this.vbuf.destroy() : null;
+		this.nbuf = this.nbuf != null ? this.nbuf.destroy() : null;
+		this.tbuf = this.ibuf != null ? this.tbuf.destroy() : null;
+		this.ibuf = this.ibuf != null ? this.ibuf.destroy() : null;
+		
+		this.v.clear();
+		this.n.clear();
+		this.t.clear();
+		
+		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
+		
+		if( !this.textureFile.equals( "" ) )
+			TextureManager.unload( this.textureFile );
+		
+		return null;
 	}
 }

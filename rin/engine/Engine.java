@@ -8,6 +8,7 @@ public class Engine {
 	private String name;
 	private boolean ready = false,
 					running = false;
+	
 	/* modules */
 	private GL gl;
 	
@@ -15,7 +16,6 @@ public class Engine {
 	public Engine() { this( "No Name" ); }
 	public Engine( String name ) {
 		this.name = name;
-		this.getClass().getProtectionDomain().getCodeSource().getLocation();
 		/* initialize gl module */
 		this.gl = new GL();
 		if( this.gl.ready() )
@@ -83,6 +83,6 @@ public class Engine {
 	
 	/* modify game aspects */
 	public void addCharacter( String name ) {
-		this.gl.getScene().addModel( name, Model.Format.DAE );
+		Scene.addModel( name, Model.Format.DAE );
 	}
 }

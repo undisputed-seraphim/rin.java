@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
 import rin.gl.model.ModelManager;
+import rin.util.Buffer;
 import rin.util.IO;
 import rin.util.XML;
 
@@ -27,15 +28,11 @@ public class ModelDAE implements ModelManager {
 		//TODO: everything below this line needs tidying up... badly
 		/* DAE models will utilize the mesh class */
 		Mesh mesh = new Mesh();
+		mesh.setPickable( true );
 		float[] V_SRC, N_SRC, T_SRC;
-		String path = file.substring( 0, file.lastIndexOf( "\\" ) + 1 );
-		//String path = file.substring( 0, file.lastIndexOf( "/" ) + 1 );
+		//String path = file.substring( 0, file.lastIndexOf( "\\" ) + 1 );
+		String path = file.substring( 0, file.lastIndexOf( "/" ) + 1 );
 		for( Polylist p : polylists ) {
-			( (Mesh) mesh ).addPoly( p.getName() );
-			if( p.getName() != "" ) {
-				( (Mesh) mesh ).setTexture( path + "textures\\" + p.getName() + ".png" );
-				//( (Mesh) mesh ).setTexture( path + "textures/" + p.getName() + ".png" );
-			}
 			ArrayList<Integer> prim = p.getPrim();
 			
 			/* sources */
@@ -44,16 +41,14 @@ public class ModelDAE implements ModelManager {
 			T_SRC = sources.getSource( p.getSource( "texcoord" ) ).getFloatArray();
 			
 			/* stride is equal the amount of items being used (e.g. normals + vertices = 2, vertices only = 1) */
+			//TODO: needs to work with any stride instead of assuming it's 3
 			int stride = (V_SRC.length > 0 ? 1 : 0) + (N_SRC.length > 0 ? 1 : 0) + (T_SRC.length > 0 ? 1 : 0);
 			
-			if( V_SRC.length > 0 )
-				mesh.addVertices( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 );
-			
-			if( N_SRC.length > 0 )
-				mesh.addNormals( N_SRC, prim, p.getOffset( "normal" ), stride, 3 );
-			
-			if( T_SRC.length > 0 )
-				mesh.addTexcoords( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 );
+			mesh.addPoly( p.getName(),
+						  Buffer.getIndexedValues( V_SRC, Buffer.toArrayi( prim ), p.getOffset( "vertex" ), stride, 3 ),
+						  Buffer.getIndexedValues( N_SRC, Buffer.toArrayi( prim ), p.getOffset( "normal" ), stride, 3 ),
+						  Buffer.getIndexedValues( T_SRC, Buffer.toArrayi( prim ), p.getOffset( "texcoord" ), stride, 2 ),
+						  path + "textures/" + p.getName() + ".png" );
 		}
 		V_SRC = N_SRC = T_SRC = null;
 		

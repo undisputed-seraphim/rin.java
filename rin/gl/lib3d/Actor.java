@@ -2,84 +2,82 @@ package rin.gl.lib3d;
 
 import rin.util.math.*;
 
-public class Actor {	
+public class Actor {
+	public static final float PIOVER180 = (float)( java.lang.Math.PI / 180 );
 	/* this actors unique id */
 	protected int id = -1;
 	protected String name = "No Name";
 	
-	public int id() {
-		return this.id;
-	}
-	
-	public void setId( int id ) { this.id = id; }
-	public void setName( String name ) { this.name = name; }
+	public int getId() { return this.id; }
+	public Actor setId( int id ) { this.id = id; return this; }
+	public Actor setName( String name ) { this.name = name; return this; }
 	public String getName() { return this.name; }
 	
 	/* matrices depicting the location in 3d space of this positionable */
-	protected Mat4	rotate =	new Mat4(),
+	protected Mat4	scaled =	new Mat4(),
+					rotate =	new Mat4(),
 					translate = new Mat4(),
 					matrix =	new Mat4();
 	
 	/* vectors for the current location, rotation, and scale of the positionable */
 	protected Vec3	position =	new Vec3(),
-					rotation =	new Vec3();
+					rotation =	new Vec3(),
+					scale =		new Vec3( 1.0f, 1.0f, 1.0f );
 	
-	/* if this positionable controls a uniform variable, set the uniform upon transforms */
-	protected boolean hasUniform = false;
-	protected String uniform = "";
+	/* quaternions used for handling rotation on each axis */
+	protected Quat4 rotateX =	new Quat4(),
+					rotateY = 	new Quat4(),
+					rotateZ =	new Quat4();
 	
 	/* get information from this positionable */
-	public Vec3 getPosition() {
-		return this.position;
-	}
-	
-	public Mat4 getMatrix() {
-		return this.matrix;
-	}
+	public Vec3 getPosition() { return this.position; }
+	public Vec3 getRotation() { return this.rotation; }
+	public Vec3 getScale() { return this.scale; }
+	public Mat4 getMatrix() { return this.matrix; }
 	
 	/* move positionable to a specific vector */
-	public void position( Vec3 v ) {
-		this.position = v;
-		this.position();
-	}
-	
-	/* move positionable to a specific x, y, z coordinate */
-	public void position( float x, float y, float z ) {
-		this.position = new Vec3( x, y, z );
-		this.position();
+	public void setPosition( Vec3 v ) { this.setPosition( v.x, v.y, v.z ); }
+	public void setPosition( float x, float y, float z ) {
+		this.position.redefine( x, y, z );
+		this.transform();
 	}
 	
 	/* set positionables position */
-	public void position() {
+	private void updatePosition() {
 		this.translate = Mat4.translate( new Mat4(), this.position );
 	}
 	
 	/* rotate positionable to given degrees per axis */
-	public void rotation( Vec3 v ) {
-		float helper = (float)( java.lang.Math.PI / 180 );
-		this.rotation.x = v.x * helper;
-		this.rotation.y = v.y * helper;
-		this.rotation.z = v.z * helper;
-		this.rotation();
+	public void setRotation( Vec3 v ) { this.setRotation( v.x, v.y, v.z ); }
+	public void setRotation( float x, float y, float z ) {
+		this.rotation.redefine( x * PIOVER180, y * PIOVER180, z * PIOVER180 );
+		this.transform();
 	}
 	
 	/* obtain rotation quaternions and compute final rotation matrix based on rotation vector */
-	public void rotation() {
-		Quat4	rotateX = Quat4.create( new Vec3( 1.0f, 0.0f, 0.0f ), this.rotation.x ),
-				rotateY = Quat4.create( new Vec3( 0.0f, 1.0f, 0.0f ), this.rotation.y ),
-				rotateZ = Quat4.create( new Vec3( 0.0f, 0.0f, 1.0f ), this.rotation.z );
-		this.rotate = Quat4.Mat4( Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ) );
+	private void updateRotation() {
+		Quat4	rotateX = Quat4.create( Vec3.X_AXIS, this.rotation.x ),
+				rotateY = Quat4.create( Vec3.Y_AXIS, this.rotation.y ),
+				rotateZ = Quat4.create( Vec3.Z_AXIS, this.rotation.z );
+		this.rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();
+	}
+	
+	public void setScale( Vec3 v ) { this.setScale( v.x, v.y, v.z ); }
+	public void setScale( float x, float y, float z ) {
+		this.scale.redefine( x, y, z );		
+		this.updateScale();
+	}
+	
+	private void updateScale() {
+		
 	}
 	
 	/* apply rotation and position vectors then compute positionables location matrix */
 	public void transform() {
-		this.rotation();
-		this.position();
+		this.updateRotation();
+		this.updatePosition();
+		this.updateScale();
 		this.matrix = Mat4.multiply( Mat4.multiply( new Mat4(), this.rotate ), this.translate );
-		
-		if( this.hasUniform ) {
-			
-		}
 	}
 	
 	/* move the positionable a set amount toward/away, left/right, and up/down */
@@ -88,5 +86,26 @@ public class Actor {
 		this.position.y += this.rotate.m[ 9] * step + ( this.rotate.m[1] * side ) + ( this.rotate.m[5] * rise );
 		this.position.z += this.rotate.m[10] * step + ( this.rotate.m[2] * side ) + ( this.rotate.m[6] * rise );
 		this.transform();
+	}
+	
+	/* determine if actor is within given distance from given point */
+	public boolean withinRange( float d, Vec3 pos ) {
+		return Vec3.distance( pos, this.position ) <= d;
+	}
+	
+	public boolean isMesh() { return this instanceof Mesh; }
+	public Mesh toMesh() { return ( Mesh )this; }
+	
+	public boolean isPoly() { return this instanceof Poly; }
+	public Poly toPoly() { return ( Poly )this; }
+	
+	public Actor destroy() {
+		if( this.isMesh() )
+			this.toMesh().destroy();
+		
+		if( this.isPoly() )
+			this.toPoly().destroy();
+		
+		return null;
 	}
 }

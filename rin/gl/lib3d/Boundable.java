@@ -1,23 +1,13 @@
 package rin.gl.lib3d;
 
-import java.nio.IntBuffer;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL41.*;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL41;
-
-import rin.gl.lib3d.shape.Cube;
-import rin.util.Buffer;
-import rin.util.math.Mat4;
-import rin.util.math.Vec3;
+import rin.gl.lib3d.shape.BoundingBox;
 
 public class Boundable extends Actor {
 	protected boolean bound = true;
 	private boolean ready = false;
 	
 	/* bounding box values */
-	protected Cube bbox = null;
+	protected BoundingBox bbox = null;
 	protected float xMin = Float.MAX_VALUE, yMin = Float.MAX_VALUE, zMin = Float.MAX_VALUE, 
 					xMax = Float.MIN_VALUE, yMax = Float.MIN_VALUE, zMax = Float.MIN_VALUE;
 	
@@ -32,45 +22,15 @@ public class Boundable extends Actor {
 		zMax = Math.max( zMax, z );
 	}
 	
-	public void createBBox() {
-		this.bbox = new Cube( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
-		this.bbox.init();
+	public void createBoundingBox() {
+		this.bbox = new BoundingBox( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.position );
 		this.ready = true;
 	}
 	
-	public void showBoundingBox() {
-		if( this.ready ) {
-			//glDisable( GL_TEXTURE_2D );
-			//System.out.println( "hai" );
-			//glColor3f( 1.0f, 0.0f, 0.0f );
-			//glUniform1i( this.scene.getUniform( "useTexture" ), GL_FALSE );
-			this.bbox.render();
-		}
-		
-		else this.createBBox();
-	}
-	
-	public boolean isIntersectedBy( Ray ray ) {
-		if( this.bbox == null )
-			return false;
-		
-		return ray.intersects( ( Mesh )this );
-	}
-	
-	public boolean isMouseOver( Mat4 view, IntBuffer viewport ) {
-		/*public void move( float step, float side, float rise ) {
-			this.position.x += this.rotate.m[ 8] * step + ( this.rotate.m[0] * side ) + ( this.rotate.m[4] * rise );
-			this.position.y += this.rotate.m[ 9] * step + ( this.rotate.m[1] * side ) + ( this.rotate.m[5] * rise );
-			this.position.z += this.rotate.m[10] * step + ( this.rotate.m[2] * side ) + ( this.rotate.m[6] * rise );
-			this.transform();
-		}*/
-		
-		//float[] test = Mat4.unProject( Mouse.getX(), Mouse.getY(), 0, this.matrix, view, viewport );
-		//Cube cube = new Cube( 3, new Vec3( 0.0f, 0.0f, 0.0f ) );
-		//System.out.println( Buffer.toString( test ) );
-		//cube.setScene( this.scene );
-		//cube.init();
-		//cube.render();
-		return false;
+	public void showBoundingBox() { this.showBoundingBox( this.bbox.renderMode ); }
+	public void showBoundingBox( int renderMode ) {
+		if( this.ready )
+			this.bbox.render( renderMode );
+		else this.createBoundingBox();
 	}
 }

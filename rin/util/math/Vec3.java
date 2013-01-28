@@ -1,6 +1,10 @@
 package rin.util.math;
 
 public class Vec3 {
+	public static final Vec3 X_AXIS = new Vec3( 1.0f, 0.0f, 0.0f );
+	public static final Vec3 Y_AXIS = new Vec3( 0.0f, 1.0f, 0.0f );
+	public static final Vec3 Z_AXIS = new Vec3( 0.0f, 0.0f, 1.0f );
+	
 	/* values for each axis */
 	public float x, y, z;
 	
@@ -20,7 +24,7 @@ public class Vec3 {
 	public Vec3( Vec3 v ) {
 		this( v.x, v.y, v.z );
 	}
-
+	
 	/* returns the magnitude of the vector */
 	public static float magnitude( Vec3 v ) {
 		return ( v.x * v.x ) + ( v.y * v.y ) + ( v.z * v.z );
@@ -67,6 +71,22 @@ public class Vec3 {
 	/* returns a vector scaled by a float */
 	public static Vec3 scale( Vec3 v, float f ) {
 		return new Vec3( v.x * f, v.y * f, v.z * f );
+	}
+	
+	public static float distance( Vec3 v, Vec3 w ) {
+		float x = v.x - w.x;
+		float y = v.y - w.y;
+		float z = v.z - w.z;
+		return (float)java.lang.Math.sqrt( x * x + y * y + z * z );
+	}
+	
+	/* redefine the values within without creating a new object */
+	public Vec3 redefine ( float x, float y, float z ) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		
+		return this;
 	}
 	
 	/* returns a string representation of the vector */
