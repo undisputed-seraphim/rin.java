@@ -32,7 +32,6 @@ public class Camera extends Actor {
 		this.perspective = Mat4.perspective( fovy, aspect, znear, zfar );
 		this.setPosition( 0.0f, -1.0f, -11.0f );
 		this.setScale( 1.0f, 1.0f, 1.0f );
-		this.init();
 	}
 	
 	public Mat4 getViewMatrix() { return this.matrix; }
@@ -41,7 +40,7 @@ public class Camera extends Actor {
 	public void init() {
 		this.transform();
 		//glUniformMatrix4( Scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
-		glUniformMatrix4( Scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.matrix.gl() );
 	}
 	
 	public void update() {
@@ -51,7 +50,11 @@ public class Camera extends Actor {
 				rise = 0.0f;
 
 		if( Keyboard.isKeyDown( Keyboard.KEY_Z ) ) {
-			GL.hide();//Scene.requestDestroy();
+			GL.requestDestroy( new Runnable() {
+				public void run() {
+					System.out.println( "flawless exit." );
+				}
+			});
 			return;
 		}
 		
@@ -100,7 +103,7 @@ public class Camera extends Actor {
 		if( changed )
 			this.move( step, side, rise );
 		
-		glUniformMatrix4( Scene.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.matrix.gl() );
 	}
 	
 	public void transform() {

@@ -7,7 +7,7 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
-import rin.gl.Scene;
+import rin.gl.GL;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
 
@@ -97,12 +97,12 @@ public class Poly extends Collidable {
 	public void applyTexture() {
 		if( this.texture != -1 ) {
 			glActiveTexture( GL_TEXTURE0 );
-			glUniform1i( Scene.getUniform( "useTexture" ), GL_TRUE );
+			glUniform1i( GL.getUniform( "useTexture" ), GL_TRUE );
 			glBindTexture( GL_TEXTURE_2D, this.texture );
 		} else {
 			glColor4f( this.color[0], this.color[1], this.color[2], this.color[3] );
-			glUniform1i( Scene.getUniform( "useTexture" ), GL_FALSE );
-			glDisableVertexAttribArray( Scene.getAttrib( "texture" ) );
+			glUniform1i( GL.getUniform( "useTexture" ), GL_FALSE );
+			glDisableVertexAttribArray( GL.getAttrib( "texture" ) );
 		}
 	}
 	
@@ -116,9 +116,9 @@ public class Poly extends Collidable {
 			i[k] = k;
 		
 		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, i );
-		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.v ), 3, 0, 0, Scene.getAttrib( "vertex" ) );
-		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, Scene.getAttrib( "normal" ) );
-		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, Scene.getAttrib( "texture" ) );
+		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.v ), 3, 0, 0, GL.getAttrib( "vertex" ) );
+		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, GL.getAttrib( "normal" ) );
+		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, GL.getAttrib( "texture" ) );
 		
 		if( this.bound )
 			this.createBoundingBox();
@@ -136,7 +136,7 @@ public class Poly extends Collidable {
 	public void render() { this.render( this.renderMode ); }
 	public void render( int renderMode ) {
 		if( this.ready ) {
-			glUniformMatrix4( Scene.getUniform( "mMatrix"), false, this.matrix.gl() );
+			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 
 			this.applyTexture();
 			if( this.buffer() )

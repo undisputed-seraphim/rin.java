@@ -9,26 +9,20 @@ public class Engine {
 	private boolean ready = false,
 					running = false;
 	
-	/* modules */
-	private GL gl;
-	
 	/* constructors */
 	public Engine() { this( "No Name" ); }
 	public Engine( String name ) {
 		this.name = name;
-		/* initialize gl module */
-		this.gl = new GL();
-		if( this.gl.ready() )
-			this.ready = true;
+		GL.create();
 	}
 	
 	/* getters */
 	public boolean ready() { return this.ready; }
 	public boolean running() { return this.running; }
-	public boolean glRunning() { return this.gl.running(); }
+	public boolean glRunning() { return GL.isRunning(); }
 	
 	/* run the game */
-	public void run() { this.run( this.gl.getWidth(), this.gl.getHeight() ); }
+	public void run() { this.run( GL.getWidth(), GL.getHeight() ); }
 	public void run( int both ) { this.run( both, both ); }
 	public void run( int width, int height ) {
 		this.start( width, height );
@@ -37,7 +31,7 @@ public class Engine {
 	}
 	
 	/* engines start method, does everything needed to start the game */
-	public void start() { this.start( this.gl.getWidth(), this.gl.getHeight() ); }
+	public void start() { this.start( GL.getWidth(), GL.getHeight() ); }
 	public void start( int both ) { this.start( both, both ); }
 	public void start( int width, int height ) { this.glStart( width, height ); }
 	
@@ -57,32 +51,32 @@ public class Engine {
 	public void stop() { this.glStop(); }
 	
 	/* start the opengl module's context, at set width/height */
-	public void glStart() { this.glStart( this.gl.getWidth(), this.gl.getHeight() ); }
+	public void glStart() { this.glStart( GL.getWidth(), GL.getHeight() ); }
 	public void glStart( int both ) { this.glStart( both, both ); }
 	public void glStart( int width, int height ) {
 		if( !this.running ) {
-			this.gl.show( width, height );
+			GL.show();
 			this.running = true;
 		}
 	}
 	
 	/* wrapper to start gl module's Display */
 	public void glUpdate() {
-		if( !this.gl.paused()  ) {
-			this.gl.update();
+		if( !GL.isPaused()  ) {
+			GL.update();
 		}
 	}
 	
 	/* wrapper to stop gl module's Display */
 	public void glStop() {
 		if( this.running ) {
-			this.gl.hide();
+			GL.requestDestroy();
 			this.running = false;
 		}
 	}
 	
 	/* modify game aspects */
 	public void addCharacter( String name ) {
-		Scene.addModel( name, Model.Format.DAE );
+		GL.getScene().addModel( name, Model.Format.DAE );
 	}
 }

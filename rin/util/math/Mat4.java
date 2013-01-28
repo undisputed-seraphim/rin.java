@@ -183,8 +183,8 @@ public class Mat4 {
 	}
 	
 	public static Mat4 inverse( Mat4 m ) {
-		float	inv[] = new float[16],
-				res[] = new float[16];
+		float[]	inv = new float[16],
+				res = new float[16];
 		
 		inv[ 0] = m.m[ 5] * m.m[10] * m.m[15] - m.m[ 5] * m.m[11] * m.m[14] - m.m[ 9] * m.m[ 6] * m.m[15] +
 				  m.m[ 9] * m.m[ 7] * m.m[14] + m.m[13] * m.m[ 6] * m.m[11] - m.m[13] * m.m[ 7] * m.m[10] ;

@@ -2,6 +2,7 @@ package rin.gl.model;
 
 import java.util.ArrayList;
 
+import rin.gl.Scene;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
 import rin.gl.model.ModelManager;
@@ -30,8 +31,7 @@ public class ModelDAE implements ModelManager {
 		Mesh mesh = new Mesh();
 		mesh.setPickable( true );
 		float[] V_SRC, N_SRC, T_SRC;
-		//String path = file.substring( 0, file.lastIndexOf( "\\" ) + 1 );
-		String path = file.substring( 0, file.lastIndexOf( "/" ) + 1 );
+		String path = file.substring( 0, file.lastIndexOf( Scene.LS ) + 1 );
 		for( Polylist p : polylists ) {
 			ArrayList<Integer> prim = p.getPrim();
 			
@@ -48,11 +48,11 @@ public class ModelDAE implements ModelManager {
 						  Buffer.getIndexedValues( V_SRC, Buffer.toArrayi( prim ), p.getOffset( "vertex" ), stride, 3 ),
 						  Buffer.getIndexedValues( N_SRC, Buffer.toArrayi( prim ), p.getOffset( "normal" ), stride, 3 ),
 						  Buffer.getIndexedValues( T_SRC, Buffer.toArrayi( prim ), p.getOffset( "texcoord" ), stride, 2 ),
-						  path + "textures/" + p.getName() + ".png" );
+						  path + "textures" + Scene.LS + p.getName() + ".png" );
 		}
 		V_SRC = N_SRC = T_SRC = null;
 		
-		xml = null;
+		//xml = xml.destroy();
 		sources = null;
 		polys = null;
 		

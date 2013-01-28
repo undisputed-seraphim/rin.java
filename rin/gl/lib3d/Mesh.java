@@ -2,7 +2,7 @@ package rin.gl.lib3d;
 
 import java.util.ArrayList;
 
-import rin.gl.Scene;
+import rin.gl.GL;
 import rin.gl.lib3d.GLInterleavedBuffer.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -57,9 +57,9 @@ public class Mesh extends Pickable {
 		
 		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
 		this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, this.aba )
-				.addIndex( IndexType.VERTEX, 3, Scene.getAttrib( "vertex" ) )
-				.addIndex( IndexType.NORMAL, 3, Scene.getAttrib( "normal" ) )
-				.addIndex( IndexType.TEXCOORD, 2, Scene.getAttrib( "texture" ) )
+				.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) )
+				.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) )
+				.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) )
 				.build();
 		
 		if( this.bound )
@@ -103,7 +103,7 @@ public class Mesh extends Pickable {
 	public void render() {
 		if( this.ready ) {
 			if( this.buffer() ) {
-				glUniformMatrix4( Scene.getUniform( "mMatrix"), false, this.matrix.gl() );
+				glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 				for( Poly p : this.polys ) {
 					p.applyTexture();
 					int[] cur = p.range;

@@ -6,39 +6,61 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
 
 public class GL {
-	//public static String GL_DIR = "C:\\Users\\johall\\Desktop\\Horo\\rin.java\\rin\\inc";
-	public static String GL_DIR = "/Users/Musashi/Desktop/Horo/rin.java/rin/inc/";
-	private boolean ready = false,
-					running = false,
-					paused = false;
-	private int width,
-				height;
+	private static boolean ready = false,
+						running = false,
+						paused = false;
+	
+	private static Scene scene = null;
+	private static boolean destroyRequested = false;
+	private static Runnable onDestroy = null;
+	
+	private static int width = 900, height = 600;
 	
 	/* constructors */
-	public GL() { this( 900, 600 ); }
-	public GL( int both ) { this( both, both ); }
-	public GL( int width, int height ) { this.init( width,  height ); }
+	public static void create() { GL.create( 900, 600 ); }
+	public static void create( int both ) { GL.create( both, both ); }
+	public static void create( int width, int height ) {
+		/* initialize scene */
+		GL.width = width;
+		GL.height = height;
+		GL.scene = new Scene( GL.width, GL.height );
+	}
 	
 	/* getters */
-	public int getWidth() { return this.width; }
-	public int getHeight() { return this.height; }
-	public boolean ready() { return this.ready; }
-	public boolean paused() { return this.paused; }
-	public boolean running() { if( !this.running ) return false; return !Display.isCloseRequested(); }
+	public static int getWidth() { return GL.width; }
+	public static int getHeight() { return GL.height; }
+	public static int getAttrib( String attr ) { return GL.scene.getAttrib( attr ); }
+	public static int getUniform( String attr ) { return GL.scene.getUniform( attr ); }
+	public static Scene getScene() { return GL.scene; }
+	
+	public static boolean isReady() { return GL.ready; }
+	public static boolean isPaused() { return GL.paused; }
+	public static boolean isRunning() { if( !GL.running ) return false; return !Display.isCloseRequested(); }
 	
 	/* initialize lwjgl wrapper object gl */
-	public void init( int width, int height ) {
-		this.width = width;
-		this.height = height;
-		
-		this.ready = true;
+	public static void show() {
+		/* attempt to invoke the display's opengl context, then initialize scene */
+		try {
+			Display.setDisplayMode( new DisplayMode( width, height ) );
+			Display.create();
+			GL.scene.show();
+			GL.running = true;
+			GL.ready = true;
+		} catch( LWJGLException e ) {
+			System.out.println( "lwjgl instance failed to display [" + GL.width + "x" + GL.height + "]" );
+		}
 	}
 
 	/* update this modules Display object */
-	public void update() {
-		if( !this.paused && this.running ) {
-			if( Scene.isReady() ) {
-				Scene.update();
+	public static void update() {
+		if( GL.destroyRequested ) {
+			GL.destroy();
+			return;
+		}
+		
+		if( !GL.paused && GL.running ) {			
+			if( GL.scene.isReady() ) {
+				GL.scene.update();
 				Display.sync( 60 );
 				Display.update();
 			}
@@ -46,28 +68,27 @@ public class GL {
 	}
 	
 	/* pause / unpause the opengl context */
-	public void pause() { if( !this.paused ) this.paused = true; }
-	public void unpause() { if( this.paused ) this.paused = false; }
-	
-	/* show the actual 3d Display window */
-	public void show() { this.show( this.width, this.height ); }
-	public void show( int both ) { this.show( both, both ); }
-	public void show( int width, int height ) {
-		this.width = width;
-		this.height = height;
-		
+	public void pause() { if( !GL.paused ) GL.paused = true; }
+	public void unpause() { if( GL.paused ) GL.paused = false; }
 
-		/* attempt to invoke the display's opengl context, then initialize scene */
-		try {
-			Display.setDisplayMode( new DisplayMode( width, height ) );
-			Display.create();
-			Scene.create( this.width, this.height );
-			this.running = true;
-		} catch (LWJGLException e) {
-			System.out.println( "lwjgl instance failed to display [" + this.width + "x" + this.height + "]" );
-		}
+	/* hide the actual 3d display window */
+	public static void requestDestroy() { GL.requestDestroy( null ); }
+	public static void requestDestroy( Runnable onDestroy ) {
+		GL.destroyRequested = true;
+		GL.onDestroy = onDestroy;
 	}
 	
-	/* hide the actual 3d display window */
-	public static void hide() { Display.destroy(); }
+	private static void destroy() {
+		GL.destroyRequested = false;
+		GL.ready = false;
+		GL.running = false;
+		GL.paused = false;
+		
+		GL.scene = GL.scene != null ? GL.scene.destroy() : null;
+		Display.destroy();
+		
+		if( GL.onDestroy != null )
+			GL.onDestroy.run();
+		GL.onDestroy = null;
+	}
 }

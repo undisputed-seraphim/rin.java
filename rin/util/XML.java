@@ -128,6 +128,18 @@ public class XML {
 		System.out.println( "No nodes!" );
 	}
 	
+	public XML destroy() {
+		for( Tag t : this.tags )
+			t = t != null ? t.destroy() : null;
+		this.tags.clear();
+		
+		for( Attribute a : this.attributes )
+			a = a != null ? a.destroy() : null;
+		this.attributes.clear();
+		
+		return null;		
+	}
+	
 	public class Tag {
 		private String name = "", content = "";
 		private Tag parent = null;
@@ -240,6 +252,20 @@ public class XML {
 			
 			System.out.println( str );
 		}
+		
+		public Tag destroy() {
+			this.parent = this.parent != null ? this.parent.destroy() : null;
+			this.children.clear();
+			
+			for( Attribute a : this.attributes )
+				a = a != null ? a.destroy() : null;
+			this.attributes.clear();
+			
+			this.content = null;
+			this.name = null;
+			
+			return null;
+		}
 	}
 	
 	public class Attribute {
@@ -254,5 +280,12 @@ public class XML {
 		
 		public String getName() { return this.name; }
 		public String getValue() { return this.value; }
+		
+		public Attribute destroy() {
+			this.name = null;
+			this.value = null;
+			
+			return null;
+		}
 	}
 }
