@@ -16,7 +16,7 @@ import rin.util.Buffer;
  *  e.g. vertices, normals, texture coordinates, etc.
  *
  */
-public class Poly extends Collidable {
+public class Poly extends Pickable {
 	/* if poly is ready to be rendered */
 	private boolean ready = false;
 	
@@ -140,7 +140,7 @@ public class Poly extends Collidable {
 
 			this.applyTexture();
 			if( this.buffer() )
-					glDrawElements( renderMode, this.v.size() / 3, GL_UNSIGNED_INT, 0 );
+				glDrawElements( renderMode, this.v.size() / 3, GL_UNSIGNED_INT, 0 );
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package rin.sample;
 
 import rin.engine.Engine;
+import rin.gl.lib3d.shape.Grid;
+import rin.util.math.Vec3;
 
 public class Game {
 	private Engine rin;
@@ -8,10 +10,8 @@ public class Game {
 	public Game() {
 		this.rin = new Engine();
 		/* setup all the engine options here, e.g. load data into scene, characters, etc */
-		for( int i = 0; i < 100000000; i++ );
-		
 		this.rin.addCharacter( "noire_v" );
-		this.rin.addCharacter( "noire_v" );
+		this.rin.addComplexShape( new Grid( 2, 2, 1.0f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Z_AXIS, 0.5f ) );
 	}
 	
 	/* run the engine */

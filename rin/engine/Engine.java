@@ -1,6 +1,7 @@
 package rin.engine;
 
 import rin.gl.*;
+import rin.gl.lib3d.shape.ComplexShape;
 import rin.gl.model.Model;
 
 public class Engine {
@@ -62,9 +63,7 @@ public class Engine {
 	
 	/* wrapper to start gl module's Display */
 	public void glUpdate() {
-		if( !GL.isPaused()  ) {
-			GL.update();
-		}
+		GL.update();
 	}
 	
 	/* wrapper to stop gl module's Display */
@@ -78,5 +77,9 @@ public class Engine {
 	/* modify game aspects */
 	public void addCharacter( String name ) {
 		GL.getScene().addModel( name, Model.Format.DAE );
+	}
+	
+	public void addComplexShape( ComplexShape shape ) {
+		GL.getScene().addComplexShape( shape );
 	}
 }

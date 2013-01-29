@@ -6,16 +6,16 @@ import static org.lwjgl.opengl.GL20.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-
 import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.Collidable;
+import rin.gl.lib3d.Controllable;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 
-public class Camera extends Actor {
+public class Camera extends Controllable {
 	protected float aspect;
 	protected float znear;
 	protected float zfar;
@@ -41,68 +41,25 @@ public class Camera extends Actor {
 		this.transform();
 		//glUniformMatrix4( Scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.matrix.gl() );
+		this.setControlled( true );
 	}
 	
+	public void attach( Actor a ) {
+		this.setRotation( a.getRotation() );
+		this.setPosition( a.getPosition() );
+		if( a instanceof Collidable ) {
+			this.move( 0.0f, 0.0f, 10.0f );
+		}
+		if( a instanceof Controllable ) {
+			//this.setControlled( false );
+		}
+	}
+	
+	public void detach() { this.resetPosition(); this.setControlled( true ); }
+	
 	public void update() {
-		boolean changed = false;
-		float	step = 0.0f,
-				side = 0.0f,
-				rise = 0.0f;
-
-		if( Keyboard.isKeyDown( Keyboard.KEY_Z ) ) {
-			GL.requestDestroy( new Runnable() {
-				public void run() {
-					System.out.println( "flawless exit." );
-				}
-			});
-			return;
-		}
-		
-		if( Keyboard.isKeyDown( Keyboard.KEY_W ) ) {
-			changed = true;
-			step += 0.05f;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_S ) ) {
-			changed = true;
-			step -= 0.05f;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_A ) ) {
-			changed = true;
-			side += 0.05f;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_D ) ) {
-			changed = true;
-			side -= 0.05f;
-		}
-		
-		if( Keyboard.isKeyDown( Keyboard.KEY_UP ) ) {
-			changed = true;
-			this.rotation.x -=	0.001;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_DOWN ) ) {
-			changed = true;
-			this.rotation.x +=	0.001;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_LEFT ) ) {
-			changed = true;
-			this.rotation.y -=	0.001;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_RIGHT ) ) {
-			changed = true;
-			this.rotation.y +=	0.001;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) {
-			changed = true;
-			rise -= 0.05f;
-		}
-		if( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) ) {
-			changed = true;
-			rise += 0.05f;
-		}
-		
-		if( changed )
-			this.move( step, side, rise );
-		
+		this.processInput();
+		//System.out.println(this.matrix.toString());
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.matrix.gl() );
 	}
 	

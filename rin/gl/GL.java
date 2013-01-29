@@ -3,6 +3,7 @@ package rin.gl;
 import rin.gl.Scene;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.*;
 
 public class GL {
@@ -56,6 +57,12 @@ public class GL {
 		if( GL.destroyRequested ) {
 			GL.destroy();
 			return;
+		} else if( Keyboard.isKeyDown( Keyboard.KEY_ESCAPE ) ) {
+			GL.requestDestroy( new Runnable() {
+				public void run() {
+					System.out.println( "flawless exit." );
+				}
+			});
 		}
 		
 		if( !GL.paused && GL.running ) {			
@@ -68,8 +75,8 @@ public class GL {
 	}
 	
 	/* pause / unpause the opengl context */
-	public void pause() { if( !GL.paused ) GL.paused = true; }
-	public void unpause() { if( GL.paused ) GL.paused = false; }
+	public static void pause() { GL.paused = true; }
+	public static void unpause() { GL.paused = false; }
 
 	/* hide the actual 3d display window */
 	public static void requestDestroy() { GL.requestDestroy( null ); }
@@ -89,6 +96,7 @@ public class GL {
 		
 		if( GL.onDestroy != null )
 			GL.onDestroy.run();
+		
 		GL.onDestroy = null;
 	}
 }

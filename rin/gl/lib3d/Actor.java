@@ -2,6 +2,7 @@ package rin.gl.lib3d;
 
 import rin.util.math.*;
 
+//TODO: add overflow checking for radians/rotation
 public class Actor {
 	public static final float PIOVER180 = (float)( java.lang.Math.PI / 180 );
 	/* this actors unique id */
@@ -88,6 +89,12 @@ public class Actor {
 		this.transform();
 	}
 	
+	public void resetPosition() {
+		this.position = new Vec3( 0.0f, 0.0f, 0.0f );
+		this.rotation = new Vec3( 0.0f, 0.0f, 0.0f );
+		this.transform();
+	}
+	
 	/* determine if actor is within given distance from given point */
 	public boolean withinRange( float d, Vec3 pos ) {
 		return Vec3.distance( pos, this.position ) <= d;
@@ -98,6 +105,8 @@ public class Actor {
 	
 	public boolean isPoly() { return this instanceof Poly; }
 	public Poly toPoly() { return ( Poly )this; }
+	
+	public Pickable toPickable() { return ( Pickable )this; }
 	
 	public Actor destroy() {
 		if( this.isMesh() )

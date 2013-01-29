@@ -2,6 +2,7 @@ package rin.gl;
 
 import java.util.ArrayList;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -10,6 +11,8 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
+import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.shape.ComplexShape;
 import rin.gl.model.Model;
 import rin.util.IO;
 
@@ -61,6 +64,11 @@ public class Scene {
 		}
 	}
 	
+	public int addComplexShape( ComplexShape shape ) {
+		this.actors.add( shape );
+		return shape.setId( this.items++ ).getId();
+	}
+	
 	/* add something to the scene */
 	public int addModel( String name, Model.Format format ) {
 		String file = Scene.MODEL_DIR + name + LS + name;
@@ -87,7 +95,6 @@ public class Scene {
 		this.height = height;
 		
 		this.camera = new Camera( 45, this.width / this.height, 0.1f, Scene.VIEW_DISTANCE );
-		this.ready = true;
 	}
 	
 	public void show() {
@@ -136,30 +143,48 @@ public class Scene {
 		glActiveTexture( GL_TEXTURE0 );
 		
 		this.camera.init();
+		this.ready = true;
 	}
 	
 	/* updates all items within range in the scene */
-	public void update() {		
+	public void update() {
 		if( this.ready ) {
-			/*glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			if( Keyboard.isKeyDown( Keyboard.KEY_1 ) ) {
+				this.camera.detach();
+			} else if( Keyboard.isKeyDown( Keyboard.KEY_2 ) ) {
+				this.camera.attach( this.actors.get( 0 ) );
+			}
+			
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			//Input.process();
 			this.camera.update();
 			
 			float z = this.camera.getMouseZ(), w = 0;
-			int hitId = -1;
+			Actor picked = null;
 			for( Actor a : this.actors ) {
 				if( a.isMesh() && a.withinRange( Scene.VIEW_DISTANCE, this.camera.getPosition() ) ) {
 					if( a.toMesh().isPickable() ) {
 						a.toMesh().showBoundingBox();
 						w = this.camera.getMouseZ();
 						if( w != z ) {
-							hitId = a.getId();
+							picked = a;
 							z = w;
-						} else a.toMesh().isMouseOver = false;
+						} else a.toPickable().isMouseOver = false;
+					} else if( a.toMesh().isPolyPickable() ) {
+						for( Poly p : a.toMesh().getPolys() ) {
+							p.showBoundingBox();
+							w = this.camera.getMouseZ();
+							if( w != z ) {
+								picked = p;
+								z = w;
+							} else p.toPickable().isMouseOver = false;
+						}
 					}
 				}
 			}
-			if( hitId != -1 )
-				this.getActor( hitId ).toMesh().isMouseOver = true;
+			
+			if( picked != null )
+				picked.toPickable().isMouseOver = true;
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
@@ -167,13 +192,21 @@ public class Scene {
 			for( Actor a : this.actors ) {
 				if( a.isMesh() && a.withinRange( Scene.VIEW_DISTANCE, this.camera.getPosition() ) ) {
 					a.toMesh().render();
-					if( a.toMesh().isMouseOver ) {
+					if( a.toMesh().isMouseOver && a.toMesh().isPickable() ) {
 						a.toMesh().showBoundingBox( GL_LINE_STRIP );
 						if( Mouse.isButtonDown( 0 ) )
 							a.toMesh().clicked();
+					} else if( a.toMesh().isPolyPickable() ) {
+						for( Poly p : a.toMesh().getPolys() ) {
+							if( p.toPickable().isMouseOver ) {
+								p.toPickable().showBoundingBox( GL_LINE_STRIP );
+								if( Mouse.isButtonDown( 0 ) )
+									p.toPickable().clicked();
+							}
+						}
 					}
 				}
-			}*/
+			}
 		}
 	}
 	

@@ -4,16 +4,22 @@ import java.util.ArrayList;
 
 import rin.gl.GL;
 import rin.gl.lib3d.GLInterleavedBuffer.*;
+import rin.util.Buffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
-public class Mesh extends Pickable {	
+public class Mesh extends Controllable {	
 	/* Mesh are broken into polys per texture [opengl effeciency] */
 	private ArrayList<Poly> polys = new ArrayList<Poly>();
 	
+	public Mesh() { this( "No Name" ); }
+	public Mesh( String str ) { this.setName( str ); }
+	
+	public Poly getPoly( int index ) { return this.polys.get( index ); }
+	public ArrayList<Poly> getPolys() { return this.polys; }
 	public void addPoly( String name, float[] v, float[] n, float[] t, String texture ) {
 		this.getBounds( v );
 		this.polys.add( new Poly( name, v, n, t, texture ) );
@@ -46,24 +52,44 @@ public class Mesh extends Pickable {
 	/* mesh is ready to be rendered */
 	private boolean ready = false;
 	
+	/* mesh will merge all poly data into one interleaved array */
+	private boolean interleaved = true;
+	public void setInterleaved( boolean val ) { this.interleaved = val; }
+	public boolean isInterleaved() { return this.interleaved; }
+	
+	/* mesh contains pickable polys */
+	private boolean polyPickable = false;
+	public void setPolyPickable( boolean val ) { this.polyPickable = val; }
+	public boolean isPolyPickable() { return this.polyPickable; }
+	
 	/* initialize the buffer objects for the mesh */
 	public void init() {
 		this.ready = false;
 		
-		for( Poly p : this.polys )
-			p.createTexture();
+		if( this.interleaved ) {		
+			for( Poly p : this.polys )
+				p.createTexture();
+			
+			this.build();
+			
+			this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
+			this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, this.aba )
+					.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) )
+					.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) )
+					.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) )
+					.build();
+		}
 		
-		this.build();
+		else {
+			for( Poly p : this.polys )
+				p.init();
+		}
 		
-		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
-		this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, this.aba )
-				.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) )
-				.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) )
-				.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) )
-				.build();
-		
-		if( this.bound )
+		if( this.bound ) {
 			this.createBoundingBox();
+			/* physics */
+			this.setHeight( this.yMax - this.yMin );
+		}
 		
 		this.ready = true;
 	}
@@ -102,13 +128,20 @@ public class Mesh extends Pickable {
 	
 	public void render() {
 		if( this.ready ) {
-			if( this.buffer() ) {
-				glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
-				for( Poly p : this.polys ) {
-					p.applyTexture();
-					int[] cur = p.range;
-					glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
+			if( this.interleaved ) {
+				if( this.buffer() ) {
+					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
+					for( Poly p : this.polys ) {
+						p.applyTexture();
+						int[] cur = p.range;
+						glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
+					}
 				}
+			}
+			
+			else {
+				for( Poly p : this.polys )
+					p.render();
 			}
 		}
 	}
