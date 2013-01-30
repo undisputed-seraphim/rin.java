@@ -8,10 +8,9 @@ public class Boundable extends Actor {
 	
 	/* bounding box values */
 	protected BoundingBox bbox = null;
-	protected float xMin = Float.MAX_VALUE, yMin = Float.MAX_VALUE, zMin = Float.MAX_VALUE, 
-					xMax = Float.MIN_VALUE, yMax = Float.MIN_VALUE, zMax = Float.MIN_VALUE;
+	protected float xMin = Float.POSITIVE_INFINITY, yMin = Float.POSITIVE_INFINITY, zMin = Float.POSITIVE_INFINITY, 
+					xMax = Float.NEGATIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY, zMax = Float.NEGATIVE_INFINITY;
 	
-	/* add bound values to the xmax, ymax, etc if applicable */
 	public void addBounds( float x, float y, float z ) {
 		xMin = Math.min( xMin, x );
 		yMin = Math.min( yMin, y );

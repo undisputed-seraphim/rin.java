@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import rin.gl.GL;
 import rin.gl.lib3d.GLInterleavedBuffer.*;
-import rin.util.Buffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;

@@ -22,6 +22,7 @@ public class Poly extends Pickable {
 	
 	/* opengl render mode */
 	protected int renderMode = GL_TRIANGLES;
+	public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
 	
 	/* texture file string and opengl texture number */
 	protected String textureFile = "";
@@ -48,7 +49,7 @@ public class Poly extends Pickable {
 		this.setTexcoords( t );
 		this.setTextureFile( texture );
 	}
-	
+
 	private void getBounds( float[] v ) {
 		for( int i = 0; i < v.length; i += 3 )
 			this.addBounds( v[i], v[i+1], v[i+2] );

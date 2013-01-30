@@ -11,7 +11,7 @@ public class Game {
 		this.rin = new Engine();
 		/* setup all the engine options here, e.g. load data into scene, characters, etc */
 		this.rin.addCharacter( "noire_v" );
-		this.rin.addComplexShape( new Grid( 2, 2, 1.0f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Z_AXIS, 0.5f ) );
+		this.rin.addComplexShape( new Grid( 10, 10, 0.5f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Y_AXIS, 0.1f ) );
 	}
 	
 	/* run the engine */

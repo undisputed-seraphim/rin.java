@@ -18,7 +18,7 @@ import rin.util.IO;
 
 public class Scene {
 	public static final String LS = System.getProperty( "file.separator" );
-	public static final String OS = System.getProperty( "os.name" ).indexOf( "mac" ) != -1 ?
+	public static final String OS = System.getProperty( "os.name" ).toLowerCase().indexOf( "mac" ) != -1 ?
 			LS+"Users"+LS+"Musashi"+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS :
 				"C:"+LS+"Users"+LS+"johall"+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
 	private static final String SHADER_DIR = OS+"inc"+LS+"shaders"+LS;
@@ -159,6 +159,8 @@ public class Scene {
 			//Input.process();
 			this.camera.update();
 			
+			/*
+			//TODO: fix so that only the top most bounding box can be selected
 			float z = this.camera.getMouseZ(), w = 0;
 			Actor picked = null;
 			for( Actor a : this.actors ) {
@@ -187,7 +189,7 @@ public class Scene {
 				picked.toPickable().isMouseOver = true;
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			
+			*/
 			//TODO: this range check will falsely succeed if something is drawn after at the same z point
 			for( Actor a : this.actors ) {
 				if( a.isMesh() && a.withinRange( Scene.VIEW_DISTANCE, this.camera.getPosition() ) ) {

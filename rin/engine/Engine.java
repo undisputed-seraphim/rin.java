@@ -63,13 +63,14 @@ public class Engine {
 	
 	/* wrapper to start gl module's Display */
 	public void glUpdate() {
-		GL.update();
+		if( this.running )
+			GL.update();
 	}
 	
 	/* wrapper to stop gl module's Display */
 	public void glStop() {
 		if( this.running ) {
-			GL.requestDestroy();
+			GL.forceDestroy();
 			this.running = false;
 		}
 	}

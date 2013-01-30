@@ -79,6 +79,7 @@ public class GL {
 	public static void unpause() { GL.paused = false; }
 
 	/* hide the actual 3d display window */
+	public static void forceDestroy() { GL.destroy(); }
 	public static void requestDestroy() { GL.requestDestroy( null ); }
 	public static void requestDestroy( Runnable onDestroy ) {
 		GL.destroyRequested = true;
