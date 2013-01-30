@@ -3,6 +3,7 @@ package rin.gl;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -66,6 +67,12 @@ public class Camera extends Controllable {
 	public void transform() {
 		super.transform();
 		this.matrix = Mat4.multiply( this.perspective, this.matrix );
+	}
+	
+	public float[] getMouseRGB() {
+		IntBuffer buf = Buffer.toBuffer( new int[3] );
+		glReadPixels( Mouse.getX(), Mouse.getY(), 1, 1, GL_RGB, GL_UNSIGNED_BYTE, buf );
+		return new float[]{ buf.get( 0 ), buf.get( 1 ), buf.get( 2 ) };
 	}
 	
 	public float getMouseZ() {

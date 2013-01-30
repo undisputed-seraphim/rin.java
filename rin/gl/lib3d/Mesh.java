@@ -45,11 +45,7 @@ public class Mesh extends Controllable {
 	private int[] iba;
 	private float[] aba;
 	
-	protected GLBuffer ibuf = null;
 	protected GLInterleavedBuffer abuf = null;
-	
-	/* mesh is ready to be rendered */
-	private boolean ready = false;
 	
 	/* mesh will merge all poly data into one interleaved array */
 	private boolean interleaved = true;
@@ -65,9 +61,23 @@ public class Mesh extends Controllable {
 	public void init() {
 		this.ready = false;
 		
-		if( this.interleaved ) {		
+		if( this.bound ) {
+			this.createBoundingBox();
+			/* physics */
+			this.setHeight( this.yMax - this.yMin );
+		}
+		
+		if( this.isPolyPickable() )
 			for( Poly p : this.polys )
+				p.listenForPicking();
+			
+		else if( this.isPickable() )
+			this.listenForPicking();
+		
+		if( this.interleaved ) {		
+			for( Poly p : this.polys ) {
 				p.createTexture();
+			}
 			
 			this.build();
 			
@@ -80,14 +90,9 @@ public class Mesh extends Controllable {
 		}
 		
 		else {
-			for( Poly p : this.polys )
+			for( Poly p : this.polys ) {
 				p.init();
-		}
-		
-		if( this.bound ) {
-			this.createBoundingBox();
-			/* physics */
-			this.setHeight( this.yMax - this.yMin );
+			}
 		}
 		
 		this.ready = true;
@@ -125,9 +130,9 @@ public class Mesh extends Controllable {
 		return this.ibuf.buffer();
 	}
 	
-	public void render() {
+	public void render( int renderMode, boolean unique ) {
 		if( this.ready ) {
-			if( this.interleaved ) {
+			if( this.interleaved ) {				
 				if( this.buffer() ) {
 					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 					for( Poly p : this.polys ) {

@@ -30,7 +30,7 @@ public class ModelDAE implements ModelManager {
 		/* DAE models will utilize the mesh class */
 		Mesh mesh = new Mesh();
 		mesh.setPickable( true );
-		mesh.setInterleaved( false );
+		mesh.setInterleaved( true );
 		float[] V_SRC, N_SRC, T_SRC;
 		String path = file.substring( 0, file.lastIndexOf( Scene.LS ) + 1 );
 		for( Polylist p : polylists ) {

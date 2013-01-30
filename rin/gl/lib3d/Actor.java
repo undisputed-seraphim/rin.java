@@ -1,18 +1,25 @@
 package rin.gl.lib3d;
 
+import rin.gl.Scene;
 import rin.util.math.*;
 
 //TODO: add overflow checking for radians/rotation
 public class Actor {
 	public static final float PIOVER180 = (float)( java.lang.Math.PI / 180 );
 	/* this actors unique id */
+	private float[] uniqueColor = new float[3];
 	protected int id = -1;
 	protected String name = "No Name";
+	
+	public Actor() {
+		this.uniqueColor = Scene.getNextColor();
+	}
 	
 	public int getId() { return this.id; }
 	public Actor setId( int id ) { this.id = id; return this; }
 	public Actor setName( String name ) { this.name = name; return this; }
 	public String getName() { return this.name; }
+	public float[] getUniqueColor() { return this.uniqueColor; }
 	
 	/* matrices depicting the location in 3d space of this positionable */
 	protected Mat4	scaled =	new Mat4(),
@@ -107,6 +114,9 @@ public class Actor {
 	public Poly toPoly() { return ( Poly )this; }
 	
 	public Pickable toPickable() { return ( Pickable )this; }
+	
+	public boolean isRenderable() { return this instanceof Renderable; }
+	public Renderable toRenderable() { return ( Renderable )this; }
 	
 	public Actor destroy() {
 		if( this.isMesh() )

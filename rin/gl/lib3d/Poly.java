@@ -2,10 +2,7 @@ package rin.gl.lib3d;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.GL;
 import rin.gl.TextureManager;
@@ -16,27 +13,9 @@ import rin.util.Buffer;
  *  e.g. vertices, normals, texture coordinates, etc.
  *
  */
-public class Poly extends Pickable {
-	/* if poly is ready to be rendered */
-	private boolean ready = false;
-	
-	/* opengl render mode */
-	protected int renderMode = GL_TRIANGLES;
-	public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
-	
+public class Poly extends Pickable {	
 	/* texture file string and opengl texture number */
-	protected String textureFile = "";
-	protected int texture = -1;
-	protected float[] color = new float[]{ 1.0f, 0.0f, 0.0f, 1.0f };
 	protected int[] range = new int[]{ 0, 0 };
-	
-	/* temporary lists for vertices, normals, and texcoords */
-	protected ArrayList<Float>		v = new ArrayList<Float>(),
-									n = new ArrayList<Float>(),
-									t = new ArrayList<Float>();
-	
-	/* gl buffer pointers */
-	protected GLBuffer ibuf = null, vbuf = null, nbuf = null, tbuf = null;
 	
 	public Poly( String name ) {
 		super.setName( name );
@@ -95,18 +74,6 @@ public class Poly extends Pickable {
 			this.texture = TextureManager.load( this.textureFile );
 	}
 	
-	public void applyTexture() {
-		if( this.texture != -1 ) {
-			glActiveTexture( GL_TEXTURE0 );
-			glUniform1i( GL.getUniform( "useTexture" ), GL_TRUE );
-			glBindTexture( GL_TEXTURE_2D, this.texture );
-		} else {
-			glColor4f( this.color[0], this.color[1], this.color[2], this.color[3] );
-			glUniform1i( GL.getUniform( "useTexture" ), GL_FALSE );
-			glDisableVertexAttribArray( GL.getAttrib( "texture" ) );
-		}
-	}
-	
 	public void init() {
 		this.ready = false;
 		
@@ -121,28 +88,13 @@ public class Poly extends Pickable {
 		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, GL.getAttrib( "normal" ) );
 		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, GL.getAttrib( "texture" ) );
 		
-		if( this.bound )
+		if( this.bound ) {
 			this.createBoundingBox();
+			if( this.isPickable() ) {
+			}
+		}
 		
 		this.ready = true;
-	}
-	
-	private boolean buffer() {
-		this.vbuf.buffer();
-		this.nbuf.buffer();
-		this.tbuf.buffer();
-		return this.ibuf.buffer();
-	}
-	
-	public void render() { this.render( this.renderMode ); }
-	public void render( int renderMode ) {
-		if( this.ready ) {
-			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
-
-			this.applyTexture();
-			if( this.buffer() )
-				glDrawElements( renderMode, this.v.size() / 3, GL_UNSIGNED_INT, 0 );
-		}
 	}
 	
 	public Poly destroy() {

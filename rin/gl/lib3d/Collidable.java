@@ -1,6 +1,6 @@
 package rin.gl.lib3d;
 
-public class Collidable extends Boundable {
+public class Collidable extends Renderable {
 	protected float weight = 10.0f;
 	protected float height = 5.0f;
 	

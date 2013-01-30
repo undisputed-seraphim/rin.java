@@ -1,8 +1,11 @@
 package rin.gl.lib3d;
 
+import rin.gl.GLEvent.PickEvent;
+import rin.gl.GLEvent;
+import rin.gl.GLEventListener;
 import rin.util.math.Vec3;
 
-public class Pickable extends Collidable {
+public class Pickable extends Collidable implements GLEventListener.PickEventListener {
 	public static final float MARGIN_ERROR = 0.0007f;
 	protected boolean pickable = false;
 	public boolean isMouseOver = false;
@@ -25,5 +28,19 @@ public class Pickable extends Collidable {
 	
 	public void clicked() {
 		System.out.println( "Clicked on: " + this.name );
+	}
+	
+	public void listenForPicking() {
+		if( this.bbox == null )
+			this.createBoundingBox();
+		
+		float[] tmp = this.getUniqueColor();
+		GLEvent.addPickEventListener( this, "FloatArray[ "+(float)((int)(tmp[0] * 255) & 0xff)+" "+
+				(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
+	}
+	
+	@Override
+	public void processPickEvent(PickEvent e) {
+		System.out.println( "mouse hovering over " + this.getName() );
 	}
 }

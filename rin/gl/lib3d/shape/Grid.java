@@ -120,13 +120,9 @@ public class Grid extends ComplexShape {
 					v[z+15] = z == X_AXIS ? pos.x : z == Y_AXIS ? pos.y : pos.z;
 				}
 				
-				//System.out.println( Buffer.toString( v ) );
 				super.addPoly( this.getName() + ":" + "cell-" + i + "," + j, v, new float[0], new float[0], "" );
 				super.getPoly( i + j ).setPickable( true );
 			}
 		}
-		//super.addPoly( "row", v, n, t, texture)
-		
-		//super.init();
 	}
 }

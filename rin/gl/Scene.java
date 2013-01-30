@@ -3,7 +3,6 @@ package rin.gl;
 import java.util.ArrayList;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
@@ -14,6 +13,8 @@ import rin.gl.lib3d.Mesh;
 import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.shape.ComplexShape;
 import rin.gl.model.Model;
+import rin.gl.GLEvent.*;
+import rin.util.Buffer;
 import rin.util.IO;
 
 public class Scene {
@@ -26,7 +27,7 @@ public class Scene {
 	private static final float VIEW_DISTANCE = 15.0f;
 	
 	private boolean ready = false;
-	private int items = 0;
+	private static int r = 0, g = 0, b = 0;
 	private Camera camera = null;
 	
 	private int width, height;
@@ -44,7 +45,25 @@ public class Scene {
 	public int getHeight() { return this.height; }
 	public boolean isReady() { return this.ready; }
 	
+	public static float[] getNextColor() {
+		if( Scene.r < 255 )
+			Scene.r ++;
+		else if( Scene.g < 255 ) {
+			Scene.g ++;
+			Scene.r = 0;
+		} else {
+			Scene.b ++;
+			Scene.r = 0;
+			Scene.g = 0;
+		}
+		
+		float[] tmp = new float[] { Scene.r, Scene.g, Scene.b };
+		//System.out.println( tmp[0] / 255 );
+		return new float[]{ tmp[0] / 255, tmp[1] / 255, tmp[2] / 255 };
+	}
 	/* get an actor from the actor stack */
+	private Actor getRecentActor() { return this.actors.get( this.actors.size() - 1 ); }
+	private int getRecentActorId() { return this.getRecentActor().getId(); }
 	public Actor getActor( int id ) {
 		for( Actor a : this.actors )
 			if( a.getId() == id )
@@ -66,7 +85,7 @@ public class Scene {
 	
 	public int addComplexShape( ComplexShape shape ) {
 		this.actors.add( shape );
-		return shape.setId( this.items++ ).getId();
+		return this.getRecentActorId();
 	}
 	
 	/* add something to the scene */
@@ -75,21 +94,23 @@ public class Scene {
 		
 		switch( format ) {
 		case DAE:
-			this.actors.add( Model.create( format, file + ".dae" ) );
-			break;
+			this.actors.add( Model.create( format, file + ".dae" ).setName( name ) );
+			return this.getRecentActorId();
 			
 		default:
 			break;
 		}
 		
-		return this.actors.get( this.actors.size() - 1 ).setName( name ).setId( this.items++ ).getId();
+		return -1;
 	}
 	
 	/* intialize shaders and program for the scene */
 	public Scene() { this( 500, 500 ); }
 	public Scene( int width, int height ) {
 		TextureManager.reset();
-		this.items = 0;
+		Scene.r = 0;
+		Scene.g = 0;
+		Scene.b = 0;
 		
 		this.width = width;
 		this.height = height;
@@ -159,6 +180,26 @@ public class Scene {
 			//Input.process();
 			this.camera.update();
 			
+			for( Actor a : this.actors ) {
+				if( a.isMesh() ) {
+					if( a.toMesh().isPolyPickable() ) {
+						for( Poly p : a.toMesh().getPolys() ) {
+							p.showBoundingBox( GL_TRIANGLE_STRIP, true );
+						}
+					} else {
+						a.toMesh().showBoundingBox( GL_TRIANGLE_STRIP, true );
+					}
+				}
+			}
+			
+			//System.out.println( Buffer.toString( this.camera.getMouseRGB() ) );
+			GLEvent.fire( new PickEvent( Buffer.toString( this.camera.getMouseRGB() ) ) );
+			
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			
+			for( Actor a : this.actors )
+				if( a.isRenderable() )
+					a.toRenderable().render();
 			/*
 			//TODO: fix so that only the top most bounding box can be selected
 			float z = this.camera.getMouseZ(), w = 0;
@@ -184,14 +225,22 @@ public class Scene {
 					}
 				}
 			}
-			
+			System.out.println( this.camera.getMouseRGB().toString() );
 			if( picked != null )
 				picked.toPickable().isMouseOver = true;
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			*/
 			//TODO: this range check will falsely succeed if something is drawn after at the same z point
+			/*int i = 0;
 			for( Actor a : this.actors ) {
+				i++;
+				if( a.isRenderable() ) {
+					a.toRenderable().render();
+				}
+			}*/
+			
+			/*for( Actor a : this.actors ) {
 				if( a.isMesh() && a.withinRange( Scene.VIEW_DISTANCE, this.camera.getPosition() ) ) {
 					a.toMesh().render();
 					if( a.toMesh().isMouseOver && a.toMesh().isPickable() ) {
@@ -208,7 +257,7 @@ public class Scene {
 						}
 					}
 				}
-			}
+			}*/
 		}
 	}
 	
@@ -241,6 +290,5 @@ public class Scene {
 	}
 	
 	/* return a string for the vertex shader code */
-	//private String getVertexShaderStr() { return IO.file.asString( GL.GL_DIR + "\\shaders\\vertex.shader" ); }
 	private String getShaderSource( String shader ) { return IO.file.asString( Scene.SHADER_DIR + shader ); }
 }
