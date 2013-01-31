@@ -1,6 +1,6 @@
-package rin.gl;
+package rin.gl.event;
 
-import rin.gl.GLEvent.*;
+import rin.gl.event.GLEvent.*;
 
 public interface GLEventListener {
 	

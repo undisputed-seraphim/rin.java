@@ -13,7 +13,8 @@ import rin.gl.lib3d.Mesh;
 import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.shape.ComplexShape;
 import rin.gl.model.Model;
-import rin.gl.GLEvent.*;
+import rin.gl.event.GLEvent.*;
+import rin.gl.event.GLEvent;
 import rin.util.Buffer;
 import rin.util.IO;
 

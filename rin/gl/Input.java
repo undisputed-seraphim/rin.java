@@ -2,7 +2,8 @@ package rin.gl;
 
 import org.lwjgl.input.Keyboard;
 
-import rin.gl.GLEvent.*;
+import rin.gl.event.GLEvent;
+import rin.gl.event.GLEvent.*;
 
 public class Input {
 	public static void process() {

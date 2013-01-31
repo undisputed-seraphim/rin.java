@@ -1,9 +1,9 @@
-package rin.gl;
+package rin.gl.event;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import rin.gl.GLEventListener.*;
+import rin.gl.event.GLEventListener.*;
 
 public class GLEvent {
 	public GLEvent() {}
@@ -72,7 +72,6 @@ public class GLEvent {
 			}
 		}
 		
-		//TODO: pick listeners need to be removed
 		public static void removeListener( PickEventListener el ) {
 			if( PickEvent.listeners.indexOf( el ) != - 1 ) {
 				PickEvent.listening.remove( PickEvent.listeners.indexOf( el ) );

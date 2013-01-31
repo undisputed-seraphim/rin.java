@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL20.*;
 import java.util.ArrayList;
 
 import rin.gl.GL;
+import rin.gl.TextureManager;
 import rin.gl.lib3d.shape.BoundingBox;
 
 public class Renderable extends Actor {
@@ -24,6 +25,20 @@ public class Renderable extends Actor {
 	
 	protected String textureFile = "";
 	protected int texture = -1;
+	
+	public void setTextureFile( String file ) {
+		if( this.texture != -1 )
+			TextureManager.unload( file );
+		
+		this.texture = -1;
+		this.textureFile = file;
+	}
+	
+	public void createTexture() {
+		if( !this.textureFile.equals( "" ) && this.texture == -1 )
+			this.texture = TextureManager.load( this.textureFile );
+	}
+	
 	public void applyTexture() {
 		if( this.texture != -1 && !this.colored ) {
 			glActiveTexture( GL_TEXTURE0 );
@@ -51,6 +66,13 @@ public class Renderable extends Actor {
 	protected BoundingBox bbox = null;
 	protected float xMin = Float.POSITIVE_INFINITY, yMin = Float.POSITIVE_INFINITY, zMin = Float.POSITIVE_INFINITY,
 					xMax = Float.NEGATIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY, zMax = Float.NEGATIVE_INFINITY;
+	
+	public void getBounds( float[] v ) {
+		this.xMin = Float.POSITIVE_INFINITY; this.yMin = Float.POSITIVE_INFINITY; this.zMin = Float.POSITIVE_INFINITY;
+		this.xMax = Float.NEGATIVE_INFINITY; this.yMax = Float.NEGATIVE_INFINITY; this.zMax = Float.NEGATIVE_INFINITY;
+		for( int i = 0; i < v.length; i += 3 )
+			this.addBounds( v[i], v[i+1], v[i+2] );
+	}
 	
 	public void addBounds( float x, float y, float z ) {
 		xMin = Math.min( xMin, x );

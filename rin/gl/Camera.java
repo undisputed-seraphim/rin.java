@@ -3,7 +3,6 @@ package rin.gl;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -64,6 +63,7 @@ public class Camera extends Controllable {
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.matrix.gl() );
 	}
 	
+	@Override
 	public void transform() {
 		super.transform();
 		this.matrix = Mat4.multiply( this.perspective, this.matrix );
@@ -96,6 +96,7 @@ public class Camera extends Controllable {
 		return pos;
 	}
 	
+	@Override
 	public Camera destroy() {
 		super.destroy();
 		return null;

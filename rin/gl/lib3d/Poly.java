@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import static org.lwjgl.opengl.GL15.*;
 
 import rin.gl.GL;
-import rin.gl.GLEvent;
+import rin.gl.event.GLEvent;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
 
@@ -28,11 +28,6 @@ public class Poly extends Pickable {
 		this.setNormals( n );
 		this.setTexcoords( t );
 		this.setTextureFile( texture );
-	}
-
-	private void getBounds( float[] v ) {
-		for( int i = 0; i < v.length; i += 3 )
-			this.addBounds( v[i], v[i+1], v[i+2] );
 	}
 	
 	private Poly ready( boolean val ) { this.ready = val; return this; }
@@ -60,19 +55,6 @@ public class Poly extends Pickable {
 		this.t = Buffer.toArrayList( arr );
 		
 		return this.ready( false );
-	}
-	
-	public void setTextureFile( String file ) {
-		if( this.texture != -1 )
-			TextureManager.unload( file );
-		
-		this.texture = -1;
-		this.textureFile = file;
-	}
-	
-	public void createTexture() {
-		if( !this.textureFile.equals( "" ) && this.texture == -1 )
-			this.texture = TextureManager.load( this.textureFile );
 	}
 	
 	public void init() {

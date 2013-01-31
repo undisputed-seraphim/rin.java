@@ -2,9 +2,9 @@ package rin.gl.lib3d;
 
 import org.lwjgl.input.Mouse;
 
-import rin.gl.GLEvent.*;
-import rin.gl.GLEvent;
-import rin.gl.GLEventListener.*;
+import rin.gl.event.GLEvent.*;
+import rin.gl.event.GLEvent;
+import rin.gl.event.GLEventListener.*;
 import static org.lwjgl.opengl.GL11.*;
 import rin.util.math.Vec3;
 

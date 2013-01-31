@@ -3,6 +3,7 @@ package rin.gl.lib3d;
 import java.util.ArrayList;
 
 import rin.gl.GL;
+import rin.gl.event.GLEvent;
 import rin.gl.lib3d.GLInterleavedBuffer.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -22,11 +23,6 @@ public class Mesh extends Controllable {
 	public void addPoly( String name, float[] v, float[] n, float[] t, String texture ) {
 		this.getBounds( v );
 		this.polys.add( new Poly( name, v, n, t, texture ) );
-	}
-	
-	private void getBounds( float[] v ) {
-		for( int i = 0; i < v.length; i += 3 )
-			this.addBounds( v[i], v[i+1], v[i+2] );
 	}
 	
 	private void getPolyData( ArrayList<Float> v, ArrayList<Float> n, ArrayList<Float> t ) {
@@ -92,7 +88,8 @@ public class Mesh extends Controllable {
 		else {
 			for( Poly p : this.polys ) {
 				p.init();
-				p.listenForPicking();
+				if( this.isPolyPicking() )
+					p.listenForPicking();
 			}
 		}
 		
@@ -175,6 +172,9 @@ public class Mesh extends Controllable {
 		this.ibuf = this.ibuf != null ? this.ibuf.destroy() : null;
 		
 		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
+		
+		if( this.isPickListening() )
+			GLEvent.removePickEventListener( this );
 		
 		return null;
 	}
