@@ -182,24 +182,26 @@ public class Scene {
 			
 			for( Actor a : this.actors ) {
 				if( a.isMesh() ) {
-					if( a.toMesh().isPolyPickable() ) {
+					if( a.toMesh().isPolyPicking() ) {
 						for( Poly p : a.toMesh().getPolys() ) {
 							p.showBoundingBox( GL_TRIANGLE_STRIP, true );
 						}
 					} else {
-						a.toMesh().showBoundingBox( GL_TRIANGLE_STRIP, true );
+						a.toMesh().render( GL_TRIANGLES, true );
 					}
 				}
 			}
 			
-			//System.out.println( Buffer.toString( this.camera.getMouseRGB() ) );
-			GLEvent.fire( new PickEvent( Buffer.toString( this.camera.getMouseRGB() ) ) );
+			String actorAtMouse = Buffer.toString( this.camera.getMouseRGB() );
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
 			for( Actor a : this.actors )
 				if( a.isRenderable() )
 					a.toRenderable().render();
+			
+			GLEvent.fire( new PickEvent( actorAtMouse ) );
+			
 			/*
 			//TODO: fix so that only the top most bounding box can be selected
 			float z = this.camera.getMouseZ(), w = 0;

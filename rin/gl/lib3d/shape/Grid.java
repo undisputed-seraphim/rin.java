@@ -16,7 +16,7 @@ public class Grid extends ComplexShape {
 		super( "Grid-" + Grid.items++ );
 		super.setInterleaved( false );
 		super.bound = false;
-		super.setPolyPickable( true );
+		super.setPolyPicking( true );
 		
 		if( rows == 0 ) rows = 1;
 		if( cols == 0 ) cols = 1;
@@ -121,7 +121,7 @@ public class Grid extends ComplexShape {
 				}
 				
 				super.addPoly( this.getName() + ":" + "cell-" + i + "," + j, v, new float[0], new float[0], "" );
-				super.getPoly( i + j ).setPickable( true );
+				super.getPoly( i + j ).setPicking( true );
 			}
 		}
 	}

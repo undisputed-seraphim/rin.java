@@ -14,6 +14,7 @@ public class Renderable extends Actor {
 	
 	/* opengl render mode */
 	protected int renderMode = GL_TRIANGLES;
+	public int getRenderMode() { return this.renderMode; }
 	public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
 	
 	/* temporary lists for vertices, normals, and texcoords */
@@ -90,10 +91,16 @@ public class Renderable extends Actor {
 	
 	public void render() { this.render( this.renderMode ); }
 	public void render( int renderMode ) { this.render( renderMode, false ); }
-	public void render( int renderMode, boolean unique ) {
+	public void render( int renderMode, boolean unique ) { this.render( renderMode, unique, false ); }
+	public void render( int renderMode, boolean unique, boolean override ) {
 		if( this.ready ) {
 			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 
+			if( unique ) {
+				this.setColored( true );
+				if( !override )
+					this.setColor( this.getUniqueColor() );
+			} else this.setColored( false );
 			this.applyTexture();
 			if( this.buffer() )
 				glDrawElements( renderMode, this.v.size() / 3, GL_UNSIGNED_INT, 0 );

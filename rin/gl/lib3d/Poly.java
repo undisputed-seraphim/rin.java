@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import static org.lwjgl.opengl.GL15.*;
 
 import rin.gl.GL;
+import rin.gl.GLEvent;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
 
@@ -88,11 +89,8 @@ public class Poly extends Pickable {
 		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, GL.getAttrib( "normal" ) );
 		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, GL.getAttrib( "texture" ) );
 		
-		if( this.bound ) {
+		if( this.bound )
 			this.createBoundingBox();
-			if( this.isPickable() ) {
-			}
-		}
 		
 		this.ready = true;
 	}
@@ -110,6 +108,9 @@ public class Poly extends Pickable {
 		this.t.clear();
 		
 		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
+		
+		if( this.isPickListening() )
+			GLEvent.removePickEventListener( this );
 		
 		if( !this.textureFile.equals( "" ) )
 			TextureManager.unload( this.textureFile );

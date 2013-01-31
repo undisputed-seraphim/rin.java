@@ -12,6 +12,7 @@ public class GLEvent {
 	public static void addPickEventListener( PickEventListener src, String code ) { PickEvent.addListener( src, code ); }
 	
 	public static void removeKeyEventListener( KeyEventListener src ) { KeyEvent.removeListener( src ); }
+	public static void removePickEventListener( PickEventListener src ) { PickEvent.removeListener( src ); }
 	
 	public static void fire( KeyEvent e ) { KeyEvent.fire( e ); }
 	public static void fire( PickEvent e ) { PickEvent.fire( e ); }
@@ -44,6 +45,15 @@ public class GLEvent {
 	
 	
 	public static class MouseEvent extends GLEvent {
+		public int button;
+		public int x;
+		public int y;
+		
+		public MouseEvent( int x, int y, int button ) {
+			this.button = button;
+			this.x = x;
+			this.y = y;
+		}
 	}
 	
 	
@@ -56,7 +66,6 @@ public class GLEvent {
 		public PickEvent( String code ) { this.code = code; }
 		
 		public static void addListener( PickEventListener el, String code ) {
-			//System.out.println( code + " added as picklistener from " + ((Pickable)el).getName() );
 			if( PickEvent.listeners.indexOf( el ) == - 1 ) {
 				PickEvent.listeners.add( el );
 				PickEvent.listening.add( code );
@@ -65,6 +74,10 @@ public class GLEvent {
 		
 		//TODO: pick listeners need to be removed
 		public static void removeListener( PickEventListener el ) {
+			if( PickEvent.listeners.indexOf( el ) != - 1 ) {
+				PickEvent.listening.remove( PickEvent.listeners.indexOf( el ) );
+				PickEvent.listeners.remove( el );
+			}
 		}
 		
 		public static void fire( PickEvent e ) {

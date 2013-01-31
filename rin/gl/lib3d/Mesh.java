@@ -53,9 +53,9 @@ public class Mesh extends Controllable {
 	public boolean isInterleaved() { return this.interleaved; }
 	
 	/* mesh contains pickable polys */
-	private boolean polyPickable = false;
-	public void setPolyPickable( boolean val ) { this.polyPickable = val; }
-	public boolean isPolyPickable() { return this.polyPickable; }
+	private boolean polyPicking = false;
+	public void setPolyPicking( boolean val ) { this.polyPicking = val; }
+	public boolean isPolyPicking() { return this.polyPicking; }
 	
 	/* initialize the buffer objects for the mesh */
 	public void init() {
@@ -67,11 +67,11 @@ public class Mesh extends Controllable {
 			this.setHeight( this.yMax - this.yMin );
 		}
 		
-		if( this.isPolyPickable() )
+		if( this.isPolyPicking() )
 			for( Poly p : this.polys )
 				p.listenForPicking();
 			
-		else if( this.isPickable() )
+		else if( this.isPicking() )
 			this.listenForPicking();
 		
 		if( this.interleaved ) {		
@@ -92,6 +92,7 @@ public class Mesh extends Controllable {
 		else {
 			for( Poly p : this.polys ) {
 				p.init();
+				p.listenForPicking();
 			}
 		}
 		
@@ -136,6 +137,10 @@ public class Mesh extends Controllable {
 				if( this.buffer() ) {
 					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 					for( Poly p : this.polys ) {
+						if( unique ) {
+							p.setColored( true );
+							p.setColor( this.getUniqueColor() );
+						} else p.setColored( false );
 						p.applyTexture();
 						int[] cur = p.range;
 						glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
@@ -144,8 +149,16 @@ public class Mesh extends Controllable {
 			}
 			
 			else {
-				for( Poly p : this.polys )
-					p.render();
+				for( Poly p : this.polys ) {
+					if( unique ) {
+						p.setColor( this.getUniqueColor() );
+						p.setColored( true );
+						p.render( p.getRenderMode(), true, true );
+					} else {
+						p.setColored( false );
+						p.render();
+					}
+				}
 			}
 		}
 	}
