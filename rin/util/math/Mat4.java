@@ -107,6 +107,108 @@ public class Mat4 {
 		}
 		return r;
 	}
+	/*void gluLookAt(GLfloat eyex, GLfloat eyey, GLfloat eyez,
+                  GLfloat centerx, GLfloat centery, GLfloat centerz,
+                  GLfloat upx, GLfloat upy, GLfloat upz)
+{
+        GLfloat m[16];
+        GLfloat x[3], y[3], z[3];
+        GLfloat mag;
+        
+        z[0] = eyex - centerx;
+        z[1] = eyey - centery;
+        z[2] = eyez - centerz;
+        mag = sqrt(z[0] * z[0] + z[1] * z[1] + z[2] * z[2]);
+        if (mag) {                     
+                z[0] /= mag;
+                z[1] /= mag;
+                z[2] /= mag;
+        }
+        
+        y[0] = upx;
+        y[1] = upy;
+        y[2] = upz;
+        
+        x[0] = y[1] * z[2] - y[2] * z[1];
+        x[1] = -y[0] * z[2] + y[2] * z[0];
+        x[2] = y[0] * z[1] - y[1] * z[0];
+        
+        y[0] = z[1] * x[2] - z[2] * x[1];
+        y[1] = -z[0] * x[2] + z[2] * x[0];
+        y[2] = z[0] * x[1] - z[1] * x[0];
+
+        
+        mag = sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
+        if (mag) {
+                x[0] /= mag;
+                x[1] /= mag;
+                x[2] /= mag;
+        }
+        
+        mag = sqrt(y[0] * y[0] + y[1] * y[1] + y[2] * y[2]);
+        if (mag) {
+                y[0] /= mag;
+                y[1] /= mag;
+                y[2] /= mag;
+        }
+        
+#define M(row,col)  m[col*4+row]
+        M(0, 0) = x[0];
+        M(0, 1) = x[1];
+        M(0, 2) = x[2];
+        M(0, 3) = 0.0;
+        M(1, 0) = y[0];
+        M(1, 1) = y[1];
+        M(1, 2) = y[2];
+        M(1, 3) = 0.0;
+        M(2, 0) = z[0];
+        M(2, 1) = z[1];
+        M(2, 2) = z[2];
+        M(2, 3) = 0.0;
+        M(3, 0) = 0.0;
+        M(3, 1) = 0.0;
+        M(3, 2) = 0.0;
+        M(3, 3) = 1.0;
+#undef M
+        glMultMatrixf(m);
+        
+        glTranslatef(-eyex, -eyey, -eyez);*/
+	public static Mat4 lookAt( float eyex, float eyey, float eyez, float centerx, float centery, float centerz, float upx, float upy, float upz ) {
+        float mag;
+        
+        Vec3 z = new Vec3( eyex - centerx, eyey - centery, eyez - centerz );
+        mag = Vec3.magnitude( z );
+        if( mag != 0 ) {                     
+                z.x /= mag;
+                z.y /= mag;
+                z.z /= mag;
+        }
+        
+        Vec3 y = new Vec3( upx, upy, upz );
+        
+        Vec3 x = new Vec3(y.y * z.z - y.z * z.y, -y.x * z.z + y.z * z.x, y.x * z.y - y.y * z.x );
+        y.redefine( z.y * x.z - z.z * x.y, -z.x * x.z + z.z * x.x, z.x * x.y - z.y * x.x );
+
+        
+        mag = Vec3.magnitude( x );
+        if( mag != 0 ) {
+                x.x /= mag;
+                x.y /= mag;
+                x.z /= mag;
+        }
+        
+        mag = Vec3.magnitude( y );
+        if( mag != 0 ) {
+                y.x /= mag;
+                y.y /= mag;
+                y.z /= mag;
+        }
+        
+        return new Mat4( x.x, x.y, x.z, 0.0f,
+        				y.x, y.y, y.z, 0.0f,
+        				z.x, z.y, z.z, 0.0f,
+        				0.0f, 0.0f, 0.0f, 1.0f );
+	}
 	
 	public static Vec3 unProject( float x, float y, float z, Mat4 mod, Mat4 cam, IntBuffer viewport ) {
 		Mat4 mat = new Mat4();
@@ -162,6 +264,10 @@ public class Mat4 {
 		s.m[15] = 1.0f;
 		
 		return Mat4.multiply( m, s );
+	}
+	
+	public static Mat4 apply( Mat4 m, float f, Vec3 dir ) {
+		return Mat4.multiply( new Mat4(), Mat4.translate( new Mat4(), Vec3.scale( dir, f ) ) );
 	}
 	
 	/* returns the product of two matrices */

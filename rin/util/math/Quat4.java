@@ -1,6 +1,8 @@
 package rin.util.math;
 
 public class Quat4 {
+	public static final float PIOVER180 = (float)( java.lang.Math.PI / 180 );
+	
 	/* values for each axis, then imaginary value */
 	public float x, y, z, w;
 	

@@ -13,6 +13,7 @@ public class Actor {
 	
 	public Actor() {
 		this.uniqueColor = Scene.getNextColor();
+		this.position = new Vec3( 0.0f, 0.0f, 0.0f );
 	}
 	
 	public int getId() { return this.id; }
@@ -42,11 +43,14 @@ public class Actor {
 	public Vec3 getRotation() { return this.rotation; }
 	public Vec3 getScale() { return this.scale; }
 	public Mat4 getMatrix() { return this.matrix; }
+	public void lookAt( Vec3 eye, Vec3 pos, Vec3 up ) {
+		this.matrix = Mat4.multiply( new Mat4(), Mat4.lookAt( eye.x, eye.y, eye.z, pos.x, pos.y, pos.z, up.x, up.y, up.z ) );
+	}
 	
 	/* move positionable to a specific vector */
 	public void setPosition( Vec3 v ) { this.setPosition( v.x, v.y, v.z ); }
 	public void setPosition( float x, float y, float z ) {
-		this.position.redefine( x, y, z );
+		this.position = new Vec3( x, y, z );
 		this.transform();
 	}
 	
@@ -73,17 +77,16 @@ public class Actor {
 	public void setScale( Vec3 v ) { this.setScale( v.x, v.y, v.z ); }
 	public void setScale( float x, float y, float z ) {
 		this.scale.redefine( x, y, z );		
-		this.updateScale();
+		this.transform();
 	}
 	
 	private void updateScale() {
-		
 	}
 	
 	/* apply rotation and position vectors then compute positionables location matrix */
 	public void transform() {
-		this.updateRotation();
 		this.updatePosition();
+		this.updateRotation();
 		this.updateScale();
 		this.matrix = Mat4.multiply( Mat4.multiply( new Mat4(), this.rotate ), this.translate );
 	}

@@ -33,6 +33,7 @@ public class GL {
 	public static int getAttrib( String attr ) { return GL.scene.getAttrib( attr ); }
 	public static int getUniform( String attr ) { return GL.scene.getUniform( attr ); }
 	public static Scene getScene() { return GL.scene; }
+	public static float getSceneDt() { return GL.scene.getDt(); }
 	
 	public static boolean isReady() { return GL.ready; }
 	public static boolean isPaused() { return GL.paused; }

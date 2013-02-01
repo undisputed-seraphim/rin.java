@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import rin.gl.GL;
 import rin.gl.event.GLEvent;
 import rin.gl.lib3d.GLInterleavedBuffer.*;
+import rin.util.math.Mat4;
+import rin.util.math.Vec3;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
@@ -132,6 +134,7 @@ public class Mesh extends Controllable {
 		if( this.ready ) {
 			if( this.interleaved ) {
 				if( this.buffer() ) {
+					this.matrix = Mat4.apply( this.matrix, GL.getScene().getGravity(), new Vec3( 0.0f, -1.0f, 0.0f ) );
 					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 					for( Poly p : this.polys ) {
 						if( unique ) {

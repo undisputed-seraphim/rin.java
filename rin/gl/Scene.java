@@ -17,6 +17,8 @@ import rin.gl.event.GLEvent.*;
 import rin.gl.event.GLEvent;
 import rin.util.Buffer;
 import rin.util.IO;
+import rin.util.math.Mat4;
+import rin.util.math.Vec3;
 
 public class Scene {
 	public static final String LS = System.getProperty( "file.separator" );
@@ -26,6 +28,13 @@ public class Scene {
 	private static final String SHADER_DIR = OS+"inc"+LS+"shaders"+LS;
 	private static final String MODEL_DIR = OS+"inc"+LS+"models"+LS;
 	private static final float VIEW_DISTANCE = 15.0f;
+	
+	private long start;
+	private long dt;
+	public float getDt() { return this.dt * 10e-9f; }
+	
+	public float gravity = 9.8f;
+	public float getGravity() { return this.gravity; }
 	
 	private boolean ready = false;
 	private static int r = 0, g = 0, b = 0;
@@ -115,7 +124,7 @@ public class Scene {
 		
 		this.width = width;
 		this.height = height;
-		
+		this.start = System.nanoTime();
 		this.camera = new Camera( 45, this.width / this.height, 0.1f, Scene.VIEW_DISTANCE );
 	}
 	
@@ -171,10 +180,16 @@ public class Scene {
 	/* updates all items within range in the scene */
 	public void update() {
 		if( this.ready ) {
+			this.dt = System.nanoTime() - this.start;
+			this.start = System.nanoTime();
+			//System.out.println( this.dt );
+			
 			if( Keyboard.isKeyDown( Keyboard.KEY_1 ) ) {
 				this.camera.detach();
 			} else if( Keyboard.isKeyDown( Keyboard.KEY_2 ) ) {
 				this.camera.attach( this.actors.get( 0 ) );
+			} else if( Keyboard.isKeyDown( Keyboard.KEY_3 ) ) {
+				//this.camera.lookAt( );
 			}
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );

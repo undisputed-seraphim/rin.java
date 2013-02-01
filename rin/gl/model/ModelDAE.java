@@ -50,6 +50,8 @@ public class ModelDAE implements ModelManager {
 						  Buffer.getIndexedValues( N_SRC, Buffer.toArrayi( prim ), p.getOffset( "normal" ), stride, 3 ),
 						  Buffer.getIndexedValues( T_SRC, Buffer.toArrayi( prim ), p.getOffset( "texcoord" ), stride, 2 ),
 						  path + "textures" + Scene.LS + p.getName() + ".png" );
+			//Poly poly = new Poly( p.getName() );
+			//poly.setVertices( Buffer.getIndexedValues( V_SRC, Buffer.toArrayi( prim ), p.getOffset( "vertex" ), stride, 3 ) );
 		}
 		V_SRC = N_SRC = T_SRC = null;
 		
