@@ -11,7 +11,7 @@ import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 
-public class Mesh extends Controllable {	
+public class Mesh extends Controllable {
 	/* Mesh are broken into polys per texture [opengl effeciency] */
 	private ArrayList<Poly> polys = new ArrayList<Poly>();
 	
@@ -66,11 +66,11 @@ public class Mesh extends Controllable {
 		if( this.isPolyPicking() )
 			for( Poly p : this.polys )
 				p.listenForPicking();
-			
+		
 		else if( this.isPicking() )
 			this.listenForPicking();
 		
-		if( this.interleaved ) {		
+		if( this.interleaved ) {
 			for( Poly p : this.polys ) {
 				p.createTexture();
 			}
@@ -97,7 +97,7 @@ public class Mesh extends Controllable {
 	}
 	
 	/* combine all poly information into one single array */
-	public void build() {		
+	public void build() {
 		ArrayList<Float> verts = new ArrayList<Float>();
 		ArrayList<Float> norms = new ArrayList<Float>();
 		ArrayList<Float> texts = new ArrayList<Float>();
@@ -130,7 +130,7 @@ public class Mesh extends Controllable {
 	
 	public void render( int renderMode, boolean unique ) {
 		if( this.ready ) {
-			if( this.interleaved ) {				
+			if( this.interleaved ) {
 				if( this.buffer() ) {
 					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.matrix.gl() );
 					for( Poly p : this.polys ) {
