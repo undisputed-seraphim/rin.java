@@ -27,13 +27,16 @@ public class Mesh extends Controllable {
 		this.polys.add( new Poly( name, v, n, t, texture ) );
 	}
 	
-	private void getPolyData( ArrayList<Float> v, ArrayList<Float> n, ArrayList<Float> t ) {
+	private void getPolyData() {
 		int i = 0;
+		this.v.clear();
+		this.n.clear();
+		this.t.clear();
 		for( Poly p : this.polys ) {
 			p.range[0] = i;
-			v.addAll( p.getVertices() );
-			n.addAll( p.getNormals() );
-			t.addAll( p.getTexcoords() );
+			this.v.addAll( p.getVertices() );
+			this.n.addAll( p.getNormals() );
+			this.t.addAll( p.getTexcoords() );
 			i += p.getVertices().size() / 3;
 			p.range[1] = i;
 		}
@@ -81,10 +84,14 @@ public class Mesh extends Controllable {
 			
 			this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, this.iba );
 			this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, this.aba )
-					.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) )
-					.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) )
-					.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) )
-					.build();
+					.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) );
+			if( this.n.size() > 0 )
+				this.abuf.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) );
+			
+			if( this.t.size() > 0 )
+				this.abuf.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) );
+			
+			this.abuf.build();
 		}
 		
 		else {
@@ -100,29 +107,29 @@ public class Mesh extends Controllable {
 	
 	/* combine all poly information into one single array */
 	public void build() {
-		ArrayList<Float> verts = new ArrayList<Float>();
-		ArrayList<Float> norms = new ArrayList<Float>();
-		ArrayList<Float> texts = new ArrayList<Float>();
-		this.getPolyData( verts, norms, texts );
+		this.getPolyData();
 		
-		this.aba = new float[ verts.size() + norms.size() + texts.size() ];
-		this.iba = new int[ verts.size() / 3 ];
+		this.aba = new float[ this.v.size() + this.n.size() + this.t.size() ];
+		this.iba = new int[ this.v.size() / 3 ];
 		
-		for( int i = 0, a = 0; i < verts.size() / 3; i++ ) {
-			this.aba[a++] = verts.get( i*3 );
-			this.aba[a++] = verts.get( i*3+1 );
-			this.aba[a++] = verts.get( i*3+2 );
-			this.aba[a++] = norms.get( i*3 );
-			this.aba[a++] = norms.get( i*3+1 );
-			this.aba[a++] = norms.get( i*3+2 );
-			this.aba[a++] = texts.get( i*2 );
-			this.aba[a++] = texts.get( i*2+1 );
+		for( int i = 0, a = 0; i < this.v.size() / 3; i++ ) {
+			this.aba[a++] = this.v.get( i*3 );
+			this.aba[a++] = this.v.get( i*3+1 );
+			this.aba[a++] = this.v.get( i*3+2 );
+			
+			if( this.n.size() > 0 ) {
+				this.aba[a++] = this.n.get( i*3 );
+				this.aba[a++] = this.n.get( i*3+1 );
+				this.aba[a++] = this.n.get( i*3+2 );
+			}
+			
+			if( this.t.size() > 0 ) {
+				this.aba[a++] = this.t.get( i*2 );
+				this.aba[a++] = this.t.get( i*2+1 );
+			}
+			
 			this.iba[i] = i;
 		}
-		
-		verts.clear(); verts = null;
-		norms.clear(); norms = null;
-		texts.clear(); texts = null;
 	}
 	
 	public boolean buffer() {

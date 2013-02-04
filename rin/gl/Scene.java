@@ -93,6 +93,10 @@ public class Scene {
 		}
 	}
 	
+	public void addActor( Actor a ) {
+		this.actors.add( a );
+	}
+	
 	public int addComplexShape( ComplexShape shape ) {
 		this.actors.add( shape );
 		return this.getRecentActorId();
@@ -196,7 +200,7 @@ public class Scene {
 			//Input.process();
 			this.camera.update();
 			
-			for( Actor a : this.actors ) {
+			/*for( Actor a : this.actors ) {
 				if( a.isMesh() ) {
 					if( a.toMesh().isPolyPicking() ) {
 						for( Poly p : a.toMesh().getPolys() ) {
@@ -210,13 +214,13 @@ public class Scene {
 			
 			String actorAtMouse = Buffer.toString( this.camera.getMouseRGB() );
 			
-			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );*/
 			
 			for( Actor a : this.actors )
 				if( a.isRenderable() )
 					a.toRenderable().render();
 			
-			GLEvent.fire( new PickEvent( actorAtMouse ) );
+			//GLEvent.fire( new PickEvent( actorAtMouse ) );
 			
 			/*
 			//TODO: fix so that only the top most bounding box can be selected

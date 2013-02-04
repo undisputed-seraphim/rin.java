@@ -6,6 +6,7 @@ import rin.util.math.Vec3;
 public interface Positionable {
 	
 	public Mat4 getMatrix();
+	public void setMatrix( Mat4 m );
 	
 	/** Obtain the x, y, z coordinates of this Positionable.
 	 * @return {@link Vec3} describing item's position in world coordinates. */
@@ -27,7 +28,9 @@ public interface Positionable {
 	public void setScale( Vec3 s );
 	public void setScale( float x, float y, float z );
 	
+	public void spin( float xaxis, float yaxis, float zaxis );
 	public void move( float step, float side, float rise );
+	public void transform();
 	
 	public Actor destroy();
 	

@@ -2,14 +2,13 @@ package rin.gl.lib3d.interfaces;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 
-import java.util.ArrayList;
-
-import rin.gl.GL;
+import rin.gl.TextureManager;
 import rin.gl.lib3d.GLBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer;
+import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.shape.BoundingBox;
-import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Poly extends Actor implements Renderable, Boundable {
@@ -22,71 +21,21 @@ public class Poly extends Actor implements Renderable, Boundable {
 		super( name, position, rotation, scale );
 	}
 	
-	/* ---------------- renderable implementation ----------------- */
-	private boolean ready = false;
-	@Override public boolean isReady() { return this.ready; }
-	
-	private boolean interleaved = false;
-	private int renderMode = GL_TRIANGLES;
-	@Override public int getRenderMode() { return this.renderMode; }
-	
-	private GLInterleavedBuffer abuf = null;
-	private GLBuffer ibuf = null, vbuf = null, nbuf = null, tbuf = null;
-	private ArrayList<Float> v = null, n = null, t = null;
-	
-	@Override public void setVertices( float[] vertices ) {
-		this.ready = false;
-		this.v = Buffer.toArrayList( vertices );
-		this.setBounds( vertices );
-	}
-	
-	@Override public void setNormals( float[] normals ) {
-		this.ready = false;
-		this.n = Buffer.toArrayList( normals );
-	}
-	
-	@Override public void setTexcoords( float[] texcoords ) {
-		this.ready = false;
-		this.t = Buffer.toArrayList( texcoords );
-	}
-	
-	@Override public void init() {
-		this.ready = false;
-		
-		//this.createTexture();
-		
-		int[] i = new int[ this.v.size() / 3 ];
-		for( int k = 0; k < this.v.size() / 3; k++ )
-			i[k] = k;
-		
-		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, i );
-		this.vbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.v ), 3, 0, 0, GL.getAttrib( "vertex" ) );
-		this.nbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.n ), 3, 0, 0, GL.getAttrib( "normal" ) );
-		this.tbuf = new GLBuffer( GL_ARRAY_BUFFER, Buffer.toArrayf( this.t ), 2, 0, 0, GL.getAttrib( "texture" ) );
-		
-		//if( this.bound )
-			//this.createBoundingBox();
-		
-		this.ready = true;
-	}
-	
-	@Override public boolean buffer() {
-		return false;
-	}
-	
-	@Override public void render() {
-		
-	}
 
 	/* ------------------ boundable implementation ------------------ */
 	private boolean bound = true;
-	private BoundingBox bbox = null;
-	private float	xMin = Float.POSITIVE_INFINITY, yMin = Float.POSITIVE_INFINITY, zMin = Float.POSITIVE_INFINITY,
-					xMax = Float.NEGATIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY, zMax = Float.NEGATIVE_INFINITY;
+	@Override public boolean isBound() { return this.bound; }
+	@Override public void setBound( boolean val ) { this.bound = val; }
 	
-	@Override public void setBounds( float[] vertices ) {
-		this.xMin = Float.POSITIVE_INFINITY; this.yMin = Float.POSITIVE_INFINITY; this.zMin = Float.POSITIVE_INFINITY;
-		this.xMax = Float.NEGATIVE_INFINITY; this.yMax = Float.NEGATIVE_INFINITY; this.zMax = Float.NEGATIVE_INFINITY;
+	private BoundingBox bbox = null;
+	private float	xMin = Float.POSITIVE_INFINITY, xMax = Float.NEGATIVE_INFINITY,
+					yMin = Float.POSITIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY,
+					zMin = Float.POSITIVE_INFINITY, zMax = Float.NEGATIVE_INFINITY;
+	
+	@Override public void computeBounds( float[] vertices ) {
+		this.xMin = Float.POSITIVE_INFINITY; this.xMax = Float.NEGATIVE_INFINITY;
+		this.yMin = Float.POSITIVE_INFINITY; this.yMax = Float.NEGATIVE_INFINITY;
+		this.zMin = Float.POSITIVE_INFINITY; this.zMax = Float.NEGATIVE_INFINITY;
 		for( int i = 0; i < vertices.length; i += 3 )
 			this.addBounds( vertices[i], vertices[i+1], vertices[i+2] );
 	}
@@ -121,4 +70,127 @@ public class Poly extends Actor implements Renderable, Boundable {
 		//else this.createBoundingBox();
 	}
 	
+	
+	/* ---------------- renderable implementation ----------------- */	
+	private boolean ready = false;
+	@Override public boolean isReady() { return this.ready; }
+	
+	private boolean useUnique = false;
+	@Override public void useUniqueColor( boolean val ) { this.useUnique = val; }
+	
+	private int renderMode = GL_TRIANGLES;
+	@Override public int getRenderMode() { return this.renderMode; }
+	@Override public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
+	
+	private GLBuffer ibuf = null;
+	private GLInterleavedBuffer abuf = null;
+	
+	private int indexCount = 0;
+	@Override public int getIndexCount() { return this.indexCount; }
+	
+	private int texture = -1;
+	@Override public void addTexture( String textureFile ) {
+		int tmp = this.texture;
+		this.texture = TextureManager.load( textureFile );
+		TextureManager.unload( tmp );
+	}
+	
+	@Override public void bindTexture() {
+		if( this.useUnique ) {
+			glUniform1i( GL.getAttrib( "useUnique" ), GL_TRUE );
+		} else {
+			glUniform1i( GL.getAttrib( "useUnique" ), GL_FALSE );
+			if( this.texture != -1 )
+				TextureManager.enable( this.texture );
+		
+			else
+				TextureManager.disable();
+		}
+	}
+	
+	public void build( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
+		this.build( vertices, normals, texcoords );
+		this.addTexture( textureFile );
+	}
+	
+	@Override public void build( float[] vertices, float[] normals, float[] texcoords ) {
+		this.ready = false;
+		
+		float[] aba = new float[ vertices.length + ( vertices.length / 3 ) * 4 + normals.length + texcoords.length ];
+		int[] iba = new int[ vertices.length / 3 ];
+		
+		float[] color = this.getUniqueColor();
+		for( int i = 0, a = 0; i < vertices.length / 3; i++ ) {
+			aba[a++] = vertices[ i*3 ];
+			aba[a++] = vertices[ i*3+1 ];
+			aba[a++] = vertices[ i*3+2 ];
+			
+			aba[a++] = color[0];
+			aba[a++] = color[1];
+			aba[a++] = color[2];
+			aba[a++] = 1.0f;
+			
+			if( normals.length > 0 ) {
+				aba[a++] = normals[ i*3 ];
+				aba[a++] = normals[ i*3+1 ];
+				aba[a++] = normals[ i*3+2 ];
+			}
+			
+			if( texcoords.length > 0 ) {
+				aba[a++] = texcoords[ i*2 ];
+				aba[a++] = texcoords[ i*2+1 ];
+			}
+			
+			iba[i] = i;
+		}
+		
+		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, iba );
+		this.indexCount = iba.length;
+		
+		this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, aba )
+				.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) )
+				.addIndex( IndexType.COLOR, 4, GL.getAttrib( "unique" ) );
+		
+		if( normals.length > 0 )
+			this.abuf.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) );
+		
+		if( texcoords.length > 0 )
+			this.abuf.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) );
+
+		this.abuf.build();
+		this.ready = true;
+	}
+	
+	@Override public boolean buffer() {
+		this.abuf.buffer();
+		return this.ibuf.buffer();
+	}
+	
+	@Override public void render() {
+		if( this.ready ) {
+			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
+			//glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
+			if( this.buffer() ) {
+				this.bindTexture();
+				glDrawElements( GL_TRIANGLES, this.indexCount, GL_UNSIGNED_INT, 0 );
+			}
+		}
+	}
+	
+	public Poly destroy() {
+		super.destroy();
+		
+		this.abuf = this.abuf != null ? this.abuf.destroy() : null;
+		this.ibuf = this.ibuf != null ? this.ibuf.destroy() : null;
+		
+		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
+		
+		//if( this.isPickListening() )
+			//GLEvent.removePickEventListener( this );
+		
+		if( this.texture != -1 )
+			TextureManager.unload( this.texture );
+		
+		return null;
+	}
 }

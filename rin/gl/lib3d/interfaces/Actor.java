@@ -1,6 +1,8 @@
 package rin.gl.lib3d.interfaces;
 
 import rin.gl.Scene;
+import rin.gl.event.GLEvent;
+import rin.gl.event.GLEvent.*;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
@@ -9,9 +11,11 @@ public class Actor implements Positionable, Controllable {
 
 	/** Name describing Actor */
 	private String name = "No Name";
+	public String getName() { return this.name; }
 	
 	/** Unique color in the format of [ r, g, b ]. Used for Picking. */
 	private float[] uniqueColor = new float[3];
+	public float[] getUniqueColor() { return this.uniqueColor; }
 	
 	public Actor() { this( "No Name Actor" ); }
 	public Actor( String name ) { this( name, new Vec3( 0.0f, 0.0f, 0.0f ) ); }
@@ -25,14 +29,13 @@ public class Actor implements Positionable, Controllable {
 		this.uniqueColor = Scene.getNextColor();
 	}
 	
-	public String getName() { return this.name; }
-	public float[] getUniqueColor() { return this.uniqueColor; }
-	
+
 	/* -------------- positionable implementation ------------------ */
 	private Vec3 position =	new Vec3(), rotation =	new Vec3(), scale = new Vec3();
 	private Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
 	
 	@Override public Mat4 getMatrix() { return this.matrix; }
+	@Override public void setMatrix( Mat4 m ) { this.matrix = m; }
 	
 	@Override public Vec3 getPosition() { return this.position; }
 	@Override public Mat4 getPositionMatrix() { return this.translate; }
@@ -72,6 +75,13 @@ public class Actor implements Positionable, Controllable {
 	
 	private void updateScale() { this.scaled = Mat4.scale( new Mat4(), this.scale ); }
 	
+	@Override public void spin( float xaxis, float yaxis, float zaxis ) {
+		this.rotation.x += xaxis;
+		this.rotation.y += yaxis;
+		this.rotation.z += zaxis;
+		this.transform();
+	}
+	
 	@Override public void move( float step, float side, float rise ) {
 		this.position.x += this.rotate.m[ 8] * step + ( this.rotate.m[0] * side ) + ( this.rotate.m[4] * rise );
 		this.position.y += this.rotate.m[ 9] * step + ( this.rotate.m[1] * side ) + ( this.rotate.m[5] * rise );
@@ -79,7 +89,7 @@ public class Actor implements Positionable, Controllable {
 		this.transform();
 	}
 	
-	private void transform() {
+	@Override public void transform() {
 		this.updatePosition();
 		this.updateRotation();
 		this.updateScale();
@@ -87,6 +97,60 @@ public class Actor implements Positionable, Controllable {
 	}
 
 	@Override public Actor destroy() {
+		if( this.isControlled() )
+			this.setControlled( false );
+		
 		return null;
+	}
+	
+	
+	/* ------------- controllable implementation ------------- */
+	private boolean listening = false;
+	
+	private boolean controlled = false;
+	@Override public boolean isControlled() { return this.controlled; }
+	@Override public void setControlled( boolean val ) {
+		this.controlled = val;
+		if( val && !this.listening ) {
+			GLEvent.addKeyEventListener( this );
+			GLEvent.addMouseEventListener( this );
+			this.listening = true;
+		} else if( this.listening ) {
+			GLEvent.removeKeyEventListener( this );
+			GLEvent.removeMouseEventListener( this );
+			this.listening = false;
+		}
+	}
+
+	@Override public void processKeyUpEvent( KeyUpEvent e ) {
+		//System.out.println( "Key Up Event: " + e.key );
+	}
+	
+	@Override public void processKeyDownEvent( KeyDownEvent e ) {
+		//System.out.println( "Key Down Event: " + e.key );
+	}
+	
+	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {
+		//System.out.println( "Key Repeat Event: " + e.key );
+	}
+
+	@Override public void processMouseUpEvent( MouseUpEvent e ) {
+		//System.out.println( "Mouse Up Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseDownEvent( MouseDownEvent e ) {
+		//System.out.println( "Mouse Down Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseMoveEvent( MouseMoveEvent e ) {
+		//System.out.println( "Mouse Move Event at: " + e.x + " " + e.y + " dx: " + e.dx + " dy: " + e.dy );
+	}
+	
+	@Override public void processMouseRepeatEvent( MouseRepeatEvent e ) {
+		//System.out.println( "Mouse Repeat Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {
+		//System.out.println( "Mouse Wheel Event at: " + e.x + " " + e.y + " Delta: " + e.delta + "["+e.state+"]" );
 	}
 }

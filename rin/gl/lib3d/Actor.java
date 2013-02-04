@@ -21,6 +21,10 @@ public class Actor {
 	public Actor setName( String name ) { this.name = name; return this; }
 	public String getName() { return this.name; }
 	public float[] getUniqueColor() { return this.uniqueColor; }
+	public float[] getUniqueRGB() { return new float[] {
+			(float)((int)(this.uniqueColor[0] * 255) & 0xff),
+			(float)((int)(this.uniqueColor[1] * 255) & 0xff),
+			(float)((int)(this.uniqueColor[2] * 255) & 0xff) }; }
 	
 	/* matrices depicting the location in 3d space of this positionable */
 	protected Mat4	scaled =	new Mat4(),
@@ -29,7 +33,7 @@ public class Actor {
 					matrix =	new Mat4();
 	
 	/* vectors for the current location, rotation, and scale of the positionable */
-	protected Vec3	position =	new Vec3(),
+	protected Vec3	position =	new Vec3( 0.0f, 0.0f, 0.0f ),
 					rotation =	new Vec3(),
 					scale =		new Vec3( 1.0f, 1.0f, 1.0f );
 	

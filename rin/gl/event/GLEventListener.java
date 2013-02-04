@@ -6,12 +6,18 @@ public interface GLEventListener {
 	
 	
 	public interface KeyEventListener extends GLEventListener {
-		public void processKeyEvent( KeyEvent e );
+		public void processKeyDownEvent( KeyDownEvent e );
+		public void processKeyUpEvent( KeyUpEvent e );
+		public void processKeyRepeatEvent( KeyRepeatEvent e );
 	}
 	
 	
 	public interface MouseEventListener extends GLEventListener {
-		public void processMouseEvent( MouseEvent e );
+		public void processMouseMoveEvent( MouseMoveEvent e );
+		public void processMouseDownEvent( MouseDownEvent e );
+		public void processMouseUpEvent( MouseUpEvent e );
+		public void processMouseRepeatEvent( MouseRepeatEvent e );
+		public void processMouseWheelEvent( MouseWheelEvent e );
 	}
 	
 	

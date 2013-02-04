@@ -14,7 +14,7 @@ public class Grid extends ComplexShape {
 	public Grid( int rows, int cols, float size, Vec3 pos, int axis ) { this( rows, cols, size, pos, axis, 0.0f ); }
 	public Grid( int rows, int cols, float size, Vec3 pos, int axis, float space ) {
 		super( "Grid-" + Grid.items++ );
-		super.setInterleaved( false );
+		super.setInterleaved( true );
 		super.bound = false;
 		super.setPolyPicking( true );
 		

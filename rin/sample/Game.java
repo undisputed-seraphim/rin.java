@@ -1,7 +1,7 @@
 package rin.sample;
 
 import rin.engine.Engine;
-import rin.gl.lib3d.shape.Grid;
+import rin.gl.lib3d.shape.*;
 import rin.util.math.Vec3;
 
 public class Game {
@@ -11,9 +11,9 @@ public class Game {
 		this.rin = new Engine();
 		/* setup all the engine options here, e.g. load data into scene, characters, etc */
 		this.rin.addCharacter( "noire_v" );
-		this.rin.addCharacter( "purplesister_mk2" );
-		this.rin.addCharacter( "blackheart_v" );
-		this.rin.addComplexShape( new Grid( 10, 10, 0.5f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Y_AXIS, 0.1f ) );
+		//this.rin.addCharacter( "purplesister_mk2" );
+		//this.rin.addCharacter( "blackheart_v" );
+		//this.rin.addComplexShape( new Grid( 100, 100, 0.5f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Y_AXIS, 0.1f ) );
 	}
 	
 	/* run the engine */

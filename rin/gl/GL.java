@@ -24,7 +24,15 @@ public class GL {
 		/* initialize scene */
 		GL.width = width;
 		GL.height = height;
-		GL.scene = new Scene( GL.width, GL.height );
+		/* attempt to invoke the display's opengl context, then initialize scene */
+		try {
+			Display.setDisplayMode( new DisplayMode( width, height ) );
+			Display.create();
+			GL.running = true;
+			GL.scene = new Scene( GL.width, GL.height );
+		} catch( LWJGLException e ) {
+			System.out.println( "lwjgl instance failed to display [" + GL.width + "x" + GL.height + "]" );
+		}
 	}
 	
 	/* getters */
@@ -41,16 +49,8 @@ public class GL {
 	
 	/* initialize lwjgl wrapper object gl */
 	public static void show() {
-		/* attempt to invoke the display's opengl context, then initialize scene */
-		try {
-			Display.setDisplayMode( new DisplayMode( width, height ) );
-			Display.create();
-			GL.scene.show();
-			GL.running = true;
-			GL.ready = true;
-		} catch( LWJGLException e ) {
-			System.out.println( "lwjgl instance failed to display [" + GL.width + "x" + GL.height + "]" );
-		}
+		GL.scene.show();
+		GL.ready = true;
 	}
 
 	/* update this modules Display object */

@@ -11,8 +11,9 @@ import static org.lwjgl.opengl.GL20.*;
 public class GLInterleavedBuffer {
 	public static enum IndexType {
 		VERTEX ( 0 ),
-		NORMAL ( 1 ),
-		TEXCOORD ( 2 );
+		COLOR ( 1 ),
+		NORMAL ( 2 ),
+		TEXCOORD ( 3 );
 		
 		protected int target;
 		IndexType( int target ) {

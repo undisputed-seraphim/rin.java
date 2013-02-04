@@ -45,8 +45,8 @@ public class Pickable extends Collidable implements PickEventListener {
 	@Override
 	public void processPickEvent( PickEvent e ) {
 		this.showBoundingBox( GL_LINE_STRIP );
-		if( Mouse.isButtonDown( 0 ) )
-			this.clicked( new MouseEvent( Mouse.getX(), Mouse.getY(), 0 ) );
+		if( Mouse.isButtonDown( 0 ) );
+			//this.clicked( new MouseEvent( 0, GLEvent.STATE_DOWN, Mouse.getX(), Mouse.getY() ) );
 	}
 	
 	public void clicked( MouseEvent e ) {
