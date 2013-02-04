@@ -6,13 +6,34 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import rin.gl.event.GLEvent;
+import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.Camera;
 import rin.gl.Input;
 import rin.gl.TextureManager;
+import rin.util.Buffer;
 import rin.util.IO;
 
 public class Scene {
 	private static final float VIEW_DISTANCE = 15.0f;
+	
+	private static int r = 0, g = 0, b = 0;
+	public static float[] getNextColor() {
+		if( Scene.r < 255 )
+			Scene.r ++;
+		else if( Scene.g < 255 ) {
+			Scene.g ++;
+			Scene.r = 0;
+		} else {
+			Scene.b ++;
+			Scene.r = 0;
+			Scene.g = 0;
+		}
+		
+		float[] tmp = new float[] { Scene.r, Scene.g, Scene.b };
+		return new float[]{ tmp[0] / 255, tmp[1] / 255, tmp[2] / 255 };
+	}
+	
 	private boolean ready = false;
 	
 	private int vShader = -1, fShader = -1, program = -1;
@@ -44,7 +65,7 @@ public class Scene {
 		glBindAttribLocation( this.program, 0, "vertex" );
 		glBindAttribLocation( this.program, 1, "normal" );
 		glBindAttribLocation( this.program, 2, "texture" );
-		glBindAttribLocation( this.program, 3, "unique" );
+		//glBindAttribLocation( this.program, 3, "unique" );
 		//glBindAttribLocation( this.program, 3, "bone" );
 		//glBindAttribLocation( this.program, 4, "weight" );
 		
@@ -62,14 +83,18 @@ public class Scene {
 		
 		glUseProgram( this.program );
 		
-		glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
 		glEnable( GL_DEPTH_TEST );
 		glDepthFunc( GL_LEQUAL );
-		glViewport( 0, 0, width, height );
-		glUniform1i( glGetUniformLocation( this.program, "sampler" ), 0 );
+		
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		
+		glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
 		glEnable( GL_TEXTURE_2D );
 		glActiveTexture( GL_TEXTURE0 );
+		glUniform1i( glGetUniformLocation( this.program, "sampler" ), 0 );
 		
+		glViewport( 0, 0, width, height );
 		this.camera = new Camera( 45, width / height, 0.1f, VIEW_DISTANCE );
 		this.ready = true;
 	}
@@ -89,6 +114,15 @@ public class Scene {
 				( (Poly) a ).render();
 			}
 			
+			String tmp = Buffer.toString( this.camera.getMouseRGB() );
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+
+			for( Actor a : this.actors ) {
+				( (Poly) a ).useUniqueColor( false );
+				( (Poly) a ).render();
+			}
+			
+			GLEvent.fire( new PickEvent( tmp ) );
 		}
 	}
 	
@@ -120,6 +154,10 @@ public class Scene {
 		if( this.vShader != -1 ) glDeleteShader( this.vShader );
 		if( this.fShader != -1 ) glDeleteShader( this.fShader );
 		if( this.program != -1 ) glDeleteProgram( this.program );
+		
+		Scene.r = 0;
+		Scene.g = 0;
+		Scene.b = 0;
 		
 		return null;
 	}

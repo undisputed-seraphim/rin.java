@@ -108,7 +108,7 @@ public class Scene {
 		
 		switch( format ) {
 		case DAE:
-			this.actors.add( Model.create( format, file + ".dae" ).setName( name ) );
+			//this.actors.add( Model.create( format, file + ".dae" ).setName( name ) );
 			return this.getRecentActorId();
 			
 		default:

@@ -1,6 +1,6 @@
 package rin.gl.lib3d.interfaces;
 
-import rin.gl.Scene;
+import rin.gl.lib3d.interfaces.Scene;
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
 import rin.util.math.Mat4;
@@ -105,20 +105,20 @@ public class Actor implements Positionable, Controllable {
 	
 	
 	/* ------------- controllable implementation ------------- */
-	private boolean listening = false;
+	private boolean controllableListening = false;
 	
 	private boolean controlled = false;
 	@Override public boolean isControlled() { return this.controlled; }
 	@Override public void setControlled( boolean val ) {
 		this.controlled = val;
-		if( val && !this.listening ) {
+		if( val && !this.controllableListening ) {
 			GLEvent.addKeyEventListener( this );
 			GLEvent.addMouseEventListener( this );
-			this.listening = true;
-		} else if( this.listening ) {
+			this.controllableListening = true;
+		} else if( this.controllableListening ) {
 			GLEvent.removeKeyEventListener( this );
 			GLEvent.removeMouseEventListener( this );
-			this.listening = false;
+			this.controllableListening = false;
 		}
 	}
 

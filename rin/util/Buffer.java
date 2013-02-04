@@ -97,11 +97,14 @@ public class Buffer {
 		return al;
 	}
 	public static float[] getIndexedValues( float[] arr, int[] ind, int offset, int stride, int count ) {
+		return Buffer.toArrayf( getIndexedValuesAL( arr, ind, offset, stride, count ) );
+	}
+	public static ArrayList<Float> getIndexedValuesAL( float[] arr, int[] ind, int offset, int stride, int count ) {
 		ArrayList<Float> res = new ArrayList<Float>();
 		for( int i = offset; i < ind.length; i += stride )
 			for( int k = 0; k < count; k++ )
 				res.add( arr[ ind[ i ] * count + k ] );
-		return Buffer.toArrayf( res );
+		return res;
 	}
 	public static FloatBuffer toBuffer( float[] arr ) { return Buffer.toBuffer( arr, false ); }
 	public static FloatBuffer toBuffer( float[] arr, boolean endian ) {

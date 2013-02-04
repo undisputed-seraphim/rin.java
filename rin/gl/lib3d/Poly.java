@@ -144,7 +144,7 @@ public class Poly extends Pickable {
 		this.vbuf = this.vbuf != null ? this.vbuf.destroy() : null;
 		this.nbuf = this.nbuf != null ? this.nbuf.destroy() : null;
 		this.tbuf = this.tbuf != null ? this.tbuf.destroy() : null;
-		this.ibuf = null;//this.ibuf != null ? this.ibuf.destroy() : null;
+		this.ibuf = this.ibuf != null ? this.ibuf.destroy() : null;
 		
 		this.v.clear();
 		this.n.clear();
@@ -152,8 +152,8 @@ public class Poly extends Pickable {
 		
 		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
 		
-		if( this.isPickListening() )
-			GLEvent.removePickEventListener( this );
+		if( this.isPickListening() );
+			//GLEvent.removePickEventListener( this );
 		
 		if( !this.textureFile.equals( "" ) )
 			TextureManager.unload( this.textureFile );

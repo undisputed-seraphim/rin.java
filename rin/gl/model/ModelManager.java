@@ -1,6 +1,6 @@
 package rin.gl.model;
 
-import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.interfaces.Actor;
 
 /**
  * Interface used to ensure any {@link Model} formats return the proper data

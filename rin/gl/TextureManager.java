@@ -22,7 +22,7 @@ public class TextureManager {
 	private static boolean textureOn = false;
 	
 	/** Create an opengl Texture resource.
-	 * @param file filename (including path) of texture to be loaded
+	 * @param file absolute file location of desired image
 	 * @return int id of the opengl resource
 	 */
 	public static int load( String file ) {
@@ -76,6 +76,7 @@ public class TextureManager {
 			if( TextureManager.currentTextureId != textureId ) {
 				if( !textureOn ) {
 					glUniform1i( GL.getUniform( "useTexture" ), GL_TRUE );
+					glUniform1i( GL.getUniform( "useColor" ), GL_FALSE );
 					TextureManager.textureOn = true;
 				} else { System.out.println( "[NOTIFY] Texturing was already turned on." ); }
 				glBindTexture( GL_TEXTURE_2D, textureId );

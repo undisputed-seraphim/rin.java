@@ -4,15 +4,26 @@ public interface Renderable {
 	
 	/** Returns whether or not the Renderable is ready for rendering. */
 	public boolean isReady();
+
+	public boolean isUsingUnique();
 	public void useUniqueColor( boolean val );
 	
 	public int getIndexCount();
 	
+	public boolean isVisible();
+	public void setVisible( boolean val );
+	
 	public int getRenderMode();
 	public void setRenderMode( int renderMode );
 	
+	public boolean isColored();
+	public void setColored( boolean val );
+	public void setColor( float r, float g, float b, float a );
+	public float[] getColor();
+	
 	/** Creates an opengl Texture resource to associate with this Renderable
 	 * @param textureFile absolute filename of desired texture
+	 * @return int opengl texture id
 	 */
 	public void addTexture( String textureFile );
 	

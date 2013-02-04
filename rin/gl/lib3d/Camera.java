@@ -5,7 +5,6 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 

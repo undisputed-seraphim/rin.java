@@ -38,8 +38,8 @@ public class Pickable extends Collidable implements PickEventListener {
 		
 		this.pickListening = true;
 		float[] tmp = this.getUniqueColor();
-		GLEvent.addPickEventListener( this, "FloatArray[ "+(float)((int)(tmp[0] * 255) & 0xff)+" "+
-				(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
+		//GLEvent.addPickEventListener( this, "FloatArray[ "+(float)((int)(tmp[0] * 255) & 0xff)+" "+
+			//	(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
 	}
 	
 	@Override

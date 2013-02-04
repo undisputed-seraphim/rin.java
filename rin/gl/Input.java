@@ -6,7 +6,26 @@ import org.lwjgl.input.Mouse;
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
 
-public class Input {
+public class Input extends Thread {
+	private static boolean destroyRequested = false;
+	public static void requestDestroy() { Input.destroyRequested = true; }
+	
+	public Input( String name ) { super.setName( name ); }
+	
+	public void run() {
+		while( !Input.destroyRequested ) {
+			Input.process();
+			try {
+				Thread.sleep( 3L );
+			} catch( InterruptedException e ) {
+				System.out.println( "Event Thread interrupted. Stopping..." );
+				Input.destroyRequested = true;
+			}
+		}
+		
+		this.destroy();
+	}
+	
 	public static void process() {
 		while( Keyboard.next() ) {
 			
@@ -57,5 +76,9 @@ public class Input {
 		//mouse repeat
 		if( Mouse.isButtonDown( 0 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_LEFT, Mouse.getX(), Mouse.getY() ) );
 		if( Mouse.isButtonDown( 1 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_RIGHT, Mouse.getX(), Mouse.getY() ) );
+	}
+	
+	public void destroy() {
+		System.out.println( "Event Thread stopped." );
 	}
 }

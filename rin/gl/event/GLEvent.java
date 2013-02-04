@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import rin.gl.event.GLEventListener.*;
+import rin.gl.lib3d.interfaces.Pickable;
 
 public class GLEvent {
 	public static enum State {
@@ -18,13 +19,13 @@ public class GLEvent {
 	
 	public static void addKeyEventListener( KeyEventListener src ) { KeyEvent.addListener( src ); }
 	public static void addMouseEventListener( MouseEventListener src ) { MouseEvent.addListener( src ); }
-	public static void addPickEventListener( PickEventListener src, String code ) { PickEvent.addListener( src, code ); }
+	public static void addPickEventListener( Pickable src ) { PickEvent.addListener( src ); }
 	
 	public static void removeKeyEventListener( KeyEventListener src ) { KeyEvent.removeListener( src ); }
 	public static void removeMouseEventListener( MouseEventListener src ) { MouseEvent.removeListener( src ); }
-	public static void removePickEventListener( PickEventListener src ) { PickEvent.removeListener( src ); }
+	public static void removePickEventListener( Pickable src ) { PickEvent.removeListener( src ); }
 
-	public static void removeAllKeyEventListeners() {}
+	public static void removeAllKeyEventListeners() { KeyEvent.removeAll(); }
 	public static void removeAllMouseEventListeners() {}
 	public static void removeAllPickEventListeners() {}
 	
@@ -49,6 +50,10 @@ public class GLEvent {
 		public static void removeListener( KeyEventListener el ) {
 			if( KeyEvent.listeners.indexOf( el ) != -1 )
 				KeyEvent.listeners.remove( el );
+		}
+		
+		public static void removeAll() {
+			
 		}
 		
 		public static void fire( KeyEvent e ) {
@@ -148,14 +153,18 @@ public class GLEvent {
 		
 		public PickEvent( String code ) { this.code = code; }
 		
-		public static void addListener( PickEventListener el, String code ) {
+		public static void addListener( Pickable el ) {
+			float tmp[] = el.getUniqueColor();
 			if( PickEvent.listeners.indexOf( el ) == - 1 ) {
 				PickEvent.listeners.add( el );
-				PickEvent.listening.add( code );
+				PickEvent.listening.add( "FloatArray[ "+(float)((int)(tmp[0] * 255) & 0xff)+" "+
+						(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
+				System.out.println( "added " + "FloatArray[ "+(float)((int)(tmp[0] * 255) & 0xff)+" "+
+						(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
 			}
 		}
 		
-		public static void removeListener( PickEventListener el ) {
+		public static void removeListener( Pickable el ) {
 			if( PickEvent.listeners.indexOf( el ) != - 1 ) {
 				PickEvent.listening.remove( PickEvent.listeners.indexOf( el ) );
 				PickEvent.listeners.remove( el );

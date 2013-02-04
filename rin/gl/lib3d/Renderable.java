@@ -89,16 +89,16 @@ public class Renderable extends Actor {
 		this.ready = true;
 	}
 	
-	public void showBoundingBox() { this.showBoundingBox( this.bbox.renderMode, false ); }
+	//public void showBoundingBox() { this.showBoundingBox( this.bbox.renderMode, false ); }
 	public void showBoundingBox( int renderMode ) { this.showBoundingBox( renderMode, false ); }
 	public void showBoundingBox( int renderMode, boolean unique ) {
 		if( this.ready ) {
 			if( unique ) {
-				this.bbox.setColor( this.getUniqueColor() );
-				this.bbox.setColored( true );
-				this.bbox.render( renderMode );
+				//this.bbox.setColor( this.getUniqueColor() );
+				//this.bbox.setColored( true );
+				//this.bbox.render( renderMode );
 			} else {
-				this.bbox.render( renderMode );
+				//this.bbox.render( renderMode );
 			}
 		}
 		else this.createBoundingBox();

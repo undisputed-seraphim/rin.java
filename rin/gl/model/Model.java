@@ -1,6 +1,6 @@
 package rin.gl.model;
 
-import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.interfaces.Actor;
 
 /**
  * Class for creating any of the implemented model formats. Other formats can be added

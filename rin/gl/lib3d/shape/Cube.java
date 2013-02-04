@@ -14,7 +14,7 @@ public class Cube extends Shape {
 	
 	public Cube( float x, float y, float z, float X, float Y, float Z, Vec3 pos ) {
 		super( "Cube-" + Cube.items++ );
-		super.renderMode = GL_TRIANGLE_STRIP;
+		/*super.renderMode = GL_TRIANGLE_STRIP;
 		
 		// left
 		this.addVertex( x, Y, z );
@@ -46,7 +46,7 @@ public class Cube extends Shape {
 		this.addVertex( X, Y, z );
 		this.addVertex( x, Y, z );
 		
-		this.position = pos;
+		this.position = pos;*/
 	}
 	
 	public Cube destroy() {

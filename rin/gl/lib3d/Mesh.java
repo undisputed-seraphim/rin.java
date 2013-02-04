@@ -183,8 +183,8 @@ public class Mesh extends Controllable {
 		
 		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
 		
-		if( this.isPickListening() )
-			GLEvent.removePickEventListener( this );
+		if( this.isPickListening() );
+			//GLEvent.removePickEventListener( this );
 		
 		return null;
 	}
