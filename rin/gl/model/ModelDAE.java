@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import rin.gl.lib3d.interfaces.Actor;
 import rin.gl.lib3d.interfaces.Engine;
 import rin.gl.lib3d.interfaces.Mesh;
+import rin.gl.lib3d.interfaces.Scene;
 import rin.gl.model.ModelManager;
 import rin.util.Buffer;
 import rin.util.IO;
@@ -34,6 +35,7 @@ public class ModelDAE implements ModelManager {
 		float[] V_SRC, N_SRC, T_SRC;
 		String path = file.substring( 0, file.lastIndexOf( Engine.LS ) + 1 );
 		ArrayList<Float> v = new ArrayList<Float>();
+		ArrayList<Float> c = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
 		ArrayList<Float> t = new ArrayList<Float>();
 		for( Polylist p : polylists ) {
@@ -48,12 +50,15 @@ public class ModelDAE implements ModelManager {
 			//TODO: needs to work with any stride instead of assuming it's 3
 			int stride = (V_SRC.length > 0 ? 1 : 0) + (N_SRC.length > 0 ? 1 : 0) + (T_SRC.length > 0 ? 1 : 0);
 			
+			float[] color = Scene.getNextColor();
 			mesh.addPoly( Buffer.getIndexedValues( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ),
 						  Buffer.getIndexedValues( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ),
 						  Buffer.getIndexedValues( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ),
 						  path + "textures" + Engine.LS + p.getName() + ".png" );
 			
-			v.addAll( Buffer.getIndexedValuesAL( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ) );
+			ArrayList<Float> tmpv = Buffer.getIndexedValuesAL( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 );
+			v.addAll( tmpv );
+			c.addAll( Buffer.duplicateAL( color, tmpv.size() / 3 ) );
 			n.addAll( Buffer.getIndexedValuesAL( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ) );
 			t.addAll( Buffer.getIndexedValuesAL( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ) );
 			

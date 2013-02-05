@@ -96,6 +96,14 @@ public class Buffer {
 			al.add( f );
 		return al;
 	}
+	public static ArrayList<Float> duplicateAL( float[] what, int times ) {
+		ArrayList<Float> tmp = new ArrayList<Float>();
+		for( int i = 0; i < times; i++ )
+			for( int k = 0; k < what.length; k++ )
+				tmp.add( what[k] );
+		return tmp;
+	}
+	
 	public static float[] getIndexedValues( float[] arr, int[] ind, int offset, int stride, int count ) {
 		return Buffer.toArrayf( getIndexedValuesAL( arr, ind, offset, stride, count ) );
 	}

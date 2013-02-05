@@ -153,4 +153,9 @@ public class Actor implements Positionable, Controllable {
 	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {
 		//System.out.println( "Mouse Wheel Event at: " + e.x + " " + e.y + " Delta: " + e.delta + "["+e.state+"]" );
 	}
+
+	@Override public int compareTo( Positionable p ) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

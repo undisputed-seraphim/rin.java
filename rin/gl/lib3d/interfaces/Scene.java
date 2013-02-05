@@ -8,7 +8,9 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
+import rin.gl.lib3d.ActorList;
 import rin.gl.lib3d.Camera;
+import rin.gl.lib3d.DistanceComparator;
 import rin.gl.Input;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
@@ -42,6 +44,7 @@ public class Scene {
 	public int getUniform( String str ) { return glGetUniformLocation( this.program, str ); }
 	
 	private ArrayList<Actor> actors = new ArrayList<Actor>();
+	private ActorList actor = new ActorList();
 	private Camera camera = null;
 	public Camera getCamera() { return this.camera; }
 	
@@ -101,6 +104,8 @@ public class Scene {
 	
 	public void addActor( Actor a ) {
 		this.actors.add( a );
+		this.actor.add( a );
+		this.actor.sort();
 	}
 	
 	public void update() {
