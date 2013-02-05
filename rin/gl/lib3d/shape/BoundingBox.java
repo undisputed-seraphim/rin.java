@@ -74,7 +74,7 @@ public class BoundingBox extends Shape {
 		this.addVertex( x, y, Z );*/
 		
 		this.setRenderMode( GL_TRIANGLE_STRIP );
-		this.setColor( 1.0f, 0.0f, 0.0f, 0.5f );
+		this.setColor( 1.0f, 0.0f, 0.0f, 0.3f );
 		this.setColored( true );
 		this.build( Buffer.toArrayf( v ), new float[0], new float[0] );
 	}

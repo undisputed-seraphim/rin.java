@@ -2,7 +2,6 @@ package rin.gl.model;
 
 import java.util.ArrayList;
 
-import rin.gl.lib3d.interfaces.Scene;
 import rin.gl.lib3d.interfaces.Actor;
 import rin.gl.lib3d.interfaces.Engine;
 import rin.gl.lib3d.interfaces.Mesh;
@@ -38,7 +37,7 @@ public class ModelDAE implements ModelManager {
 		ArrayList<Float> n = new ArrayList<Float>();
 		ArrayList<Float> t = new ArrayList<Float>();
 		for( Polylist p : polylists ) {
-			ArrayList<Integer> prim = p.getPrim();
+			int[] prim = Buffer.toArrayi( p.getPrim() );
 			
 			/* sources */
 			V_SRC = sources.getSource( p.getSource( "vertex" ) ).getFloatArray();
@@ -49,11 +48,14 @@ public class ModelDAE implements ModelManager {
 			//TODO: needs to work with any stride instead of assuming it's 3
 			int stride = (V_SRC.length > 0 ? 1 : 0) + (N_SRC.length > 0 ? 1 : 0) + (T_SRC.length > 0 ? 1 : 0);
 			
-			int tmp = v.size() / 3;
-			v.addAll( Buffer.getIndexedValuesAL( V_SRC, Buffer.toArrayi( prim ), p.getOffset( "vertex" ), stride, 3 ) );
-			n.addAll( Buffer.getIndexedValuesAL( N_SRC, Buffer.toArrayi( prim ), p.getOffset( "normal" ), stride, 3 ) );
-			t.addAll( Buffer.getIndexedValuesAL( T_SRC, Buffer.toArrayi( prim ), p.getOffset( "texcoord" ), stride, 2 ) );
-			mesh.addTextureRange( path + "textures" + Engine.LS + p.getName() + ".png", tmp, v.size() / 3 );
+			mesh.addPoly( Buffer.getIndexedValues( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ),
+						  Buffer.getIndexedValues( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ),
+						  Buffer.getIndexedValues( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ),
+						  path + "textures" + Engine.LS + p.getName() + ".png" );
+			
+			v.addAll( Buffer.getIndexedValuesAL( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ) );
+			n.addAll( Buffer.getIndexedValuesAL( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ) );
+			t.addAll( Buffer.getIndexedValuesAL( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ) );
 			
 			/*mesh.addPoly( p.getName(),
 						  Buffer.getIndexedValues( V_SRC, Buffer.toArrayi( prim ), p.getOffset( "vertex" ), stride, 3 ),
@@ -72,6 +74,7 @@ public class ModelDAE implements ModelManager {
 			//poly = poly.destroy();
 		}
 
+		//mesh.setPicking( true );
 		mesh.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), Buffer.toArrayf( t ) );
 		V_SRC = N_SRC = T_SRC = null;
 		

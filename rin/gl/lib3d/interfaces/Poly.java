@@ -58,18 +58,9 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		this.ready = true;
 	}
 	
-	@Override public void showBoundingBox() { this.showBoundingBox( this.bbox.getRenderMode(), false ); }
-	public void showBoundingBox( int renderMode ) { this.showBoundingBox( renderMode, false ); }
-	public void showBoundingBox( int renderMode, boolean unique ) {
-		if( this.bbox != null && this.bbox.isReady() ) {
-			/*if( unique ) {
-				this.bbox.setColor( this.getUniqueColor() );
-				this.bbox.setColored( true );*/
-				this.bbox.render();
-			/*} else {
-				this.bbox.render( renderMode );
-			}*/
-		}
+	@Override public void showBoundingBox() {
+		if( this.bbox != null )
+			this.bbox.render();
 	}
 	
 	
