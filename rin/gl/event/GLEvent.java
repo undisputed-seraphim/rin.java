@@ -178,5 +178,9 @@ public class GLEvent {
 		}
 	}
 	
-	
+	public static class PickDownEvent extends PickEvent {
+		public PickDownEvent( String code ) {
+			super( code );
+		}
+	}	
 }

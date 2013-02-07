@@ -95,7 +95,9 @@ public class Scene {
 		glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
 		glEnable( GL_TEXTURE_2D );
 		glActiveTexture( GL_TEXTURE0 );
-		glUniform1i( glGetUniformLocation( this.program, "sampler" ), 0 );
+		glUniform1i( glGetUniformLocation( this.program, "samplerA" ), 0 );
+		//TextureManager.init();
+		//glUniform1i( this.getUniform( "samplerA" ), TextureManager.array );
 		
 		glViewport( 0, 0, width, height );
 		this.camera = new Camera( 45, width / height, 0.1f, VIEW_DISTANCE );
@@ -108,6 +110,7 @@ public class Scene {
 		this.actor.sort();
 	}
 	
+	private String prev = "";
 	public void update() {
 		if( this.ready ) {
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
@@ -121,13 +124,20 @@ public class Scene {
 			
 			String tmp = Buffer.toString( this.camera.getMouseRGB() );
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-
+			if( !this.prev.equals( "" ) ) {
+				if( !this.prev.equals( tmp ) ) {
+					//GLEvent.fire( new PickOutEvent( this.prev ) );
+				}
+			}
+			
+			//glUniform1i( this.getUniform( "use3D" ), GL_TRUE );
 			for( Actor a : this.actors ) {
 				( (Poly) a ).useUniqueColor( false );
 				( (Poly) a ).render();
 			}
 			
 			GLEvent.fire( new PickEvent( tmp ) );
+			this.prev = tmp;
 		}
 	}
 	
