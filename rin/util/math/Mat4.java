@@ -237,6 +237,11 @@ public class Mat4 {
 	    return new Vec3( out.x * out.w, out.y * out.w, out.z * out.w );
 	}
 	
+	public static Mat4 rotate( Mat4 m, Vec3 v ) {
+		return Mat4.multiply( m, Quat4.multiply( Quat4.multiply( Quat4.create( Vec3.X_AXIS, v.x ),
+				Quat4.create( Vec3.Y_AXIS, v.y ) ), Quat4.create( Vec3.Z_AXIS, v.z ) ).toMat4() );
+	}
+	
 	/* returns a matrix used to translate other matrices */
 	public static Mat4 translate( Mat4 m, Vec3 v ) {
 		Mat4 t = new Mat4();

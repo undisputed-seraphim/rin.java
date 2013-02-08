@@ -22,10 +22,9 @@ public interface GLEventListener {
 	
 	
 	public interface PickEventListener extends GLEventListener {
-		/** Perform actions when a PickEvent is fired.
-		 * @param e PickEvent detailing mouse coordinates
-		 */
-		public void processPickEvent( PickEvent e );
+		public void processPickInEvent( PickInEvent e );
+		public void processPickOutEvent( PickOutEvent e );
+		public void processPickRepeatEvent( PickRepeatEvent e );
 	}
 	
 	

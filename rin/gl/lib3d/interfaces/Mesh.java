@@ -7,7 +7,7 @@ public class Mesh extends Poly {
 	
 	public void addPoly( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
 		Poly poly = new Poly();
-		poly.build( vertices, normals, texcoords );
+		poly.build( vertices, normals, texcoords, new float[0] );
 		poly.addTexture( textureFile );
 		poly.setPicking( true );
 		this.polys.add( poly );

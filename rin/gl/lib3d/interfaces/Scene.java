@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
+import rin.gl.font.Font;
 import rin.gl.lib3d.ActorList;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.DistanceComparator;
@@ -15,6 +16,7 @@ import rin.gl.Input;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
 import rin.util.IO;
+import rin.util.math.Vec3;
 
 public class Scene {
 	private static final float VIEW_DISTANCE = 15.0f;
@@ -48,6 +50,9 @@ public class Scene {
 	private Camera camera = null;
 	public Camera getCamera() { return this.camera; }
 	
+	private Font font = null;
+	public Font getFont() { return this.font; }
+	
 	public Scene( int width, int height ) {
 		/* create and compile vertex shader */
 		this.vShader = this.createShader( GL_VERTEX_SHADER, this.getShaderSource( "vertex.shader" ) );
@@ -68,7 +73,7 @@ public class Scene {
 		glBindAttribLocation( this.program, 0, "vertex" );
 		glBindAttribLocation( this.program, 1, "normal" );
 		glBindAttribLocation( this.program, 2, "texture" );
-		//glBindAttribLocation( this.program, 3, "unique" );
+		glBindAttribLocation( this.program, 3, "color" );
 		//glBindAttribLocation( this.program, 3, "bone" );
 		//glBindAttribLocation( this.program, 4, "weight" );
 		
@@ -95,7 +100,9 @@ public class Scene {
 		glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
 		glEnable( GL_TEXTURE_2D );
 		glActiveTexture( GL_TEXTURE0 );
-		glUniform1i( glGetUniformLocation( this.program, "samplerA" ), 0 );
+		glUniform1i( glGetUniformLocation( this.program, "sampler" ), 0 );
+		
+		this.font = new Font( Engine.FONT_DIR + "ff6.png" );
 		//TextureManager.init();
 		//glUniform1i( this.getUniform( "samplerA" ), TextureManager.array );
 		
@@ -120,24 +127,27 @@ public class Scene {
 			for( Actor a : this.actors ) {
 				( (Poly) a ).useUniqueColor( true );
 				( (Poly) a ).render();
+				( (Poly) a ).useUniqueColor( false );
 			}
 			
 			String tmp = Buffer.toString( this.camera.getMouseRGB() );
-			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			if( !this.prev.equals( "" ) ) {
 				if( !this.prev.equals( tmp ) ) {
-					//GLEvent.fire( new PickOutEvent( this.prev ) );
+					GLEvent.fire( new PickOutEvent( this.prev ) );
+					GLEvent.fire( new PickInEvent( tmp ) );
+				} else {
+					GLEvent.fire( new PickRepeatEvent( tmp ) );
 				}
 			}
+			this.prev = tmp;
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
 			//glUniform1i( this.getUniform( "use3D" ), GL_TRUE );
 			for( Actor a : this.actors ) {
-				( (Poly) a ).useUniqueColor( false );
 				( (Poly) a ).render();
 			}
 			
-			GLEvent.fire( new PickEvent( tmp ) );
-			this.prev = tmp;
+			this.font.draw3D( "testing", 0.3f, 0.05f, new Vec3() );
 		}
 	}
 	

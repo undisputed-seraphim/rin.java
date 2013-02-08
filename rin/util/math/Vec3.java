@@ -73,6 +73,8 @@ public class Vec3 {
 		return new Vec3( v.x * f, v.y * f, v.z * f );
 	}
 	
+	public static Vec3 inverse( Vec3 v ) { return new Vec3( -v.x, -v.y, -v.z ); }
+	
 	public static float distance( Vec3 v, Vec3 w ) {
 		float x = v.x - w.x;
 		float y = v.y - w.y;

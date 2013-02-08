@@ -8,6 +8,8 @@ import rin.gl.lib3d.interfaces.Pickable;
 
 public class GLEvent {
 	public static enum State {
+		IN,
+		OUT,
 		UP,
 		DOWN,
 		REPEAT,
@@ -150,8 +152,9 @@ public class GLEvent {
 		private static ArrayList<String> listening = new ArrayList<String>();
 		
 		public String code;
+		public State state;
 		
-		public PickEvent( String code ) { this.code = code; }
+		public PickEvent( String code, State state ) { this.code = code; this.state = state; }
 		
 		public static void addListener( Pickable el ) {
 			float tmp[] = el.getUniqueColor();
@@ -173,14 +176,19 @@ public class GLEvent {
 		
 		public static void fire( PickEvent e ) {
 			int pos = PickEvent.listening.indexOf( e.code );
-			if( pos != -1 )
-				( (PickEventListener)PickEvent.listeners.get( pos ) ).processPickEvent( e );
+			if( pos != -1 ) {
+				switch( e.state ) {
+				
+				case IN: ( (PickEventListener)PickEvent.listeners.get( pos ) ).processPickInEvent( (PickInEvent)e ); break;
+				case OUT: ( (PickEventListener)PickEvent.listeners.get( pos ) ).processPickOutEvent( (PickOutEvent)e ); break;
+				case REPEAT: ( (PickEventListener)PickEvent.listeners.get( pos ) ).processPickRepeatEvent( (PickRepeatEvent)e ); break;
+				default: break;
+				
+				}
+			}
 		}
 	}
-	
-	public static class PickDownEvent extends PickEvent {
-		public PickDownEvent( String code ) {
-			super( code );
-		}
-	}	
+	public static class PickInEvent extends PickEvent { public PickInEvent( String code ) { super( code, State.IN ); } }
+	public static class PickOutEvent extends PickEvent { public PickOutEvent( String code ) { super( code, State.OUT ); } }
+	public static class PickRepeatEvent extends PickEvent { public PickRepeatEvent( String code ) { super( code, State.REPEAT ); } }
 }

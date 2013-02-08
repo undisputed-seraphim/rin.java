@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL21.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL30.*;
+//import static org.lwjgl.opengl.GL21.*;
+//import static org.lwjgl.opengl.GL12.*;
+//import static org.lwjgl.opengl.GL30.*;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
@@ -65,6 +65,7 @@ public class TextureManager {
 			return -1;
 		} catch( IOException e ) {
 			System.out.println( "[WARNING] IOException on file [" + file + "]." );
+			e.printStackTrace();
 			return -1;
 		}
 		
@@ -97,9 +98,8 @@ public class TextureManager {
 		if( textureId != -1 && TextureManager.ids.indexOf( textureId ) != -1 ) {
 			// if the texture is not already the active texture
 			if( TextureManager.currentTextureId != textureId ) {
-				if( !textureOn ) {
+				if( !TextureManager.textureOn ) {
 					glUniform1i( GL.getUniform( "useTexture" ), GL_TRUE );
-					glUniform1i( GL.getUniform( "useColor" ), GL_FALSE );
 					TextureManager.textureOn = true;
 				} else { TextureManager.notify( "[NOTIFY] Texturing was already turned on." ); }
 				glBindTexture( GL_TEXTURE_2D, textureId );

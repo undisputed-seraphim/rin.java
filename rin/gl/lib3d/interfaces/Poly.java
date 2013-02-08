@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.gl.TextureManager;
 import rin.gl.event.GLEvent;
-import rin.gl.event.GLEvent.PickEvent;
+import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.GLBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
@@ -59,8 +59,10 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	}
 	
 	@Override public void showBoundingBox() {
-		if( this.bbox != null )
+		if( this.bbox != null ) {
+			this.bbox.setMatrix( this.getMatrix() );
 			this.bbox.render();
+		}
 	}
 	
 	
@@ -90,7 +92,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	@Override public boolean isColored() { return this.colored; }
 	@Override public void setColored( boolean val ) { this.colored = val; }
 	
-	private float[] color = new float[] { 0.5f, 0.0f, 0.5f, 0.5f };
+	private float[] color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
 	@Override public void setColor( float r, float g, float b, float a ) { this.color = new float[]{ r, g, b, a }; }
 	@Override public float[] getColor() { return this.color; }
 	
@@ -103,13 +105,14 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	
 	@Override public void bindTexture() {
 		if( this.useUnique ) {
-			glUniform1i( GL.getUniform( "useColor" ), GL_TRUE );
-			float[] color = this.getUniqueColor();
-			glUniform4f( GL.getUniform( "color" ), color[0], color[1], color[2], 1.0f );
+			glUniform1i( GL.getUniform( "useUnique" ), GL_TRUE );
+			//float[] color = this.getUniqueColor();
+			//glUniform4f( GL.getUniform( "color" ), color[0], color[1], color[2], 1.0f );
 		} else if( this.colored ) {
 			glUniform1i( GL.getUniform( "useColor" ), GL_TRUE );
-			glUniform4f( GL.getUniform( "color" ), this.color[0], this.color[1], this.color[2], this.color[3] );
+			//glUniform4f( GL.getUniform( "color" ), this.color[0], this.color[1], this.color[2], this.color[3] );
 		} else {
+			glUniform1i( GL.getUniform( "useUnique" ), GL_FALSE );
 			glUniform1i( GL.getUniform( "useColor" ), GL_FALSE );
 			if( this.texture != -1 )
 				TextureManager.enable( this.texture );
@@ -120,42 +123,63 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	}
 	
 	public void build( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
-		this.build( vertices, normals, texcoords );
+		this.build( vertices, normals, texcoords, new float[0] );
 		this.addTexture( textureFile );
 	}
 	
-	@Override public void build( float[] vertices, float[] normals, float[] texcoords ) {
+	@Override public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {
 		this.ready = false;
 		
 		if( this.ibuf != null ) this.ibuf = this.ibuf.destroy();
 		if( this.abuf != null ) this.abuf = this.abuf.destroy();
 		
 		this.indexCount = vertices.length / 3;
-		float[] aba = new float[ vertices.length + /*this.indexCount * 4 +*/ normals.length + texcoords.length ];
+		float[] aba = new float[ this.indexCount * 4 * 4 ];
 		int[] iba = new int[ this.indexCount ];
 		
-		//float[] color = this.getUniqueColor();
+		float[] unique = this.getUniqueColor();
+		float[] color = this.getColor();
 		try {
-			for( int i = 0, a = 0; i < vertices.length / 3; i++ ) {
+			for( int i = 0, a = 0; i < this.indexCount; i++ ) {
 				aba[a++] = vertices[ i*3 ];
 				aba[a++] = vertices[ i*3+1 ];
 				aba[a++] = vertices[ i*3+2 ];
+				aba[a++] = unique[0];
 				
-				/*aba[a++] = color[0];
-				aba[a++] = color[1];
-				aba[a++] = color[2];
-				aba[a++] = 1.0f;*/
+				/* if color data obtained, use. else, default red */
+				if( colors.length > 0 ) {
+					aba[a++] = colors[ i*4 ];
+					aba[a++] = colors[ i*4+1 ];
+					aba[a++] = colors[ i*4+2 ];
+					aba[a++] = colors[ i*4+3 ];
+				} else {
+					aba[a++] = color[0];
+					aba[a++] = color[1];
+					aba[a++] = color[2];
+					aba[a++] = color[3];
+				}
 				
 				if( normals.length > 0 ) {
 					aba[a++] = normals[ i*3 ];
 					aba[a++] = normals[ i*3+1 ];
 					aba[a++] = normals[ i*3+2 ];
+				} else {
+					aba[a++] = 0.0f;
+					aba[a++] = 0.0f;
+					aba[a++] = 0.0f;
 				}
+				aba[a++] = unique[1];
 				
 				if( texcoords.length > 0 ) {
 					aba[a++] = texcoords[ i*2 ];
 					aba[a++] = texcoords[ i*2+1 ];
+					aba[a++] = 1.0f;
+				} else {
+					aba[a++] = 0.0f;
+					aba[a++] = 0.0f;
+					aba[a++] = 0.0f;
 				}
+				aba[a++] = unique[2];
 				
 				iba[i] = i;
 			}
@@ -166,17 +190,19 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 
 		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, iba );
 		this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, aba )
-				.addIndex( IndexType.VERTEX, 3, GL.getAttrib( "vertex" ) );
-				//.addIndex( IndexType.COLOR, 4, GL.getAttrib( "unique" ) );
-		if( normals.length > 0 ) this.abuf.addIndex( IndexType.NORMAL, 3, GL.getAttrib( "normal" ) );
-		if( texcoords.length > 0 ) this.abuf.addIndex( IndexType.TEXCOORD, 2, GL.getAttrib( "texture" ) );
-		this.abuf.build();
+				.addIndex( IndexType.VERTEX, 4, GL.getAttrib( "vertex" ) )
+				.addIndex( IndexType.COLOR, 4, GL.getAttrib( "color" ) )
+				.addIndex( IndexType.NORMAL, 4, GL.getAttrib( "normal" ) )
+				.addIndex( IndexType.TEXCOORD, 4, GL.getAttrib( "texture" ) )
+				.build();
 
 		if( this.bound ) {
 			this.computeBounds( vertices );
 			this.createBoundingBox();
 		}
 		
+		aba = null;
+		iba = null;
 		this.ready = true;
 	}
 	
@@ -193,14 +219,20 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 				this.bindTexture();
 				glDrawElements( this.renderMode, this.indexCount, GL_UNSIGNED_INT, 0 );
 			}
+			
+			if( this.isMouseOver() && !this.isUsingUnique() )
+				this.showBoundingBox();
 		}
 	}
 	
 	
 	/* --------------------  pickable implementation -------------------- */
-	private boolean pickableListening = false;
+	private boolean mouseOver = false;
+	public boolean isMouseOver() { return this.mouseOver; }
+	public void setMouseOver( boolean val ) { this.mouseOver = val; }
 	
 	private boolean picking = false;
+	private boolean pickableListening = false;
 	@Override public boolean isPicking() { return this.picking; }
 	@Override public void setPicking( boolean val ) {
 		this.picking = val;
@@ -213,11 +245,19 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		}
 	}
 	
-	@Override public void processPickEvent( PickEvent e ) {
-		System.out.println( "pick eventz" );
-		this.showBoundingBox();
+	@Override public void processPickInEvent( PickInEvent e ) {
+		System.out.println( "in" );
+		this.setMouseOver( true );
 	}
 	
+	@Override public void processPickOutEvent( PickOutEvent e ) {
+		System.out.println( "out" );
+		this.setMouseOver( false );
+	}
+	
+	@Override public void processPickRepeatEvent( PickRepeatEvent e ) {
+		System.out.println( "pick repeat " + this.getName() );
+	}
 	
 	public Poly destroy() {
 		super.destroy();

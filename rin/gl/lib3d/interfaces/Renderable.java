@@ -35,7 +35,7 @@ public interface Renderable {
 	 * @param normals array of normal coordinates
 	 * @param texcoords array of texture coordinates
 	 */
-	public void build( float[] vertices, float[] normals, float[] texcoords );
+	public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors );
 	
 	public boolean buffer();
 	public void render();

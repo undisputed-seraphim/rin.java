@@ -80,10 +80,10 @@ public class ModelDAE implements ModelManager {
 		}
 
 		//mesh.setPicking( true );
-		mesh.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), Buffer.toArrayf( t ) );
+		mesh.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), Buffer.toArrayf( t ), new float[0] );
 		V_SRC = N_SRC = T_SRC = null;
 		
-		//xml = xml.destroy();
+		xml = xml.destroy();
 		sources = null;
 		polys = null;
 		

@@ -18,65 +18,29 @@ public class BoundingBox extends Shape {
 		
 		v.add( x ); v.add( y ); v.add( Z );
 		v.add( X ); v.add( y ); v.add( Z );
-		v.add( x ); v.add( Y ); v.add( Z );
 		v.add( X ); v.add( Y ); v.add( Z );
+		v.add( x ); v.add( Y ); v.add( Z );
+		v.add( x ); v.add( y ); v.add( Z );
+		
+		v.add( x ); v.add( y ); v.add( z );
+		v.add( X ); v.add( y ); v.add( z );
+		v.add( X ); v.add( Y ); v.add( z );
+		v.add( x ); v.add( Y ); v.add( z );
+		v.add( x ); v.add( y ); v.add( z );
 		
 		v.add( x ); v.add( Y ); v.add( z );
+		v.add( x ); v.add( Y ); v.add( Z );
+		
+		v.add( X ); v.add( Y ); v.add( Z );
 		v.add( X ); v.add( Y ); v.add( z );
 		
+		v.add( X ); v.add( y ); v.add( z );
+		v.add( X ); v.add( y ); v.add( Z );
 		
-		/*this.addVertex( x, Y, z );
-		this.addVertex( x, y, z );
-		this.addVertex( x, Y, Z );
-		this.addVertex( x, y, Z );
-		
-		// front
-		this.addVertex( X, Y, Z );
-		this.addVertex( X, y, Z );
-		
-		// right
-		this.addVertex( X, Y, z );
-		this.addVertex( X, y, z );
-		
-		// back
-		this.addVertex( x, Y, z );
-		this.addVertex( x, y, z );
-		
-		// bottom hack
-		this.addVertex( x, y, Z );
-		this.addVertex( X, y, z );
-		this.addVertex( X, y, Z );
-		this.addVertex( x, y, Z );
-		
-		// top hack
-		this.addVertex( X, Y, Z );
-		this.addVertex( x, Y, Z );
-		this.addVertex( X, Y, z );
-		this.addVertex( x, Y, z );*/
-		
-		/*this.addVertex( x, y, z );
-		this.addVertex( X, y, z );
-		this.addVertex( X, y, Z );
-		this.addVertex( x, y, Z );
-		this.addVertex( x, y, z );
-		
-		this.addVertex( x, Y, z );
-		this.addVertex( X, Y, z );
-		this.addVertex( X, Y, Z );
-		this.addVertex( x, Y, Z );
-		this.addVertex( x, Y, z );
-		
-		this.addVertex( X, Y, z );
-		this.addVertex( X, y, z );
-		this.addVertex( X, y, Z );
-		this.addVertex( X, Y, Z );
-		this.addVertex( x, Y, Z );
-		this.addVertex( x, y, Z );*/
-		
-		this.setRenderMode( GL_TRIANGLE_STRIP );
-		this.setColor( 1.0f, 0.0f, 0.0f, 0.3f );
+		this.setRenderMode( GL_LINE_STRIP );
+		this.setColor( 1.0f, 0.0f, 0.0f, 1.0f );
 		this.setColored( true );
-		this.build( Buffer.toArrayf( v ), new float[0], new float[0] );
+		this.build( Buffer.toArrayf( v ), new float[0], new float[0], new float[0] );
 	}
 	
 	public BoundingBox destroy() {

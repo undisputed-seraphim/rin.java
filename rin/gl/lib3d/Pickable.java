@@ -8,7 +8,7 @@ import rin.gl.event.GLEventListener.*;
 import static org.lwjgl.opengl.GL11.*;
 import rin.util.math.Vec3;
 
-public class Pickable extends Collidable implements PickEventListener {
+public class Pickable extends Collidable {
 	public static final float MARGIN_ERROR = 0.0007f;
 	public boolean isMouseOver = false;
 	
@@ -42,7 +42,6 @@ public class Pickable extends Collidable implements PickEventListener {
 			//	(float)((int)(tmp[1] * 255) & 0xff)+" "+(float)((int)(tmp[2] * 255) & 0xff)+" ]" );
 	}
 	
-	@Override
 	public void processPickEvent( PickEvent e ) {
 		this.showBoundingBox( GL_LINE_STRIP );
 		if( Mouse.isButtonDown( 0 ) );

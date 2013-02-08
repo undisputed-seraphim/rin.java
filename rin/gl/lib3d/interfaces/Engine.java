@@ -14,6 +14,7 @@ public class Engine {
 	public static final String ROOTDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
 	public static final String SHADER_DIR = ROOTDIR+"inc"+LS+"shaders"+LS;
 	public static final String MODEL_DIR = ROOTDIR+"inc"+LS+"models"+LS;
+	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
 	
 	public static boolean DEBUG = true;
 	
