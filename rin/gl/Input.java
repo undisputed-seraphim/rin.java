@@ -5,6 +5,7 @@ import org.lwjgl.input.Mouse;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
+import rin.gl.lib3d.interfaces.Scene;
 
 public class Input extends Thread {
 	private static boolean destroyRequested = false;
@@ -15,17 +16,18 @@ public class Input extends Thread {
 	public void run() {
 		while( !Input.destroyRequested ) {
 			Input.process();
-			try {
-				Thread.sleep( 3L );
+			/*try {
+				//Thread.sleep( 3L );
 			} catch( InterruptedException e ) {
 				System.out.println( "Event Thread interrupted. Stopping..." );
 				Input.destroyRequested = true;
-			}
+			}*/
 		}
 		
 		this.destroy();
 	}
 	
+	private static String prev = "";
 	public static void process() {
 		while( Keyboard.next() ) {
 			
@@ -36,6 +38,7 @@ public class Input extends Thread {
 			//key up
 			else
 				GLEvent.fire( new KeyUpEvent( Keyboard.getEventKey() ) );
+
 		}
 		
 		//key repeat
@@ -55,6 +58,7 @@ public class Input extends Thread {
 		if( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) GLEvent.fire( new KeyRepeatEvent( Keyboard.KEY_SPACE ) );
 		
 		while( Mouse.next() ) {
+			
 			//mouse move
 			if( Mouse.getEventButton() == -1 && Mouse.getEventDWheel() == 0 )
 				GLEvent.fire( new MouseMoveEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY(),
@@ -71,11 +75,24 @@ public class Input extends Thread {
 			//mouse up
 			else
 				GLEvent.fire( new MouseUpEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY() ) );
+			
 		}
 		
 		//mouse repeat
 		if( Mouse.isButtonDown( 0 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_LEFT, Mouse.getX(), Mouse.getY() ) );
 		if( Mouse.isButtonDown( 1 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_RIGHT, Mouse.getX(), Mouse.getY() ) );
+		
+		String tmp = Scene.uniqueAtMouse;
+
+		if( !Input.prev.equals( "" ) ) {
+			if( !Input.prev.equals( tmp ) ) {
+				GLEvent.fire( new PickOutEvent( Input.prev ) );
+				GLEvent.fire( new PickInEvent( tmp ) );
+			} else {
+				GLEvent.fire( new PickRepeatEvent( tmp ) );
+			}
+		}
+		Input.prev = tmp;
 	}
 	
 	public void destroy() {

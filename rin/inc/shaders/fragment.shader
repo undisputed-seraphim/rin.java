@@ -1,10 +1,8 @@
 uniform sampler2D sampler;
-uniform sampler2DArray samplerA;
 
 uniform bool useUnique;
 uniform bool useColor;
 uniform bool useTexture;
-uniform bool use3D;
 
 varying vec4 vVertex;
 varying vec4 vColor;
@@ -18,11 +16,7 @@ void main( void ) {
 	} else if( useColor ) {
 		texel = vColor;
 	} else if( useTexture ) {
-		if( use3D ) {
-			texel = vec4( texture2DArray( samplerA, vec3( vTexture.x, vTexture.y, 0 ) ).rgb, 1.0 );
-		} else {
-			texel = texture2D( sampler, vec2( vTexture.x, vTexture.y ) );
-		}
+		texel = texture2D( sampler, vec2( vTexture.x, vTexture.y ) );
 	}
 	
 	gl_FragColor = texel;

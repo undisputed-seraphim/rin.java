@@ -30,14 +30,14 @@ public class ModelDAE implements ModelManager {
 		//TODO: everything below this line needs tidying up... badly
 		/* DAE models will utilize the mesh class */
 		Mesh mesh = new Mesh();
-		//mesh.setPicking( true );
+		mesh.setPicking( true );
 		//mesh.setInterleaved( false );
 		float[] V_SRC, N_SRC, T_SRC;
 		String path = file.substring( 0, file.lastIndexOf( Engine.LS ) + 1 );
 		ArrayList<Float> v = new ArrayList<Float>();
-		ArrayList<Float> c = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
 		ArrayList<Float> t = new ArrayList<Float>();
+		float[][] unique = new float[polylists.size()][3];
 		for( Polylist p : polylists ) {
 			int[] prim = Buffer.toArrayi( p.getPrim() );
 			
@@ -49,16 +49,13 @@ public class ModelDAE implements ModelManager {
 			/* stride is equal the amount of items being used (e.g. normals + vertices = 2, vertices only = 1) */
 			//TODO: needs to work with any stride instead of assuming it's 3
 			int stride = (V_SRC.length > 0 ? 1 : 0) + (N_SRC.length > 0 ? 1 : 0) + (T_SRC.length > 0 ? 1 : 0);
-			
-			float[] color = Scene.getNextColor();
+
 			mesh.addPoly( Buffer.getIndexedValues( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ),
 						  Buffer.getIndexedValues( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ),
 						  Buffer.getIndexedValues( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ),
 						  path + "textures" + Engine.LS + p.getName() + ".png" );
 			
-			ArrayList<Float> tmpv = Buffer.getIndexedValuesAL( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 );
-			v.addAll( tmpv );
-			c.addAll( Buffer.duplicateAL( color, tmpv.size() / 3 ) );
+			v.addAll( Buffer.getIndexedValuesAL( V_SRC, prim, p.getOffset( "vertex" ), stride, 3 ) );
 			n.addAll( Buffer.getIndexedValuesAL( N_SRC, prim, p.getOffset( "normal" ), stride, 3 ) );
 			t.addAll( Buffer.getIndexedValuesAL( T_SRC, prim, p.getOffset( "texcoord" ), stride, 2 ) );
 			
@@ -80,6 +77,7 @@ public class ModelDAE implements ModelManager {
 		}
 
 		//mesh.setPicking( true );
+		//mesh.setPolyInfo( ranges, unique );
 		mesh.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), Buffer.toArrayf( t ), new float[0] );
 		V_SRC = N_SRC = T_SRC = null;
 		

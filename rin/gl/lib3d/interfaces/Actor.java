@@ -1,5 +1,6 @@
 package rin.gl.lib3d.interfaces;
 
+import rin.gl.lib3d.Transformation;
 import rin.gl.lib3d.interfaces.Scene;
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
@@ -14,18 +15,18 @@ public class Actor implements Positionable, Controllable {
 	public String getName() { return this.name; }
 	
 	/** Unique color in the format of [ r, g, b ]. Used for Picking. */
-	private float[] uniqueColor = new float[3];
+	private float[] uniqueColor = new float[] { 0.0f, 0.0f, 0.0f };
 	public float[] getUniqueColor() { return this.uniqueColor; }
+	public void setUniqueColor( float[] color ) { this.uniqueColor = color; }
 	
-	public Actor() { this( "No Name Actor" ); }
-	public Actor( String name ) { this( name, new Vec3( 0.0f, 0.0f, 0.0f ) ); }
-	public Actor( String name, Vec3 position ) { this( name, position, new Vec3( 0.0f, 0.0f, 0.0f ) ); }
-	public Actor( String name, Vec3 position, Vec3 rotation ) { this( name, position, rotation, new Vec3( 1.0f, 1.0f, 1.0f ) ); }
-	public Actor( String name, Vec3 position, Vec3 rotation, Vec3 scale ) {
+	public Actor() { this( "No Name Actor", new Transformation() ); }
+	public Actor( String name ) { this( name, new Transformation() ); }
+	public Actor( Transformation t ) { this( "No Name Actor", t ); }
+	public Actor( String name, Transformation t ) {
 		this.name = name;
-		this.position = position;
-		this.rotation = rotation;
-		this.scale = scale;
+		this.position = t.getPosition();
+		this.rotation = t.getRotation();
+		this.scale = t.getScale();
 		this.uniqueColor = Scene.getNextColor();
 	}
 	

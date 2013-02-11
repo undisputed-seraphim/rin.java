@@ -9,20 +9,20 @@ import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.GLBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer;
+import rin.gl.lib3d.Transformation;
 import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.shape.BoundingBox;
+import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable {
-
-	public Poly() { this( "No Name Poly" ); }
-	public Poly( String name ) { this( name, new Vec3( 0.0f, 0.0f, 0.0f ) ); }
-	public Poly( String name, Vec3 position ) { this( name, position, new Vec3( 0.0f, 0.0f, 0.0f ) ); }
-	public Poly( String name, Vec3 position, Vec3 rotation ) { this( name, position, rotation, new Vec3( 1.0f, 1.0f, 1.0f ) ); }
-	public Poly( String name, Vec3 position, Vec3 rotation, Vec3 scale ) {
-		super( name, position, rotation, scale );
-	}
+	private static final float	POS_INF = Float.POSITIVE_INFINITY,
+								NEG_INF = Float.NEGATIVE_INFINITY;
 	
+	public Poly() { this( "No Name Actor", new Transformation() ); }
+	public Poly( String name ) { this( name, new Transformation() ); }
+	public Poly( Transformation t ) { this( "No Name Actor", t ); }
+	public Poly( String name, Transformation t ) { super( name, t ); }
 
 	/* ------------------ boundable implementation ------------------ */
 	private boolean bound = true;
@@ -32,13 +32,11 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	private BoundingBox bbox = null;
 	@Override public BoundingBox getBoundingBox() { return this.bbox; }
 	
-	private float	xMin = Float.POSITIVE_INFINITY, xMax = Float.NEGATIVE_INFINITY,
-					yMin = Float.POSITIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY,
-					zMin = Float.POSITIVE_INFINITY, zMax = Float.NEGATIVE_INFINITY;
+	private float xMin = POS_INF, xMax = NEG_INF, yMin = POS_INF, yMax = NEG_INF, zMin = POS_INF, zMax = NEG_INF;
 	@Override public void computeBounds( float[] vertices ) {
-		this.xMin = Float.POSITIVE_INFINITY; this.xMax = Float.NEGATIVE_INFINITY;
-		this.yMin = Float.POSITIVE_INFINITY; this.yMax = Float.NEGATIVE_INFINITY;
-		this.zMin = Float.POSITIVE_INFINITY; this.zMax = Float.NEGATIVE_INFINITY;
+		this.xMin = POS_INF; this.xMax = NEG_INF;
+		this.yMin = POS_INF; this.yMax = NEG_INF;
+		this.zMin = POS_INF; this.zMax = NEG_INF;
 		for( int i = 0; i < vertices.length; i += 3 )
 			this.addBounds( vertices[i], vertices[i+1], vertices[i+2] );
 	}
@@ -74,10 +72,6 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	@Override public boolean isVisible() { return this.visible; }
 	@Override public void setVisible( boolean val ) { this.visible = val; }
 	
-	private boolean useUnique = false;
-	@Override public boolean isUsingUnique() { return this.useUnique; }
-	@Override public void useUniqueColor( boolean val ) { this.useUnique = val; }
-	
 	private int renderMode = GL_TRIANGLES;
 	@Override public int getRenderMode() { return this.renderMode; }
 	@Override public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
@@ -104,15 +98,9 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	}
 	
 	@Override public void bindTexture() {
-		if( this.useUnique ) {
-			glUniform1i( GL.getUniform( "useUnique" ), GL_TRUE );
-			//float[] color = this.getUniqueColor();
-			//glUniform4f( GL.getUniform( "color" ), color[0], color[1], color[2], 1.0f );
-		} else if( this.colored ) {
+		if( this.colored ) {
 			glUniform1i( GL.getUniform( "useColor" ), GL_TRUE );
-			//glUniform4f( GL.getUniform( "color" ), this.color[0], this.color[1], this.color[2], this.color[3] );
 		} else {
-			glUniform1i( GL.getUniform( "useUnique" ), GL_FALSE );
 			glUniform1i( GL.getUniform( "useColor" ), GL_FALSE );
 			if( this.texture != -1 )
 				TextureManager.enable( this.texture );
@@ -211,7 +199,8 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		return this.ibuf.buffer();
 	}
 	
-	@Override public void render() {
+	@Override public void render() { this.render( false ); }
+	public void render( boolean unique ) {
 		if( this.ready && this.visible ) {
 			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
 			//glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
@@ -220,7 +209,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 				glDrawElements( this.renderMode, this.indexCount, GL_UNSIGNED_INT, 0 );
 			}
 			
-			if( this.isMouseOver() && !this.isUsingUnique() )
+			if( this.isMouseOver() && !unique )
 				this.showBoundingBox();
 		}
 	}
@@ -256,7 +245,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	}
 	
 	@Override public void processPickRepeatEvent( PickRepeatEvent e ) {
-		System.out.println( "pick repeat " + this.getName() );
+		//System.out.println( "pick repeat " + this.getName() );
 	}
 	
 	public Poly destroy() {
@@ -265,7 +254,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		if( this.abuf != null ) this.abuf = this.abuf.destroy();
 		if( this.ibuf != null ) this.ibuf = this.ibuf.destroy();
 		
-		this.bbox = this.bbox != null ? this.bbox.destroy() : null;
+		if( this.bbox != null ) this.bbox = this.bbox.destroy();
 		
 		if( this.isPicking() )
 			this.setPicking( false );

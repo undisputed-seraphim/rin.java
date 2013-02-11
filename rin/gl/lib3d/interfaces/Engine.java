@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.gl.Input;
+import rin.gui.*;
 
 public class Engine {
 	public static final String LS = System.getProperty( "file.separator" );
@@ -33,9 +34,31 @@ public class Engine {
 			Engine.scene = new Scene( width, height );
 			Engine.scene.getCamera().init();
 			Engine.started = true;
+			
+			Engine.createDebugWindow();			
 		} catch( LWJGLException e ) {
 			System.out.println( "lwjgl instance failed to display [" + width + "x" + height + "]" );
 		}
+	}
+	
+	public static void createDebugWindow() {
+		GUIComponent window = GUIManager.createWindow()
+			.setTitle( "rin.ai | Debug" )
+			.setSize( 250, 500 )
+			.setLocation( 20, 20 )
+			.setBackgroundColor( 233, 233, 233 )
+			.show();
+		
+		GUIComponent tab1 = GUIManager.createPanel()
+			.setBackgroundColor( 70, 70, 70 );
+		
+		GUIComponent tab2 = GUIManager.createPanel()
+			.setBackgroundColor( 70, 70, 70 );
+		
+		GUIManager.createTabbedPane()
+			.addTab( "Overall", tab1, 'O' )
+			.addTab( "Actors", tab2, 'A' )
+			.addTo( window );
 	}
 	
 	public static void start() {
@@ -58,6 +81,7 @@ public class Engine {
 		if( Engine.scene != null )
 			Engine.scene = Engine.scene.destroy();
 		
+		GUIManager.destroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();

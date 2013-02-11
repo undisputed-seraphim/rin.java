@@ -20,6 +20,7 @@ import rin.util.math.Vec3;
 
 public class Scene {
 	private static final float VIEW_DISTANCE = 15.0f;
+	public static String uniqueAtMouse = "";
 	
 	private static int r = 0, g = 0, b = 0;
 	public static float[] getNextColor() {
@@ -54,6 +55,10 @@ public class Scene {
 	public Font getFont() { return this.font; }
 	
 	public Scene( int width, int height ) {
+		Scene.r = 0;
+		Scene.g = 0;
+		Scene.b = 0;
+		
 		/* create and compile vertex shader */
 		this.vShader = this.createShader( GL_VERTEX_SHADER, this.getShaderSource( "vertex.shader" ) );
 		if( this.vShader == -1 )
@@ -97,7 +102,7 @@ public class Scene {
 		glEnable( GL_BLEND );
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 		
-		glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
+		glClearColor( 1.0f, 0.0f, 0.0f, 0.0f );
 		glEnable( GL_TEXTURE_2D );
 		glActiveTexture( GL_TEXTURE0 );
 		glUniform1i( glGetUniformLocation( this.program, "sampler" ), 0 );
@@ -113,25 +118,26 @@ public class Scene {
 	
 	public void addActor( Actor a ) {
 		this.actors.add( a );
-		this.actor.add( a );
-		this.actor.sort();
+		//this.actor.add( a );
+		//this.actor.sort();
 	}
 	
 	private String prev = "";
 	public void update() {
 		if( this.ready ) {
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			Input.process();
 			this.camera.update();
 			
+			glUniform1i( this.getUniform( "useUnique" ), GL_TRUE );
 			for( Actor a : this.actors ) {
-				( (Poly) a ).useUniqueColor( true );
-				( (Poly) a ).render();
-				( (Poly) a ).useUniqueColor( false );
+				( (Poly) a ).render( true );
 			}
+			glUniform1i( this.getUniform( "useUnique" ), GL_FALSE );
 			
-			String tmp = Buffer.toString( this.camera.getMouseRGB() );
-			if( !this.prev.equals( "" ) ) {
+			Scene.uniqueAtMouse = Buffer.toString( this.camera.getMouseRGB() );
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			Input.process();
+			/*if( !this.prev.equals( "" ) ) {
 				if( !this.prev.equals( tmp ) ) {
 					GLEvent.fire( new PickOutEvent( this.prev ) );
 					GLEvent.fire( new PickInEvent( tmp ) );
@@ -139,8 +145,7 @@ public class Scene {
 					GLEvent.fire( new PickRepeatEvent( tmp ) );
 				}
 			}
-			this.prev = tmp;
-			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			this.prev = tmp;*/
 			
 			//glUniform1i( this.getUniform( "use3D" ), GL_TRUE );
 			for( Actor a : this.actors ) {
@@ -166,23 +171,21 @@ public class Scene {
 	
 	public Scene destroy() {
 		this.ready = false;
+		//Input.requestDestroy();
 		glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 		
 		for( Actor a : this.actors )
 			a = a.destroy();
 		this.actors.clear();
 		
-		this.camera = this.camera != null ? camera.destroy() : null;
+		if( this.camera != null )
+			this.camera = this.camera.destroy();
 		
-		TextureManager.reset();
+		TextureManager.destroy();
 		
 		if( this.vShader != -1 ) glDeleteShader( this.vShader );
 		if( this.fShader != -1 ) glDeleteShader( this.fShader );
 		if( this.program != -1 ) glDeleteProgram( this.program );
-		
-		Scene.r = 0;
-		Scene.g = 0;
-		Scene.b = 0;
 		
 		return null;
 	}

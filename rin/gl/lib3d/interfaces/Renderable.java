@@ -4,9 +4,6 @@ public interface Renderable {
 	
 	/** Returns whether or not the Renderable is ready for rendering. */
 	public boolean isReady();
-
-	public boolean isUsingUnique();
-	public void useUniqueColor( boolean val );
 	
 	public int getIndexCount();
 	

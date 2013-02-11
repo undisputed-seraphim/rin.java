@@ -121,7 +121,7 @@ public class Scene {
 	/* intialize shaders and program for the scene */
 	public Scene() { this( 500, 500 ); }
 	public Scene( int width, int height ) {
-		TextureManager.reset();
+		TextureManager.destroy();
 		Scene.r = 0;
 		Scene.g = 0;
 		Scene.b = 0;
@@ -291,7 +291,10 @@ public class Scene {
 			a = a.destroy();
 		this.actors.clear();
 		
-		this.camera = this.camera != null ? camera.destroy() : null;
+		TextureManager.destroy();
+		
+		if( this.camera != null )
+			this.camera = camera.destroy();
 		
 		if( this.vShader != -1 ) glDeleteShader( this.vShader );
 		if( this.fShader != -1 ) glDeleteShader( this.fShader );

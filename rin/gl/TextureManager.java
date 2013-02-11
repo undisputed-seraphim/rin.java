@@ -149,9 +149,11 @@ public class TextureManager {
 		}
 	}
 	
-	public static void reset() {
-		for( int i : TextureManager.ids )
+	public static void destroy() {
+		for( int i : TextureManager.ids ) {
+			System.out.println( "[UNLOAD] Texture unloaded from register " + i + "." );
 			glDeleteTextures( Buffer.toBuffer( new int[] { i } ) );
+		}
 		
 		TextureManager.names.clear();
 		TextureManager.ids.clear();
