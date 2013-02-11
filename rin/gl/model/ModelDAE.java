@@ -2,17 +2,15 @@ package rin.gl.model;
 
 import java.util.ArrayList;
 
-import rin.gl.lib3d.interfaces.Actor;
-import rin.gl.lib3d.interfaces.Engine;
-import rin.gl.lib3d.interfaces.Mesh;
-import rin.gl.lib3d.interfaces.Scene;
-import rin.gl.model.ModelManager;
+import rin.gl.lib3d.Actor;
+import rin.engine.Engine;
+import rin.gl.lib3d.Mesh;
 import rin.util.Buffer;
 import rin.util.IO;
 import rin.util.XML;
 
-public class ModelDAE implements ModelManager {
-	public Actor fromFile( String file ) {
+public class ModelDAE implements Model {
+	@Override public Actor fromFile( String file ) {
 		ArrayList<Polylist> polylists = new ArrayList<Polylist>();
 		
 		/* create an XML object using file contents */

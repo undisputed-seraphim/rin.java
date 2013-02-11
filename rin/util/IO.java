@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 public class IO {
+	public static final String LS = System.getProperty( "line.separator" );
+	
 	public static class file {
 		public static InputStream asInputStream( String file ) {
 			InputStream in = null;
@@ -46,13 +48,18 @@ public class IO {
 			String line;
 			try {
 				while( ( line = reader.readLine() ) != null )
-					source.append(line).append( System.getProperty( "line.separator" ) );
+					source.append(line).append( IO.LS );
 			} catch( IOException e ) {
 				System.out.println( "IOException raised. file = " + file );
 				return "";
 			}
 			
 			return source.toString();
+		}
+		
+		public static String[] asArray( String file ) {
+			String data = IO.file.asString( file );
+			return data.split( IO.LS );
 		}
 	}
 }

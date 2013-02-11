@@ -1,137 +1,164 @@
 package rin.gl.lib3d;
 
+import rin.gl.lib3d.Transformation;
+import rin.gl.lib3d.interfaces.Positionable;
+import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.Scene;
-import rin.util.math.*;
+import rin.gl.event.GLEvent;
+import rin.gl.event.GLEvent.*;
+import rin.util.math.Mat4;
+import rin.util.math.Quat4;
+import rin.util.math.Vec3;
 
-//TODO: add overflow checking for radians/rotation
-public class Actor {
-	public static final float PIOVER180 = (float)( java.lang.Math.PI / 180 );
-	/* this actors unique id */
-	private float[] uniqueColor = new float[3];
-	protected int id = -1;
-	protected String name = "No Name";
-	
-	public Actor() {
-		this.uniqueColor = Scene.getNextColor();
-		this.position = new Vec3( 0.0f, 0.0f, 0.0f );
-	}
-	
-	public int getId() { return this.id; }
-	public Actor setId( int id ) { this.id = id; return this; }
-	public Actor setName( String name ) { this.name = name; return this; }
+public class Actor implements Positionable, Controllable {
+
+	/** Name describing Actor */
+	private String name = "No Name";
 	public String getName() { return this.name; }
+	
+	/** Unique color in the format of [ r, g, b ]. Used for Picking. */
+	private float[] uniqueColor = new float[] { 0.0f, 0.0f, 0.0f };
 	public float[] getUniqueColor() { return this.uniqueColor; }
-	public float[] getUniqueRGB() { return new float[] {
-			(float)((int)(this.uniqueColor[0] * 255) & 0xff),
-			(float)((int)(this.uniqueColor[1] * 255) & 0xff),
-			(float)((int)(this.uniqueColor[2] * 255) & 0xff) }; }
+	public void setUniqueColor( float[] color ) { this.uniqueColor = color; }
 	
-	/* matrices depicting the location in 3d space of this positionable */
-	protected Mat4	scaled =	new Mat4(),
-					rotate =	new Mat4(),
-					translate = new Mat4(),
-					matrix =	new Mat4();
-	
-	/* vectors for the current location, rotation, and scale of the positionable */
-	protected Vec3	position =	new Vec3( 0.0f, 0.0f, 0.0f ),
-					rotation =	new Vec3(),
-					scale =		new Vec3( 1.0f, 1.0f, 1.0f );
-	
-	/* quaternions used for handling rotation on each axis */
-	protected Quat4 rotateX =	new Quat4(),
-					rotateY = 	new Quat4(),
-					rotateZ =	new Quat4();
-	
-	/* get information from this positionable */
-	public Vec3 getPosition() { return this.position; }
-	public Vec3 getRotation() { return this.rotation; }
-	public Vec3 getScale() { return this.scale; }
-	public Mat4 getMatrix() { return this.matrix; }
-	public void lookAt( Vec3 eye, Vec3 pos, Vec3 up ) {
-		this.matrix = Mat4.multiply( new Mat4(), Mat4.lookAt( eye.x, eye.y, eye.z, pos.x, pos.y, pos.z, up.x, up.y, up.z ) );
+	public Actor() { this( "No Name Actor", new Transformation() ); }
+	public Actor( String name ) { this( name, new Transformation() ); }
+	public Actor( Transformation t ) { this( "No Name Actor", t ); }
+	public Actor( String name, Transformation t ) {
+		this.name = name;
+		this.position = t.getPosition();
+		this.rotation = t.getRotation();
+		this.scale = t.getScale();
+		this.uniqueColor = Scene.getNextColor();
 	}
 	
-	/* move positionable to a specific vector */
-	public void setPosition( Vec3 v ) { this.setPosition( v.x, v.y, v.z ); }
-	public void setPosition( float x, float y, float z ) {
-		this.position = new Vec3( x, y, z );
+
+	/* -------------- positionable implementation ------------------ */
+	private Vec3 position =	new Vec3(), rotation =	new Vec3(), scale = new Vec3();
+	private Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
+	
+	@Override public Mat4 getMatrix() { return this.matrix; }
+	@Override public void setMatrix( Mat4 m ) { this.matrix = m; }
+	
+	@Override public Vec3 getPosition() { return this.position; }
+	@Override public Mat4 getPositionMatrix() { return this.translate; }
+	@Override public void resetPosition() { this.setPosition( 0.0f, 0.0f, 0.0f ); }
+	@Override public void setPosition( Vec3 p ) { this.setPosition( p.x, p.y, p.z ); }
+	@Override public void setPosition( float x, float y, float z ) {
+		this.position.redefine( x, y, z );
 		this.transform();
 	}
 	
-	/* set positionables position */
-	private void updatePosition() {
-		this.translate = Mat4.translate( new Mat4(), this.position );
-	}
-	
-	/* rotate positionable to given degrees per axis */
-	public void setRotation( Vec3 v ) { this.setRotation( v.x, v.y, v.z ); }
-	public void setRotation( float x, float y, float z ) {
-		this.rotation.redefine( x * PIOVER180, y * PIOVER180, z * PIOVER180 );
+	private void updatePosition() { this.translate = Mat4.translate( new Mat4(), this.position ); }
+
+	@Override public Vec3 getRotation() { return this.rotation; }
+	@Override public Mat4 getRotationMatrix() { return this.rotate; }
+	@Override public void resetRotation() { this.setRotation( 0.0f, 0.0f, 0.0f ); }
+	@Override public void setRotation( Vec3 r ) { this.setRotation( r.x, r.y, r.z ); }
+	@Override public void setRotation( float x, float y, float z ) {
+		this.rotation.redefine( x * Quat4.PIOVER180, y * Quat4.PIOVER180, z * Quat4.PIOVER180 );
 		this.transform();
 	}
 	
-	/* obtain rotation quaternions and compute final rotation matrix based on rotation vector */
 	private void updateRotation() {
 		Quat4	rotateX = Quat4.create( Vec3.X_AXIS, this.rotation.x ),
 				rotateY = Quat4.create( Vec3.Y_AXIS, this.rotation.y ),
 				rotateZ = Quat4.create( Vec3.Z_AXIS, this.rotation.z );
 		this.rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();
 	}
-	
-	public void setScale( Vec3 v ) { this.setScale( v.x, v.y, v.z ); }
-	public void setScale( float x, float y, float z ) {
-		this.scale.redefine( x, y, z );		
+
+	@Override public Vec3 getScale() { return this.scale; }
+	@Override public Mat4 getScaleMatrix() { return this.scaled; }
+	@Override public void resetScale() { this.setScale( 1.0f, 1.0f, 1.0f ); }
+	@Override public void setScale( Vec3 s ) { this.setScale( s.x, s.y, s.z ); }
+	@Override public void setScale( float x, float y, float z ) {
+		this.scale.redefine( x, y, z );
 		this.transform();
 	}
 	
-	private void updateScale() {
+	private void updateScale() { this.scaled = Mat4.scale( new Mat4(), this.scale ); }
+	
+	@Override public void spin( float xaxis, float yaxis, float zaxis ) {
+		this.rotation.x += xaxis;
+		this.rotation.y += yaxis;
+		this.rotation.z += zaxis;
+		this.transform();
 	}
 	
-	/* apply rotation and position vectors then compute positionables location matrix */
-	public void transform() {
-		this.updatePosition();
-		this.updateRotation();
-		this.updateScale();
-		this.matrix = Mat4.multiply( Mat4.multiply( new Mat4(), this.rotate ), this.translate );
-	}
-	
-	/* move the positionable a set amount toward/away, left/right, and up/down */
-	public void move( float step, float side, float rise ) {
+	@Override public void move( float step, float side, float rise ) {
 		this.position.x += this.rotate.m[ 8] * step + ( this.rotate.m[0] * side ) + ( this.rotate.m[4] * rise );
 		this.position.y += this.rotate.m[ 9] * step + ( this.rotate.m[1] * side ) + ( this.rotate.m[5] * rise );
 		this.position.z += this.rotate.m[10] * step + ( this.rotate.m[2] * side ) + ( this.rotate.m[6] * rise );
 		this.transform();
 	}
 	
-	public void resetPosition() {
-		this.position = new Vec3( 0.0f, 0.0f, 0.0f );
-		this.rotation = new Vec3( 0.0f, 0.0f, 0.0f );
-		this.transform();
+	@Override public void transform() {
+		this.updatePosition();
+		this.updateRotation();
+		this.updateScale();
+		this.matrix = Mat4.multiply( Mat4.multiply( Mat4.multiply( new Mat4(), this.scaled ), this.rotate ), this.translate );
 	}
-	
-	/* determine if actor is within given distance from given point */
-	public boolean withinRange( float d, Vec3 pos ) {
-		return Vec3.distance( pos, this.position ) <= d;
-	}
-	
-	public boolean isMesh() { return this instanceof Mesh; }
-	public Mesh toMesh() { return ( Mesh )this; }
-	
-	public boolean isPoly() { return this instanceof Poly; }
-	public Poly toPoly() { return ( Poly )this; }
-	
-	public Pickable toPickable() { return ( Pickable )this; }
-	
-	public boolean isRenderable() { return this instanceof Renderable; }
-	public Renderable toRenderable() { return ( Renderable )this; }
-	
-	public Actor destroy() {
-		if( this.isMesh() )
-			this.toMesh().destroy();
-		
-		if( this.isPoly() )
-			this.toPoly().destroy();
+
+	@Override public Actor destroy() {
+		if( this.isControlled() )
+			this.setControlled( false );
 		
 		return null;
+	}
+	
+	
+	/* ------------- controllable implementation ------------- */
+	private boolean controllableListening = false;
+	
+	private boolean controlled = false;
+	@Override public boolean isControlled() { return this.controlled; }
+	@Override public void setControlled( boolean val ) {
+		this.controlled = val;
+		if( val && !this.controllableListening ) {
+			GLEvent.addKeyEventListener( this );
+			GLEvent.addMouseEventListener( this );
+			this.controllableListening = true;
+		} else if( this.controllableListening ) {
+			GLEvent.removeKeyEventListener( this );
+			GLEvent.removeMouseEventListener( this );
+			this.controllableListening = false;
+		}
+	}
+
+	@Override public void processKeyUpEvent( KeyUpEvent e ) {
+		//System.out.println( "Key Up Event: " + e.key );
+	}
+	
+	@Override public void processKeyDownEvent( KeyDownEvent e ) {
+		//System.out.println( "Key Down Event: " + e.key );
+	}
+	
+	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {
+		//System.out.println( "Key Repeat Event: " + e.key );
+	}
+
+	@Override public void processMouseUpEvent( MouseUpEvent e ) {
+		//System.out.println( "Mouse Up Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseDownEvent( MouseDownEvent e ) {
+		//System.out.println( "Mouse Down Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseMoveEvent( MouseMoveEvent e ) {
+		//System.out.println( "Mouse Move Event at: " + e.x + " " + e.y + " dx: " + e.dx + " dy: " + e.dy );
+	}
+	
+	@Override public void processMouseRepeatEvent( MouseRepeatEvent e ) {
+		//System.out.println( "Mouse Repeat Event at: " + e.x + " " + e.y );
+	}
+	
+	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {
+		//System.out.println( "Mouse Wheel Event at: " + e.x + " " + e.y + " Delta: " + e.delta + "["+e.state+"]" );
+	}
+
+	@Override public int compareTo( Positionable p ) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

@@ -5,7 +5,7 @@ import org.lwjgl.input.Mouse;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
-import rin.gl.lib3d.interfaces.Scene;
+import rin.gl.Scene;
 
 public class Input extends Thread {
 	private static boolean destroyRequested = false;

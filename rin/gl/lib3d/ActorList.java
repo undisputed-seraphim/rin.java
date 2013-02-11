@@ -2,7 +2,7 @@ package rin.gl.lib3d;
 
 import java.util.Arrays;
 
-import rin.gl.lib3d.interfaces.Actor;
+import rin.gl.lib3d.Actor;
 
 public class ActorList {
 	private Actor[] actors;

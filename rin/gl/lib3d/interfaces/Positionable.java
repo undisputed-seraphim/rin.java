@@ -1,5 +1,6 @@
 package rin.gl.lib3d.interfaces;
 
+import rin.gl.lib3d.Actor;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 

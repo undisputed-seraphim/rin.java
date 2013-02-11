@@ -22,8 +22,16 @@ public class Transformation {
 	}
 	
 	public Vec3 getPosition() { return this.position; }
+	public Transformation setPosition( Vec3 position ) { this.position = position; return this; }
+	public Transformation setPosition( float x, float y, float z ) { this.position = new Vec3( x, y, z ); return this; }
+	
 	public Vec3 getRotation() { return this.rotation; }
+	public Transformation setRotation( Vec3 rotation ) { this.rotation = rotation; return this; }
+	public Transformation setRotation( float x, float y, float z ) { this.rotation = new Vec3( x, y, z ); return this; }
+	
 	public Vec3 getScale() { return this.scale; }
+	public Transformation setScale( Vec3 scale ) { this.scale = scale; return this; }
+	public Transformation setScale( float x, float y, float z ) { this.scale = new Vec3( x, y, z ); return this; }
 	
 	public Mat4 getTranslationMatrix() { return Mat4.translate( new Mat4(), this.position ); }
 	public Mat4 getRotationMatrix() { return Mat4.rotate( new Mat4(), this.rotation ); }

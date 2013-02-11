@@ -14,8 +14,8 @@ public class Grid extends ComplexShape {
 	public Grid( int rows, int cols, float size, Vec3 pos, int axis ) { this( rows, cols, size, pos, axis, 0.0f ); }
 	public Grid( int rows, int cols, float size, Vec3 pos, int axis, float space ) {
 		super( "Grid-" + Grid.items++ );
-		super.setInterleaved( true );
-		super.bound = false;
+		//super.setInterleaved( true );
+		super.setBound( false );
 		super.setPolyPicking( true );
 		
 		if( rows == 0 ) rows = 1;
@@ -120,8 +120,8 @@ public class Grid extends ComplexShape {
 					v[z+15] = z == X_AXIS ? pos.x : z == Y_AXIS ? pos.y : pos.z;
 				}
 				
-				super.addPoly( this.getName() + ":" + "cell-" + i + "," + j, v, new float[0], new float[0], "" );
-				super.getPoly( i + j ).setPicking( true );
+				//super.addPoly( this.getName() + ":" + "cell-" + i + "," + j, v, new float[0], new float[0], "" );
+				//super.getPoly( i + j ).setPicking( true );
 			}
 		}
 	}

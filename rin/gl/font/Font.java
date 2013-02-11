@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import rin.gl.TextureManager;
-import rin.gl.lib3d.interfaces.Engine;
-import rin.gl.lib3d.interfaces.Poly;
+import rin.engine.Engine;
+import rin.gl.lib3d.Poly;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;

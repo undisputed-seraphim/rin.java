@@ -9,8 +9,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import rin.gl.event.GLEvent.KeyRepeatEvent;
-import rin.gl.lib3d.interfaces.Actor;
-import rin.gl.lib3d.interfaces.GL;
+import rin.gl.lib3d.Actor;
+import rin.gl.GL;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;

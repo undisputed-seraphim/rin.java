@@ -1,6 +1,6 @@
 package rin.gl.lib3d.shape;
 
-import rin.gl.lib3d.interfaces.Poly;
+import rin.gl.lib3d.Poly;
 
 public class Shape extends Poly {
 	public static int shapes = 0;

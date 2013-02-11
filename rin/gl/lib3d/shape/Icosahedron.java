@@ -2,18 +2,18 @@ package rin.gl.lib3d.shape;
 
 import java.util.ArrayList;
 
+import rin.gl.lib3d.Transformation;
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Icosahedron extends Shape {
 	private static int items = 0;
 	
-	public Icosahedron() {
+	public Icosahedron( float width, Transformation t, boolean wire ) {
 		super( "Icosahedron-" + Icosahedron.items );
 		
 		ArrayList<Float> v = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
-		ArrayList<Float> c = new ArrayList<Float>();
 
 		float X = 0.525731112119133606f, Z = 0.850650808352039932f;
 		
@@ -42,15 +42,15 @@ public class Icosahedron extends Shape {
 			n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 			n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 			n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
-			
-			c.add( v1.x ); c.add( v1.y ); c.add( v1.z ); c.add( 1.0f );
-			c.add( v2.x ); c.add( v2.y ); c.add( v2.z ); c.add( 1.0f );
-			c.add( v3.x ); c.add( v3.y ); c.add( v3.z ); c.add( 1.0f );
 		}
 		
-		this.setColored( true );
-		this.setPicking( true );
-		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], Buffer.toArrayf( c ) );
+		this.setPosition( t.getPosition() );
+		this.setRotation( t.getRotation() );
+		this.setScale( t.getScale() );
+		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
+		
+		v.clear();
+		n.clear();
 	}
 	
 	public Icosahedron destroy() {

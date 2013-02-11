@@ -1,86 +1,92 @@
 package rin.engine;
 
-import rin.gl.*;
-import rin.gl.lib3d.shape.ComplexShape;
-import rin.gl.model.Model;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+
+import rin.gl.Scene;
+import rin.gl.Input;
+import rin.gui.*;
 
 public class Engine {
-	/* type constants for switches */
-	private String name;
-	private boolean ready = false,
-					running = false;
+	public static final String LS = System.getProperty( "file.separator" );
+	public static final String OS = System.getProperty( "os.name" ).toLowerCase();
+	public static final String ROOT = OS.indexOf( "mac" ) != -1 ? "" : "C:";
+	public static final String USER = OS.indexOf( "mac" ) != -1 ? "Musashi" : "johall";
+	public static final String ROOTDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
+	public static final String SHADER_DIR = ROOTDIR+"inc"+LS+"shaders"+LS;
+	public static final String MODEL_DIR = ROOTDIR+"inc"+LS+"models"+LS;
+	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
 	
-	/* constructors */
-	public Engine() { this( "No Name" ); }
-	public Engine( String name ) {
-		this.name = name;
-		GL.create();
-	}
+	public static boolean DEBUG = true;
 	
-	/* getters */
-	public boolean ready() { return this.ready; }
-	public boolean running() { return this.running; }
-	public boolean glRunning() { return GL.isRunning(); }
+	private static boolean started = false;
+	public static boolean isStarted() { return Engine.started; }
 	
-	/* run the game */
-	public void run() { this.run( GL.getWidth(), GL.getHeight() ); }
-	public void run( int both ) { this.run( both, both ); }
-	public void run( int width, int height ) {
-		this.start( width, height );
-		this.loop();
-		this.stop();
-	}
-	
-	/* engines start method, does everything needed to start the game */
-	public void start() { this.start( GL.getWidth(), GL.getHeight() ); }
-	public void start( int both ) { this.start( both, both ); }
-	public void start( int width, int height ) { this.glStart( width, height ); }
-	
-	/* main engine loop */
-	public void loop() {
-		while( this.glRunning() )
-			this.update();
-	}
-	
-	/* engines update method, handles updating of all modules */
-	public void update() {
-		if( this.running )
-			this.glUpdate();
-	}
-	
-	/* stop the gl module and add anything that needs to be done when game is exited here */
-	public void stop() { this.glStop(); }
-	
-	/* start the opengl module's context, at set width/height */
-	public void glStart() { this.glStart( GL.getWidth(), GL.getHeight() ); }
-	public void glStart( int both ) { this.glStart( both, both ); }
-	public void glStart( int width, int height ) {
-		if( !this.running ) {
-			GL.show();
-			this.running = true;
+	private static Scene scene = null;
+	public static Scene getScene() { return Engine.scene; }
+
+	public static void init() { Engine.init( 900, 600 ); }
+	public static void init( int width, int height ) {
+		try {
+			Display.setDisplayMode( new DisplayMode( width, height ) );
+			Display.create();
+			Display.setVSyncEnabled( true );
+			Engine.scene = new Scene( width, height );
+			if( Engine.scene.isReady() ) {
+				Engine.scene.getCamera().init();
+				Engine.started = true;
+			
+				Engine.createDebugWindow();
+			}
+		} catch( LWJGLException e ) {
+			System.out.println( "lwjgl instance failed to display [" + width + "x" + height + "]" );
 		}
 	}
 	
-	/* wrapper to start gl module's Display */
-	public void glUpdate() {
-		if( this.running )
-			GL.update();
+	public static void createDebugWindow() {
+		GUIComponent window = GUIManager.createWindow()
+			.setTitle( "rin.ai | Debug" )
+			.setSize( 250, 500 )
+			.setLocation( 20, 20 )
+			.setBackgroundColor( 233, 233, 233 )
+			.show();
+		
+		GUIComponent tab1 = GUIManager.createPanel()
+			.setBackgroundColor( 70, 70, 70 );
+		
+		GUIComponent tab2 = GUIManager.createPanel()
+			.setBackgroundColor( 70, 70, 70 );
+		
+		GUIManager.createTabbedPane()
+			.addTab( "Overall", tab1, 'O' )
+			.addTab( "Actors", tab2, 'A' )
+			.addTo( window );
 	}
 	
-	/* wrapper to stop gl module's Display */
-	public void glStop() {
-		if( this.running ) {
-			GL.forceDestroy();
-			this.running = false;
+	public static void start() {
+		//new Input( "Rin Input/Event Thread" ).start();
+		Engine.loop();
+		Engine.destroy();
+	}
+	
+	public static void loop() {
+		while( !Display.isCloseRequested() ) {
+			Engine.scene.update();
+			Display.sync( 60 );
+			Display.update();
 		}
 	}
 	
-	/* modify game aspects */
-	public void addCharacter( String name ) {
-		GL.getScene().addModel( name, Model.Format.DAE );
-	}
+	public static void stop() { Engine.destroy(); }
 	
-	public void addComplexShape( ComplexShape shape ) {
-		GL.getScene().addComplexShape( shape );
+	public static void destroy() {
+		if( Engine.scene != null )
+			Engine.scene = Engine.scene.destroy();
+		
+		GUIManager.destroy();
+		//Input.requestDestroy();
+		
+		Display.destroy();
 	}
 }

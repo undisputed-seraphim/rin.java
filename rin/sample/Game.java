@@ -1,40 +1,20 @@
 package rin.sample;
 
 import rin.engine.Engine;
+import rin.gl.lib3d.Transformation;
 import rin.gl.lib3d.shape.*;
-import rin.util.math.Vec3;
+import rin.gl.model.ModelManager;
+import rin.gl.model.ModelManager.Format;
 
 public class Game {
-	private Engine rin;
-	
-	public Game() {
-		this.rin = new Engine();
-		/* setup all the engine options here, e.g. load data into scene, characters, etc */
-		this.rin.addCharacter( "noire_v" );
-		//this.rin.addCharacter( "purplesister_mk2" );
-		//this.rin.addCharacter( "blackheart_v" );
-		//this.rin.addComplexShape( new Grid( 100, 100, 0.5f,new Vec3( 0.0f, 0.0f, 0.0f ), Grid.Y_AXIS, 0.1f ) );
-	}
-	
-	/* run the engine */
-	public void start() { this.rin.run(); }
-	
-	public void menu() {
-		/* go to the main menu */
-		/*try {
-			Method test = Game.class.getMethod( "start", String.class );
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		}*/
-	}
-	
-	/* where it all begins... */
-	public static void main( String[] args ) {
-		Game game = new Game();
-		game.start();
+	public static void main( String args[] ) {
+		Engine.init( 900, 600 );
 		
-		/* do things after the game has closed */
+		//Engine.getScene().addActor( ModelManager.create( Format.OBJ, "cornelia" ) );
+		Engine.getScene().addActor( new Sphere( 2, 10, 10, true ) );
+		Engine.getScene().addActor( ModelManager.create( Format.DAE, "noire_v" ) );
+		//Engine.getScene().addActor( new Icosahedron() );
+		
+		Engine.start();
 	}
 }

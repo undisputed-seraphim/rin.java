@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL20.*;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
-import rin.gl.lib3d.interfaces.GL;
+import rin.gl.GL;
 import rin.util.Buffer;
 import rin.util.IO;
 
