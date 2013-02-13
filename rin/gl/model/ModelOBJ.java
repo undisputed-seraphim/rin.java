@@ -9,6 +9,22 @@ import rin.util.Buffer;
 import rin.util.IO;
 
 public class ModelOBJ implements Model {
+	private static enum  Line {
+		MTLLIB,
+		USEMTL,
+		V,
+		VN,
+		VT,
+		O,
+		F;
+		
+		public static Line get( String id ) {
+			for( Line l : Line.values() )
+				if( l.toString().toLowerCase().equals( id.toLowerCase() ) )
+					return l;
+			return null;
+		}
+	}
 	
 	@Override public Actor fromFile( String file ) {
 		String[] data = IO.file.asArray( file );
@@ -24,34 +40,34 @@ public class ModelOBJ implements Model {
 		for( String s : data ) {
 			String fword = s.substring( 0, s.indexOf( " " ) );
 			String rest = s.substring( s.indexOf( " " ) + 1 );
-			switch( fword ) {
+			switch( Line.get( fword  ) ) {
 			
 			// mtl file for texture properties
-			case "mtllib": mtl = rest; break;
+			case MTLLIB: mtl = rest; break;
 			// material for current object
-			case "usemtl": current.textureFile = rest; break;
+			case USEMTL: current.textureFile = rest; break;
 			// vertex
-			case "v":
+			case V:
 				tmp = rest.split( " " );
 				v.add( new float[]{ Float.parseFloat( tmp[0] ), Float.parseFloat( tmp[1] ), Float.parseFloat( tmp[2] ) } );
 				break;
 			// normal
-			case "vn":
+			case VN:
 				tmp = rest.split( " " );
 				n.add( new float[]{ Float.parseFloat( tmp[0] ), Float.parseFloat( tmp[1] ), Float.parseFloat( tmp[2] ) } );
 				break;
 			// texture
-			case "vt":
+			case VT:
 				tmp = rest.split( " " );
 				t.add( new float[]{ Float.parseFloat( tmp[0] ), Float.parseFloat( tmp[1] ) } );
 				break;
 			// object
-			case "o":
+			case O:
 				overall.add( new OBJMesh( rest ) );
 				current = overall.get( overall.size() - 1 );
 				break;
 			// faces
-			case "f":
+			case F:
 				tmp = rest.split( " " );
 				for( int i = 0; i < tmp.length; i++ ) {
 					String[] face = tmp[i].split( "/" );

@@ -1,4 +1,3 @@
-precision mediump float;
 uniform sampler2D sampler;
 
 uniform bool useUnique;

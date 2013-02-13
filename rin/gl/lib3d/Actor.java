@@ -1,6 +1,6 @@
 package rin.gl.lib3d;
 
-import rin.gl.lib3d.Transformation;
+import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.Scene;

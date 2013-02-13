@@ -1,9 +1,10 @@
 package rin.gl.lib3d.shape;
 
-import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
 
-import rin.gl.lib3d.Transformation;
+import static org.lwjgl.opengl.GL11.GL_LINES;
+
+import rin.gl.lib3d.properties.Properties;
 import rin.util.Buffer;
 
 public class Sphere extends Shape {
@@ -14,11 +15,29 @@ public class Sphere extends Shape {
 	private ArrayList<Float> sinStack = new ArrayList<Float>();
 	private ArrayList<Float> cosStack = new ArrayList<Float>();
 	
-	public Sphere( float radius, int slices, int stacks ) { this( radius, slices, stacks, new Transformation(), false ); }
-	public Sphere( float radius, int slices, int stacks, boolean wire ) { this( radius, slices, stacks, new Transformation(), wire ); }
-	public Sphere( float radius, int slices, int stacks, Transformation t ) { this( radius, slices, stacks, t, false ); }
-	public Sphere( float radius, int slices, int stacks, Transformation t, boolean wire ) {
+	public Sphere() { this( 0.5f, 10, 10, new Properties(), false ); }
+	public Sphere( boolean wire ) { this( 0.5f, 10, 10, new Properties(), wire ); }
+	public Sphere( Properties p ) { this( 0.5f, 10, 10, p, false ); }
+	public Sphere( Properties p, boolean wire ) { this( 0.5f, 10, 10, p, wire ); }
+	public Sphere( int sections ) { this( 0.5f, sections, sections, new Properties(), false ); }
+	public Sphere( int sections, Properties p ) { this( 0.5f, sections, sections, p, false ); }
+	public Sphere( int sections, boolean wire ) { this( 0.5f, sections, sections, new Properties(), wire ); }
+	public Sphere( int sections, Properties p, boolean wire ) { this( 0.5f, sections, sections, p, wire ); }
+	public Sphere( int slices, int stacks ) { this( 0.5f, slices, stacks, new Properties(), false ); }
+	public Sphere( int slices, int stacks, Properties p ) { this( 0.5f, slices, stacks, p, false ); }
+	public Sphere( int slices, int stacks, boolean wire ) { this( 0.5f, slices, stacks, new Properties(), wire ); }
+	public Sphere( int slices, int stacks, Properties p, boolean wire ) { this( 0.5f, slices, stacks, p, wire ); }
+	public Sphere( float radius ) { this( radius, 10, 10, new Properties(), false ); }
+	public Sphere( float radius, int sections ) { this( radius, sections, sections, new Properties(), false ); }
+	public Sphere( float radius, int sections, Properties p ) { this( radius, sections, sections, p, false ); }
+	public Sphere( float radius, int sections, boolean wire ) { this( radius, sections, sections, new Properties(), wire ); }
+	public Sphere( float radius, int sections, Properties p, boolean wire ) { this( radius, sections, sections, p, wire ); }
+	public Sphere( float radius, int slices, int stacks ) { this( radius, slices, stacks, new Properties(), false ); }
+	public Sphere( float radius, int slices, int stacks, boolean wire ) { this( radius, slices, stacks, new Properties(), wire ); }
+	public Sphere( float radius, int slices, int stacks, Properties p ) { this( radius, slices, stacks, p, false ); }
+	public Sphere( float radius, int slices, int stacks, Properties p, boolean wire ) {
 		super( "Sphere-" + Sphere.items++ );
+		
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -215,9 +234,10 @@ public class Sphere extends Shape {
 			}
 		}
 		
-		this.setPosition( t.getPosition() );
-		this.setRotation( t.getRotation() );
-		this.setScale( t.getScale() );
+		this.setPosition( p.getPosition() );
+		this.setRotation( p.getRotation() );
+		this.setScale( p.getScale() );
+		this.setColor( p.getR(), p.getG(), p.getB(), p.getA() );
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

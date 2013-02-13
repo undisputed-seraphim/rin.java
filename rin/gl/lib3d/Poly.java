@@ -11,11 +11,9 @@ import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.interfaces.*;
 import rin.gl.lib3d.GLBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer;
-import rin.gl.lib3d.Transformation;
+import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.shape.BoundingBox;
-import rin.util.Buffer;
-import rin.util.math.Vec3;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	private static final float	POS_INF = Float.POSITIVE_INFINITY,
