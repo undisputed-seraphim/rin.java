@@ -13,11 +13,14 @@ void main( void ) {
 	vec4 texel = vec4( 1.0, 0.0, 0.0, 1.0 );
 	if( useUnique ) {
 		texel = vec4( vVertex.w, vNormal.w, vTexture.w, 1.0 );
-	} else if( useColor ) {
-		texel = vColor;
-	} else if( useTexture ) {
-		texel = texture2D( sampler, vec2( vTexture.x, vTexture.y ) );
-	}
+		gl_FragColor = texel;
+	} else {
+		if( useColor ) {
+			texel = vColor;
+		} else if( useTexture ) {
+			texel = texture2D( sampler, vec2( vTexture.x, vTexture.y ) );
+		}
 	
-	gl_FragColor = texel;
+		gl_FragColor = texel;
+	}
 }

@@ -9,11 +9,11 @@ import rin.gl.TextureManager;
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.interfaces.*;
-import rin.gl.lib3d.GLBuffer;
-import rin.gl.lib3d.GLInterleavedBuffer;
+import rin.gl.lib3d.data.GLBuffer;
+import rin.gl.lib3d.data.GLInterleavedBuffer;
+import rin.gl.lib3d.data.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.properties.Color;
 import rin.gl.lib3d.properties.Properties;
-import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.shape.BoundingBox;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable {

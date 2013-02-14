@@ -15,6 +15,7 @@ import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.DistanceComparator;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.data.GLRenderStream;
 import rin.gl.Input;
 import rin.gl.TextureManager;
 import rin.util.Buffer;
@@ -50,6 +51,7 @@ public class Scene {
 	public int getAttrib( String str ) { return glGetAttribLocation( this.program, str ); }
 	public int getUniform( String str ) { return glGetUniformLocation( this.program, str ); }
 	
+	private static GLRenderStream rs = new GLRenderStream();
 	private ArrayList<Actor> actors = new ArrayList<Actor>();
 	private ActorList actor = new ActorList();
 	private Camera camera = null;
@@ -141,6 +143,7 @@ public class Scene {
 			glUniform1i( this.getUniform( "useUnique" ), GL_FALSE );
 			
 			Scene.uniqueAtMouse = Buffer.toString( this.camera.getMouseRGB() );
+
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			GLEvent.fire( new TickEvent( 0.0015f ) );
 			Input.process();

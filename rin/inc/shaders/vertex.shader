@@ -11,10 +11,14 @@ varying vec4 vColor;
 varying vec4 vNormal;
 varying vec4 vTexture;
 
+varying vec4 vTransformedNormal;
+
 void main( void ) {
 	gl_Position = vMatrix * mMatrix * vec4( vertex.xyz, 1.0 );
 	vVertex = vertex;
 	vColor = color;
 	vNormal = normal;
 	vTexture = texture;
+	mat4 nMatrix = transpose( inverse( mMatrix ) );
+	vTransformedNormal = nMatrix * vec4( normal.xyz, 1.0 );
 }

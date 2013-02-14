@@ -101,10 +101,10 @@ public class Dodecahedron extends Shape {
 					k = 0;
 				
 				Vec3 v2 = new Vec3( verts[indices[i][k]][0], verts[indices[i][k]][1], verts[indices[i][k]][2] );
+				
+				// calculate normal
+				Vec3 n1 = Vec3.normalize( Vec3.cross( Vec3.subtract( v2, v1 ), Vec3.subtract( m, v1 ) ) );
 				if( !wire ) {
-					// calculate normal
-					Vec3 n1 = Vec3.normalize( Vec3.cross( Vec3.subtract( v2, v1 ), Vec3.subtract( m, v1 ) ) );
-					
 					v.add( v1.x );		n.add( n1.x );
 					v.add( v1.y );		n.add( n1.y );
 					v.add( v1.z );		n.add( n1.z );
@@ -120,26 +120,32 @@ public class Dodecahedron extends Shape {
 					v.add( v1.x );
 					v.add( v1.y );
 					v.add( v1.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 					
 					v.add( v2.x );
 					v.add( v2.y );
 					v.add( v2.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 					
 					v.add( v2.x );
 					v.add( v2.y );
 					v.add( v2.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 					
 					v.add( m.x );
 					v.add( m.y );
 					v.add( m.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 					
 					v.add( m.x );
 					v.add( m.y );
 					v.add( m.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 					
 					v.add( v1.x );
 					v.add( v1.y );
 					v.add( v1.z );
+					n.add( n1.x ); n.add( n1.y ); n.add( n1.z );
 				}
 			}
 		}
