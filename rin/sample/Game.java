@@ -12,12 +12,13 @@ public class Game {
 		
 		//Engine.getScene().addActor( ModelManager.create( Format.OBJ, "cornelia" ) );
 		Engine.getScene().addActor( ModelManager.create( Format.DAE, "noire_v" ) );
-		Engine.getScene().addActor( new Sphere( true ) );
-		Engine.getScene().addActor( new Icosahedron( true ) );
-		Engine.getScene().addActor( new Tetrahedron( true ) );
-		Engine.getScene().addActor( new Cuboid( true ) );
-		Engine.getScene().addActor( new Octahedron( true ) );
-		Engine.getScene().addActor( new Dodecahedron( true ) );
+		//Engine.getScene().addActor( new Sphere( true ) );
+		//Engine.getScene().addActor( new Icosahedron( true ) );
+		//Engine.getScene().addActor( new Tetrahedron( true ) );
+		//Engine.getScene().addActor( new Cuboid( true ) );
+		//Engine.getScene().addActor( new Octahedron( true ) );
+		//Engine.getScene().addActor( new Dodecahedron() );
+		Engine.getScene().addActor( new Tile() );
 		
 		Engine.start();
 	}

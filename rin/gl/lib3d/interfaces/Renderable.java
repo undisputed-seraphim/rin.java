@@ -16,7 +16,7 @@ public interface Renderable {
 	public boolean isColored();
 	public void setColored( boolean val );
 	public void setColor( float r, float g, float b, float a );
-	public float[] getColor();
+	public float[] getColorAsArray();
 	
 	/** Creates an opengl Texture resource to associate with this Renderable
 	 * @param textureFile absolute filename of desired texture

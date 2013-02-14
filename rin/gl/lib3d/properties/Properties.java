@@ -4,6 +4,12 @@ import rin.util.math.Vec3;
 
 public class Properties {
 	private Transformation t = new Transformation();
+	private Color c = new Color();
+	
+	public Properties() {}
+	public Properties( Transformation t ) { this.t = t; }
+	public Properties( Transformation t, Color c ) { this.t = t; this.c = c; }
+	public Properties( Color c ) { this.c = c; }
 	
 	public Transformation getTransformation() { return this.t; }
 	public Properties setTransformation( Transformation t ) { this.t = t; return this;}
@@ -20,7 +26,6 @@ public class Properties {
 	public Properties setScale( Vec3 scale ) { this.t.scale = scale; return this; }
 	public Properties setScale( float x, float y, float z ) { this.t.scale = new Vec3( x, y, z ); return this; }
 	
-	private Color c = new Color();
 	
 	public Color getColor() { return this.c; }
 	public Properties setColor( Color c ) { this.c = c; return this; }

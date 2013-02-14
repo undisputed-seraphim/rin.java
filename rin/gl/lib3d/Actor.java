@@ -1,8 +1,10 @@
 package rin.gl.lib3d;
 
+import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
+import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.Scene;
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
@@ -10,7 +12,8 @@ import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
 
-public class Actor implements Positionable, Controllable {
+public class Actor implements Positionable, Controllable, Animatable {
+	private static int items = 0;
 
 	/** Name describing Actor */
 	private String name = "No Name";
@@ -21,21 +24,25 @@ public class Actor implements Positionable, Controllable {
 	public float[] getUniqueColor() { return this.uniqueColor; }
 	public void setUniqueColor( float[] color ) { this.uniqueColor = color; }
 	
-	public Actor() { this( "No Name Actor", new Transformation() ); }
-	public Actor( String name ) { this( name, new Transformation() ); }
-	public Actor( Transformation t ) { this( "No Name Actor", t ); }
-	public Actor( String name, Transformation t ) {
+	public Actor() { this( "Actor-" + Actor.items++, new Properties() ); }
+	public Actor( String name ) { this( name, new Properties() ); }
+	public Actor( Properties p ) { this( "Actor-" + Actor.items++, p ); }
+	public Actor( String name, Properties p ) {
 		this.name = name;
-		this.position = t.getPosition();
-		this.rotation = t.getRotation();
-		this.scale = t.getScale();
+		this.setTransformation( p.getTransformation() );
 		this.uniqueColor = Scene.getNextColor();
 	}
 	
-
 	/* -------------- positionable implementation ------------------ */
 	private Vec3 position =	new Vec3(), rotation =	new Vec3(), scale = new Vec3();
 	private Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
+	
+	public Transformation getTransformation() { return new Transformation( this.position, this.rotation, this.scale ); }
+	public void setTransformation( Transformation t ) {
+		this.setPosition( t.getPosition() );
+		this.setRotation( t.getRotation() );
+		this.setScale( t.getScale() );
+	}
 	
 	@Override public Mat4 getMatrix() { return this.matrix; }
 	@Override public void setMatrix( Mat4 m ) { this.matrix = m; }
@@ -160,5 +167,25 @@ public class Actor implements Positionable, Controllable {
 	@Override public int compareTo( Positionable p ) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	/* ----------------- animatable implementation ------------------- */
+	private boolean animating = false;
+	@Override public boolean isAnimatable() { return this.animating; }
+	@Override public void setAnimatable( boolean val ) {
+		GLEvent.addAnimationEventListener( this );
+		this.setIgnoreAnimations( false );
+	}
+	
+	private boolean animationIgnore = true;
+	public boolean isIgnoringAnimations() { return this.animationIgnore; }
+	public void setIgnoreAnimations( boolean val ) {
+		this.animationIgnore = val;
+	}
+	
+	@Override public void processTickEvent( TickEvent e ) {
+		if( !animationIgnore ) {
+			System.out.println( "test tick" );
+		}
 	}
 }

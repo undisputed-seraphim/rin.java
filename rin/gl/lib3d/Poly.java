@@ -11,19 +11,28 @@ import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.interfaces.*;
 import rin.gl.lib3d.GLBuffer;
 import rin.gl.lib3d.GLInterleavedBuffer;
-import rin.gl.lib3d.properties.Transformation;
+import rin.gl.lib3d.properties.Color;
+import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.shape.BoundingBox;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable {
+	private static int items = 0;
+	
 	private static final float	POS_INF = Float.POSITIVE_INFINITY,
 								NEG_INF = Float.NEGATIVE_INFINITY;
 	
-	public Poly() { this( "No Name Actor", new Transformation() ); }
-	public Poly( String name ) { this( name, new Transformation() ); }
-	public Poly( Transformation t ) { this( "No Name Actor", t ); }
-	public Poly( String name, Transformation t ) { super( name, t ); }
+	public Poly() { this( "Poly-" + Poly.items++, new Properties() ); }
+	public Poly( String name ) { this( name, new Properties() ); }
+	public Poly( Properties p ) { this( "Poly-" + Poly.items++, p ); }
+	public Poly( String name, Properties p ) { super( name, p ); this.applyProperties( p ); }
 
+	public Properties getProperties() { return new Properties( this.getTransformation(), this.getColor() ); }
+	public void applyProperties( Properties p ) {
+		this.setTransformation( p.getTransformation() );
+		this.setColor( p.getColor() );
+	}
+	
 	/* ------------------ boundable implementation ------------------ */
 	private boolean bound = true;
 	@Override public boolean isBound() { return this.bound; }
@@ -52,7 +61,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	}
 	
 	@Override public void createBoundingBox() {
-		this.bbox = new BoundingBox( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.getPosition() );
+		this.bbox = new BoundingBox( this.xMin, this.yMin, this.zMin, this.xMax, this.yMax, this.zMax, this.getProperties() );
 		this.ready = true;
 	}
 	
@@ -87,8 +96,10 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	@Override public void setColored( boolean val ) { this.colored = val; }
 	
 	private float[] color = new float[] { 1.0f, 0.0f, 0.0f, 1.0f };
+	public Color getColor() { return new Color( this.color[0], this.color[1], this.color[2], this.color[3] ); }
+	public void setColor( Color c ) { this.setColor( c.getR(), c.getG(), c.getB(), c.getA() ); }
 	@Override public void setColor( float r, float g, float b, float a ) { this.color = new float[]{ r, g, b, a }; }
-	@Override public float[] getColor() { return this.color; }
+	@Override public float[] getColorAsArray() { return this.color; }
 	
 	private int texture = -1;
 	@Override public void addTexture( String textureFile ) {
@@ -126,7 +137,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		int[] iba = new int[ this.indexCount ];
 		
 		float[] unique = this.getUniqueColor();
-		float[] color = this.getColor();
+		float[] color = this.getColorAsArray();
 		try {
 			for( int i = 0, a = 0; i < this.indexCount; i++ ) {
 				aba[a++] = vertices[ i*3 ];

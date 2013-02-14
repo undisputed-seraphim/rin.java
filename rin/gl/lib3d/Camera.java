@@ -28,6 +28,7 @@ public class Camera extends Actor {
 		this.znear = znear;
 		this.zfar = zfar;
 		this.fovy = fovy;
+		System.out.println( "here" );
 		this.perspective = Mat4.perspective( fovy, aspect, znear, zfar );
 		this.setPosition( 0.0f, -1.0f, -11.0f );
 		this.setScale( 1.0f, 1.0f, 1.0f );
@@ -61,7 +62,8 @@ public class Camera extends Actor {
 	
 	@Override public void transform() {
 		super.transform();
-		this.setMatrix( Mat4.multiply( this.perspective, this.getMatrix() ) );
+		if( this.perspective != null )
+			this.setMatrix( Mat4.multiply( this.perspective, this.getMatrix() ) );
 	}
 	
 	public float[] getMouseRGB() {

@@ -19,8 +19,9 @@ public class Tetrahedron extends Shape {
 	public Tetrahedron( float radius, boolean wire ) { this( radius, new Properties(), wire ); }
 	public Tetrahedron( float radius, Properties p ) { this( radius, p, false ); }
 	public Tetrahedron( float radius, Properties p, boolean wire ) {
-		super( "Tetrahedron-" + Tetrahedron.items++ );
+		super( "Tetrahedron-" + Tetrahedron.items++, p );
 		
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -97,9 +98,6 @@ public class Tetrahedron extends Shape {
 			}
 		}
 		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

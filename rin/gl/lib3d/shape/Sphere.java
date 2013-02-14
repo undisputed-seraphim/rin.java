@@ -36,8 +36,9 @@ public class Sphere extends Shape {
 	public Sphere( float radius, int slices, int stacks, boolean wire ) { this( radius, slices, stacks, new Properties(), wire ); }
 	public Sphere( float radius, int slices, int stacks, Properties p ) { this( radius, slices, stacks, p, false ); }
 	public Sphere( float radius, int slices, int stacks, Properties p, boolean wire ) {
-		super( "Sphere-" + Sphere.items++ );
+		super( "Sphere-" + Sphere.items++, p );
 		
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -234,10 +235,6 @@ public class Sphere extends Shape {
 			}
 		}
 		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
-		this.setColor( p.getR(), p.getG(), p.getB(), p.getA() );
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

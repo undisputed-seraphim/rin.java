@@ -19,15 +19,15 @@ public class Icosahedron extends Shape {
 	public Icosahedron( float radius, boolean wire ) { this( radius, new Properties(), wire ); }
 	public Icosahedron( float radius, Properties p ) { this( radius, p, false ); }
 	public Icosahedron( float radius, Properties p, boolean wire ) {
-		super( "Icosahedron-" + Icosahedron.items++ );
+		super( "Icosahedron-" + Icosahedron.items++, p );
 
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
 		ArrayList<Float> v = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
 
-		//System.out.println( Math.sin( ( 360 ) ) / 20 + " " + 2 / Math.sin( 360 ) );
 		float X = 0.525731112119133606f * radius, Z = 0.850650808352039932f * radius;
 		
 		float[][] verts = new float[][] {
@@ -90,10 +90,7 @@ public class Icosahedron extends Shape {
 				v.add( v1.z );
 			}
 		}
-		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
+
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

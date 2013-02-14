@@ -28,4 +28,8 @@ public interface GLEventListener {
 	}
 	
 	
+	public interface AnimationEventListener extends GLEventListener {
+		public void processTickEvent( TickEvent e );
+	}
+	
 }

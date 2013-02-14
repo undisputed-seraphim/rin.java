@@ -23,8 +23,9 @@ public class Cuboid extends Shape {
 	public Cuboid( float width, float height, float depth, boolean wire ) { this( width, height, depth, new Properties(), wire ); }
 	public Cuboid( float width, float height, float depth, Properties p ) { this( width, height, depth, p, false ); }
 	public Cuboid( float width, float height, float depth, Properties p, boolean wire ) {
-		super( "Cuboid-" + Cuboid.items++ );
+		super( "Cuboid-" + Cuboid.items++, p );
 		
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -97,9 +98,6 @@ public class Cuboid extends Shape {
 			}
 		}
 		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

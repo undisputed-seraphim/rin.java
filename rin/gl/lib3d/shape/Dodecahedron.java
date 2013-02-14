@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.GL_LINES;
 
-import rin.gl.lib3d.properties.Properties;
+import rin.gl.lib3d.properties.*;
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
@@ -19,8 +19,9 @@ public class Dodecahedron extends Shape {
 	public Dodecahedron( float radius, boolean wire ) { this( radius, new Properties(), wire ); }
 	public Dodecahedron( float radius, Properties p ) { this( radius, p, false ); }
 	public Dodecahedron( float radius, Properties p, boolean wire ) {
-		super( "Dodecahedron-" + Dodecahedron.items++ );
+		super( "Dodecahedron-" + Dodecahedron.items++, p );
 		
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -90,7 +91,7 @@ public class Dodecahedron extends Shape {
 		for( int i = 0; i < indices.length; i++ ) {
 			float[] center = Dodecahedron.findCenter( verts[indices[i][0]], verts[indices[i][1]], verts[indices[i][2]],
 					verts[indices[i][3]], verts[indices[i][4]] );
-			Vec3 c = new Vec3( center[0], center[1], center[2] );
+			Vec3 m = new Vec3( center[0], center[1], center[2] );
 			
 			for( int j = 0; j < indices[i].length; j++ ) {
 				Vec3 v1 = new Vec3( verts[indices[i][j]][0], verts[indices[i][j]][1], verts[indices[i][j]][2] );
@@ -102,7 +103,7 @@ public class Dodecahedron extends Shape {
 				Vec3 v2 = new Vec3( verts[indices[i][k]][0], verts[indices[i][k]][1], verts[indices[i][k]][2] );
 				if( !wire ) {
 					// calculate normal
-					Vec3 n1 = Vec3.normalize( Vec3.cross( Vec3.subtract( v2, v1 ), Vec3.subtract( c, v1 ) ) );
+					Vec3 n1 = Vec3.normalize( Vec3.cross( Vec3.subtract( v2, v1 ), Vec3.subtract( m, v1 ) ) );
 					
 					v.add( v1.x );		n.add( n1.x );
 					v.add( v1.y );		n.add( n1.y );
@@ -112,9 +113,9 @@ public class Dodecahedron extends Shape {
 					v.add( v2.y );		n.add( n1.y );
 					v.add( v2.z );		n.add( n1.z );
 					
-					v.add( c.x );		n.add( n1.x );
-					v.add( c.y );		n.add( n1.y );
-					v.add( c.z );		n.add( n1.z );
+					v.add( m.x );		n.add( n1.x );
+					v.add( m.y );		n.add( n1.y );
+					v.add( m.z );		n.add( n1.z );
 				} else {
 					v.add( v1.x );
 					v.add( v1.y );
@@ -128,13 +129,13 @@ public class Dodecahedron extends Shape {
 					v.add( v2.y );
 					v.add( v2.z );
 					
-					v.add( c.x );
-					v.add( c.y );
-					v.add( c.z );
+					v.add( m.x );
+					v.add( m.y );
+					v.add( m.z );
 					
-					v.add( c.x );
-					v.add( c.y );
-					v.add( c.z );
+					v.add( m.x );
+					v.add( m.y );
+					v.add( m.z );
 					
 					v.add( v1.x );
 					v.add( v1.y );
@@ -143,9 +144,6 @@ public class Dodecahedron extends Shape {
 			}
 		}
 		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();

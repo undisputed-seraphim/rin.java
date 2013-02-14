@@ -19,8 +19,9 @@ public class Octahedron extends Shape {
 	public Octahedron( float radius, boolean wire ) { this( radius, new Properties(), wire ); }
 	public Octahedron( float radius, Properties p ) { this( radius, p, false ); }
 	public Octahedron( float radius, Properties p, boolean wire ) {
-		super( "Octahedron-" + Octahedron.items++ );
+		super( "Octahedron-" + Octahedron.items++, p );
 		
+		this.setColored( true );
 		if( wire )
 			this.setRenderMode( GL_LINES );
 		
@@ -106,13 +107,15 @@ public class Octahedron extends Shape {
 				v.add( v1.z );
 			}
 		}
-		
-		this.setPosition( p.getPosition() );
-		this.setRotation( p.getRotation() );
-		this.setScale( p.getScale() );
+
 		this.build( Buffer.toArrayf( v ), Buffer.toArrayf( n ), new float[0], new float[0] );
 		
 		v.clear();
 		n.clear();
+	}
+	
+	public Octahedron destroy() {
+		super.destroy();
+		return null;
 	}
 }

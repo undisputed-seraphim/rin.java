@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import rin.gl.event.GLEventListener.*;
+import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.lib3d.interfaces.Pickable;
 
 public class GLEvent {
@@ -14,7 +15,8 @@ public class GLEvent {
 		DOWN,
 		REPEAT,
 		MOVED,
-		WHEEL;
+		WHEEL,
+		TICK;
 	}
 	
 	public GLEvent() {}
@@ -22,6 +24,7 @@ public class GLEvent {
 	public static void addKeyEventListener( KeyEventListener src ) { KeyEvent.addListener( src ); }
 	public static void addMouseEventListener( MouseEventListener src ) { MouseEvent.addListener( src ); }
 	public static void addPickEventListener( Pickable src ) { PickEvent.addListener( src ); }
+	public static void addAnimationEventListener( Animatable src ) { AnimationEvent.addListener( src ); }
 	
 	public static void removeKeyEventListener( KeyEventListener src ) { KeyEvent.removeListener( src ); }
 	public static void removeMouseEventListener( MouseEventListener src ) { MouseEvent.removeListener( src ); }
@@ -34,6 +37,7 @@ public class GLEvent {
 	public static void fire( KeyEvent e ) { KeyEvent.fire( e ); }
 	public static void fire( MouseEvent e ) { MouseEvent.fire( e ); }
 	public static void fire( PickEvent e ) { PickEvent.fire( e ); }
+	public static void fire( AnimationEvent e ) { AnimationEvent.fire( e ); }
 	
 	
 	public static class KeyEvent extends GLEvent {		
@@ -191,4 +195,33 @@ public class GLEvent {
 	public static class PickInEvent extends PickEvent { public PickInEvent( String code ) { super( code, State.IN ); } }
 	public static class PickOutEvent extends PickEvent { public PickOutEvent( String code ) { super( code, State.OUT ); } }
 	public static class PickRepeatEvent extends PickEvent { public PickRepeatEvent( String code ) { super( code, State.REPEAT ); } }
+	
+	public static class AnimationEvent extends GLEvent {
+		private static ArrayList<AnimationEventListener> listeners = new ArrayList<AnimationEventListener>();
+
+		public State state;
+		
+		public AnimationEvent( State state ) { this.state = state; }
+		
+		public static void addListener( Animatable a ) {
+			AnimationEvent.listeners.add( a );
+		}
+		
+		public static void fire( AnimationEvent e ) {
+			Iterator<AnimationEventListener> i = AnimationEvent.listeners.iterator();
+			while( i.hasNext() ) {
+				switch( e.state ) {
+				
+				case TICK: ( (AnimationEventListener)i.next() ).processTickEvent( (TickEvent)e ); break;
+				default: i.next(); break;
+				
+				}
+			}
+		}
+		
+	}
+	public static class TickEvent extends AnimationEvent {
+		public float dt;
+		public TickEvent( float dt ) { super( State.TICK); this.dt = dt; }
+	}
 }
