@@ -2,15 +2,14 @@ package rin.gl.lib3d.data;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL31.*;
+
+import java.nio.IntBuffer;
+
 import rin.util.Buffer;
 
 public class GLBuffer {
@@ -34,6 +33,7 @@ public class GLBuffer {
 		this.stride = stride;
 		this.offset = offset;
 		this.attribute = attr;
+		this.count = arr.length;
 		this.bindData( arr );
 	}
 	
@@ -63,6 +63,14 @@ public class GLBuffer {
 			glBindBuffer( this.target, 0 );
 		}
 		return this;
+	}
+	
+	public int[] readi() {
+		IntBuffer ib = Buffer.toBuffer( new int[ this.count] );
+		glBindBuffer( this.target, this.buffer );
+		glGetBufferSubData( this.target, 0, ib );
+		glBindBuffer( this.target, 0 );
+		return Buffer.toArray( ib );
 	}
 	
 	public boolean buffer() {

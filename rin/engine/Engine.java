@@ -46,22 +46,42 @@ public class Engine {
 	
 	public static void createDebugWindow() {
 		GUIComponent window = GUIManager.createWindow()
-			.setTitle( "rin.ai | Debug" )
-			.setSize( 250, 500 )
-			.setLocation( 20, 20 )
-			.setBackgroundColor( 233, 233, 233 )
-			.show();
+				.setTitle( "rin.ai | Debug" )
+				.setSize( 250, 500 )
+				.setLocation( 20, 20 )
+				.setBackgroundColor( 233, 233, 233 )
+				.show();
 		
-		GUIComponent tab1 = GUIManager.createPanel()
-			.setBackgroundColor( 70, 70, 70 );
+		GUIComponent tab1 = GUIManager.createContainer()
+				.setBackgroundColor( 70, 70, 70 );
+		
+		GUIComponent checkBox = GUIManager.createCheckBox()
+				.onTrue( new Runnable() {
+					public void run() {
+						System.out.println( "true selected" );
+					}
+				})
+				.setLabel( "testing" )
+				.setLabelPositionH( GUIManager.LEFT )
+				.setBackgroundColor( 70, 70, 70 );
+		
+		GUIComponent div = GUIManager.createDiv()
+				.add( checkBox )
+				.addTo( tab1 );
+		
+		GUIComponent check = GUIManager.createCheckBox();
+		
+		GUIComponent div2 = GUIManager.createContainer()
+				.add( check )
+				.addTo( tab1 );
 		
 		GUIComponent tab2 = GUIManager.createPanel()
-			.setBackgroundColor( 70, 70, 70 );
+				.setBackgroundColor( 70, 70, 70 );
 		
 		GUIManager.createTabbedPane()
-			.addTab( "Overall", tab1, 'O' )
-			.addTab( "Actors", tab2, 'A' )
-			.addTo( window );
+				.addTab( "Overall", tab1, 'O' )
+				.addTab( "Actors", tab2, 'A' )
+				.addTo( window );
 	}
 	
 	public static void start() {

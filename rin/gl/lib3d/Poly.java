@@ -205,6 +205,8 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		this.ready = true;
 	}
 	
+	public GLBuffer getIBuffer() { return this.ibuf; }
+	
 	@Override public boolean buffer() {
 		this.abuf.buffer();
 		return this.ibuf.buffer();

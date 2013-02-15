@@ -2,10 +2,12 @@ package rin.sample;
 
 import rin.engine.Engine;
 import rin.gl.GL;
+import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.shape.*;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelManager.Format;
+import rin.util.Buffer;
 
 public class Game {
 	public static void main( String args[] ) {

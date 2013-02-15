@@ -50,8 +50,7 @@ public class Scene {
 	public int getProgram() { return this.program; }
 	public int getAttrib( String str ) { return glGetAttribLocation( this.program, str ); }
 	public int getUniform( String str ) { return glGetUniformLocation( this.program, str ); }
-	
-	private static GLRenderStream rs = new GLRenderStream();
+
 	private ArrayList<Actor> actors = new ArrayList<Actor>();
 	private ActorList actor = new ActorList();
 	private Camera camera = null;
@@ -120,6 +119,10 @@ public class Scene {
 		glViewport( 0, 0, width, height );
 		this.camera = new Camera( 45, width / height, 0.1f, VIEW_DISTANCE );
 		this.ready = true;
+	}
+	
+	public Actor getActor( int index ) {
+		return this.actors.get( index );
 	}
 	
 	public void addActor( Actor a ) {
