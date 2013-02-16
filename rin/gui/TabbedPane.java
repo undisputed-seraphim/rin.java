@@ -1,11 +1,10 @@
 package rin.gui;
 
 import java.awt.event.KeyEvent;
-
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 
-public class TabbedPane extends GUIComponent {
+public class TabbedPane extends GUIComponent<TabbedPane> {
 	private int tabCount = 0;
 	
 	public TabbedPane() {
@@ -13,8 +12,8 @@ public class TabbedPane extends GUIComponent {
 		((JTabbedPane)this.target).addChangeListener( this );
 	}
 	
-	public TabbedPane addTab( String title, GUIComponent component ) { return this.addTab( title, component, '\0' ); }
-	public TabbedPane addTab( String title, GUIComponent component, char mnemonic ) {
+	public GUIComponent<TabbedPane> addTab( String title, GUIComponent<?> component ) { return this.addTab( title, component, '\0' ); }
+	public TabbedPane addTab( String title, GUIComponent<?> component, char mnemonic ) {
 		this.children.add( component );
 		component.show();
 		((JTabbedPane)this.target).insertTab( title, null, component.target, null, this.tabCount );

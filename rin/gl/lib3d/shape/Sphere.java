@@ -28,6 +28,9 @@ public class Sphere extends Shape {
 	public Sphere( int slices, int stacks, boolean wire ) { this( 0.5f, slices, stacks, new Properties(), wire ); }
 	public Sphere( int slices, int stacks, Properties p, boolean wire ) { this( 0.5f, slices, stacks, p, wire ); }
 	public Sphere( float radius ) { this( radius, 10, 10, new Properties(), false ); }
+	public Sphere( float radius, boolean wire ) { this( radius, 10, 10, new Properties(), wire ); }
+	public Sphere( float radius, Properties p ) { this( radius, 10, 10, p, false ); }
+	public Sphere( float radius, Properties p, boolean wire ) { this( radius, 10, 10, p, wire ); }
 	public Sphere( float radius, int sections ) { this( radius, sections, sections, new Properties(), false ); }
 	public Sphere( float radius, int sections, Properties p ) { this( radius, sections, sections, p, false ); }
 	public Sphere( float radius, int sections, boolean wire ) { this( radius, sections, sections, new Properties(), wire ); }

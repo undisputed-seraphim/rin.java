@@ -9,6 +9,8 @@ varying vec4 vColor;
 varying vec4 vNormal;
 varying vec4 vTexture;
 
+varying vec4 vTransformedNormal;
+
 void main( void ) {
 	vec4 texel = vec4( 1.0, 0.0, 0.0, 1.0 );
 	if( useUnique ) {

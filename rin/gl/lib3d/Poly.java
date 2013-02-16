@@ -15,6 +15,7 @@ import rin.gl.lib3d.data.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.properties.Color;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.shape.BoundingBox;
+import rin.util.Buffer;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	private static int items = 0;
@@ -187,6 +188,10 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 			return;
 		}
 
+		/*GLBuffer tmp = GL.<GLBuffer>createBuffer( GLBuffer.class, GL_ELEMENT_ARRAY_BUFFER, iba );
+		System.out.println( Buffer.toString( tmp.readi() ) );
+		return;*/
+		
 		this.ibuf = new GLBuffer( GL_ELEMENT_ARRAY_BUFFER, iba );
 		this.abuf = new GLInterleavedBuffer( GL_ARRAY_BUFFER, aba )
 				.addIndex( IndexType.VERTEX, 4, GL.getAttrib( "vertex" ) )

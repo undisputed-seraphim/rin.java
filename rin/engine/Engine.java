@@ -4,8 +4,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import rin.gl.GL;
 import rin.gl.Scene;
-import rin.gl.Input;
 import rin.gui.*;
 
 public class Engine {
@@ -28,6 +28,7 @@ public class Engine {
 
 	public static void init() { Engine.init( 900, 600 ); }
 	public static void init( int width, int height ) {
+		//new GL().start(); 
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
@@ -43,45 +44,34 @@ public class Engine {
 			System.out.println( "lwjgl instance failed to display [" + width + "x" + height + "]" );
 		}
 	}
-	
+
 	public static void createDebugWindow() {
-		GUIComponent window = GUIManager.createWindow()
+		GUIManager.createWindow()
 				.setTitle( "rin.ai | Debug" )
 				.setSize( 250, 500 )
 				.setLocation( 20, 20 )
 				.setBackgroundColor( 233, 233, 233 )
+				.add( GUIManager.createTabbedPane()
+						.addTab( "Overall", GUIManager.createContainer()
+								.setBackgroundColor( 70, 70, 70 )
+								.add( GUIManager.createPanel()
+										.setAlignment( GUIManager.Alignment.CENTER )
+										.setBackgroundColor( 70, 70, 70 )
+										.add( GUIManager.createColumns( 2 )
+												.add( 1, GUIManager.createCheckBox()
+														.setLabel( "First Checkbox" ) )
+												.add( 1, GUIManager.createCheckBox()
+														.setLabel( "two two" ) )
+												.add( 2, GUIManager.createCheckBox()
+														.setLabel( "two" ) )
+										)
+								)
+								.add( GUIManager.createCheckBox()
+										.setLabel( "Second Checkbox" ) )
+						, 'O' )
+						.addTab( "Actors", GUIManager.createPanel() )
+				)
 				.show();
-		
-		GUIComponent tab1 = GUIManager.createContainer()
-				.setBackgroundColor( 70, 70, 70 );
-		
-		GUIComponent checkBox = GUIManager.createCheckBox()
-				.onTrue( new Runnable() {
-					public void run() {
-						System.out.println( "true selected" );
-					}
-				})
-				.setLabel( "testing" )
-				.setLabelPositionH( GUIManager.LEFT )
-				.setBackgroundColor( 70, 70, 70 );
-		
-		GUIComponent div = GUIManager.createDiv()
-				.add( checkBox )
-				.addTo( tab1 );
-		
-		GUIComponent check = GUIManager.createCheckBox();
-		
-		GUIComponent div2 = GUIManager.createContainer()
-				.add( check )
-				.addTo( tab1 );
-		
-		GUIComponent tab2 = GUIManager.createPanel()
-				.setBackgroundColor( 70, 70, 70 );
-		
-		GUIManager.createTabbedPane()
-				.addTab( "Overall", tab1, 'O' )
-				.addTab( "Actors", tab2, 'A' )
-				.addTo( window );
 	}
 	
 	public static void start() {
@@ -105,6 +95,7 @@ public class Engine {
 			Engine.scene = Engine.scene.destroy();
 		
 		GUIManager.destroy();
+		//GL.requestDestroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();

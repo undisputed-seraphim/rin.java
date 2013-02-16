@@ -174,7 +174,7 @@ public class Scene {
 		glShaderSource( shader, src );
 		glCompileShader( shader );
 		if( glGetShaderi( shader, GL_COMPILE_STATUS ) == 0 ) {
-			System.out.println( "Shader ["+ type +"] failed to compile." );
+			System.out.println( "Shader ["+ (type == GL_VERTEX_SHADER ? "vertex" : "fragment") +"] failed to compile." );
 			return -1;
 		}
 		return shader;

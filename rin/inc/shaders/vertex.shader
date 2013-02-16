@@ -19,6 +19,6 @@ void main( void ) {
 	vColor = color;
 	vNormal = normal;
 	vTexture = texture;
-	mat4 nMatrix = transpose( inverse( mMatrix ) );
-	vTransformedNormal = nMatrix * vec4( normal.xyz, 1.0 );
+	/*mat4 nMatrix = mMatrix;
+	vTransformedNormal = nMatrix * vec4( normal.xyz, 1.0 );*/
 }
