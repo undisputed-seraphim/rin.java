@@ -59,12 +59,6 @@ public class TabbedPane extends GUIComponent<TabbedPane> {
 		return this.update();
 	}
 	
-	@Override public void stateChanged( ChangeEvent e ) {
-		int pos = this.real().getSelectedIndex();
-		if( pos != -1 )
-			GUIManager.get( this.tabs.get( pos ) ).focused();
-	}
-	
 	@Override public TabbedPane destroy() {
 		super.destroy();
 		

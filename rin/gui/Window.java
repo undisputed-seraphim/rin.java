@@ -32,6 +32,7 @@ public class Window extends GUIComponent<Window> {
 	@Override public Window destroy() {
 		super.destroy();
 		
+		this.window.removeAll();
 		this.window.setVisible( false );
 		this.window.dispose();
 		this.window = null;

@@ -6,17 +6,17 @@ public class TextField extends GUIComponent<TextField> {
 	private static int items = 0;
 	
 	public TextField() { this( "TextField-" + TextField.items++ ); }
-	public TextField( int cols ) { this( "TextField-" + TextField.items++, cols ); }
-	public TextField( String id ) { this( id, 15 ); }
-	public TextField( String id, int cols ) {
+	public TextField( String id ) {
 		this.id = id;
 		this.target = new JTextField();
+		this.canHaveChildren = false;
 		this.real().setFont( GUIManager.DEFAULT_FONT );
-		this.setColumns( cols );
+		this.setWidth( 15 );
 	}
 	
 	private JTextField real() { return (JTextField)this.target; }
+	public String value() { return this.real().getText(); }
 	
 	public TextField setText( String text ) { this.real().setText( text ); return this.update(); }
-	public TextField setColumns( int cols ) { this.real().setColumns( cols ); return this.update(); }
+	public TextField setWidth( int cols ) { this.real().setColumns( cols ); return this.update(); }
 }

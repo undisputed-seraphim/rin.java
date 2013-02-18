@@ -8,9 +8,8 @@ public class Pair extends GUIComponent<Pair> {
 	private Panel left;
 	private Panel right;
 	
-	public Pair() { this( "Pair-" + Pair.items++, null, null ); }
-	public Pair( String id ) { this( id, null, null ); }
-	public Pair( String id, GUIComponent<?> l, GUIComponent<?> r ) {
+	public Pair() { this( "Pair-" + Pair.items++ ); }
+	public Pair( String id ) {
 		this.id = id;
 		this.canHaveChildren = false;
 		this.target = new JPanel( new GUIManager.GUIGridLayout( 1, 2 ) );
@@ -18,7 +17,7 @@ public class Pair extends GUIComponent<Pair> {
 		this.left = new Panel( this.id + "_left" );
 		this.target.add( this.left.target );
 		
-		this.right = new Panel( this.id + "_right" ).setAlignment( GUIManager.Alignment.RIGHT );
+		this.right = new Panel( this.id + "_right" );
 		this.target.add( this.right.target );
 	}
 	

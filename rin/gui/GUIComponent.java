@@ -3,34 +3,57 @@ package rin.gui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import javax.swing.GroupLayout;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListener {
-	protected ArrayList<GUIComponent<?>> children = new ArrayList<GUIComponent<?>>();
-	protected JComponent target = null;
-	protected String id = null;
-	protected int childCount = 0;
+import rin.gui.GUIManager.Alignment;
+
+public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListener, FocusListener {
+	protected static final JLabel emptyLabel = new JLabel();
 	
+	protected String id = null;
+	protected JComponent target = null;
+	
+	protected int childCount = 0;	
 	protected boolean canHaveChildren = true;
+	protected ArrayList<GUIComponent<?>> children = new ArrayList<GUIComponent<?>>();
 	
 	@SuppressWarnings("unchecked") public T actual() { return (T)this; }
+	protected void init() {
+		
+	}
+	
+	protected GroupLayout.Alignment getGroupAlignment( Alignment alignment ) {
+		switch( alignment ) {
+		
+		case LEFT: return GroupLayout.Alignment.LEADING;
+		case CENTER: return GroupLayout.Alignment.CENTER;
+		case RIGHT: return GroupLayout.Alignment.TRAILING;
+		
+		}
+		return GroupLayout.Alignment.LEADING;
+	}
 	
 	public T setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
 	public T setBackgroundColor( int r, int g, int b, int a ) { this.target.setBackground( new Color( r, g, b, a ) ); return this.update(); }
-	public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
-	public T setToolTip( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
+	//public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
+	public T setToolTipText( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
 	
 	public T update() { this.target.validate(); this.target.repaint(); return this.actual(); }
 	public T enable() { this.target.setEnabled( true ); return this.update(); }
 	public T disable() { this.target.setEnabled( false ); return this.update(); }
 	public T show() { this.target.setVisible( true ); return this.actual(); }
 	public T hide() { this.target.setVisible( false ); return this.actual(); }
+	public T focus() { this.target.requestFocusInWindow(); return this.actual(); }
 	
 	public T addTo( String id ) { return this.addTo( GUIManager.get( id ) ); }
 	public T addTo( GUIComponent<?> component ) { component.add( this ); return this.actual(); }
@@ -52,12 +75,21 @@ public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListe
 		return this.actual();
 	}
 	
+	/*public T remove( GUIComponent<?> component ) {
+		if( this.canHaveChildren )
+			if( this.children.remove( component ) )
+				component = component.destroy();
+			
+		return this.update();
+	}*/
+	
+	//TODO: this does not remove the IDs from guimanager!!!
 	public T removeAll() {
-		for( GUIComponent<?> g : this.children ) {
-			if( GUIManager.find( g.id ) )
-				GUIManager.remove( g.id );
-			g = g.destroy();
-		}
+		if( this.canHaveChildren )
+			for( GUIComponent<?> g : this.children )
+				g = g.destroy();
+
+		this.children.clear();
 		return this.update();
 	}
 	
@@ -66,15 +98,16 @@ public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListe
 	@Override public void keyReleased( KeyEvent e ) {}
 	@Override public void actionPerformed( ActionEvent e ) {}
 	@Override public void stateChanged( ChangeEvent e ) {}
-	public void focused() {}
+	@Override public void focusGained( FocusEvent e ) {}
+	@Override public void focusLost( FocusEvent e ) {}
 	
 	public GUIComponent<T> destroy() {
-		this.children.clear();
-		
-		this.target.removeAll();
 		this.target.setVisible( false );
+		this.removeAll();
+
+		this.target.getParent().remove( this.target );
 		this.target = null;
-		
+
 		return null;
 	}
 }

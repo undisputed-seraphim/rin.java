@@ -3,6 +3,7 @@ package rin.engine;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import static rin.gui.GUIManager.*;
 
 import rin.gl.Scene;
 import rin.gui.*;
@@ -10,9 +11,10 @@ import rin.gui.*;
 public class Engine {
 	public static final String LS = System.getProperty( "file.separator" );
 	public static final String OS = System.getProperty( "os.name" ).toLowerCase();
-	public static final String ROOT = OS.indexOf( "mac" ) != -1 ? "" : "C:";
-	public static final String USER = OS.indexOf( "mac" ) != -1 ? "Musashi" : "johall";
-	public static final String ROOTDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
+	public static final String ROOT = OS.indexOf( "window" ) != -1 ? "C:" : "";
+	public static final String USER = OS.indexOf( "window" ) != -1 ? "johall" : "Musashi";
+	public static final String MAINDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
+	public static final String ROOTDIR = OS.indexOf( "linux" ) != -1 ? LS+"media"+LS+"sf_Horo"+LS+"rin.java"+LS+"rin"+LS : MAINDIR;
 	public static final String SHADER_DIR = ROOTDIR+"inc"+LS+"shaders"+LS;
 	public static final String MODEL_DIR = ROOTDIR+"inc"+LS+"models"+LS;
 	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
@@ -45,25 +47,27 @@ public class Engine {
 	}
 
 	public static void createDebugWindow() {
-		GUIManager.createWindow()
+		createWindow()
 				.setTitle( "rin.ai | Debug" )
 				.setLocation( 20, 20 )
-				.setBackgroundColor( 233, 233, 233 )
-				.add( GUIManager.createContainer( GUIManager.Alignment.CENTER )
-						.add( GUIManager.createCheckBox().setLabel( "test" ).setBackgroundColor( 70, 70, 70 ) )
-						.add( GUIManager.createPanel()
-								.setBackgroundColor( 70, 70, 70 )
-								.setAlignment( GUIManager.Alignment.CENTER )
-								.add( GUIManager.createColumns( 2, GUIManager.Alignment.CENTER )
-										.add( 1, GUIManager.createCheckBox().setLabel( "test" ) )
-										.add( 1, GUIManager.createCheckBox() )
-										.add( 2, GUIManager.createTextField() )
-										.add( 2, GUIManager.createTextField() )
+				.setBackgroundColor( 233, 233, 233, 175 )
+				.add( createContainer()
+						.setAlignment( Alignment.CENTER )
+						.add( createCheckBox().setLabel( "test" ).setBackgroundColor( 70, 70, 70 ) )
+						.add( createPanel()
+								.setBackgroundColor( 70, 70, 70, 175 )
+								.setAlignment( Alignment.CENTER )
+								.add( createColumns( 2 )
+										.setAlignmentX( 1, Alignment.LEFT )
+										.setAlignmentY( 1, Alignment.CENTER )
+										.add( 1, createCheckBox().setLabel( "test" ) )
+										.add( 1, createCheckBox() )
+										.add( 2, createTextField() )
+										//.add( 2, createTextField() )
 								)
 						)
-						.add( GUIManager.createCheckBox() )
-				)
-				.show();
+						.add( createCheckBox() )
+				).show();
 	}
 	
 	public static void start() {

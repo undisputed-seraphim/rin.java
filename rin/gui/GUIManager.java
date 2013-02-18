@@ -64,15 +64,20 @@ public class GUIManager {
 			return;
 		}
 		
-		GUIComponent<?> component = GUIManager.get( id );
-		for( GUIComponent<?> g : component.children ) {
-			if( GUIManager.elements.containsKey( g.id ) )
-				GUIManager.elements.remove( g.id );
-			g = g.destroy();
-		}
-		component.children.clear();
-		component.destroy();
+		GUIManager.get( id ).destroy();
 		GUIManager.elements.remove( id );
+		GUIManager.elementCount--;
+	}
+	
+	public static void removeAll() {
+		for( String id : GUIManager.elements.keySet() ) {
+			if( GUIManager.get( id ).target != null ) {
+				GUIManager.get( id ).destroy();
+				GUIManager.elementCount--;
+			}
+		}
+		GUIManager.elements.clear();
+		GUIManager.elementCount = 0;
 	}
 	
 	public static Window getWindow( String id ) { return (Window)GUIManager.elements.get( id ); }
@@ -104,11 +109,9 @@ public class GUIManager {
 	
 	public static TextField getTextField( String id ) { return (TextField)GUIManager.elements.get( id ); }
 	public static TextField createTextField() { return GUIManager.createTextField( null ); }
-	public static TextField createTextField( int cols ) { return GUIManager.createTextField( null, cols ); }
-	public static TextField createTextField( String id ) { return GUIManager.createTextField( id, 15 ); }
-	public static TextField createTextField( String id, int cols ) {
+	public static TextField createTextField( String id ) {
 		id = GUIManager.checkId( id );
-		if( GUIManager.add( id, new TextField( id, cols ) ) )
+		if( GUIManager.add( id, new TextField( id ) ) )
 			return GUIManager.getTextField( id );
 		return null;
 	}
@@ -123,35 +126,28 @@ public class GUIManager {
 	}
 	
 	public static Container getContainer( String id ) { return (Container)GUIManager.elements.get( id ); }
-	public static Container createContainer() { return GUIManager.createContainer( null, GUIManager.Alignment.LEFT ); }
-	public static Container createContainer( String id ) {  return GUIManager.createContainer( id, GUIManager.Alignment.LEFT ); }
-	public static Container createContainer( GUIManager.Alignment alignment ) { return GUIManager.createContainer( null, alignment ); }
-	public static Container createContainer( String id, GUIManager.Alignment alignment ) {
+	public static Container createContainer() { return GUIManager.createContainer( null ); }
+	public static Container createContainer( String id ) {
 		id = GUIManager.checkId( id );
-		if( GUIManager.add( id, new Container( id, alignment ) ) )
+		if( GUIManager.add( id, new Container( id ) ) )
 			return GUIManager.getContainer( id );
 		return null;
 	}
 	
 	public static Columns getColumns( String id ) { return (Columns)GUIManager.elements.get( id ); }
 	public static Columns createColumns( int cols ) { return GUIManager.createColumns( null, cols ); }
-	public static Columns createColumns( int cols, Alignment halign ) { return GUIManager.createColumns( null, cols, halign ); }
-	public static Columns createColumns( String id, int cols ) { return GUIManager.createColumns( id, cols, Alignment.LEFT ); }
-	public static Columns createColumns( String id, int cols, Alignment halign ) { return createColumns( id, cols, halign, Alignment.CENTER ); }
-	public static Columns createColumns( String id, int cols, Alignment halign, Alignment valign ) {
+	public static Columns createColumns( String id, int cols ) {
 		id = GUIManager.checkId( id );
-		if( GUIManager.add( id, new Columns( id, cols, halign ) ) )
+		if( GUIManager.add( id, new Columns( id, cols ) ) )
 			return GUIManager.getColumns( id );
 		return null;
 	}
 	
 	public static Pair getPair( String id ) { return (Pair)GUIManager.elements.get( id ); }
-	public static Pair createPair() { return GUIManager.createPair( null, null, null ); }
-	public static Pair createPair( String id ) { return GUIManager.createPair( id, null, null ); }
-	public static Pair createPair( GUIComponent<?> l, GUIComponent<?> r ) { return GUIManager.createPair( null, l, r ); }
-	public static Pair createPair( String id, GUIComponent<?> l, GUIComponent<?> r ) {
+	public static Pair createPair() { return GUIManager.createPair( null ); }
+	public static Pair createPair( String id ) {
 		id = GUIManager.checkId( id );
-		if( GUIManager.add( id, new Pair( id, l, r ) ) )
+		if( GUIManager.add( id, new Pair( id ) ) )
 			return GUIManager.getPair( id );
 		return null;
 	}
@@ -196,9 +192,6 @@ public class GUIManager {
 	}
 	
 	public static void destroy() {
-		for( String id : GUIManager.elements.keySet() )
-			GUIManager.elements.get( id ).destroy();
-		GUIManager.elements.clear();
-		GUIManager.elementCount = 0;
+		GUIManager.removeAll();
 	}
 }

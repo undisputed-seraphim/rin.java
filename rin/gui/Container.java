@@ -1,61 +1,59 @@
 package rin.gui;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JPanel;
 
 public class Container extends GUIComponent<Container>{
 	private static int items = 0;
 
-	private ParallelGroup pgroupH;
-	private SequentialGroup pgroupV;
-	private Runnable runOnFocus = null;
+	private static final int DEFAULT_SIZE = GUIManager.GUIGroupLayout.DEFAULT_SIZE;
+	private static final int PREFERRED_SIZE = GUIManager.GUIGroupLayout.PREFERRED_SIZE;
 	
-	public Container() { this( "Container-" + Container.items++, GUIManager.Alignment.LEFT ); }
-	public Container( String id, GUIManager.Alignment alignment ) {
+	private GUIManager.GUIGroupLayout.ParallelGroup pgroupH;
+	private GUIManager.GUIGroupLayout.SequentialGroup pgroupV;
+	
+	private GUIManager.Alignment halign = GUIManager.Alignment.CENTER;
+	
+	public Container() { this( "Container-" + Container.items++ ); }
+	public Container( String id ) {
 		this.id = id;
 		this.target = new JPanel();
 		
-		GroupLayout layout = new GUIManager.GUIGroupLayout( this.target );
-		this.pgroupH = layout.createParallelGroup( this.getAlignmentConstant( alignment ) );
+		GUIManager.GUIGroupLayout layout = new GUIManager.GUIGroupLayout( this.target );
+		this.pgroupH = layout.createParallelGroup( this.getGroupAlignment( this.halign ) );
 		this.pgroupV = layout.createSequentialGroup();
-		layout.setHorizontalGroup( layout.createParallelGroup( this.getAlignmentConstant( alignment ) )
-				.addGroup( this.pgroupH ) );
-		layout.setVerticalGroup( layout.createSequentialGroup()
-				.addGroup( this.pgroupV ) );
 		
+		layout.setHorizontalGroup( this.pgroupH );
+		layout.setVerticalGroup( this.pgroupV );
 		this.target.setLayout( layout );
 	}
 	
-	private GroupLayout.Alignment getAlignmentConstant( GUIManager.Alignment alignment ) {
-		switch( alignment ) {
+	public Container setAlignment( GUIManager.Alignment alignment ) {
+		this.halign = alignment;
 		
-		case LEFT: return GroupLayout.Alignment.LEADING;
-		case CENTER: return GroupLayout.Alignment.CENTER;
-		case RIGHT: return GroupLayout.Alignment.TRAILING;
+		GUIManager.GUIGroupLayout layout = (GUIManager.GUIGroupLayout)this.target.getLayout();
+		this.pgroupH = layout.createParallelGroup( this.getGroupAlignment( this.halign ) );
+		this.pgroupV = layout.createSequentialGroup();
 		
+		for( GUIComponent<?> g : this.children ) {
+			this.pgroupH.addComponent( g.target, PREFERRED_SIZE, DEFAULT_SIZE, DEFAULT_SIZE );
+			this.pgroupV.addComponent( g.target, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE );
 		}
-		return GroupLayout.Alignment.LEADING;
+		
+		layout.setHorizontalGroup( this.pgroupH );
+		layout.setVerticalGroup( this.pgroupV );
+		this.target.setLayout( layout );
+		
+		return this.update();
 	}
 	
 	@Override public Container add( GUIComponent<?> component ) {
-		pgroupH.addComponent( component.target, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE );
-		pgroupV.addComponent( component.target, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE );
+		this.pgroupH.addComponent( component.target, PREFERRED_SIZE, DEFAULT_SIZE, DEFAULT_SIZE );
+		this.pgroupV.addComponent( component.target, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE );
 		
 		this.children.add( component );
 		component.show();
+		
 		return this.update();
-	}
-
-	public Container onFocus( Runnable r ) {
-		this.runOnFocus = r;
-		return this;
-	}
-	
-	@Override public void focused() {
-		if( runOnFocus != null )
-			runOnFocus.run();
 	}
 	
 	@Override public Container destroy() {
@@ -63,7 +61,6 @@ public class Container extends GUIComponent<Container>{
 		
 		this.pgroupH = null;
 		this.pgroupV = null;
-		this.runOnFocus = null;
 		
 		return null;
 	}
