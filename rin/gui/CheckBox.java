@@ -5,14 +5,20 @@ import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
 public class CheckBox extends GUIComponent<CheckBox> {
+	private static int items = 0;
+	
 	private Runnable runOnTrue = null;
 	private Runnable runOnFalse = null;
 	
-	public CheckBox() {
+	public CheckBox() { this( "CheckBox-" + CheckBox.items++ ); }
+	public CheckBox( String id ) {
+		this.id = id;
+		this.canHaveChildren = false;
 		this.target = new JCheckBox();
-		((JCheckBox)this.target).addActionListener( this );
-		((JCheckBox)this.target).setFont( GUIManager.font );
+		this.real().addActionListener( this );
+		this.real().setFont( GUIManager.DEFAULT_FONT );
 	}
+	
 	private JCheckBox real() { return (JCheckBox)this.target; }
 	
 	public CheckBox onTrue( Runnable r ) { this.runOnTrue = r; return this; }
@@ -32,8 +38,17 @@ public class CheckBox extends GUIComponent<CheckBox> {
 	}
 	
 	@Override public void actionPerformed( ActionEvent e ) {
-		if( ((JCheckBox)this.target).isSelected() )
+		if( this.real().isSelected() )
 			this.trueSelected();
 		else this.falseSelected();
+	}
+	
+	@Override public CheckBox destroy() {
+		super.destroy();
+		
+		this.runOnFalse = null;
+		this.runOnTrue = null;
+		
+		return null;
 	}
 }

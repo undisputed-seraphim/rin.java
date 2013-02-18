@@ -104,9 +104,11 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	
 	private int texture = -1;
 	@Override public void addTexture( String textureFile ) {
-		int tmp = this.texture;
-		this.texture = TextureManager.load( textureFile );
-		TextureManager.unload( tmp );
+		if( !textureFile.equals( "" ) ) {
+			int tmp = this.texture;
+			this.texture = TextureManager.load( textureFile );
+			TextureManager.unload( tmp );
+		}
 	}
 	
 	@Override public void bindTexture() {
@@ -127,7 +129,7 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		this.addTexture( textureFile );
 	}
 	
-	@Override public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {
+	@Override public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {		
 		this.ready = false;
 		
 		if( this.ibuf != null ) this.ibuf = this.ibuf.destroy();

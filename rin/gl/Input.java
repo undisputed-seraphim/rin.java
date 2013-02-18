@@ -16,12 +16,12 @@ public class Input extends Thread {
 	public void run() {
 		while( !Input.destroyRequested ) {
 			Input.process();
-			/*try {
-				//Thread.sleep( 3L );
+			try {
+				Thread.sleep( 1L );
 			} catch( InterruptedException e ) {
 				System.out.println( "Event Thread interrupted. Stopping..." );
 				Input.destroyRequested = true;
-			}*/
+			}
 		}
 		
 		this.destroy();

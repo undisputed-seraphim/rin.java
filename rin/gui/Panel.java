@@ -7,7 +7,11 @@ import javax.swing.JPanel;
 import rin.gui.GUIComponent;
 
 public class Panel extends GUIComponent<Panel> {
-	public Panel() {
+	private static int items = 0;
+	
+	public Panel() { this( "Panel-" + Panel.items++ ); }
+	public Panel( String id ) {
+		this.id = id;
 		this.target = new JPanel( new GUIManager.GUIFlowLayout() );
 	}
 	
@@ -19,6 +23,6 @@ public class Panel extends GUIComponent<Panel> {
 		case RIGHT: ((FlowLayout)this.target.getLayout()).setAlignment( FlowLayout.RIGHT ); break;
 		
 		}
-		return this;
+		return this.update();
 	}
 }

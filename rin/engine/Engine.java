@@ -4,7 +4,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-import rin.gl.GL;
 import rin.gl.Scene;
 import rin.gui.*;
 
@@ -28,16 +27,16 @@ public class Engine {
 
 	public static void init() { Engine.init( 900, 600 ); }
 	public static void init( int width, int height ) {
-		//new GL().start(); 
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
 			Display.setVSyncEnabled( true );
 			Engine.scene = new Scene( width, height );
+			//new GL().start();
 			if( Engine.scene.isReady() ) {
 				Engine.scene.getCamera().init();
 				Engine.started = true;
-			
+
 				Engine.createDebugWindow();
 			}
 		} catch( LWJGLException e ) {
@@ -48,28 +47,21 @@ public class Engine {
 	public static void createDebugWindow() {
 		GUIManager.createWindow()
 				.setTitle( "rin.ai | Debug" )
-				.setSize( 250, 500 )
 				.setLocation( 20, 20 )
 				.setBackgroundColor( 233, 233, 233 )
-				.add( GUIManager.createTabbedPane()
-						.addTab( "Overall", GUIManager.createContainer()
+				.add( GUIManager.createContainer( GUIManager.Alignment.CENTER )
+						.add( GUIManager.createCheckBox().setLabel( "test" ).setBackgroundColor( 70, 70, 70 ) )
+						.add( GUIManager.createPanel()
 								.setBackgroundColor( 70, 70, 70 )
-								.add( GUIManager.createPanel()
-										.setAlignment( GUIManager.Alignment.CENTER )
-										.setBackgroundColor( 70, 70, 70 )
-										.add( GUIManager.createColumns( 2 )
-												.add( 1, GUIManager.createCheckBox()
-														.setLabel( "First Checkbox" ) )
-												.add( 1, GUIManager.createCheckBox()
-														.setLabel( "two two" ) )
-												.add( 2, GUIManager.createCheckBox()
-														.setLabel( "two" ) )
-										)
+								.setAlignment( GUIManager.Alignment.CENTER )
+								.add( GUIManager.createColumns( 2, GUIManager.Alignment.CENTER )
+										.add( 1, GUIManager.createCheckBox().setLabel( "test" ) )
+										.add( 1, GUIManager.createCheckBox() )
+										.add( 2, GUIManager.createTextField() )
+										.add( 2, GUIManager.createTextField() )
 								)
-								.add( GUIManager.createCheckBox()
-										.setLabel( "Second Checkbox" ) )
-						, 'O' )
-						.addTab( "Actors", GUIManager.createPanel() )
+						)
+						.add( GUIManager.createCheckBox() )
 				)
 				.show();
 	}
@@ -79,6 +71,8 @@ public class Engine {
 		Engine.loop();
 		Engine.destroy();
 	}
+				
+	/* You're Fun. */
 	
 	public static void loop() {
 		while( !Display.isCloseRequested() ) {

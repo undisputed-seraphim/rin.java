@@ -3,14 +3,13 @@ package rin.network;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import rin.gui.GUI.*;
 import rin.network.Protocol;
 
 public class Server implements ProtocolCode {
 	public static final int port = 1337;
 	
-	protected static Window window;
-	protected static GUIComponent list;
+	//protected static Window window;
+	//protected static GUIComponent list;
 	protected static ServerSocket socket;
 	protected static boolean listening = false;
 	protected static int threads = 0;
@@ -30,7 +29,7 @@ public class Server implements ProtocolCode {
 	private static String nextThread() { return Protocol.THREAD_PREFIX + Server.threads++; }
 	
 	public static void createGUI() {
-		Server.window = new Window()
+	/*	Server.window = new Window()
 			.setTitle( "rin.ai | Server" )
 			.setSize( 800, 300 )
 			.setLocation( 20, 20 )
@@ -44,7 +43,7 @@ public class Server implements ProtocolCode {
 			.setBackgroundColor( 233, 233, 233 )
 			.addTo( Server.window ); }
 	
-		Server.window.show();
+		Server.window.show();*/
 	}
 	
 	public static void listen( int port ) throws IOException {
@@ -64,11 +63,11 @@ public class Server implements ProtocolCode {
 	}
 	
 	public static void addEntry( String id, String entry ) {
-		Server.list.toTextList().addListItem( id, entry );
+		//Server.list.toTextList().addListItem( id, entry );
 	}
 	
 	public static void removeEntry( String id ) {
-		Server.list.toTextList().removeListItem( id );
+		//Server.list.toTextList().removeListItem( id );
 	}
 	
 	public static void process( Packet packet ) {

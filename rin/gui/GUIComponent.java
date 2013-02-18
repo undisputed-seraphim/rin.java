@@ -14,68 +14,51 @@ import javax.swing.event.ChangeListener;
 public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListener {
 	protected ArrayList<GUIComponent<?>> children = new ArrayList<GUIComponent<?>>();
 	protected JComponent target = null;
+	protected String id = null;
 	protected int childCount = 0;
 	
-	protected boolean aligned = false;
-	protected GUIManager.Alignment alignX = GUIManager.Alignment.LEFT;
-	protected GUIManager.Alignment alignY = GUIManager.Alignment.CENTER;
+	protected boolean canHaveChildren = true;
 	
-	public GUIComponent<T> setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
-	public GUIComponent<T> setBackgroundColor( int r, int g, int b, int a ) { this.target.setBackground( new Color( r, g, b, a ) ); return this; }
-	public GUIComponent<T> setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this; }
-	public GUIComponent<T> setToolTip( String tip ) { this.target.setToolTipText( tip ); return this; }
+	@SuppressWarnings("unchecked") public T actual() { return (T)this; }
 	
-	public GUIComponent<T> setAligned( boolean val ) {
-		this.aligned = val;
-		return this;
-	}
+	public T setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
+	public T setBackgroundColor( int r, int g, int b, int a ) { this.target.setBackground( new Color( r, g, b, a ) ); return this.update(); }
+	public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
+	public T setToolTip( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
 	
-	public GUIComponent<T> setAligned( boolean val, GUIManager.Alignment alignX ) {
-		this.setAligned( val );
-		this.setAlignX( alignX );
-		return this;
-	}
+	public T update() { this.target.validate(); this.target.repaint(); return this.actual(); }
+	public T enable() { this.target.setEnabled( true ); return this.update(); }
+	public T disable() { this.target.setEnabled( false ); return this.update(); }
+	public T show() { this.target.setVisible( true ); return this.actual(); }
+	public T hide() { this.target.setVisible( false ); return this.actual(); }
 	
-	public GUIComponent<T> setAligned( boolean val, GUIManager.Alignment alignX, GUIManager.Alignment alignY ) {
-		this.setAligned( val );
-		this.setAlignX( alignX );
-		this.setAlignY( alignY );
-		return this;		
-	}
-	
-	public GUIComponent<T> setAlignX( GUIManager.Alignment alignment ) { this.alignX = alignment; return this; }
-	public GUIComponent<T> setAlignY( GUIManager.Alignment alignment ) { this.alignY = alignment; return this; }
-	
-	public GUIComponent<T> setAlignmentX( GUIManager.Alignment alignment ) {
-		this.target.setAlignmentX( alignment.value );
-		return this;
-	}
-	
-	public GUIComponent<T> setAlignmentY( GUIManager.Alignment alignment ) {
-		this.target.setAlignmentY( alignment.value );
-		return this;
-	}
-	
-	public GUIComponent<T> setAlignment( GUIManager.Alignment alignX, GUIManager.Alignment alignY ) {
-		this.setAlignmentX( alignX );
-		this.setAlignmentY( alignY );
-		return this;
-	}
-	
-	public GUIComponent<T> show() { this.target.setVisible( true ); return this; }
-	public GUIComponent<T> hide() { this.target.setVisible( false ); return this; }
-	
-	public GUIComponent<T> addTo( GUIComponent<?> component ) { component.add( this ); return this; }
-	public GUIComponent<T> add( GUIComponent<?> component ) {
-		if( this.aligned )
-			component.setAlignment( this.alignX, this.alignY );
+	public T addTo( String id ) { return this.addTo( GUIManager.get( id ) ); }
+	public T addTo( GUIComponent<?> component ) { component.add( this ); return this.actual(); }
+	public T add( String id ) { return this.add( GUIManager.get( id ) ); }
+	public T add( GUIComponent<?> component ) {
+		if( this.canHaveChildren ) {
+			if( component == null ) {
+				System.out.println( "[ERROR] Attempted to add nonexistant component." );
+				return this.actual();
+			}
+			
+			this.children.add( component );
+			this.target.add( this.children.get( this.childCount++ ).target );
+			component.show();
+			return this.update();
+		}
 		
-		this.children.add( component );
-		this.target.add( this.children.get( this.childCount++ ).target );
-		component.show();
-		this.target.validate();
-		this.target.repaint();
-		return this;
+		System.out.println( "[ERROR] This item may not have children." );
+		return this.actual();
+	}
+	
+	public T removeAll() {
+		for( GUIComponent<?> g : this.children ) {
+			if( GUIManager.find( g.id ) )
+				GUIManager.remove( g.id );
+			g = g.destroy();
+		}
+		return this.update();
 	}
 	
 	@Override public void keyTyped( KeyEvent e ) {}
@@ -83,16 +66,12 @@ public class GUIComponent<T> implements ActionListener, KeyListener, ChangeListe
 	@Override public void keyReleased( KeyEvent e ) {}
 	@Override public void actionPerformed( ActionEvent e ) {}
 	@Override public void stateChanged( ChangeEvent e ) {}
-	
-	public void focused() {
-		System.out.println( "focus" );
-	}
+	public void focused() {}
 	
 	public GUIComponent<T> destroy() {
-		for( GUIComponent<?> g : this.children )
-			g = g.destroy();
 		this.children.clear();
 		
+		this.target.removeAll();
 		this.target.setVisible( false );
 		this.target = null;
 		
