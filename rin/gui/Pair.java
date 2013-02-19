@@ -26,9 +26,8 @@ public class Pair extends GUIComponent<Pair> {
 		this.left.removeAll();
 		this.left.add( component );
 		component.show();
-		this.target.validate();
-		this.target.repaint();
-		return this;
+
+		return this.update();
 	}
 	
 	public Pair setRightItemAlignment( GUIManager.Alignment alignment ) { this.right.setAlignment( alignment ); return this; }
@@ -36,9 +35,8 @@ public class Pair extends GUIComponent<Pair> {
 		this.right.removeAll();
 		this.right.add( component );
 		component.show();
-		this.target.validate();
-		this.target.repaint();
-		return this;
+
+		return this.update();
 	}
 	
 	@Override public Pair destroy() {

@@ -6,6 +6,9 @@ import org.lwjgl.opengl.DisplayMode;
 import static rin.gui.GUIManager.*;
 
 import rin.gl.Scene;
+import rin.gl.event.GLEventThread;
+import rin.gl.event.Transition;
+import rin.gl.lib3d.Poly;
 import rin.gui.*;
 
 public class Engine {
@@ -34,7 +37,7 @@ public class Engine {
 			Display.create();
 			Display.setVSyncEnabled( true );
 			Engine.scene = new Scene( width, height );
-			//new GL().start();
+			new GLEventThread().start();
 			if( Engine.scene.isReady() ) {
 				Engine.scene.getCamera().init();
 				Engine.started = true;
@@ -58,12 +61,14 @@ public class Engine {
 								.setBackgroundColor( 70, 70, 70, 175 )
 								.setAlignment( Alignment.CENTER )
 								.add( createColumns( 2 )
-										.setAlignmentX( 1, Alignment.LEFT )
-										.setAlignmentY( 1, Alignment.LEFT )
+										.setAlignmentX( 1, Alignment.RIGHT )
+										.setAlignmentX( 2, Alignment.CENTER )
 										.add( 1, createCheckBox().setLabel( "test" ) )
-										.add( 1, createCheckBox() )
+										.add( 1, createContainer()
+												.add( createCheckBox() )
+												.add( createCheckBox() ) )
 										.add( 2, createTextField() )
-										//.add( 2, createTextField() )
+										.add( 2, createCheckBox() )
 								)
 						)
 						.add( createCheckBox() )
@@ -93,7 +98,7 @@ public class Engine {
 			Engine.scene = Engine.scene.destroy();
 		
 		GUIManager.destroy();
-		//GL.requestDestroy();
+		GLEventThread.requestDestroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();

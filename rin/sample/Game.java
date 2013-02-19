@@ -1,6 +1,9 @@
 package rin.sample;
 
 import rin.engine.Engine;
+import rin.gl.event.Transition;
+import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.lib3d.shape.*;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelManager.Format;
@@ -18,7 +21,7 @@ public class Game {
 		Engine.getScene().addActor( new Octahedron( 5.0f, true ) );
 		Engine.getScene().addActor( new Dodecahedron( 5.0f, true ) );
 		Engine.getScene().addActor( new Tile() );
-		
+		new Transition( (Transitionable)Engine.getScene().getActor( 1 ) ).start();
 		Engine.start();
 	}
 }
