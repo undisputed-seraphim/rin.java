@@ -92,6 +92,7 @@ public class Columns extends GUIComponent<Columns> {
 				else
 					htmp.addGroup( layout.createParallelGroup( this.getGroupAlignment( this.halign[i] ) )
 							.addComponent( GUIComponent.emptyLabel ) );
+
 				//vtmp.addComponent( this.children.get( i ).get( j ).target, PREFERRED_SIZE, DEFAULT_SIZE, DEFAULT_SIZE );
 				//htmp.addComponent( this.children.get( i ).get( j ).target, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE );
 			}

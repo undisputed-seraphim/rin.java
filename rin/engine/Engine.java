@@ -59,7 +59,7 @@ public class Engine {
 								.setAlignment( Alignment.CENTER )
 								.add( createColumns( 2 )
 										.setAlignmentX( 1, Alignment.LEFT )
-										.setAlignmentY( 1, Alignment.CENTER )
+										.setAlignmentY( 1, Alignment.LEFT )
 										.add( 1, createCheckBox().setLabel( "test" ) )
 										.add( 1, createCheckBox() )
 										.add( 2, createTextField() )
