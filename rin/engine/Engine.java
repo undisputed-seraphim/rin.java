@@ -9,6 +9,7 @@ import rin.gl.Scene;
 import rin.gl.event.GLEventThread;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.ActorList;
 import rin.gui.*;
 
 public class Engine {
@@ -37,7 +38,6 @@ public class Engine {
 			Display.create();
 			Display.setVSyncEnabled( true );
 			Engine.scene = new Scene( width, height );
-			new GLEventThread().start();
 			if( Engine.scene.isReady() ) {
 				Engine.scene.getCamera().init();
 				Engine.started = true;
@@ -94,11 +94,13 @@ public class Engine {
 	public static void stop() { Engine.destroy(); }
 	
 	public static void destroy() {
+		GLEventThread.requestDestroy();
+		ActorList.requestDestroy();
+
 		if( Engine.scene != null )
 			Engine.scene = Engine.scene.destroy();
 		
 		GUIManager.destroy();
-		GLEventThread.requestDestroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();

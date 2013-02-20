@@ -1,6 +1,8 @@
 package rin.gl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
@@ -8,6 +10,8 @@ import static org.lwjgl.opengl.GL20.*;
 
 import rin.engine.Engine;
 import rin.gl.event.GLEvent;
+import rin.gl.event.GLEventThread;
+import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
 import rin.gl.font.Font;
 import rin.gl.lib3d.ActorList;
@@ -51,8 +55,7 @@ public class Scene {
 	public int getAttrib( String str ) { return glGetAttribLocation( this.program, str ); }
 	public int getUniform( String str ) { return glGetUniformLocation( this.program, str ); }
 
-	private ArrayList<Actor> actors = new ArrayList<Actor>();
-	private ActorList actor = new ActorList();
+	private List<Actor> actors = Collections.synchronizedList( new ArrayList<Actor>() );
 	private Camera camera = null;
 	public Camera getCamera() { return this.camera; }
 	
@@ -117,6 +120,7 @@ public class Scene {
 		//glUniform1i( this.getUniform( "samplerA" ), TextureManager.array );
 		
 		glViewport( 0, 0, width, height );
+
 		this.camera = new Camera( 45, width / height, 0.1f, VIEW_DISTANCE );
 		this.ready = true;
 	}
@@ -140,7 +144,7 @@ public class Scene {
 			this.camera.update();
 			
 			glUniform1i( this.getUniform( "useUnique" ), GL_TRUE );
-			for( Actor a : this.actors ) {
+			for( Actor a : ActorList.get().getActors() ) {
 				( (Poly) a ).render( true );
 			}
 			glUniform1i( this.getUniform( "useUnique" ), GL_FALSE );
@@ -161,7 +165,7 @@ public class Scene {
 			this.prev = tmp;*/
 			
 			//glUniform1i( this.getUniform( "use3D" ), GL_TRUE );
-			for( Actor a : this.actors ) {
+			for( Actor a : ActorList.get().getActors() ) {
 				( (Poly) a ).render();
 			}
 			

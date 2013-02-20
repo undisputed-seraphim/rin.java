@@ -1,7 +1,10 @@
 package rin.gl.lib3d;
 
+import static org.lwjgl.opengl.GL20.glUniformMatrix4;
+
 import java.util.ArrayList;
 
+import rin.gl.GL;
 import rin.gl.lib3d.Poly;
 
 public class Mesh extends Poly {
@@ -22,10 +25,12 @@ public class Mesh extends Poly {
 			poly.setUniqueColor( this.getUniqueColor() );
 		poly.build( vertices, normals, texcoords, new float[0] );
 		poly.addTexture( textureFile );
+		poly.setApplyTransform( false );
 		this.polys.add( poly );
 	}
 	
 	public void render( boolean unique ) {
+		glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
 		for( Poly p : this.polys ) {
 			p.render( unique );
 		}

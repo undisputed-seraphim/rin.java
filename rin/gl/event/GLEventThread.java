@@ -3,10 +3,10 @@ package rin.gl.event;
 import java.util.ArrayList;
 
 public class GLEventThread extends Thread {
-	private static ArrayList<GLEvent> queue = new ArrayList<GLEvent>();
-	private static int items = 0;
+	public static ArrayList<GLEvent> queue = new ArrayList<GLEvent>();
+	public static int items = 0;
 	
-	private static boolean destroyRequested = false;
+	public static boolean destroyRequested = false;
 	public static void requestDestroy() { GLEventThread.destroyRequested = true; }
 	
 	public GLEventThread() { super( "rin.ai | GLEventThread" ); }

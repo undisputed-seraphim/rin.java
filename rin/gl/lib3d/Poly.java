@@ -86,6 +86,10 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable, Tran
 	@Override public int getRenderMode() { return this.renderMode; }
 	@Override public void setRenderMode( int renderMode ) { this.renderMode = renderMode; }
 	
+	private boolean applyTransform = true;
+	public boolean isApplyingTransform() { return this.applyTransform; }
+	public void setApplyTransform( boolean val ) { this.applyTransform = val; }
+	
 	private GLBuffer ibuf = null;
 	private GLInterleavedBuffer abuf = null;
 	
@@ -222,7 +226,8 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable, Tran
 	@Override public void render() { this.render( false ); }
 	public void render( boolean unique ) {
 		if( this.ready && this.visible ) {
-			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
+			if( this.applyTransform )
+				glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
 			//glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
 			if( this.buffer() ) {
 				this.bindTexture();
