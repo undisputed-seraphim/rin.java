@@ -1,5 +1,7 @@
 package rin.gl.lib3d;
 
+import java.util.ArrayList;
+
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.interfaces.Positionable;
@@ -7,6 +9,7 @@ import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.Scene;
 import rin.gl.event.GLEvent;
+import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
@@ -170,6 +173,8 @@ public class Actor implements Positionable, Controllable, Animatable {
 	}
 	
 	/* ----------------- animatable implementation ------------------- */
+	private ArrayList<GLEvent> events = new ArrayList<GLEvent>();
+	
 	private boolean animating = false;
 	@Override public boolean isAnimatable() { return this.animating; }
 	@Override public void setAnimatable( boolean val ) {
@@ -186,6 +191,30 @@ public class Actor implements Positionable, Controllable, Animatable {
 	@Override public void processTickEvent( TickEvent e ) {
 		if( !animationIgnore ) {
 			System.out.println( "test tick" );
+		}
+	}
+	
+	public void addEvent( GLEvent e ) {
+		synchronized( this.events ) {
+			this.events.add( e );
+		}
+	}
+	
+	public void update() {
+		synchronized( this.events ) {
+			for( GLEvent e : this.events ) {
+				if( e instanceof Transition ) {
+					System.out.println( "transition" );
+					if( this.position.y >= 0.0f )
+						this.move( 0.0f, 0.0f, -0.01f );
+				}
+				else if( e instanceof KeyEvent ) {
+					System.out.println( "keyevent" );
+					if( this.position.y <= 0.0f ) {
+						this.move( 0.0f, 0.0f, 1.0f );
+					}
+				}
+			}
 		}
 	}
 }

@@ -26,7 +26,6 @@ public class Game {
 		new Transition( (Transitionable)Engine.getScene().getActor( 1 ) ).start();*/
 		//GLRenderThread.add( new Sphere( 5.0f, 50, true ) );
 		GLRenderThread.addActor( Format.DAE, "noire_v" );
-		//ActorList.get().addEvent();
 		//Engine.start();
 	}
 }

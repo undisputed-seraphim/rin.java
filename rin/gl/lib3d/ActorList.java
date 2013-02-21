@@ -23,8 +23,7 @@ public class ActorList extends Thread {
 	public static void requestDestroy() { ActorList.destroyRequested = true; }
 	
 	public ActorList() {
-		super( "rin.ai | Actor Thread" );
-		//new GLRenderThread().start();
+		super( "rin.ai | Actor Event Thread" );
 		this.start();
 	}
 	
@@ -35,27 +34,16 @@ public class ActorList extends Thread {
 	}
 	
 	private List<Actor> actors = Collections.synchronizedList( new ArrayList<Actor>() );
-	private List<GLEvent> events = Collections.synchronizedList( new ArrayList<GLEvent>() );
 	
 	public List<Actor> getActors() { return this.actors; }
 	public void addActor( Actor a ) {
 		this.actors.add( a );
 	}
 	
-	public void addEvent() {
-		this.events.add( new Transition( (Transitionable)this.actors.get( 0 ) ) );
-	}
-	
-	public void addEvent( GLEvent e ) {
-		this.events.add( e );
-	}
-	
 	public void run() {
 		while( !ActorList.destroyRequested ) {
-			if( this.events.size() > 0 ) {
-				System.out.println( "hi" );
-				this.actors.get( 0 ).spin( 0.001f, 0.0f, 0.0f );
-			}
+			for( Actor a : this.actors )
+				a.update();
 			
 			try {
 				Thread.sleep( 1L );

@@ -16,6 +16,7 @@ import rin.gl.lib3d.data.GLInterleavedBuffer.IndexType;
 import rin.gl.lib3d.properties.Color;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.shape.BoundingBox;
+import rin.util.math.Mat4;
 
 public class Poly extends Actor implements Renderable, Boundable, Pickable, Transitionable {
 	private static int items = 0;
@@ -223,11 +224,14 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable, Tran
 		return this.ibuf.buffer();
 	}
 	
+	private Mat4 lock = new Mat4();
 	@Override public void render() { this.render( false ); }
 	public void render( boolean unique ) {
 		if( this.ready && this.visible ) {
 			if( this.applyTransform )
-				glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
+				synchronized( this.lock ) {
+					glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
+				}
 			//glDrawRangeElements( GL_TRIANGLES, 0, cur[1], cur[1] - cur[0], GL_UNSIGNED_INT, cur[0] * 4 );
 			if( this.buffer() ) {
 				this.bindTexture();

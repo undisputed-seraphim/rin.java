@@ -1,23 +1,7 @@
 package rin.gl.lib3d.data;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_LINK_STATUS;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glBindAttribLocation;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glGetAttribLocation;
-import static org.lwjgl.opengl.GL20.glGetProgrami;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL20.*;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -28,12 +12,15 @@ import org.lwjgl.opengl.DisplayMode;
 import rin.engine.Engine;
 import rin.gl.Input;
 import rin.gl.Scene;
+import rin.gl.event.Transition;
 import rin.gl.font.Font;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.ActorList;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.model.ModelManager;
+import rin.util.Buffer;
 import rin.util.IO;
 
 public class GLRenderThread extends Thread {
@@ -138,6 +125,7 @@ public class GLRenderThread extends Thread {
 		GLRenderThread.queue.add( new Runnable() {
 			public void run() {
 				ActorList.add( ModelManager.create( format, file ) );
+				ActorList.get().getActors().get( 0 ).addEvent( new Transition( (Transitionable)ActorList.get().getActors().get(0) ) );
 			}
 		});
 	}
@@ -145,21 +133,33 @@ public class GLRenderThread extends Thread {
 	private void loop() {
 		Runnable current = null;
 		while( !GLRenderThread.destroyRequested && !Display.isCloseRequested() ) {
-			if( ( current = GLRenderThread.queue.poll() ) != null )
+			while( ( current = GLRenderThread.queue.poll() ) != null )
 				current.run();
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			this.camera.update();
+			Input.process();
+			
+			glUniform1i( this.getUniform( "useUnique" ), GL_TRUE );
+			for( Actor a : ActorList.get().getActors() )
+				( (Poly) a ).render( true );
+			glUniform1i( this.getUniform( "useUnique" ), GL_FALSE );
+			
+			Scene.uniqueAtMouse = Buffer.toString( this.camera.getMouseRGB() );
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
 			for( Actor a : ActorList.get().getActors() )
 				( (Poly) a ).render();
 			
-			Input.process();
-			
 			Display.update();
 			Display.sync( 60 );
-			System.out.println( "rendering" );
 		}
+		this.destroy();
+		ActorList.requestDestroy();
+	}
+	
+	public void destroy() {
+		Display.destroy();
 	}
 	
 	private String getShaderSource( String shader ) { return IO.file.asString( Engine.SHADER_DIR + shader ); }
