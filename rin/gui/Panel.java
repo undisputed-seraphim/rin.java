@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import rin.gui.GUIComponent;
 
-public class Panel extends GUIComponent<Panel> {
+public class Panel extends GUIComponent<Panel, PanelEvent> {
 	private static int items = 0;
 	
 	public Panel() { this( "Panel-" + Panel.items++ ); }

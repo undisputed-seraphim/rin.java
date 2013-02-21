@@ -4,11 +4,10 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JCheckBox;
 
+import rin.gui.GUIManager.GUIEvent;
+
 public class CheckBox extends GUIComponent<CheckBox> {
 	private static int items = 0;
-	
-	private Runnable runOnTrue = null;
-	private Runnable runOnFalse = null;
 	
 	public CheckBox() { this( "CheckBox-" + CheckBox.items++ ); }
 	public CheckBox( String id ) {
@@ -21,33 +20,37 @@ public class CheckBox extends GUIComponent<CheckBox> {
 	
 	private JCheckBox real() { return (JCheckBox)this.target; }
 	
-	public CheckBox onTrue( Runnable r ) { this.runOnTrue = r; return this; }
-	public CheckBox onFalse( Runnable r ) { this.runOnFalse = r; return this; }
-	
 	public CheckBox setLabel( String str ) { this.real().setText( str ); return this; }
 	public CheckBox setLabelPositionH( GUIManager.Position position ) { this.real().setHorizontalTextPosition( position.value ); return this; }
 	
-	private void trueSelected() {
-		if( this.runOnTrue != null )
-			this.runOnTrue.run();
+	private GUIEvent<CheckBox> runOnCheck = null;
+	private GUIEvent<CheckBox> runOnUnCheck = null;
+	
+	public CheckBox onCheck( GUIEvent<CheckBox> e ) {
+		this.runOnCheck = e.setTarget( this );
+		return this;
 	}
 	
-	private void falseSelected() {
-		if( this.runOnFalse != null )
-			this.runOnFalse.run();
+	public CheckBox onUnCheck( GUIEvent<CheckBox> e ) {
+		this.runOnUnCheck = e.setTarget( this );
+		return this;
 	}
 	
 	@Override public void actionPerformed( ActionEvent e ) {
-		if( this.real().isSelected() )
-			this.trueSelected();
-		else this.falseSelected();
+		if( this.real().isSelected() ) {
+			if( this.runOnCheck != null )
+				this.runOnCheck.run();
+		}
+		
+		else if( this.runOnUnCheck != null )
+			this.runOnUnCheck.run();
 	}
 	
 	@Override public CheckBox destroy() {
 		super.destroy();
 		
-		this.runOnFalse = null;
-		this.runOnTrue = null;
+		this.runOnCheck = null;
+		this.runOnUnCheck = null;
 		
 		return null;
 	}

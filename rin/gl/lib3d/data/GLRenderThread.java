@@ -12,39 +12,38 @@ import org.lwjgl.opengl.DisplayMode;
 import rin.engine.Engine;
 import rin.gl.Input;
 import rin.gl.Scene;
-import rin.gl.event.Transition;
-import rin.gl.font.Font;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.ActorList;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
-import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.model.ModelManager;
 import rin.util.Buffer;
 import rin.util.IO;
 
 public class GLRenderThread extends Thread {
-	private static GLRenderThread _instance = new GLRenderThread();
+	private static GLRenderThread _instance = null;
 	
 	private static ConcurrentLinkedQueue<Runnable> queue = new ConcurrentLinkedQueue<Runnable>();
 	private static boolean destroyRequested = false;
 	public static void requestDestroy() { GLRenderThread.destroyRequested = true; }
 	
-	public GLRenderThread() {
+	private int width, height;
+	public GLRenderThread( int width, int height ) {
 		super( "rin.ai | Render Thread" );
+		GLRenderThread.destroyRequested = false;
+		this.width = width;
+		this.height = height;
 		this.start();
 	}
 	
+	public static void init( int width, int height ) { GLRenderThread._instance = new GLRenderThread( width, height ); }
 	public static GLRenderThread get() { return GLRenderThread._instance; }
 	
-	private boolean ready = false;
 	private Camera camera = null;
 	private int program, vShader, fShader;
 	public void run() {
-		int width = 900;
-		int height = 600;
 		try {
-			Display.setDisplayMode( new DisplayMode( width, height ) );
+			Display.setDisplayMode( new DisplayMode( this.width, this.height ) );
 			Display.create();
 			Display.setVSyncEnabled( true );
 			/*Engine.scene = new Scene( width, height );
@@ -55,7 +54,7 @@ public class GLRenderThread extends Thread {
 				Engine.createDebugWindow();
 			}*/
 		} catch( LWJGLException e ) {
-			System.out.println( "lwjgl instance failed to display [" + width + "x" + height + "]" );
+			System.out.println( "lwjgl instance failed to display [" + this.width + "x" + this.height + "]" );
 		}
 		
 		/* create and compile vertex shader */
@@ -110,11 +109,10 @@ public class GLRenderThread extends Thread {
 		//TextureManager.init();
 		//glUniform1i( this.getUniform( "samplerA" ), TextureManager.array );
 		
-		glViewport( 0, 0, Display.getWidth(), Display.getHeight() );
+		glViewport( 0, 0, this.width, this.height );
 
-		this.camera = new Camera( 45, width / height, 0.1f, 15f );
+		this.camera = new Camera( 45, this.width / this.height, 0.1f, 15f );
 		this.camera.init();
-		this.ready = true;
 		this.loop();
 	}
 	
@@ -125,7 +123,7 @@ public class GLRenderThread extends Thread {
 		GLRenderThread.queue.add( new Runnable() {
 			public void run() {
 				ActorList.add( ModelManager.create( format, file ) );
-				ActorList.get().getActors().get( 0 ).addEvent( new Transition( (Transitionable)ActorList.get().getActors().get(0) ) );
+				//ActorList.get().getActors().get( 0 ).addEvent( new Transition( (Transitionable)ActorList.get().getActors().get(0) ) );
 			}
 		});
 	}
@@ -155,11 +153,11 @@ public class GLRenderThread extends Thread {
 			Display.sync( 60 );
 		}
 		this.destroy();
-		ActorList.requestDestroy();
 	}
 	
 	public void destroy() {
 		Display.destroy();
+		Engine.destroy();
 	}
 	
 	private String getShaderSource( String shader ) { return IO.file.asString( Engine.SHADER_DIR + shader ); }

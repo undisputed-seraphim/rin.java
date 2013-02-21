@@ -3,7 +3,9 @@ package rin.gui;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
-public class Columns extends GUIComponent<Columns> {
+import rin.gui.GUIManager.ColumnsEvent;
+
+public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	private static int items = 0;
 	
 	private static final int DEFAULT_SIZE = GUIManager.GUIGroupLayout.DEFAULT_SIZE;
@@ -16,7 +18,7 @@ public class Columns extends GUIComponent<Columns> {
 	private GUIManager.Alignment[] halign;
 	private GUIManager.Alignment valign;
 	
-	private ArrayList< ArrayList<GUIComponent<?>>> children;
+	private ArrayList< ArrayList<GUIComponent<?, ?>>> children;
 	private GUIManager.GUIGroupLayout.SequentialGroup hgroup;
 	private GUIManager.GUIGroupLayout.SequentialGroup vgroup;
 	

@@ -2,7 +2,7 @@ package rin.gui;
 
 import javax.swing.JPanel;
 
-public class Pair extends GUIComponent<Pair> {
+public class Pair extends GUIComponent<Pair, PairEvent> {
 	private static int items = 0;
 	
 	private Panel left;

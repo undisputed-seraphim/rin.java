@@ -13,8 +13,8 @@ public class GL extends Thread {
 	public static ConcurrentLinkedQueue<GLSource> sources = new ConcurrentLinkedQueue<GLSource>();
 	public GL() {}
 	
-	public static int getAttrib( String attr ) { return GLRenderThread.get().getAttrib( attr ); }
-	public static int getUniform( String attr ) { return GLRenderThread.get().getUniform( attr ); }
+	public static int getAttrib( String attr ) { return Engine.getScene().getAttrib( attr ); }
+	public static int getUniform( String attr ) { return Engine.getScene().getUniform( attr ); }
 	
 	public void destroy() {
 		System.out.println( "Thread gone" );

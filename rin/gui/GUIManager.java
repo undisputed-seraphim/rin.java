@@ -36,18 +36,18 @@ public class GUIManager {
 		private Alignment( float value ) { this.value = value; }
 	}
 	
-	private static HashMap<String, GUIComponent<?>> elements = new HashMap<String, GUIComponent<?>>();
+	private static HashMap<String, GUIComponent<?, ?>> elements = new HashMap<String, GUIComponent<?, ?>>();
 	private static int elementCount = 0;
 	
 	private static String checkId( String id ) { return id == null ? "$$$Element-" + GUIManager.elementCount : id; }
 	public static boolean find( String id ) { return GUIManager.elements.containsKey( id ); }
-	public static GUIComponent<?> get( String id ) {
+	public static GUIComponent<?, ?> get( String id ) {
 		if( GUIManager.find( id ) )
 			return GUIManager.elements.get( id );
 		return null;
 	}
 	
-	private static boolean add( String id, GUIComponent<?> component ) {
+	private static boolean add( String id, GUIComponent<?, ?> component ) {
 		if( GUIManager.elements.containsKey( id ) ) {
 			System.out.println( "[ERROR] id already existed." );
 			return false;
@@ -57,7 +57,7 @@ public class GUIManager {
 		return true;
 	}
 	
-	public static void remove( GUIComponent<?> component ) { GUIManager.remove( component.id ); }
+	public static void remove( GUIComponent<?, ?> component ) { GUIManager.remove( component.id ); }
 	public static void remove( String id ) {
 		if( !GUIManager.elements.containsKey( id ) ) {
 			System.out.println( "[ERROR] GUIManager is not managing a component with id " + id + "." );
@@ -150,6 +150,33 @@ public class GUIManager {
 		if( GUIManager.add( id, new Pair( id ) ) )
 			return GUIManager.getPair( id );
 		return null;
+	}
+	
+	public static Button getButton( String id ) { return (Button)GUIManager.elements.get( id ); }
+	public static Button createButton() { return GUIManager.createButton( null ); }
+	public static Button createButton( String id ) {
+		id = GUIManager.checkId( id );
+		if( GUIManager.add( id, new Button( id ) ) )
+			return GUIManager.getButton( id );
+		return null;
+	}
+	
+	public static class GUIEvent<T> implements Runnable {
+		public T target;
+		@SuppressWarnings("unchecked") public <T2> T2 setTarget( T c ) { this.target = c; return (T2)this; }
+		@Override public void run() {}
+	}
+	
+	public static class WindowEvent extends GUIEvent<Window> {}
+	public static class ContainerEvent extends GUIEvent<Container> {}
+	public static class PanelEvent extends GUIEvent<Panel> {}
+	public static class CheckBoxEvent extends GUIEvent<CheckBox> {}
+	public static class ButtonEvent extends GUIEvent<Button> {}
+	public static class ColumnsEvent extends GUIEvent<Columns> {}
+	public static class PairEvent extends GUIEvent<Pair> {}
+	public static class TextFieldEvent extends GUIEvent<TextField> {}
+	public static class TabbedPaneEvent extends GUIEvent<TabbedPane> {
+		public int previous, current;
 	}
 	
 	public static class GUIDimension extends Dimension {

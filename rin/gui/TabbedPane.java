@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 
-public class TabbedPane extends GUIComponent<TabbedPane> {
+import rin.gui.GUIManager.TabbedPaneEvent;
+
+public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	private static int items = 0;
 	
 	protected ArrayList<String> tabs = new ArrayList<String>();
 	private int tabCount = 0;
+	private int current = 0;
 	
 	public TabbedPane() { this( "TabbedPane-" + TabbedPane.items++ ); }
 	public TabbedPane( String id ) {
@@ -21,25 +24,27 @@ public class TabbedPane extends GUIComponent<TabbedPane> {
 	
 	private JTabbedPane real() { return (JTabbedPane)this.target; }
 	
-	@Override public TabbedPane add( GUIComponent<?> component ) {
-		if( (component instanceof Panel || component instanceof Container || component instanceof TabbedPane ) ) {
-			System.out.println( "[WARNING] Use addTab() instead." );
-			return this.addTab( "No Title", '\0', component );
-		}
-		System.out.println( "[ERROR] Only Tab capable items ( Container, Panel, TabbedPane ) may be added to a TabbedPane." );
+	public Container getCurrentTab() {
+		if( this.children.size() > 0 && this.current >= 0 )
+			if( this.children.get( this.current ).target != null )
+				return (Container)this.children.get( this.current );
+		return null;
+	}
+	
+	@Override public TabbedPane add( GUIComponent<?, ?> component ) {
+		if( component instanceof Container )
+			return this.addTab( "No Title", '\0', (Container)component );
+		
+		System.out.println( "[ERROR] Only Containers may serve as Tabs." );
 		return this;
 	}
 	
-	public TabbedPane addTab( String title, GUIComponent<?> component ) { return this.addTab( title, '\0', component ); }
-	public TabbedPane addTab( String title, char mnemonic, GUIComponent<?> component ) {
-		if( !(component instanceof Panel || component instanceof Container || component instanceof TabbedPane ) ) {
-			System.out.println( "[Error] Tabs must be of type Panel, Container, or TabbedPane." );
-			return this;
-		}
-		this.children.add( component );
-		this.tabs.add( component.id );
-		component.show();
-		this.real().insertTab( title, null, component.target, null, this.tabCount );
+	public TabbedPane addTab( String title, Container container ) { return this.addTab( title, '\0', container ); }
+	public TabbedPane addTab( String title, char mnemonic, Container container ) {
+		this.children.add( container );
+		this.tabs.add( container.id );
+		container.show();
+		this.real().insertTab( title, null, container.target, null, this.tabCount );
 		if( mnemonic != '\0' ) {
 			try {
 				try {
@@ -57,6 +62,22 @@ public class TabbedPane extends GUIComponent<TabbedPane> {
 		}
 		this.tabCount++;
 		return this.update();
+	}
+	
+	public TabbedPane onTabChange( TabbedPaneEvent e ) {
+		this.runOnStateChanged = e.<TabbedPaneEvent>setTarget( this );
+		return this;
+	}
+	
+	@Override public void stateChanged( ChangeEvent e ) {
+		/*if( this.runOnTabChange != null ) {
+			this.runOnTabChange.previous = current;
+			this.runOnTabChange.current = Math.max( this.real().getSelectedIndex(), 0 );
+			this.current = Math.max( this.real().getSelectedIndex(), 0 );
+			this.runOnTabChange.run();
+		}
+		if( this.getCurrentTab() != null )
+			this.getCurrentTab().focus();*/
 	}
 	
 	@Override public TabbedPane destroy() {

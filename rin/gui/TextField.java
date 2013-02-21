@@ -2,7 +2,7 @@ package rin.gui;
 
 import javax.swing.JTextField;
 
-public class TextField extends GUIComponent<TextField> {
+public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 	private static int items = 0;
 	
 	public TextField() { this( "TextField-" + TextField.items++ ); }
@@ -11,6 +11,7 @@ public class TextField extends GUIComponent<TextField> {
 		this.target = new JTextField();
 		this.canHaveChildren = false;
 		this.real().setFont( GUIManager.DEFAULT_FONT );
+		this.real().addKeyListener( this );
 		this.setWidth( 15 );
 	}
 	

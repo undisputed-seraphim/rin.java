@@ -12,10 +12,10 @@ import rin.gl.model.ModelManager.Format;
 
 public class Game {
 	public static void main( String args[] ) {
-		//Engine.init( 900, 600 );
+		Engine.init( 900, 600 );
 		
 		//Engine.getScene().addActor( ModelManager.create( Format.OBJ, "cornelia" ) );
-		/*Engine.getScene().addActor( ModelManager.create( Format.DAE, "noire_v" ) );
+		Engine.getScene().addActor( ModelManager.create( Format.DAE, "noire_v" ) );
 		Engine.getScene().addActor( new Sphere( 5.0f, 50, true ) );
 		Engine.getScene().addActor( new Icosahedron( 5.0f, true ) );
 		Engine.getScene().addActor( new Tetrahedron( 5.0f, true ) );
@@ -23,9 +23,9 @@ public class Game {
 		Engine.getScene().addActor( new Octahedron( 5.0f, true ) );
 		Engine.getScene().addActor( new Dodecahedron( 5.0f, true ) );
 		Engine.getScene().addActor( new Tile() );
-		new Transition( (Transitionable)Engine.getScene().getActor( 1 ) ).start();*/
+		//new Transition( (Transitionable)Engine.getScene().getActor( 1 ) ).start();
 		//GLRenderThread.add( new Sphere( 5.0f, 50, true ) );
-		GLRenderThread.addActor( Format.DAE, "noire_v" );
-		//Engine.start();
+		//GLRenderThread.addActor( Format.DAE, "noire_v" );
+		Engine.start();
 	}
 }

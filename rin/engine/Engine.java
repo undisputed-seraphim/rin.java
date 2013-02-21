@@ -1,5 +1,7 @@
 package rin.engine;
 
+import javax.swing.SwingUtilities;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -7,8 +9,6 @@ import static rin.gui.GUIManager.*;
 
 import rin.gl.Scene;
 import rin.gl.event.GLEventThread;
-import rin.gl.event.Transition;
-import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.ActorList;
 import rin.gui.*;
 
@@ -33,6 +33,7 @@ public class Engine {
 
 	public static void init() { Engine.init( 900, 600 ); }
 	public static void init( int width, int height ) {
+		Thread.currentThread().setName( "rin.ai | Render Thread" );
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
@@ -54,6 +55,11 @@ public class Engine {
 				.setTitle( "rin.ai | Debug" )
 				.setLocation( 20, 20 )
 				.setBackgroundColor( 233, 233, 233, 175 )
+				.onWindowFocusGained( new WindowEvent() {
+					public void run() {
+						this.target.setTitle( "booya" + System.nanoTime() );
+					}
+				})
 				.add( createContainer()
 						.setAlignment( Alignment.CENTER )
 						.add( createCheckBox().setLabel( "test" ).setBackgroundColor( 70, 70, 70 ) )
@@ -61,17 +67,33 @@ public class Engine {
 								.setBackgroundColor( 70, 70, 70, 175 )
 								.setAlignment( Alignment.CENTER )
 								.add( createColumns( 2 )
-										.setAlignmentX( 1, Alignment.RIGHT )
-										.setAlignmentX( 2, Alignment.CENTER )
 										.add( 1, createCheckBox().setLabel( "test" ) )
 										.add( 1, createContainer()
 												.add( createCheckBox() )
 												.add( createCheckBox() ) )
 										.add( 2, createTextField() )
-										.add( 2, createCheckBox() )
+										.add( 2, createButton().onClick( new ButtonEvent() {
+											public void run() {
+												System.out.println( "button clicked!" );
+											}
+										}) )
 								)
 						)
 						.add( createCheckBox() )
+						.add( createTabbedPane()
+								.onTabChange( new TabbedPaneEvent() {
+									public void run() {
+										System.out.println( this.previous + " " + this.current + " " + this.target.getId() );
+									}
+								})
+								.addTab( "Overall", createContainer().onFocus( new ContainerEvent() {
+									public void run() {
+										System.out.println( "FOCUSED OVERALL" );
+									}
+								}) )
+								.addTab( "Actors", createContainer() )
+								.addTab( "Misc", createContainer() )
+						)
 				).show();
 	}
 	

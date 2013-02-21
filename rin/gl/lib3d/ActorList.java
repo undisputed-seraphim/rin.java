@@ -16,17 +16,18 @@ import rin.gl.model.ModelManager.Format;
 import rin.util.math.Vec3;
 
 public class ActorList extends Thread {
-	private static ActorList _instance = new ActorList();
-	private static ConcurrentLinkedQueue<Actor> queue = new ConcurrentLinkedQueue<Actor>();
+	private static ActorList _instance;
 	
 	private static boolean destroyRequested = false;
 	public static void requestDestroy() { ActorList.destroyRequested = true; }
 	
 	public ActorList() {
 		super( "rin.ai | Actor Event Thread" );
+		ActorList.destroyRequested = false;
 		this.start();
 	}
 	
+	public static void init() { ActorList._instance = new ActorList(); }
 	public static ActorList get() { return ActorList._instance; }
 	
 	public static void add( Actor a ) {

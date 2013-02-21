@@ -144,7 +144,7 @@ public class Scene {
 			this.camera.update();
 			
 			glUniform1i( this.getUniform( "useUnique" ), GL_TRUE );
-			for( Actor a : ActorList.get().getActors() ) {
+			for( Actor a : this.actors ) {
 				( (Poly) a ).render( true );
 			}
 			glUniform1i( this.getUniform( "useUnique" ), GL_FALSE );
@@ -165,7 +165,7 @@ public class Scene {
 			this.prev = tmp;*/
 			
 			//glUniform1i( this.getUniform( "use3D" ), GL_TRUE );
-			for( Actor a : ActorList.get().getActors() ) {
+			for( Actor a : this.actors ) {
 				( (Poly) a ).render();
 			}
 			
