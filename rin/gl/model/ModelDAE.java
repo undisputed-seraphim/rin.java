@@ -35,7 +35,6 @@ public class ModelDAE implements Model {
 		ArrayList<Float> v = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
 		ArrayList<Float> t = new ArrayList<Float>();
-		float[][] unique = new float[polylists.size()][3];
 		for( Polylist p : polylists ) {
 			int[] prim = Buffer.toArrayi( p.getPrim() );
 			

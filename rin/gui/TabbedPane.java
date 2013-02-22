@@ -13,21 +13,28 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	
 	protected ArrayList<String> tabs = new ArrayList<String>();
 	private int tabCount = 0;
-	private int current = 0;
+	private int currentIndex = 0;
 	
 	public TabbedPane() { this( "TabbedPane-" + TabbedPane.items++ ); }
 	public TabbedPane( String id ) {
 		this.id = id;
 		this.target = new JTabbedPane();
 		this.real().addChangeListener( this );
+		this.real().setFont( GUIManager.DEFAULT_FONT );
 	}
 	
 	private JTabbedPane real() { return (JTabbedPane)this.target; }
 	
 	public Container getCurrentTab() {
-		if( this.children.size() > 0 && this.current >= 0 )
-			if( this.children.get( this.current ).target != null )
-				return (Container)this.children.get( this.current );
+		if( this.children.size() > 0 && this.currentIndex >= 0 )
+			if( this.children.get( this.currentIndex ).target != null )
+				return (Container)this.children.get( this.currentIndex );
+		return null;
+	}
+	
+	public String getTitle( int index ) {
+		if( this.tabs.size() >= index && index > 0 )
+			return this.real().getTitleAt( index - 1 );
 		return null;
 	}
 	
@@ -64,20 +71,22 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 		return this.update();
 	}
 	
-	public TabbedPane onTabChange( TabbedPaneEvent e ) {
+	public TabbedPane onTabChanged( TabbedPaneEvent e ) {
 		this.runOnStateChanged = e.<TabbedPaneEvent>setTarget( this );
 		return this;
 	}
 	
 	@Override public void stateChanged( ChangeEvent e ) {
-		/*if( this.runOnTabChange != null ) {
-			this.runOnTabChange.previous = current;
-			this.runOnTabChange.current = Math.max( this.real().getSelectedIndex(), 0 );
-			this.current = Math.max( this.real().getSelectedIndex(), 0 );
-			this.runOnTabChange.run();
+		if( this.runOnStateChanged != null && this.getCurrentTab() != null ) {
+			this.runOnStateChanged.previousIndex = this.currentIndex;
+			this.runOnStateChanged.currentIndex = Math.max( this.real().getSelectedIndex(), 0 );
+			this.currentIndex = Math.max( this.real().getSelectedIndex(), 0 );
+			this.runOnStateChanged.tab = this.getCurrentTab();
+			this.runOnStateChanged.title = this.getTitle( this.currentIndex + 1 );
+			
+			this.getCurrentTab().focus();
+			this.runOnStateChanged.execute( null );
 		}
-		if( this.getCurrentTab() != null )
-			this.getCurrentTab().focus();*/
 	}
 	
 	@Override public TabbedPane destroy() {

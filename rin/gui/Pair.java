@@ -2,6 +2,8 @@ package rin.gui;
 
 import javax.swing.JPanel;
 
+import rin.gui.GUIManager.PairEvent;
+
 public class Pair extends GUIComponent<Pair, PairEvent> {
 	private static int items = 0;
 	
@@ -22,7 +24,7 @@ public class Pair extends GUIComponent<Pair, PairEvent> {
 	}
 	
 	public Pair setLeftItemAlignment( GUIManager.Alignment alignment ) { this.left.setAlignment( alignment ); return this; }
-	public Pair setLeftItem( GUIComponent<?> component ) {
+	public Pair setLeftItem( GUIComponent<?, ?> component ) {
 		this.left.removeAll();
 		this.left.add( component );
 		component.show();
@@ -31,7 +33,7 @@ public class Pair extends GUIComponent<Pair, PairEvent> {
 	}
 	
 	public Pair setRightItemAlignment( GUIManager.Alignment alignment ) { this.right.setAlignment( alignment ); return this; }
-	public Pair setRightItem( GUIComponent<?> component ) {
+	public Pair setRightItem( GUIComponent<?, ?> component ) {
 		this.right.removeAll();
 		this.right.add( component );
 		component.show();

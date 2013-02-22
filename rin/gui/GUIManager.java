@@ -1,5 +1,6 @@
 package rin.gui;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -16,6 +17,7 @@ import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 
 public class GUIManager {
+	public static final Runnable DESTROY = new Runnable() { public void run() { GUIManager.destroy(); } };
 	public static final Font DEFAULT_FONT = new Font( "Arial", Font.PLAIN, 11 );
 	
 	public static enum Position {
@@ -162,8 +164,10 @@ public class GUIManager {
 	}
 	
 	public static class GUIEvent<T> implements Runnable {
-		public T target;
+		public T target = null;
+		public AWTEvent source = null;
 		@SuppressWarnings("unchecked") public <T2> T2 setTarget( T c ) { this.target = c; return (T2)this; }
+		public void execute( AWTEvent src ) { this.source = src; this.run(); }
 		@Override public void run() {}
 	}
 	
@@ -174,9 +178,15 @@ public class GUIManager {
 	public static class ButtonEvent extends GUIEvent<Button> {}
 	public static class ColumnsEvent extends GUIEvent<Columns> {}
 	public static class PairEvent extends GUIEvent<Pair> {}
-	public static class TextFieldEvent extends GUIEvent<TextField> {}
+	public static class TextFieldEvent extends GUIEvent<TextField> {
+		public String value;
+	}
+	public static class HorizontalBreakEvent extends GUIEvent<HorizontalBreak> {}
+	public static class ScrollPaneEvent extends GUIEvent<ScrollPane> {}
 	public static class TabbedPaneEvent extends GUIEvent<TabbedPane> {
-		public int previous, current;
+		public String title;
+		public Container tab;
+		public int previousIndex, currentIndex;
 	}
 	
 	public static class GUIDimension extends Dimension {

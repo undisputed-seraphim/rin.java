@@ -1,12 +1,15 @@
 package rin.gui;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
@@ -16,7 +19,7 @@ import javax.swing.event.ChangeListener;
 
 import static rin.gui.GUIManager.*;
 
-public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, KeyListener, ChangeListener, FocusListener {
+public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, KeyListener, MouseListener, ChangeListener, FocusListener {
 	protected String id = null;
 	protected JComponent target = null;
 	
@@ -36,6 +39,17 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		
 		}
 		return GroupLayout.Alignment.LEADING;
+	}
+	
+	protected int getFlowAlignment( Alignment alignment ) {
+		switch( alignment ) {
+		
+		case LEFT: return FlowLayout.LEFT;
+		case CENTER: return FlowLayout.CENTER;
+		case RIGHT: return FlowLayout.RIGHT;
+
+		}
+		return FlowLayout.LEFT;
 	}
 	
 	public T setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
@@ -88,38 +102,46 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		return this.update();
 	}
 	
-	protected GUIEvent<T> runOnKeyTyped = null;
+	protected T2 runOnKeyTyped = null;
+	public T onKeyTyped( T2 e ) { this.runOnKeyTyped = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void keyTyped( KeyEvent e ) { if( this.runOnKeyTyped != null ) this.runOnKeyTyped.execute( e ); }
 	
-	protected GUIEvent<T> runOnKeyPressed = null;
+	protected T2 runOnKeyPressed = null;
+	public T onKeyPressed( T2 e ) { this.runOnKeyPressed = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void keyPressed( KeyEvent e ) { if( this.runOnKeyPressed != null ) this.runOnKeyPressed.execute( e ); }
 	
-	protected GUIEvent<T> runOnKeyReleased = null;
+	protected T2 runOnKeyReleased = null;
+	public T onKeyReleased( T2 e ) { this.runOnKeyReleased = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void keyReleased( KeyEvent e ) { if( this.runOnKeyReleased != null ) this.runOnKeyReleased.execute( e ); }
 	
 	protected T2 runOnAction = null;
-	public T onAction( T2 e ) {
-		this.runOnAction = e.<T2>setTarget( this.actual() );
-		return this.actual();
-	}
+	public T onAction( T2 e ) { this.runOnAction = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void actionPerformed( ActionEvent e ) { if( this.runOnAction != null ) this.runOnAction.execute( e ); }
 	
 	protected T2 runOnFocusGained = null;
-	public T onFocusGained( T2 e ) {
-		this.runOnFocusGained = e.<T2>setTarget( this.actual() );
-		return this.actual();
-	}
+	public T onFocusGained( T2 e ) { this.runOnFocusGained = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void focusGained( FocusEvent e ) { if( this.runOnFocusGained != null ) this.runOnFocusGained.execute( e ); }
 	
-	private T2 runOnFocusLost = null;
-	public T onFocusLost( T2 e ) {
-		this.runOnFocusLost = e.<T2>setTarget( this.actual() );
-		return this.actual();
-	}
+	protected T2 runOnFocusLost = null;
+	public T onFocusLost( T2 e ) { this.runOnFocusLost = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void focusLost( FocusEvent e ) { if( this.runOnFocusLost != null ) this.runOnFocusLost.execute( e ); }
+	
 	protected T2 runOnStateChanged = null;
+	public T onStateChanged( T2 e ) { this.runOnStateChanged = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void stateChanged( ChangeEvent e ) { if( this.runOnStateChanged != null ) this.runOnStateChanged.execute( null ); }
 	
-	@Override public void keyTyped( KeyEvent e ) { if( this.runOnKeyTyped != null ) this.runOnKeyTyped.run(); }
-	@Override public void keyPressed( KeyEvent e ) { if( this.runOnKeyPressed != null ) this.runOnKeyPressed.run(); }
-	@Override public void keyReleased( KeyEvent e ) { if( this.runOnKeyReleased != null ) this.runOnKeyReleased.run(); }
-	@Override public void stateChanged( ChangeEvent e ) { if( this.runOnStateChanged != null ) this.runOnStateChanged.run(); }
-	@Override public void actionPerformed( ActionEvent e ) { if( this.runOnAction != null ) this.runOnAction.run(); }
-	@Override public void focusGained( FocusEvent e ) { if( this.runOnFocusGained != null ) this.runOnFocusGained.run(); }
-	@Override public void focusLost( FocusEvent e ) { if( this.runOnFocusLost != null ) this.runOnFocusLost.run(); }
+	protected T2 runOnMouseClicked = null;
+	public T onClick( T2 e ) { this.runOnMouseClicked = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void mouseClicked( MouseEvent e ) { if( this.runOnMouseClicked != null ) this.runOnMouseClicked.execute( e ); }
+	
+	@Override public void mouseEntered( MouseEvent e ) {}
+	@Override public void mouseExited( MouseEvent e ) {}
+	
+	protected T2 runOnMousePressed = null;
+	public T onMousePressed( T2 e ) { this.runOnMousePressed = e.<T2>setTarget( this.actual() ); return this.actual(); }
+	@Override public void mousePressed( MouseEvent e ) { if( this.runOnMousePressed != null ) this.runOnMousePressed.execute( e ); }
+	
+	@Override public void mouseReleased( MouseEvent e ) {}
 	
 	public GUIComponent<T, T2> destroy() {
 		if( this.target != null ) {

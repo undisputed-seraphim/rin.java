@@ -4,7 +4,7 @@ import java.awt.FlowLayout;
 
 import javax.swing.JPanel;
 
-import rin.gui.GUIComponent;
+import rin.gui.GUIManager.PanelEvent;
 
 public class Panel extends GUIComponent<Panel, PanelEvent> {
 	private static int items = 0;
@@ -13,16 +13,11 @@ public class Panel extends GUIComponent<Panel, PanelEvent> {
 	public Panel( String id ) {
 		this.id = id;
 		this.target = new JPanel( new GUIManager.GUIFlowLayout() );
+		this.target.addMouseListener( this );
 	}
 	
 	public Panel setAlignment( GUIManager.Alignment alignment ) {
-		switch( alignment ) {
-		
-		case LEFT: ((FlowLayout)this.target.getLayout()).setAlignment( FlowLayout.LEFT ); break;
-		case CENTER: ((FlowLayout)this.target.getLayout()).setAlignment( FlowLayout.CENTER ); break;
-		case RIGHT: ((FlowLayout)this.target.getLayout()).setAlignment( FlowLayout.RIGHT ); break;
-		
-		}
+		( (FlowLayout)this.target.getLayout() ).setAlignment( this.getFlowAlignment( alignment ) );
 		return this.update();
 	}
 }

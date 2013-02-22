@@ -71,7 +71,12 @@ public class Engine {
 										.add( 1, createContainer()
 												.add( createCheckBox() )
 												.add( createCheckBox() ) )
-										.add( 2, createTextField() )
+										.add( 2, createTextField().onEnter(new TextFieldEvent() {
+											public void run() {
+												System.out.println( this.value );
+											}
+										}))
+										
 										.add( 2, createButton().onClick( new ButtonEvent() {
 											public void run() {
 												System.out.println( "button clicked!" );
@@ -81,16 +86,30 @@ public class Engine {
 						)
 						.add( createCheckBox() )
 						.add( createTabbedPane()
-								.onTabChange( new TabbedPaneEvent() {
+								.onTabChanged( new TabbedPaneEvent() {
 									public void run() {
-										System.out.println( this.previous + " " + this.current + " " + this.target.getId() );
+										System.out.println( this.source );
 									}
-								})
-								.addTab( "Overall", createContainer().onFocus( new ContainerEvent() {
-									public void run() {
-										System.out.println( "FOCUSED OVERALL" );
-									}
-								}) )
+								} )
+								.addTab( "Overall", createContainer()
+										.onFocus( new ContainerEvent() {
+											public void run() {
+												System.out.println( "FOCUSED OVERALL" );
+											}
+										})
+										.add( createPanel()
+												.onMousePressed( new PanelEvent() {
+													public void run() {
+														System.out.println( "clicked this panel" );
+													}
+												})
+												.setAlignment( Alignment.CENTER )
+												.add( createPair()
+														.setLeftItem( createCheckBox() )
+														.setRightItem( createCheckBox() )
+												)
+										)
+								)
 								.addTab( "Actors", createContainer() )
 								.addTab( "Misc", createContainer() )
 						)
@@ -122,7 +141,7 @@ public class Engine {
 		if( Engine.scene != null )
 			Engine.scene = Engine.scene.destroy();
 		
-		GUIManager.destroy();
+		SwingUtilities.invokeLater( GUIManager.DESTROY );
 		//Input.requestDestroy();
 		
 		Display.destroy();

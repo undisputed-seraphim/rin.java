@@ -64,6 +64,11 @@ public class Container extends GUIComponent<Container, ContainerEvent> {
 		return this;
 	}
 	
+	public Container onBlur( ContainerEvent e ) {
+		this.runOnFocusLost = e.<ContainerEvent>setTarget( this );
+		return this;
+	}
+	
 	@Override public Container destroy() {
 		super.destroy();
 		

@@ -30,10 +30,10 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 		this.target.setLayout( new GUIManager.GUIGroupLayout( this.target ) );
 		this.halign = new GUIManager.Alignment[cols];
 		this.valign = Columns.defaultV;
-		this.children = new ArrayList< ArrayList<GUIComponent<?>>>();
+		this.children = new ArrayList< ArrayList<GUIComponent<?, ?>>>();
 
 		for( int i = 0; i < cols; i++ ) {
-			this.children.add( new ArrayList<GUIComponent<?>>() );
+			this.children.add( new ArrayList<GUIComponent<?, ?>>() );
 			this.halign[i] = Columns.defaultH;
 		}
 	}
@@ -94,13 +94,13 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 		return this.update();
 	}
 	
-	@Override public Columns add( GUIComponent<?> component ) {
+	@Override public Columns add( GUIComponent<?, ?> component ) {
 		if( this.cols > 0 )
 			return this.add( 1, component );
 		return this;
 	}
 	
-	public Columns add( int column, GUIComponent<?> component ) {
+	public Columns add( int column, GUIComponent<?, ?> component ) {
 		if( column <= this.cols && column > 0 ) {
 			this.children.get( column - 1 ).add( component );
 			component.show();
@@ -109,8 +109,8 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	}
 
 	@Override public Columns removeAll() {
-		for( ArrayList<GUIComponent<?>> childs : this.children )
-			for( GUIComponent<?> g : childs )
+		for( ArrayList<GUIComponent<?, ?>> childs : this.children )
+			for( GUIComponent<?, ?> g : childs )
 				if( g.target != null )
 					g = g.destroy();
 		return this;

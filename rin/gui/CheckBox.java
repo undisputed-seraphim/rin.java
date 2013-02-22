@@ -5,8 +5,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.JCheckBox;
 
 import rin.gui.GUIManager.GUIEvent;
+import rin.gui.GUIManager.CheckBoxEvent;
 
-public class CheckBox extends GUIComponent<CheckBox> {
+public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 	private static int items = 0;
 	
 	public CheckBox() { this( "CheckBox-" + CheckBox.items++ ); }
@@ -27,12 +28,12 @@ public class CheckBox extends GUIComponent<CheckBox> {
 	private GUIEvent<CheckBox> runOnUnCheck = null;
 	
 	public CheckBox onCheck( GUIEvent<CheckBox> e ) {
-		this.runOnCheck = e.setTarget( this );
+		this.runOnCheck = e.<CheckBoxEvent>setTarget( this );
 		return this;
 	}
 	
 	public CheckBox onUnCheck( GUIEvent<CheckBox> e ) {
-		this.runOnUnCheck = e.setTarget( this );
+		this.runOnUnCheck = e.<CheckBoxEvent>setTarget( this );
 		return this;
 	}
 	

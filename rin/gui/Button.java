@@ -3,7 +3,6 @@ package rin.gui;
 import javax.swing.JButton;
 
 import rin.gui.GUIManager.ButtonEvent;
-import rin.gui.GUIManager.GUIEvent;
 
 public class Button extends GUIComponent<Button, ButtonEvent> {
 	private static int items = 0;
@@ -14,6 +13,7 @@ public class Button extends GUIComponent<Button, ButtonEvent> {
 		this.canHaveChildren = false;
 		this.target = new JButton();
 		this.real().addActionListener( this );
+		this.real().setFont( GUIManager.DEFAULT_FONT );
 		this.setText( this.id );
 	}
 	
@@ -21,7 +21,7 @@ public class Button extends GUIComponent<Button, ButtonEvent> {
 	
 	public Button setText( String text ) { this.real().setText( text ); return this.update(); }
 	
-	public Button onClick( GUIEvent<Button> e ) {
+	@Override public Button onClick( ButtonEvent e ) {
 		this.runOnAction = e.<ButtonEvent>setTarget( this );
 		return this;
 	}
