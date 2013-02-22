@@ -3,6 +3,7 @@ package rin.gui;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 import rin.gui.GUIManager.WindowEvent;
@@ -18,16 +19,21 @@ public class Window extends GUIComponent<Window, WindowEvent> implements WindowF
 	public Window( String id, GUIManager.GUILayout layout ) {
 		this.id = id;
 		this.window = new JFrame();
-		this.window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		this.target = new JPanel( layout );
 		this.window.setContentPane( this.target );
+		this.window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		this.window.addWindowFocusListener( this );
 		this.target.setVisible( true );
 	}
 	
-	public Window setTitle( String title ) { this.window.setTitle( title ); return this; }
-	public Window setSize( int w, int h ) { this.sized = true; this.window.setSize( w, h ); return this; }
-	public Window setLocation( int x, int y ) { this.window.setLocation( x, y ); return this; }
+	public Window addMenu( MenuBar menu ) {
+		this.window.setJMenuBar( (JMenuBar)menu.target );
+		return this.update();
+	}
+	
+	public Window setTitle( String title ) { this.window.setTitle( title ); return this.update(); }
+	public Window setSize( int w, int h ) { this.sized = true; this.window.setSize( w, h ); return this.update(); }
+	public Window setLocation( int x, int y ) { this.window.setLocation( x, y ); return this.update(); }
 	
 	@Override public Window show() { this.window.setVisible( true ); if( !this.sized ) this.window.pack(); return this; }
 	@Override public Window hide() { this.window.setVisible( false ); return this; }
@@ -56,6 +62,8 @@ public class Window extends GUIComponent<Window, WindowEvent> implements WindowF
 	}
 	
 	@Override public Window destroy() {
+		if( this.window != null )
+			this.window.removeWindowFocusListener( this );
 		super.destroy();
 		
 		this.window.removeAll();

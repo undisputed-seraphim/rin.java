@@ -54,17 +54,36 @@ public class Engine {
 		createWindow()
 				.setTitle( "rin.ai | Debug" )
 				.setLocation( 20, 20 )
-				.setBackgroundColor( 233, 233, 233, 175 )
-				.onWindowFocusGained( new WindowEvent() {
-					public void run() {
-						this.target.setTitle( "booya" + System.nanoTime() );
-					}
-				})
+				.addMenu( createMenuBar()
+						.add( createMenu( "Menu 1" )
+								.onOpen( new MenuEvent() {
+									public void run() {
+										System.out.println( "menu open success" );
+									}
+								})
+								.add( createMenuItem( "One" ) )
+								.add( createMenu( "Two" )
+										.add( createMenuItem( "Two One" )
+												.setShortcut( ModifierKey.ALT, "A" )
+												.onSelect( new MenuItemEvent() {
+													public void run() {
+														System.out.println( "shortcut worked" );
+													}
+												}))
+										.add( createMenuItem( "Two Two" ) )
+								)
+								.add( createMenuItem( "Three" ) )
+						)
+						.add( createMenu( "Menu 2" ) )
+						.addHorizontalSeparator()
+						.add( createMenu( "Menu 2" ) )
+						.addHorizontalSeparator()
+						.add( createMenu( "Menu 3" ) )
+				)
 				.add( createContainer()
 						.setAlignment( Alignment.CENTER )
-						.add( createCheckBox().setLabel( "test" ).setBackgroundColor( 70, 70, 70 ) )
+						.add( createCheckBox().setLabel( "test" ) )
 						.add( createPanel()
-								.setBackgroundColor( 70, 70, 70, 175 )
 								.setAlignment( Alignment.CENTER )
 								.add( createColumns( 2 )
 										.add( 1, createCheckBox().setLabel( "test" ) )
@@ -79,7 +98,7 @@ public class Engine {
 										
 										.add( 2, createButton().onClick( new ButtonEvent() {
 											public void run() {
-												System.out.println( "button clicked!" );
+												GUIManager.getScrollPane( "asdf" ).showHorizontalScrollNever();
 											}
 										}) )
 								)
@@ -98,11 +117,6 @@ public class Engine {
 											}
 										})
 										.add( createPanel()
-												.onMousePressed( new PanelEvent() {
-													public void run() {
-														System.out.println( "clicked this panel" );
-													}
-												})
 												.setAlignment( Alignment.CENTER )
 												.add( createPair()
 														.setLeftItem( createCheckBox() )
@@ -112,6 +126,12 @@ public class Engine {
 								)
 								.addTab( "Actors", createContainer() )
 								.addTab( "Misc", createContainer() )
+						)
+						.add( createScrollPane( "asdf" )
+								.setAlignment( Alignment.CENTER )
+								.add( createCheckBox() )
+								.add( createCheckBox() )
+								.add( createCheckBox() )
 						)
 				).show();
 	}

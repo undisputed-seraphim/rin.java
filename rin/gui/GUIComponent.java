@@ -52,8 +52,40 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		return FlowLayout.LEFT;
 	}
 	
+	protected int getModifier( ModifierKey key ) {
+		switch( key ) {
+		
+		case ALT: return ActionEvent.ALT_MASK;
+		case SHIFT: return ActionEvent.SHIFT_MASK;
+		case CTRL: return ActionEvent.CTRL_MASK;
+		
+		}
+		return ActionEvent.META_MASK;
+	}
+	
+	protected int getKeyCode( String key ) {
+		int keycode = -1;
+		if( !key.equals( "\0" ) ) {
+			try {
+				try {
+					keycode = KeyEvent.class.getField( "VK_" + key ).getInt( null );
+				} catch( IllegalArgumentException e ) {
+					System.out.println( "unacceptable mnemonic requested." );
+				} catch( IllegalAccessException e ) {
+					System.out.println( "unacceptable mnemonic requested." );
+				}
+			} catch( SecurityException e ) {
+				System.out.println( "unacceptable mnemonic requested." );
+			} catch( NoSuchFieldException e ) {
+				System.out.println( "unacceptable mnemonic requested." );
+			}
+		}
+		return keycode;
+	}
+	
 	public T setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
 	public T setBackgroundColor( int r, int g, int b, int a ) { this.target.setBackground( new Color( r, g, b, a ) ); return this.update(); }
+	public T setSize( int width, int height ) { this.target.setPreferredSize( new GUIManager.GUIDimension( width, height ) ); return this.update(); }
 	//public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
 	public T setToolTipText( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
 	

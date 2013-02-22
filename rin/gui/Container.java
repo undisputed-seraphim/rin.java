@@ -70,10 +70,14 @@ public class Container extends GUIComponent<Container, ContainerEvent> {
 	}
 	
 	@Override public Container destroy() {
+		if( this.target != null )
+			this.target.removeFocusListener( this );
 		super.destroy();
 		
 		this.pgroupH = null;
 		this.pgroupV = null;
+		this.halign = null;
+		this.target = null;
 		
 		return null;
 	}

@@ -38,6 +38,16 @@ public class GUIManager {
 		private Alignment( float value ) { this.value = value; }
 	}
 	
+	public static enum ModifierKey {
+		SHIFT,
+		ALT,
+		CTRL;
+	}
+
+	public static class Defaults {
+		
+	}
+
 	private static HashMap<String, GUIComponent<?, ?>> elements = new HashMap<String, GUIComponent<?, ?>>();
 	private static int elementCount = 0;
 	
@@ -109,6 +119,15 @@ public class GUIManager {
 		return null;
 	}
 	
+	public static ScrollPane getScrollPane( String id ) { return (ScrollPane)GUIManager.elements.get( id ); }
+	public static ScrollPane createScrollPane() { return GUIManager.createScrollPane( null ); }
+	public static ScrollPane createScrollPane( String id ) {
+		id = GUIManager.checkId( id );
+		if( GUIManager.add( id, new ScrollPane( id ) ) )
+			return GUIManager.getScrollPane( id );
+		return null;
+	}
+	
 	public static TextField getTextField( String id ) { return (TextField)GUIManager.elements.get( id ); }
 	public static TextField createTextField() { return GUIManager.createTextField( null ); }
 	public static TextField createTextField( String id ) {
@@ -163,32 +182,116 @@ public class GUIManager {
 		return null;
 	}
 	
+	public static MenuBar getMenuBar( String id ) { return (MenuBar)GUIManager.elements.get( id ); }
+	public static MenuBar createMenuBar() { return GUIManager.createMenuBar( null ); }
+	public static MenuBar createMenuBar( String id ) {
+		id = GUIManager.checkId( id );
+		if( GUIManager.add( id, new MenuBar( id ) ) )
+			return GUIManager.getMenuBar( id );
+		return null;
+	}
+	
+	public static Menu getMenu( String id ) { return (Menu)GUIManager.elements.get( id ); }
+	public static Menu createMenu( String text ) { return GUIManager.createMenu( null, text, "\0" ); }
+	public static Menu createMenu( String text, String mnemonic ) { return GUIManager.createMenu( null, text, mnemonic ); }
+	public static Menu createMenu( String id, String text, String mnemonic ) {
+		id = GUIManager.checkId( id );
+		if( GUIManager.add( id, new Menu( id, text, mnemonic ) ) )
+			return GUIManager.getMenu( id );
+		return null;
+	}
+	
+	public static MenuItem getMenuItem( String id ) { return (MenuItem)GUIManager.elements.get( id ); }
+	public static MenuItem createMenuItem( String text ) { return GUIManager.createMenuItem( null, text, "\0" ); }
+	public static MenuItem createMenuItem( String text, String mnemonic ) { return GUIManager.createMenuItem( null, text, mnemonic ); }
+	public static MenuItem createMenuItem( String id, String text, String mnemonic ) {
+		id = GUIManager.checkId( id );
+		if( GUIManager.add( id, new MenuItem( id, text, mnemonic ) ) )
+			return GUIManager.getMenuItem( id );
+		return null;
+	}
+	
+	/* ------------- events ------------- */
 	public static class GUIEvent<T> implements Runnable {
 		public T target = null;
+		protected Runnable r = null;
 		public AWTEvent source = null;
 		@SuppressWarnings("unchecked") public <T2> T2 setTarget( T c ) { this.target = c; return (T2)this; }
 		public void execute( AWTEvent src ) { this.source = src; this.run(); }
-		@Override public void run() {}
+		@Override public void run() { if( this.r != null ) this.r.run(); }
 	}
 	
-	public static class WindowEvent extends GUIEvent<Window> {}
-	public static class ContainerEvent extends GUIEvent<Container> {}
-	public static class PanelEvent extends GUIEvent<Panel> {}
-	public static class CheckBoxEvent extends GUIEvent<CheckBox> {}
-	public static class ButtonEvent extends GUIEvent<Button> {}
-	public static class ColumnsEvent extends GUIEvent<Columns> {}
-	public static class PairEvent extends GUIEvent<Pair> {}
+	public static class WindowEvent extends GUIEvent<Window> {
+		public WindowEvent() {}
+		public WindowEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class ContainerEvent extends GUIEvent<Container> {
+		public ContainerEvent() {}
+		public ContainerEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class PanelEvent extends GUIEvent<Panel> {
+		public PanelEvent() {}
+		public PanelEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class CheckBoxEvent extends GUIEvent<CheckBox> {
+		public CheckBoxEvent() {}
+		public CheckBoxEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class ButtonEvent extends GUIEvent<Button> {
+		public ButtonEvent() {}
+		public ButtonEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class ColumnsEvent extends GUIEvent<Columns> {
+		public ColumnsEvent() {}
+		public ColumnsEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class PairEvent extends GUIEvent<Pair> {
+		public PairEvent() {}
+		public PairEvent( Runnable r ) { this.r = r; }
+	}
+	
 	public static class TextFieldEvent extends GUIEvent<TextField> {
 		public String value;
+		public TextFieldEvent() {}
+		public TextFieldEvent( Runnable r ) { this.r = r; } 
 	}
-	public static class HorizontalBreakEvent extends GUIEvent<HorizontalBreak> {}
-	public static class ScrollPaneEvent extends GUIEvent<ScrollPane> {}
+
+	public static class ScrollPaneEvent extends GUIEvent<ScrollPane> {
+		public int position, delta;
+		public ScrollPaneEvent() {}
+		public ScrollPaneEvent( Runnable r ) { this.r = r; } 
+	}
+	
 	public static class TabbedPaneEvent extends GUIEvent<TabbedPane> {
 		public String title;
 		public Container tab;
 		public int previousIndex, currentIndex;
+		public TabbedPaneEvent() {}
+		public TabbedPaneEvent( Runnable r ) { this.r = r; } 
 	}
 	
+	public static class MenuBarEvent extends GUIEvent<MenuBar> {
+		public MenuBarEvent() {}
+		public MenuBarEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class MenuEvent extends GUIEvent<Menu> {
+		public MenuEvent() {}
+		public MenuEvent( Runnable r ) { this.r = r; }
+	}
+	
+	public static class MenuItemEvent extends GUIEvent<MenuItem> {
+		public MenuItemEvent() {}
+		public MenuItemEvent( Runnable r ) { this.r = r; }
+	}
+	
+	/* --------- convenience re-declarations ----------- */
 	public static class GUIDimension extends Dimension {
 		private static final long serialVersionUID = 1L;
 		public GUIDimension( int width, int height ) { super( width, height ); }
@@ -218,7 +321,7 @@ public class GUIManager {
 	
 	public static class GUIBoxLayout extends BoxLayout implements GUILayout {
 		private static final long serialVersionUID = 1L;
-		public GUIBoxLayout( JComponent target ) { super( target, BoxLayout.Y_AXIS ); }
+		public GUIBoxLayout( JComponent target ) { super( target, BoxLayout.X_AXIS ); }
 		public GUIBoxLayout( JComponent target, int axis ) { super( target, axis ); }
 	}
 	

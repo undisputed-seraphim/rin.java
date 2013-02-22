@@ -1,6 +1,5 @@
 package rin.gui;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import javax.swing.JTabbedPane;
@@ -33,7 +32,7 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	}
 	
 	public String getTitle( int index ) {
-		if( this.tabs.size() >= index && index > 0 )
+		if( this.tabs.size() >= index && index > 0 && index - 1 < this.real().getTabCount() )
 			return this.real().getTitleAt( index - 1 );
 		return null;
 	}
@@ -52,21 +51,9 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 		this.tabs.add( container.id );
 		container.show();
 		this.real().insertTab( title, null, container.target, null, this.tabCount );
-		if( mnemonic != '\0' ) {
-			try {
-				try {
-					this.real().setMnemonicAt( this.tabCount, KeyEvent.class.getField( "VK_" + mnemonic ).getInt( null ) );
-				} catch( IllegalArgumentException e ) {
-					System.out.println( "unacceptable mnemonic requested." );
-				} catch( IllegalAccessException e ) {
-					System.out.println( "unacceptable mnemonic requested." );
-				}
-			} catch( SecurityException e ) {
-				System.out.println( "unacceptable mnemonic requested." );
-			} catch( NoSuchFieldException e ) {
-				System.out.println( "unacceptable mnemonic requested." );
-			}
-		}
+		int keycode = this.getKeyCode( mnemonic + "" );
+		if( keycode != -1 )
+			this.real().setMnemonicAt( this.tabCount, keycode );
 		this.tabCount++;
 		return this.update();
 	}
@@ -90,6 +77,8 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	}
 	
 	@Override public TabbedPane destroy() {
+		if( this.target != null )
+			this.real().removeChangeListener( this );
 		super.destroy();
 		
 		this.tabs.clear();

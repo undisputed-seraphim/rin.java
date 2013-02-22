@@ -48,6 +48,8 @@ public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 	}
 	
 	@Override public CheckBox destroy() {
+		if( this.target != null )
+			this.real().removeActionListener( this );
 		super.destroy();
 		
 		this.runOnCheck = null;

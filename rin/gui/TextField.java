@@ -39,4 +39,14 @@ public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 				this.runOnEnter.execute( e );
 			}
 	}
+	
+	@Override public TextField destroy() {
+		if( this.target != null )
+			this.real().removeKeyListener( this );
+		super.destroy();
+		
+		this.target = null;
+		
+		return null;
+	}
 }
