@@ -4,8 +4,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JCheckBox;
 
-import rin.gui.GUIManager.GUIEvent;
-import rin.gui.GUIManager.CheckBoxEvent;
+import rin.gui.GUIFactory.CheckBoxEvent;
 
 public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 	private static int items = 0;
@@ -15,24 +14,29 @@ public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 		this.id = id;
 		this.canHaveChildren = false;
 		this.target = new JCheckBox();
-		this.real().addActionListener( this );
-		this.real().setFont( GUIManager.DEFAULT_FONT );
+		this.real().setFont( GUIFactory.DEFAULT_FONT );
+		
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JCheckBox)this.target).addActionListener( this.component.toCheckBox() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	private JCheckBox real() { return (JCheckBox)this.target; }
 	
 	public CheckBox setLabel( String str ) { this.real().setText( str ); return this; }
-	public CheckBox setLabelPositionH( GUIManager.Position position ) { this.real().setHorizontalTextPosition( position.value ); return this; }
+	public CheckBox setLabelPositionX( GUIFactory.Position position ) { this.real().setHorizontalTextPosition( position.value ); return this; }
+	public CheckBox check() { this.real().doClick(); return this; }
 	
-	private GUIEvent<CheckBox> runOnCheck = null;
-	private GUIEvent<CheckBox> runOnUnCheck = null;
-	
-	public CheckBox onCheck( GUIEvent<CheckBox> e ) {
+	private CheckBoxEvent runOnCheck = null;	
+	public CheckBox onCheck( CheckBoxEvent e ) {
 		this.runOnCheck = e.<CheckBoxEvent>setTarget( this );
 		return this;
 	}
 	
-	public CheckBox onUnCheck( GUIEvent<CheckBox> e ) {
+	private CheckBoxEvent runOnUnCheck = null;
+	public CheckBox onUnCheck( CheckBoxEvent e ) {
 		this.runOnUnCheck = e.<CheckBoxEvent>setTarget( this );
 		return this;
 	}
@@ -47,9 +51,8 @@ public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 			this.runOnUnCheck.run();
 	}
 	
-	@Override public CheckBox destroy() {
-		if( this.target != null )
-			this.real().removeActionListener( this );
+	@Override protected CheckBox destroy() {
+		this.real().removeActionListener( this );
 		super.destroy();
 		
 		this.runOnCheck = null;

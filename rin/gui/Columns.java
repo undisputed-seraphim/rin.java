@@ -3,32 +3,32 @@ package rin.gui;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
-import rin.gui.GUIManager.ColumnsEvent;
+import rin.gui.GUIFactory.ColumnsEvent;
 
 public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	private static int items = 0;
 	
-	private static final int DEFAULT_SIZE = GUIManager.GUIGroupLayout.DEFAULT_SIZE;
-	private static final int PREFERRED_SIZE = GUIManager.GUIGroupLayout.PREFERRED_SIZE;
-	private static final GUIManager.Alignment defaultH = GUIManager.Alignment.LEFT;
-	private static final GUIManager.Alignment defaultV = GUIManager.Alignment.CENTER;
+	private static final int DEFAULT_SIZE = GUIFactory.GroupLayout.DEFAULT_SIZE;
+	private static final int PREFERRED_SIZE = GUIFactory.GroupLayout.PREFERRED_SIZE;
+	private static final GUIFactory.Alignment defaultH = GUIFactory.Alignment.LEFT;
+	private static final GUIFactory.Alignment defaultV = GUIFactory.Alignment.CENTER;
 	
 	private int cols = 0;
 	private boolean padding = true;
-	private GUIManager.Alignment[] halign;
-	private GUIManager.Alignment valign;
+	private GUIFactory.Alignment[] halign;
+	private GUIFactory.Alignment valign;
 	
 	private ArrayList< ArrayList<GUIComponent<?, ?>>> children;
-	private GUIManager.GUIGroupLayout.SequentialGroup hgroup;
-	private GUIManager.GUIGroupLayout.SequentialGroup vgroup;
+	private GUIFactory.GroupLayout.SequentialGroup hgroup;
+	private GUIFactory.GroupLayout.SequentialGroup vgroup;
 	
 	public Columns( int cols ) { this( "Columns-" + Columns.items++, cols ); }
 	public Columns( String id, int cols ) {
 		this.id = id;
 		this.cols = cols;
 		this.target = new JPanel();
-		this.target.setLayout( new GUIManager.GUIGroupLayout( this.target ) );
-		this.halign = new GUIManager.Alignment[cols];
+		this.target.setLayout( new GUIFactory.GroupLayout( this.target ) );
+		this.halign = new GUIFactory.Alignment[cols];
 		this.valign = Columns.defaultV;
 		this.children = new ArrayList< ArrayList<GUIComponent<?, ?>>>();
 
@@ -40,22 +40,22 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	
 	public Columns setPadding( boolean pad ) { this.padding = pad; return this.realign(); }
 	
-	public Columns setAlignmentX( int col, GUIManager.Alignment alignment ) { this.halign[col-1] = alignment; return this.realign(); }
-	public Columns setAlignmentX( GUIManager.Alignment alignment ) {
+	public Columns setAlignmentX( int col, GUIFactory.Alignment alignment ) { this.halign[col-1] = alignment; return this.realign(); }
+	public Columns setAlignmentX( GUIFactory.Alignment alignment ) {
 		for( int i = 0; i < cols; i++ )
 			this.halign[i] = alignment;
 		
 		return this.realign();
 	}
 	
-	public Columns setAlignmentY( GUIManager.Alignment alignment ) {
+	public Columns setAlignmentY( GUIFactory.Alignment alignment ) {
 		this.valign = alignment;
 		
 		return this.realign();
 	}
 	
 	public Columns realign() {
-		GUIManager.GUIGroupLayout layout = (GUIManager.GUIGroupLayout)this.target.getLayout();
+		GUIFactory.GroupLayout layout = (GUIFactory.GroupLayout)this.target.getLayout();
 		this.hgroup = layout.createSequentialGroup();
 		this.vgroup = layout.createSequentialGroup();
 		if( this.padding ) {
@@ -67,7 +67,7 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 		for( int i = 0; i < cols; i++ )
 			size = Math.max( size, this.children.get( i ).size() );
 		
-		GUIManager.GUIGroupLayout.ParallelGroup htmp;
+		GUIFactory.GroupLayout.ParallelGroup htmp;
 		for( int i = 0; i < this.cols; i++ ) {
 			htmp = layout.createParallelGroup( this.getGroupAlignment( this.halign[i] ) );
 			for( int j = 0; j < size; j++ )
@@ -77,7 +77,7 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 			this.hgroup.addGroup( htmp );
 		}
 		
-		GUIManager.GUIGroupLayout.ParallelGroup vtmp;
+		GUIFactory.GroupLayout.ParallelGroup vtmp;
 		for( int i = 0; i < size; i++ ) {
 			vtmp = layout.createParallelGroup( this.getGroupAlignment( this.valign ) );
 			for( int j = 0; j < this.cols; j++ )
@@ -111,8 +111,9 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	@Override public Columns removeAll() {
 		for( ArrayList<GUIComponent<?, ?>> childs : this.children )
 			for( GUIComponent<?, ?> g : childs )
-				if( g.target != null )
-					g = g.destroy();
+				g = g.destroy();
+		
+		this.children.clear();
 		return this;
 	}
 	

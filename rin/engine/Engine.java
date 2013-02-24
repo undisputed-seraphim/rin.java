@@ -1,11 +1,9 @@
 package rin.engine;
 
-import javax.swing.SwingUtilities;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import static rin.gui.GUIManager.*;
+import static rin.gui.GUIFactory.*;
 
 import rin.gl.Scene;
 import rin.gl.event.GLEventThread;
@@ -51,89 +49,109 @@ public class Engine {
 	}
 
 	public static void createDebugWindow() {
-		createWindow()
-				.setTitle( "rin.ai | Debug" )
-				.setLocation( 20, 20 )
-				.addMenu( createMenuBar()
-						.add( createMenu( "Menu 1" )
-								.onOpen( new MenuEvent() {
-									public void run() {
-										System.out.println( "menu open success" );
-									}
-								})
-								.add( createMenuItem( "One" ) )
-								.add( createMenu( "Two" )
-										.add( createMenuItem( "Two One" )
-												.setShortcut( ModifierKey.ALT, "A" )
-												.onSelect( new MenuItemEvent() {
-													public void run() {
-														System.out.println( "shortcut worked" );
-													}
-												}))
-										.add( createMenuItem( "Two Two" ) )
-								)
-								.add( createMenuItem( "Three" ) )
-						)
-						.add( createMenu( "Menu 2" ) )
-						.addHorizontalSeparator()
-						.add( createMenu( "Menu 2" ) )
-						.addHorizontalSeparator()
-						.add( createMenu( "Menu 3" ) )
-				)
-				.add( createContainer()
-						.setAlignment( Alignment.CENTER )
-						.add( createCheckBox().setLabel( "test" ) )
-						.add( createPanel()
-								.setAlignment( Alignment.CENTER )
-								.add( createColumns( 2 )
-										.add( 1, createCheckBox().setLabel( "test" ) )
-										.add( 1, createContainer()
-												.add( createCheckBox() )
-												.add( createCheckBox() ) )
-										.add( 2, createTextField().onEnter(new TextFieldEvent() {
+		new GUI() {
+			@Override public void build() {
+				createWindow( "#window1" )
+						.setTitle( "rin.ai | Debug" )
+						.setLocation( 20, 20 )
+						.onWindowLoad( new OnLoadEvent() {
+							public void run() {
+								System.out.println( "THIS WINDOW LOADED" );
+							}
+						})
+						.addMenu( createMenuBar()
+								.add( createMenu( "Menu 1" )
+										.onOpen( new MenuEvent() {
 											public void run() {
-												System.out.println( this.value );
-											}
-										}))
-										
-										.add( 2, createButton().onClick( new ButtonEvent() {
-											public void run() {
-												GUIManager.getScrollPane( "asdf" ).showHorizontalScrollNever();
-											}
-										}) )
-								)
-						)
-						.add( createCheckBox() )
-						.add( createTabbedPane()
-								.onTabChanged( new TabbedPaneEvent() {
-									public void run() {
-										System.out.println( this.source );
-									}
-								} )
-								.addTab( "Overall", createContainer()
-										.onFocus( new ContainerEvent() {
-											public void run() {
-												System.out.println( "FOCUSED OVERALL" );
+												System.out.println( "menu open success" );
 											}
 										})
-										.add( createPanel()
-												.setAlignment( Alignment.CENTER )
-												.add( createPair()
-														.setLeftItem( createCheckBox() )
-														.setRightItem( createCheckBox() )
-												)
+										.onWindowLoad( new OnLoadEvent() {
+											public void run() {
+												System.out.println( "haha" + this.target );
+											}
+										})
+										.add( createMenuItem( "One" ) )
+										.add( createMenu( "Two" )
+												.add( createMenuItem( "Two One" )
+														.setShortcut( ModifierKey.ALT, "A" )
+														.onSelect( new MenuItemEvent() {
+															public void run() {
+																System.out.println( "shortcut worked" );
+															}
+														}))
+												.addSeparator()
+												.add( createMenuItem( "Two Two" ) )
+										)
+										.add( createMenuItem( "Three" ) )
+								)
+								.add( createMenu( "Menu 2" ) )
+								.addHorizontalSeparator()
+								.add( createMenu( "Menu 2" ) )
+								.addHorizontalSeparator()
+								.add( createMenu( "Menu 3" ) )
+						)
+						.add( createContainer()
+								.setAlignment( Alignment.CENTER )
+								.add( createCheckBox().setLabel( "test" ) )
+								.add( createPanel()
+										.setAlignment( Alignment.CENTER )
+										.add( createColumns( 2 )
+												.add( 1, createCheckBox( "asdf" ).setLabel( "test" ) )
+												.add( 1, createContainer()
+														.add( createCheckBox() )
+														.add( createCheckBox() ) )
+												.add( 2, createTextField().onEnter(new TextFieldEvent() {
+													public void run() {
+														getCheckBox( "asdf" ).check();
+													}
+												}))
+												
+												.add( 2, createButton() )
 										)
 								)
-								.addTab( "Actors", createContainer() )
-								.addTab( "Misc", createContainer() )
-						)
-						.add( createScrollPane( "asdf" )
-								.setAlignment( Alignment.CENTER )
 								.add( createCheckBox() )
-								.add( createCheckBox() )
-								.add( createCheckBox() )
-						)
-				).show();
+								.add( createTabbedPane()
+										.addTab( "Overall", createContainer()
+												.onFocus( new ContainerEvent() {
+													public void run() {
+														System.out.println( "FOCUSED OVERALL" );
+													}
+												})
+												.add( createPanel()
+														.setAlignment( Alignment.CENTER )
+														.add( createPair()
+																.setLeftItem( createCheckBox() )
+																.setRightItem( createCheckBox() )
+														)
+												)
+										)
+										.addTab( "Actors", createContainer() )
+										.addTab( "Misc", createContainer() )
+								)
+								.add( createScrollPane()
+										.setAlignment( Alignment.CENTER )
+										.add( createCheckBox() )
+										.add( createCheckBox() )
+										.add( createCheckBox() )
+										.add( createComboBox()
+												.onSelect( new ComboBoxEvent() {
+													public void run() {
+														System.out.println( "an option was selected " + this.currentIndex + " " + this.previousIndex + " " + this.value );
+													}
+												})
+												.add( createComboItem( "Option One" ) )
+												.add( createComboItem( "Option Two" ).select() ) )
+								)
+						).show();
+			}
+		};
+
+		new Dispatch() {
+			public void run() {
+				GUIFactory.getWindow( "#window1" ).close();
+			}
+		};
 	}
 	
 	public static void start() {
@@ -161,9 +179,10 @@ public class Engine {
 		if( Engine.scene != null )
 			Engine.scene = Engine.scene.destroy();
 		
-		SwingUtilities.invokeLater( GUIManager.DESTROY );
+		GUIManager.destroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();
+		System.exit( 0 );
 	}
 }

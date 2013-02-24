@@ -5,7 +5,7 @@ import java.awt.event.AdjustmentListener;
 
 import javax.swing.JScrollPane;
 
-import rin.gui.GUIManager.ScrollPaneEvent;
+import rin.gui.GUIFactory.ScrollPaneEvent;
 
 public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implements AdjustmentListener {
 	private static int items = 0;
@@ -19,22 +19,28 @@ public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implem
 		this.id = id;
 		this.pane = new Container( this.id + "_root" );
 		this.pane.show();
+		this.pane.parent = this;
 		this.target = new JScrollPane( this.pane.target );
+		
 		this.showHorizontalScrollAlways();
 		this.showVerticalScrollAlways();
 		
-		this.real().getHorizontalScrollBar().addAdjustmentListener( this );
-		this.real().getVerticalScrollBar().addAdjustmentListener( this );
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			@Override public void run() {
+				((JScrollPane)this.target).getHorizontalScrollBar().addAdjustmentListener( this.component.toScrollPane() );
+				((JScrollPane)this.target).getVerticalScrollBar().addAdjustmentListener( this.component.toScrollPane() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	private JScrollPane real() { return (JScrollPane)this.target; }
 	
-	public ScrollPane setSize( int width, int height ) {
+	@Override public ScrollPane setSize( int width, int height ) {
 		this.pane.setSize( width, height );
 		return this.update();
 	}
 	
-	public ScrollPane setAlignment( GUIManager.Alignment alignment ) {
+	public ScrollPane setAlignment( GUIFactory.Alignment alignment ) {
 		this.pane.setAlignment( alignment );
 		return this.update();
 	}
@@ -73,7 +79,7 @@ public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implem
 					if( this.runOnVerticalScroll != null ) {
 						this.runOnVerticalScroll.delta = e.getValue() - this.currentY;
 						this.runOnVerticalScroll.position = e.getValue();
-						this.runOnVerticalScroll.execute( e );
+						this.runOnVerticalScroll.run();
 					}
 					this.currentY = e.getValue();
 				}
@@ -82,7 +88,7 @@ public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implem
 					if( this.runOnHorizontalScroll != null ) {
 						this.runOnHorizontalScroll.delta = e.getValue() - this.currentX;
 						this.runOnHorizontalScroll.position = e.getValue();
-						this.runOnHorizontalScroll.execute( e );
+						this.runOnHorizontalScroll.run();
 					}
 					this.currentX = e.getValue();
 				}
@@ -90,14 +96,12 @@ public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implem
 		}
 	}
 	
-	@Override public ScrollPane destroy() {
-		if( this.target != null ) {
-			this.real().getHorizontalScrollBar().removeAdjustmentListener( this );
-			this.real().getVerticalScrollBar().removeAdjustmentListener( this );
-		}
+	@Override protected ScrollPane destroy() {
+		this.real().getHorizontalScrollBar().removeAdjustmentListener( this );
+		this.real().getVerticalScrollBar().removeAdjustmentListener( this );
 		super.destroy();
 		
-		this.pane = null;
+		this.pane = this.pane.destroy();
 		
 		return null;
 	}

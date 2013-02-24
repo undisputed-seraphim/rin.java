@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 
-import rin.gui.GUIManager.TabbedPaneEvent;
+import rin.gui.GUIFactory.TabbedPaneEvent;
 
 public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	private static int items = 0;
@@ -18,8 +18,13 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 	public TabbedPane( String id ) {
 		this.id = id;
 		this.target = new JTabbedPane();
-		this.real().addChangeListener( this );
-		this.real().setFont( GUIManager.DEFAULT_FONT );
+		this.real().setFont( GUIFactory.DEFAULT_FONT );
+		
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JTabbedPane)this.target).addChangeListener( this.component.toTabbedPane() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	private JTabbedPane real() { return (JTabbedPane)this.target; }
@@ -45,16 +50,20 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 		return this;
 	}
 	
+	//TODO: add proper remove logic so that tabs are removed with real().removeTabAt(...)
 	public TabbedPane addTab( String title, Container container ) { return this.addTab( title, '\0', container ); }
 	public TabbedPane addTab( String title, char mnemonic, Container container ) {
+		container.parent = this;
 		this.children.add( container );
 		this.tabs.add( container.id );
 		container.show();
 		this.real().insertTab( title, null, container.target, null, this.tabCount );
+		
 		int keycode = this.getKeyCode( mnemonic + "" );
 		if( keycode != -1 )
 			this.real().setMnemonicAt( this.tabCount, keycode );
 		this.tabCount++;
+		
 		return this.update();
 	}
 	
@@ -68,17 +77,17 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 			this.runOnStateChanged.previousIndex = this.currentIndex;
 			this.runOnStateChanged.currentIndex = Math.max( this.real().getSelectedIndex(), 0 );
 			this.currentIndex = Math.max( this.real().getSelectedIndex(), 0 );
+			
 			this.runOnStateChanged.tab = this.getCurrentTab();
 			this.runOnStateChanged.title = this.getTitle( this.currentIndex + 1 );
-			
+
 			this.getCurrentTab().focus();
-			this.runOnStateChanged.execute( null );
+			this.runOnStateChanged.run();
 		}
 	}
 	
-	@Override public TabbedPane destroy() {
-		if( this.target != null )
-			this.real().removeChangeListener( this );
+	@Override protected TabbedPane destroy() {
+		this.real().removeChangeListener( this );
 		super.destroy();
 		
 		this.tabs.clear();

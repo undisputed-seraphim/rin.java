@@ -2,6 +2,7 @@ package rin.gl;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
@@ -58,42 +59,45 @@ public class Input extends Thread {
 		if( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) ) GLEvent.fire( new KeyRepeatEvent( Keyboard.KEY_LSHIFT ) );
 		if( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) GLEvent.fire( new KeyRepeatEvent( Keyboard.KEY_SPACE ) );
 		
-		while( Mouse.next() ) {
-			
-			//mouse move
-			if( Mouse.getEventButton() == -1 && Mouse.getEventDWheel() == 0 )
-				GLEvent.fire( new MouseMoveEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY(),
-						Mouse.getEventDX(), Mouse.getEventDY() ) );
-			
-			//mouse wheel
-			else if( Mouse.getEventDWheel() != 0 )
-				GLEvent.fire( new MouseWheelEvent( Mouse.getEventX(), Mouse.getEventY(), Mouse.getEventDWheel() ) );
-			
-			//mouse down
-			else if( Mouse.getEventButtonState() )
-				GLEvent.fire( new MouseDownEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY() ) );
-			
-			//mouse up
-			else
-				GLEvent.fire( new MouseUpEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY() ) );
-			
-		}
-		
-		//mouse repeat
-		if( Mouse.isButtonDown( 0 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_LEFT, Mouse.getX(), Mouse.getY() ) );
-		if( Mouse.isButtonDown( 1 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_RIGHT, Mouse.getX(), Mouse.getY() ) );
-		
-		String tmp = Scene.uniqueAtMouse;
-
-		if( !Input.prev.equals( "" ) ) {
-			if( !Input.prev.equals( tmp ) ) {
-				GLEvent.fire( new PickOutEvent( Input.prev ) );
-				GLEvent.fire( new PickInEvent( tmp ) );
-			} else {
-				GLEvent.fire( new PickRepeatEvent( tmp ) );
+		//TODO: don't allow mouse events to propagate if glwindow is not in front
+		//if( Display.isVisible() ) {
+			while( Mouse.next() ) {
+				
+				//mouse move
+				if( Mouse.getEventButton() == -1 && Mouse.getEventDWheel() == 0 )
+					GLEvent.fire( new MouseMoveEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY(),
+							Mouse.getEventDX(), Mouse.getEventDY() ) );
+				
+				//mouse wheel
+				else if( Mouse.getEventDWheel() != 0 )
+					GLEvent.fire( new MouseWheelEvent( Mouse.getEventX(), Mouse.getEventY(), Mouse.getEventDWheel() ) );
+				
+				//mouse down
+				else if( Mouse.getEventButtonState() )
+					GLEvent.fire( new MouseDownEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY() ) );
+				
+				//mouse up
+				else
+					GLEvent.fire( new MouseUpEvent( Mouse.getEventButton(), Mouse.getEventX(), Mouse.getEventY() ) );
+				
 			}
-		}
-		Input.prev = tmp;
+			
+			//mouse repeat
+			if( Mouse.isButtonDown( 0 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_LEFT, Mouse.getX(), Mouse.getY() ) );
+			if( Mouse.isButtonDown( 1 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_RIGHT, Mouse.getX(), Mouse.getY() ) );
+			
+			String tmp = Scene.uniqueAtMouse;
+	
+			if( !Input.prev.equals( "" ) ) {
+				if( !Input.prev.equals( tmp ) ) {
+					GLEvent.fire( new PickOutEvent( Input.prev ) );
+					GLEvent.fire( new PickInEvent( tmp ) );
+				} else {
+					GLEvent.fire( new PickRepeatEvent( tmp ) );
+				}
+			}
+			Input.prev = tmp;
+		//}
 	}
 	
 	public void destroy() {

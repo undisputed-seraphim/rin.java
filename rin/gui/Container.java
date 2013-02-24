@@ -2,48 +2,53 @@ package rin.gui;
 
 import javax.swing.JPanel;
 
-import rin.gui.GUIManager.ContainerEvent;
+import rin.gui.GUIFactory.ContainerEvent;
 
 public class Container extends GUIComponent<Container, ContainerEvent> {
 	private static int items = 0;
 
-	private static final int DEFAULT_SIZE = GUIManager.GUIGroupLayout.DEFAULT_SIZE;
-	private static final int PREFERRED_SIZE = GUIManager.GUIGroupLayout.PREFERRED_SIZE;
+	private static final int DEFAULT_SIZE = GUIFactory.GroupLayout.DEFAULT_SIZE;
+	private static final int PREFERRED_SIZE = GUIFactory.GroupLayout.PREFERRED_SIZE;
 	
-	private GUIManager.GUIGroupLayout.ParallelGroup pgroupH;
-	private GUIManager.GUIGroupLayout.SequentialGroup pgroupV;
+	private GUIFactory.GroupLayout.ParallelGroup pgroupH;
+	private GUIFactory.GroupLayout.SequentialGroup pgroupV;
 	
-	private GUIManager.Alignment halign = GUIManager.Alignment.CENTER;
+	private GUIFactory.Alignment halign = GUIFactory.Alignment.CENTER;
 	
 	public Container() { this( "Container-" + Container.items++ ); }
 	public Container( String id ) {
 		this.id = id;
 		this.target = new JPanel();
 		
-		GUIManager.GUIGroupLayout layout = new GUIManager.GUIGroupLayout( this.target );
+		GUIFactory.GroupLayout layout = new GUIFactory.GroupLayout( this.target );
 		this.pgroupH = layout.createParallelGroup( this.getGroupAlignment( this.halign ) );
 		this.pgroupV = layout.createSequentialGroup();
-		this.target.addFocusListener( this );
-		
 		layout.setHorizontalGroup( this.pgroupH );
 		layout.setVerticalGroup( this.pgroupV );
 		this.target.setLayout( layout );
+		
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JPanel)this.target).addFocusListener( this.component.toContainer() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	@Override public Container add( GUIComponent<?, ?> component ) {
 		this.pgroupH.addComponent( component.target, PREFERRED_SIZE, DEFAULT_SIZE, DEFAULT_SIZE );
 		this.pgroupV.addComponent( component.target, PREFERRED_SIZE, DEFAULT_SIZE, PREFERRED_SIZE );
 		
+		component.parent = this;
 		this.children.add( component );
 		component.show();
 		
 		return this.update();
 	}
 	
-	public Container setAlignment( GUIManager.Alignment alignment ) {
+	public Container setAlignment( GUIFactory.Alignment alignment ) {
 		this.halign = alignment;
-		
-		GUIManager.GUIGroupLayout layout = (GUIManager.GUIGroupLayout)this.target.getLayout();
+		//TODO: items removed from a container would not be removed from their respective groups...? add realign > update
+		GUIFactory.GroupLayout layout = (GUIFactory.GroupLayout)this.target.getLayout();
 		this.pgroupH = layout.createParallelGroup( this.getGroupAlignment( this.halign ) );
 		this.pgroupV = layout.createSequentialGroup();
 		
@@ -69,9 +74,8 @@ public class Container extends GUIComponent<Container, ContainerEvent> {
 		return this;
 	}
 	
-	@Override public Container destroy() {
-		if( this.target != null )
-			this.target.removeFocusListener( this );
+	@Override protected Container destroy() {
+		this.target.removeFocusListener( this );
 		super.destroy();
 		
 		this.pgroupH = null;

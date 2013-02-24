@@ -2,7 +2,7 @@ package rin.gui;
 
 import javax.swing.JPanel;
 
-import rin.gui.GUIManager.PanelEvent;
+import rin.gui.GUIFactory.PanelEvent;
 
 public class Panel extends GUIComponent<Panel, PanelEvent> {
 	private static int items = 0;
@@ -10,11 +10,11 @@ public class Panel extends GUIComponent<Panel, PanelEvent> {
 	public Panel() { this( "Panel-" + Panel.items++ ); }
 	public Panel( String id ) {
 		this.id = id;
-		this.target = new JPanel( new GUIManager.GUIFlowLayout() );
+		this.target = new JPanel( new GUIFactory.FlowLayout() );
 	}
 	
-	public Panel setAlignment( GUIManager.Alignment alignment ) {
-		( (GUIManager.GUIFlowLayout)this.target.getLayout() ).setAlignment( this.getFlowAlignment( alignment ) );
+	public Panel setAlignment( GUIFactory.Alignment alignment ) {
+		( (GUIFactory.FlowLayout)this.target.getLayout() ).setAlignment( this.getFlowAlignment( alignment ) );
 		return this.update();
 	}
 }

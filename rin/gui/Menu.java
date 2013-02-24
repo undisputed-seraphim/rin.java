@@ -3,7 +3,7 @@ package rin.gui;
 import javax.swing.JMenu;
 import javax.swing.event.MenuListener;
 
-import rin.gui.GUIManager.MenuEvent;
+import rin.gui.GUIFactory.MenuEvent;
 
 public class Menu extends GUIComponent<Menu, MenuEvent> implements MenuListener {
 	private static int items = 0;
@@ -12,9 +12,14 @@ public class Menu extends GUIComponent<Menu, MenuEvent> implements MenuListener 
 	public Menu( String id, String text, String mnemonic ) {
 		this.id = id;
 		this.target = new JMenu( text );
-		this.real().setFont( GUIManager.DEFAULT_FONT );
-		this.real().addMenuListener( this );
-		this.setShortcutKey( mnemonic );
+		this.real().setFont( GUIFactory.DEFAULT_FONT );
+		this.setShortcutLetter( mnemonic );
+		
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JMenu)this.target).addMenuListener( this.component.toMenu() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 
 	private JMenu real() { return (JMenu)this.target; }
@@ -27,7 +32,7 @@ public class Menu extends GUIComponent<Menu, MenuEvent> implements MenuListener 
 	}
 
 	public Menu addSeparator() { this.real().addSeparator(); return this.update(); }
-	public Menu setShortcutKey( String mnemonic ) {
+	public Menu setShortcutLetter( String mnemonic ) {
 		int keycode = this.getKeyCode( mnemonic );
 			this.real().setMnemonic( keycode );
 		return this.update();
@@ -49,9 +54,8 @@ public class Menu extends GUIComponent<Menu, MenuEvent> implements MenuListener 
 	@Override public void menuDeselected( javax.swing.event.MenuEvent e ) { if( this.runOnClose != null ) this.runOnClose.run(); }
 	@Override public void menuSelected( javax.swing.event.MenuEvent e ) { if( this.runOnOpen != null ) this.runOnOpen.run(); }
 
-	@Override public Menu destroy() {
-		if( this.target != null )
-			this.real().removeMenuListener( this );
+	@Override protected Menu destroy() {
+		this.real().removeMenuListener( this );
 		super.destroy();
 
 		return null;

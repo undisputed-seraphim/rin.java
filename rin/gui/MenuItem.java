@@ -3,7 +3,7 @@ package rin.gui;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import rin.gui.GUIManager.MenuItemEvent;
+import rin.gui.GUIFactory.MenuItemEvent;
 
 public class MenuItem extends GUIComponent<MenuItem, MenuItemEvent>{
 	private static int items = 0;
@@ -13,14 +13,18 @@ public class MenuItem extends GUIComponent<MenuItem, MenuItemEvent>{
 		this.id = id;
 		this.canHaveChildren = false;
 		this.target = new JMenuItem( text );
-		this.real().setFont( GUIManager.DEFAULT_FONT );
-		this.real().addActionListener( this );
-		this.setShortcutKey( mnemonic );
+		this.real().setFont( GUIFactory.DEFAULT_FONT );
+		this.setShortcutLetter( mnemonic );
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JMenuItem)this.target).addActionListener( this.component.toMenuItem() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	private JMenuItem real() { return (JMenuItem)this.target; }
 	
-	public MenuItem setShortcut( GUIManager.ModifierKey modifier, String key ) {
+	public MenuItem setShortcut( GUIFactory.ModifierKey modifier, String key ) {
 		int keycode = this.getKeyCode( key );
 		if( keycode != -1 ) {
 			this.real().setAccelerator( KeyStroke.getKeyStroke( keycode, this.getModifier( modifier ) ) );
@@ -28,7 +32,7 @@ public class MenuItem extends GUIComponent<MenuItem, MenuItemEvent>{
 		return this.update();
 	}
 	
-	public MenuItem setShortcutKey( String mnemonic ) {
+	public MenuItem setShortcutLetter( String mnemonic ) {
 		int keycode = this.getKeyCode( mnemonic );
 		if( keycode != -1 )
 			this.real().setMnemonic( keycode );
@@ -40,9 +44,8 @@ public class MenuItem extends GUIComponent<MenuItem, MenuItemEvent>{
 		return this;
 	}
 	
-	@Override public MenuItem destroy() {
-		if( this.target != null )
-			this.real().removeActionListener( this );
+	@Override protected MenuItem destroy() {
+		this.real().removeActionListener( this );
 		super.destroy();
 		
 		return null;

@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JTextField;
 
-import rin.gui.GUIManager.TextFieldEvent;
+import rin.gui.GUIFactory.TextFieldEvent;
 
 public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 	private static int items = 0;
@@ -14,9 +14,14 @@ public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 		this.id = id;
 		this.target = new JTextField();
 		this.canHaveChildren = false;
-		this.real().setFont( GUIManager.DEFAULT_FONT );
-		this.real().addKeyListener( this );
+		this.real().setFont( GUIFactory.DEFAULT_FONT );
 		this.setWidth( 15 );
+		
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			public void run() {
+				((JTextField)this.target).addKeyListener( this.component.toTextField() );
+			}
+		}.setTargets( this.target, this ) );
 	}
 	
 	private JTextField real() { return (JTextField)this.target; }
@@ -36,13 +41,12 @@ public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 		if( e.getKeyCode() == KeyEvent.VK_ENTER )
 			if( this.runOnEnter != null ) {
 				this.runOnEnter.value = this.value();
-				this.runOnEnter.execute( e );
+				this.runOnEnter.run();
 			}
 	}
 	
-	@Override public TextField destroy() {
-		if( this.target != null )
-			this.real().removeKeyListener( this );
+	@Override protected TextField destroy() {
+		this.real().removeKeyListener( this );
 		super.destroy();
 		
 		this.target = null;

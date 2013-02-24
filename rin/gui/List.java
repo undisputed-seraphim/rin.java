@@ -1,5 +1,7 @@
 package rin.gui;
 
-public class List {
+import rin.gui.GUIFactory.ListEvent;
+
+public class List extends GUIComponent<List, ListEvent> {
 
 }

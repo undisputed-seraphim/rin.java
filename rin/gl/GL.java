@@ -3,7 +3,6 @@ package rin.gl;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import rin.engine.Engine;
-import rin.gl.lib3d.data.GLRenderThread;
 import rin.gl.lib3d.data.GLSource;
 
 public class GL extends Thread {	
