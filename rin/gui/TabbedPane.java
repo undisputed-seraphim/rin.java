@@ -21,7 +21,7 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 		this.real().setFont( GUIFactory.DEFAULT_FONT );
 		
 		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
-			public void run() {
+			@Override public void run() {
 				((JTabbedPane)this.target).addChangeListener( this.component.toTabbedPane() );
 			}
 		}.setTargets( this.target, this ) );
@@ -81,9 +81,11 @@ public class TabbedPane extends GUIComponent<TabbedPane, TabbedPaneEvent> {
 			this.runOnStateChanged.tab = this.getCurrentTab();
 			this.runOnStateChanged.title = this.getTitle( this.currentIndex + 1 );
 
-			this.getCurrentTab().focus();
 			this.runOnStateChanged.run();
 		}
+		
+		if( this.getCurrentTab() != null )
+			this.getCurrentTab().focus();
 	}
 	
 	@Override protected TabbedPane destroy() {

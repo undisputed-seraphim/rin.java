@@ -26,7 +26,6 @@ public class Container extends GUIComponent<Container, ContainerEvent> {
 		layout.setHorizontalGroup( this.pgroupH );
 		layout.setVerticalGroup( this.pgroupV );
 		this.target.setLayout( layout );
-		
 		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
 			public void run() {
 				((JPanel)this.target).addFocusListener( this.component.toContainer() );
@@ -81,7 +80,6 @@ public class Container extends GUIComponent<Container, ContainerEvent> {
 		this.pgroupH = null;
 		this.pgroupV = null;
 		this.halign = null;
-		this.target = null;
 		
 		return null;
 	}

@@ -26,7 +26,14 @@ public class Button extends GUIComponent<Button, ButtonEvent> {
 	public JButton real() { return (JButton)this.target; }
 	
 	public Button setText( String text ) { this.real().setText( text ); return this.update(); }
-	public Button click() { this.real().doClick(); return this; }
+	public Button click() {
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			@Override public void run() {
+				((JButton)this.target).doClick();
+			}
+		}.setTargets( this.target, this ) );
+		return this;
+	}
 	
 	@Override public Button onClick( ButtonEvent e ) {
 		this.runOnAction = e.<ButtonEvent>setTarget( this );

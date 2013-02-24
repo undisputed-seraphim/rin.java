@@ -102,6 +102,7 @@ public class Columns extends GUIComponent<Columns, ColumnsEvent> {
 	
 	public Columns add( int column, GUIComponent<?, ?> component ) {
 		if( column <= this.cols && column > 0 ) {
+			component.parent = this;
 			this.children.get( column - 1 ).add( component );
 			component.show();
 		}

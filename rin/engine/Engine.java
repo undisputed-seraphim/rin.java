@@ -9,6 +9,7 @@ import rin.gl.Scene;
 import rin.gl.event.GLEventThread;
 import rin.gl.lib3d.ActorList;
 import rin.gui.*;
+import rin.util.Buffer;
 
 public class Engine {
 	public static final String LS = System.getProperty( "file.separator" );
@@ -68,7 +69,7 @@ public class Engine {
 										})
 										.onWindowLoad( new OnLoadEvent() {
 											public void run() {
-												System.out.println( "haha" + this.target );
+												System.out.println( "haha" );
 											}
 										})
 										.add( createMenuItem( "One" ) )
@@ -130,6 +131,8 @@ public class Engine {
 										.addTab( "Misc", createContainer() )
 								)
 								.add( createScrollPane()
+										.setSize( 100, 100 )
+										.scrollToY( 100 )
 										.setAlignment( Alignment.CENTER )
 										.add( createCheckBox() )
 										.add( createCheckBox() )
@@ -140,16 +143,39 @@ public class Engine {
 														System.out.println( "an option was selected " + this.currentIndex + " " + this.previousIndex + " " + this.value );
 													}
 												})
-												.add( createComboItem( "Option One" ) )
-												.add( createComboItem( "Option Two" ).select() ) )
+												.add( createComboItem( "Option One" ).onSelect( new ComboItemEvent() {
+													public void run() {
+														System.out.println( "Option One selected." );
+													}
+												}) )
+												.add( createComboItem( "Option Two" ).select() )
+										)
+										.add( createList()
+												.add( createListItem( "Oneeeee" )
+														.onSelect( new ListItemEvent() {
+															public void run() {
+																System.out.println( Buffer.toString( this.selected ) );
+															}
+														})
+														.onDeselect( new ListItemEvent() {
+															public void run() {
+																System.out.println( " deselected " + this.text );
+															}
+														}) )
+												.add( createListItem( "Twoooo" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ).select() )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+												.add( createListItem( "Threee" ) )
+										)
+										.add( createSlider() )
 								)
 						).show();
-			}
-		};
-
-		new Dispatch() {
-			public void run() {
-				GUIFactory.getWindow( "#window1" ).close();
 			}
 		};
 	}

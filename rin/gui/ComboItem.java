@@ -19,16 +19,12 @@ public class ComboItem extends GUIComponent<ComboItem, ComboItemEvent> {
 		};
 	}
 	
-	private JComboBox real() { return (JComboBox)this.parent.target; }
-	
 	public ComboItem select() {
-		if( this.parent == null ) {
-			new DoLater<ComboItem, ComboItem>( this, null ) {
-				@Override public void run() { this.t1.select(); }
-			};
-		} else {
-			this.real().setSelectedIndex( this.parent.children.indexOf( this ) );
-		}
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			@Override public void run() {
+				((JComboBox)this.component.parent.target).setSelectedIndex( this.component.parent.children.indexOf( this.component ) );
+			}
+		}.setTargets( this.target, this ) );
 		return this;
 	}
 	

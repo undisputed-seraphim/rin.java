@@ -24,10 +24,20 @@ public class CheckBox extends GUIComponent<CheckBox, CheckBoxEvent> {
 	}
 	
 	private JCheckBox real() { return (JCheckBox)this.target; }
+	public CheckBox check() {
+		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
+			@Override public void run() {
+				((JCheckBox)this.target).doClick();
+			}
+		}.setTargets( this.target, this ) );
+		return this.update();
+	}
 	
-	public CheckBox setLabel( String str ) { this.real().setText( str ); return this; }
-	public CheckBox setLabelPositionX( GUIFactory.Position position ) { this.real().setHorizontalTextPosition( position.value ); return this; }
-	public CheckBox check() { this.real().doClick(); return this; }
+	public CheckBox setLabel( String str ) { this.real().setText( str ); return this.update(); }
+	public CheckBox setLabelPositionX( GUIFactory.Position position ) {
+		this.real().setHorizontalTextPosition( position.value );
+		return this.update();
+	}
 	
 	private CheckBoxEvent runOnCheck = null;	
 	public CheckBox onCheck( CheckBoxEvent e ) {

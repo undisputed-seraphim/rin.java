@@ -9,17 +9,19 @@ import javax.swing.JComboBox;
 import rin.gui.GUIFactory.ComboBoxEvent;
 import rin.gui.GUIFactory.ComboItemEvent;
 
+//TODO: add support for dynamically removing items
 public class ComboBox extends GUIComponent<ComboBox, ComboBoxEvent> implements ItemListener {
 	private static int items = 0;
-	
 	private int selectedIndex = 0;
 	
 	public ComboBox() { this( "ComboBox-" + ComboBox.items++ ); }
 	public ComboBox( String id ) {
 		this.id = id;
 		this.target = new JComboBox();
+		this.target.setFont( GUIFactory.DEFAULT_FONT );
+		
 		this.onWindowLoad( new GUIFactory.OnLoadEvent() {
-			public void run() {
+			@Override public void run() {
 				this.component.toComboBox().selectedIndex = this.component.toComboBox().getSelectedIndex();
 				((JComboBox)this.target).addItemListener( this.component.toComboBox() );
 				((JComboBox)this.target).addActionListener( this.component.toComboBox() );
@@ -31,7 +33,7 @@ public class ComboBox extends GUIComponent<ComboBox, ComboBoxEvent> implements I
 	public int getSelectedIndex() { return this.real().getSelectedIndex(); }
 	@Override public ComboBox update() { this.selectedIndex = this.getSelectedIndex(); return super.update(); }
 	
-	public ComboBox add( GUIComponent<?, ?> component ) {
+	@Override public ComboBox add( GUIComponent<?, ?> component ) {
 		if( !(component instanceof ComboItem) ) {
 			System.out.println( "[ERROR] Only ComboItems may be added to a ComboBox." );
 			return this;
@@ -49,7 +51,6 @@ public class ComboBox extends GUIComponent<ComboBox, ComboBoxEvent> implements I
 	}
 	
 	@Override public void actionPerformed( ActionEvent e ) {
-		System.out.println( "Action" + e.getActionCommand() );
 		if( this.runOnSelect != null ) {
 			this.runOnSelect.previousIndex = this.selectedIndex;
 			this.runOnSelect.currentIndex = this.real().getSelectedIndex();

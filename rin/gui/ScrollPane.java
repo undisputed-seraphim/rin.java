@@ -7,6 +7,7 @@ import javax.swing.JScrollPane;
 
 import rin.gui.GUIFactory.ScrollPaneEvent;
 
+//TODO: add scrollToX and scrollToY
 public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implements AdjustmentListener {
 	private static int items = 0;
 	
@@ -36,19 +37,15 @@ public class ScrollPane extends GUIComponent<ScrollPane, ScrollPaneEvent> implem
 	private JScrollPane real() { return (JScrollPane)this.target; }
 	
 	@Override public ScrollPane setSize( int width, int height ) {
-		this.pane.setSize( width, height );
+		this.target.setPreferredSize( new GUIFactory.Dimension( width, height ) );
 		return this.update();
 	}
 	
-	public ScrollPane setAlignment( GUIFactory.Alignment alignment ) {
-		this.pane.setAlignment( alignment );
-		return this.update();
-	}
+	public ScrollPane setAlignment( GUIFactory.Alignment alignment ) { this.pane.setAlignment( alignment ); return this.update(); }
+	@Override public ScrollPane update() { this.real().getVerticalScrollBar().repaint(); return super.update(); }
+	@Override public ScrollPane add( GUIComponent<?, ?> component ) { component.addTo( this.pane ); return this.update(); }
 	
-	@Override public ScrollPane add( GUIComponent<?, ?> component ) {
-		component.addTo( this.pane );
-		return this.update();
-	}
+	public ScrollPane scrollToY( int y ) { this.real().getVerticalScrollBar().setValue( y ); return this.update(); }
 	
 	private ScrollPane setH( int opt ) { this.real().setHorizontalScrollBarPolicy( opt ); return this.update(); }
 	public ScrollPane showHorizontalScrollAsNeeded() { return this.setH( JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ); }	

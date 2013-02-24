@@ -16,6 +16,7 @@ public class Window extends GUIComponent<Window, WindowEvent> implements WindowF
 	
 	private JFrame window;
 	private boolean sized = false;
+	protected boolean loaded = false;
 	protected Stack<Runnable> onLoads = new Stack<Runnable>();
 	
 	public Window() { this( "Window-" + Window.items++ ); }
@@ -90,6 +91,7 @@ public class Window extends GUIComponent<Window, WindowEvent> implements WindowF
 	@Override public void componentShown( ComponentEvent e ) {
 		while( !this.onLoads.empty() )
 			this.onLoads.pop().run();
+		this.loaded = true;
 	}
 	
 	@Override public void windowActivated( java.awt.event.WindowEvent e ) {}

@@ -40,6 +40,7 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	
 	public ScrollPane toScrollPane() { return (ScrollPane)this; }
 	public TabbedPane toTabbedPane() { return (TabbedPane)this; }
+	public List toList() { return (List)this; }
 	
 	public Button toButton() { return (Button)this; }
 	public TextField toTextField() { return (TextField)this; }
@@ -110,7 +111,7 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	//public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
 	public T setToolTipText( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
 	
-	public T update() { this.target.validate(); this.target.repaint(); return this.actual(); }
+	public T update() { this.target.revalidate(); this.target.repaint(); return this.actual(); }
 	public T enable() { this.target.setEnabled( true ); return this.update(); }
 	public T disable() { this.target.setEnabled( false ); return this.update(); }
 	public T show() { this.target.setVisible( true ); if( this.runOnLoad != null ) this.runOnLoad.run(); return this.actual(); }
@@ -218,6 +219,17 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	}
 	
 	protected OnLoadEvent runOnLoad = null;
+	public T onLoad( OnLoadEvent e ) {
+		this.runOnLoad = e.setTargets( this.target, this );
+		return this.actual();
+	}
+	
+	/** Store an event to run when the parent Window has fully loading. If the Window
+	 * has already loaded, the event will be run immediately.
+	 * <p>
+	 * @param e OnLoadEvent to run when the parent Window is loaded (or immediately if parent window is already loaded).
+	 * @return GUIComponent returns itself as its subclass for chaining.
+	 */
 	public T onWindowLoad( final OnLoadEvent e ) {
 		if( e.target == null )
 			e.setTargets( this.target, this );
@@ -225,14 +237,21 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		new DoLater<GUIComponent<T,?>, OnLoadEvent>( this, null ) {
 			@Override public void run() {
 				if( this.t1 instanceof Window ) {
-					((Window) this.t1).onLoads.push( e );
+					if( ((Window) this.t1).loaded )
+						e.run();
+					else
+						((Window) this.t1).onLoads.push( e );
 					return;
 				}
 				
 				GUIComponent<?, ?> tmp = this.t1.parent;
 				while( tmp != null ) {
-					if( tmp instanceof Window )
-						((Window) tmp).onLoads.push( e );
+					if( tmp instanceof Window ) {
+						if( ((Window) tmp).loaded )
+							e.run();
+						else
+							((Window) tmp).onLoads.push( e );
+					}
 					tmp = tmp.parent;
 				}
 			}

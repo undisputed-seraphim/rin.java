@@ -1,6 +1,5 @@
 package rin.gui;
 
-import java.awt.Font;
 import java.awt.LayoutManager;
 
 import javax.swing.JComponent;
@@ -9,6 +8,9 @@ import javax.swing.SwingUtilities;
 
 public class GUIFactory extends GUIManager {
 	public static final Font DEFAULT_FONT = new Font( "Arial", Font.PLAIN, 11 );
+	public static final Font DEFAULT_FONT_11 = new Font( "Arial", Font.PLAIN, 11 );
+	public static final Font DEFAULT_FONT_12 = new Font( "Arial", Font.PLAIN, 12 );
+	public static final Font DEFAULT_FONT_13 = new Font( "Arial", Font.PLAIN, 13 );
 	
 	volatile static boolean building = false;
 	volatile static boolean async = false;
@@ -21,11 +23,10 @@ public class GUIFactory extends GUIManager {
 		long time = System.currentTimeMillis();
 		while( GUIFactory.building ) {
 			if( (System.currentTimeMillis() - time) > GUIFactory.limit ) {
-				System.out.println( "[WARNING] Wait limit of " + GUIFactory.limit + " ms reached." );
+				System.out.println( "[WARNING] Wait limit of " + GUIFactory.limit + " ms reached while waiting for build to complete." );
 				break;
 			}
 		}
-		System.out.println( System.currentTimeMillis() - time + " ms" );
 	}
 	
 	private static String checkId( String id ) { return id == null ? "$$$Element-" + GUIManager.elementCount : id; }
@@ -64,6 +65,14 @@ public class GUIFactory extends GUIManager {
 		ALT,
 		CTRL;
 	}
+	
+	public static enum Orientation {
+		HORIZONTAL	( SwingConstants.HORIZONTAL ),
+		VERTICAL	( SwingConstants.VERTICAL );
+		
+		protected int value;
+		private Orientation( int value ) { this.value = value; }
+	}
 
 	public static class Defaults {
 		
@@ -76,6 +85,15 @@ public class GUIFactory extends GUIManager {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new Window( id ) ) )
 			return GUIFactory.getWindow( id );
+		return null;
+	}
+	
+	public static Container getContainer( String id ) { return (Container)GUIManager.get( id ); }
+	public static Container createContainer() { return GUIFactory.createContainer( null ); }
+	public static Container createContainer( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Container( id ) ) )
+			return GUIFactory.getContainer( id );
 		return null;
 	}
 	
@@ -103,6 +121,42 @@ public class GUIFactory extends GUIManager {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new ScrollPane( id ) ) )
 			return GUIFactory.getScrollPane( id );
+		return null;
+	}
+	
+	public static List getList( String id ) { return (List)GUIManager.get( id ); }
+	public static List createList() { return GUIFactory.createList( null ); }
+	public static List createList( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new List( id ) ) )
+			return GUIFactory.getList( id );
+		return null;
+	}
+	
+	public static ListItem getListItem( String id ) { return (ListItem)GUIManager.get( id ); }
+	public static ListItem createListItem( String text ) { return GUIFactory.createListItem( null, text ); }
+	public static ListItem createListItem( String id, String text ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new ListItem( id, text ) ) )
+			return GUIFactory.getListItem( id );
+		return null;
+	}
+	
+	public static Columns getColumns( String id ) { return (Columns)GUIManager.get( id ); }
+	public static Columns createColumns( int cols ) { return GUIFactory.createColumns( null, cols ); }
+	public static Columns createColumns( String id, int cols ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Columns( id, cols ) ) )
+			return GUIFactory.getColumns( id );
+		return null;
+	}
+	
+	public static Pair getPair( String id ) { return (Pair)GUIManager.get( id ); }
+	public static Pair createPair() { return GUIFactory.createPair( null ); }
+	public static Pair createPair( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Pair( id ) ) )
+			return GUIFactory.getPair( id );
 		return null;
 	}
 	
@@ -142,39 +196,21 @@ public class GUIFactory extends GUIManager {
 		return null;
 	}
 	
-	public static Container getContainer( String id ) { return (Container)GUIManager.get( id ); }
-	public static Container createContainer() { return GUIFactory.createContainer( null ); }
-	public static Container createContainer( String id ) {
-		id = GUIFactory.checkId( id );
-		if( GUIManager.add( id, new Container( id ) ) )
-			return GUIFactory.getContainer( id );
-		return null;
-	}
-	
-	public static Columns getColumns( String id ) { return (Columns)GUIManager.get( id ); }
-	public static Columns createColumns( int cols ) { return GUIFactory.createColumns( null, cols ); }
-	public static Columns createColumns( String id, int cols ) {
-		id = GUIFactory.checkId( id );
-		if( GUIManager.add( id, new Columns( id, cols ) ) )
-			return GUIFactory.getColumns( id );
-		return null;
-	}
-	
-	public static Pair getPair( String id ) { return (Pair)GUIManager.get( id ); }
-	public static Pair createPair() { return GUIFactory.createPair( null ); }
-	public static Pair createPair( String id ) {
-		id = GUIFactory.checkId( id );
-		if( GUIManager.add( id, new Pair( id ) ) )
-			return GUIFactory.getPair( id );
-		return null;
-	}
-	
 	public static Button getButton( String id ) { return (Button)GUIManager.get( id ); }
 	public static Button createButton() { return GUIFactory.createButton( null ); }
 	public static Button createButton( String id ) {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new Button( id ) ) )
 			return GUIFactory.getButton( id );
+		return null;
+	}
+	
+	public static Slider getSlider( String id ) { return (Slider)GUIManager.get( id ); }
+	public static Slider createSlider() { return GUIFactory.createSlider( null ); }
+	public static Slider createSlider( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Slider( id ) ) )
+			return GUIFactory.getSlider( id );
 		return null;
 	}
 	
@@ -238,15 +274,15 @@ public class GUIFactory extends GUIManager {
 	}
 	
 	public static class ComboBoxEvent extends GUIEvent<ComboBox> {
-		public String value;
-		public int previousIndex, currentIndex;
+		public String value = "";
+		public int previousIndex = 0, currentIndex = 0;
 		public ComboBoxEvent() {}
 		public ComboBoxEvent( Runnable r ) { super( r ); }
 	}
 	
 	public static class ComboItemEvent extends GUIEvent<ComboItem> {
-		public String value;
-		public int previousIndex, currentIndex;
+		public String value = "";
+		public int previousIndex = 0, currentIndex = 0;
 		public ComboItemEvent() {}
 		public ComboItemEvent( Runnable r ) { super( r ); }
 	}
@@ -254,6 +290,12 @@ public class GUIFactory extends GUIManager {
 	public static class ButtonEvent extends GUIEvent<Button> {
 		public ButtonEvent() {}
 		public ButtonEvent( Runnable r ) { super( r ); }
+	}
+	
+	public static class SliderEvent extends GUIEvent<Slider> {
+		public int value = 0;
+		public SliderEvent() {}
+		public SliderEvent( Runnable r ) { super( r ); }
 	}
 	
 	public static class ColumnsEvent extends GUIEvent<Columns> {
@@ -267,26 +309,38 @@ public class GUIFactory extends GUIManager {
 	}
 	
 	public static class TextFieldEvent extends GUIEvent<TextField> {
-		public String value;
+		public String value = "";
 		public TextFieldEvent() {}
 		public TextFieldEvent( Runnable r ) { super( r ); } 
 	}
 
 	public static class ScrollPaneEvent extends GUIEvent<ScrollPane> {
-		public int position, delta;
+		public int position = 0, delta = 0;
 		public ScrollPaneEvent() {}
 		public ScrollPaneEvent( Runnable r ) { super( r ); } 
 	}
 	
 	public static class ListEvent extends GUIEvent<List> {
+		public int[] recentlySelected = new int[0];
+		public int[] recentlyDeselected = new int[0];
+		public int[] selected = new int[0];
 		public ListEvent() {}
 		public ListEvent( Runnable r ) { super( r ); }
 	}
 	
+	public static class ListItemEvent extends GUIEvent<ListItem> {
+		public String text = "";
+		public int[] recentlySelected = new int[0];
+		public int[] recentlyDeselected = new int[0];
+		public int[] selected = new int[0];
+		public ListItemEvent() {}
+		public ListItemEvent( Runnable r ) { super( r ); }
+	}
+	
 	public static class TabbedPaneEvent extends GUIEvent<TabbedPane> {
-		public String title;
-		public Container tab;
-		public int previousIndex, currentIndex;
+		public String title = "";
+		public Container tab = null;
+		public int previousIndex = 0, currentIndex = 0;
 		public TabbedPaneEvent() {}
 		public TabbedPaneEvent( Runnable r ) { super( r ); } 
 	}
@@ -372,5 +426,10 @@ public class GUIFactory extends GUIManager {
 	public static class Dimension extends java.awt.Dimension {
 		private static final long serialVersionUID = 1L;
 		public Dimension( int width, int height ) { super( width, height ); }
+	}
+	
+	public static class Font extends java.awt.Font {
+		private static final long serialVersionUID = 1L;
+		public Font( String name, int style, int size ) { super( name, style, size ); }
 	}
 }
