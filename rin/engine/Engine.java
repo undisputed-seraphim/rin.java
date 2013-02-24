@@ -52,85 +52,85 @@ public class Engine {
 	public static void createDebugWindow() {
 		new GUI() {
 			@Override public void build() {
-createWindow( "#window1" )
-		.setTitle( "rin.ai | Debug" )
-		.setLocation( 20, 20 )
-		.onWindowLoad( new OnLoadEvent() {
-			public void run() {
-				System.out.println( "THIS WINDOW LOADED" );
-			}
-		})
-		.addMenu( createMenuBar()
-				.add( createMenu( "Menu 1" )
+				createWindow( "#window1" )
+				.setTitle( "rin.ai | Debug" )
+				.setLocation( 20, 20 )
+				.onWindowLoad( new OnLoadEvent() {
+					public void run() {
+					System.out.println( "THIS WINDOW LOADED" );
+					}
+				})
+				.addMenu( createMenuBar()
+					.add( createMenu( "Menu 1" )
 						.onOpen( new MenuEvent() {
 							public void run() {
-								System.out.println( "menu open success" );
+							System.out.println( "menu open success" );
 							}
 						})
 						.onWindowLoad( new OnLoadEvent() {
 							public void run() {
-								System.out.println( "haha" );
+							System.out.println( "haha" );
 							}
 						})
 						.add( createMenuItem( "One" ) )
 						.add( createMenu( "Two" )
-								.add( createMenuItem( "Two One" )
-										.setShortcut( ModifierKey.ALT, "A" )
-										.onSelect( new MenuItemEvent() {
-											public void run() {
-												System.out.println( "shortcut worked" );
-											}
-										}))
-								.addSeparator()
-								.add( createMenuItem( "Two Two" ) )
-						)
-						.add( createMenuItem( "Three" ) )
-				)
-				.add( createMenu( "Menu 2" ) )
-				.addHorizontalSeparator()
-				.add( createMenu( "Menu 2" ) )
-				.addHorizontalSeparator()
-				.add( createMenu( "Menu 3" ) )
-		)
-		.add( createContainer()
-				.setAlignment( Alignment.CENTER )
-				.add( createCheckBox().setLabel( "test" ) )
-				.add( createPanel()
-						.setAlignment( Alignment.CENTER )
-						.add( createColumns( 2 )
-								.add( 1, createCheckBox( "asdf" ).setLabel( "test" ) )
-								.add( 1, createContainer()
-										.add( createCheckBox() )
-										.add( createCheckBox() ) )
-								.add( 2, createTextField().onEnter(new TextFieldEvent() {
+							.add( createMenuItem( "Two One" )
+								.setShortcut( ModifierKey.ALT, "A" )
+								.onSelect( new MenuItemEvent() {
 									public void run() {
-										getCheckBox( "asdf" ).check();
+									System.out.println( "shortcut worked" );
 									}
 								}))
-								
-								.add( 2, createButton() )
+							.addSeparator()
+							.add( createMenuItem( "Two Two" ) )
 						)
+						.add( createMenuItem( "Three" ) )
+					)
+					.add( createMenu( "Menu 2" ) )
+					.addHorizontalSeparator()
+					.add( createMenu( "Menu 2" ) )
+					.addHorizontalSeparator()
+					.add( createMenu( "Menu 3" ) )
 				)
-				.add( createCheckBox() )
-				.add( createTabbedPane()
+				.add( createContainer()
+					.setAlignment( Alignment.CENTER )
+					.add( createCheckBox().setLabel( "test" ) )
+					.add( createPanel()
+						.setAlignment( Alignment.CENTER )
+						.add( createColumns( 2 )
+							.add( 1, createCheckBox( "asdf" ).setLabel( "test" ) )
+							.add( 1, createContainer()
+								.add( createCheckBox() )
+								.add( createCheckBox() ) )
+							.add( 2, createTextField().onEnter(new TextFieldEvent() {
+								public void run() {
+								getCheckBox( "asdf" ).check();
+								}
+							}))
+							
+							.add( 2, createButton() )
+						)
+					)
+					.add( createCheckBox() )
+					.add( createTabbedPane()
 						.addTab( "Overall", createContainer()
-								.onFocus( new ContainerEvent() {
-									public void run() {
-										System.out.println( "FOCUSED OVERALL" );
-									}
-								})
-								.add( createPanel()
-										.setAlignment( Alignment.CENTER )
-										.add( createPair()
-												.setLeftItem( createCheckBox() )
-												.setRightItem( createCheckBox() )
-										)
+							.onFocus( new ContainerEvent() {
+								public void run() {
+								System.out.println( "FOCUSED OVERALL" );
+								}
+							})
+							.add( createPanel()
+								.setAlignment( Alignment.CENTER )
+								.add( createPair()
+									.setLeftItem( createCheckBox() )
+									.setRightItem( createCheckBox() )
 								)
+							)
 						)
 						.addTab( "Actors", createContainer() )
 						.addTab( "Misc", createContainer() )
-				)
-				.add( createScrollPane()
+					)
+					.add( createScrollPane()
 						.setSize( 100, 100 )
 						.scrollToY( 100 )
 						.setAlignment( Alignment.CENTER )
@@ -138,44 +138,44 @@ createWindow( "#window1" )
 						.add( createCheckBox() )
 						.add( createCheckBox() )
 						.add( createComboBox()
-								.onSelect( new ComboBoxEvent() {
-									public void run() {
-										System.out.println( "an option was selected " );
-									}
-								})
-								.add( createComboItem( "Option One" ).onSelect( new ComboItemEvent() {
-									public void run() {
-										System.out.println( "Option One selected." );
-									}
-								}) )
-								.add( createComboItem( "Option Two" ).select() )
+							.onSelect( new ComboBoxEvent() {
+								public void run() {
+								System.out.println( "an option was selected " );
+								}
+							})
+							.add( createComboItem( "Option One" ).onSelect( new ComboItemEvent() {
+								public void run() {
+								System.out.println( "Option One selected." );
+								}
+							}) )
+							.add( createComboItem( "Option Two" ).select() )
 						)
 						.add( createList()
-								.add( createListItem( "Oneeeee" )
-										.onSelect( new ListItemEvent() {
-											public void run() {
-												System.out.println( Buffer.toString( this.selected ) );
-											}
-										})
-										.onDeselect( new ListItemEvent() {
-											public void run() {
-												System.out.println( " deselected " + this.text );
-											}
-										}) )
-								.add( createListItem( "Twoooo" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ).select() )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
-								.add( createListItem( "Threee" ) )
+							.add( createListItem( "Oneeeee" )
+								.onSelect( new ListItemEvent() {
+									public void run() {
+									System.out.println( Buffer.toString( this.selected ) );
+									}
+								})
+								.onDeselect( new ListItemEvent() {
+									public void run() {
+									System.out.println( " deselected " + this.text );
+									}
+								}) )
+							.add( createListItem( "Twoooo" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ).select() )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
+							.add( createListItem( "Threee" ) )
 						)
 						.add( createSlider() )
-				)
-		).show();
+					)
+				).show();
 			}
 		};
 	}
