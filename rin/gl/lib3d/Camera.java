@@ -57,6 +57,31 @@ public class Camera extends Actor {
 	public void update() {
 		//this.processInput();
 		//System.out.println(this.matrix.toString());
+		boolean pChanged = false,
+				rChanged = false;
+		float	step = 0.0f,
+				side = 0.0f,
+				rise = 0.0f,
+				rotx = 0.0f,
+				roty = 0.0f;
+
+		if( Keyboard.isKeyDown( Keyboard.KEY_W ) ) { pChanged = true; step += 0.05f; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_S ) ) { pChanged = true; step -= 0.05f; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_A ) ) { pChanged = true; side += 0.05f; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_D ) ) { pChanged = true; side -= 0.05f; }
+		
+		//camera look and turn
+		if( Keyboard.isKeyDown( Keyboard.KEY_UP ) ) { rChanged = true; rotx -= 0.001; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_DOWN ) ) { rChanged = true; rotx += 0.001; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_LEFT ) ) { rChanged = true; roty -= 0.001; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_RIGHT ) ) { rChanged = true; roty += 0.001; }
+		
+		//camera ascend/descend
+		if( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT) ) { pChanged = true; rise += 0.05f; }
+		if( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) { pChanged = true; rise -= 0.05f; }
+		
+		if( rChanged ) this.spin( rotx, roty, 0.0f );
+		if( pChanged ) this.move( step, side, rise );
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.getMatrix().gl() );
 	}
 	

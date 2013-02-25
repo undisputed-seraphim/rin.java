@@ -152,8 +152,8 @@ public class Scene {
 			Scene.uniqueAtMouse = Buffer.toString( this.camera.getMouseRGB() );
 
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			GLEvent.fire( new TickEvent( 0.0015f ) );
-			Input.process();
+			//GLEvent.fire( new TickEvent( 0.0015f ) );
+			//Input.process();
 			/*if( !this.prev.equals( "" ) ) {
 				if( !this.prev.equals( tmp ) ) {
 					GLEvent.fire( new PickOutEvent( this.prev ) );
