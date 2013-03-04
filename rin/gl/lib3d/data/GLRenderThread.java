@@ -151,6 +151,12 @@ public class GLRenderThread extends Thread {
 			
 			Display.update();
 			Display.sync( 60 );
+			
+			try {
+				Thread.sleep( 1L );
+			} catch( InterruptedException e ) {
+				
+			}
 		}
 		this.destroy();
 	}

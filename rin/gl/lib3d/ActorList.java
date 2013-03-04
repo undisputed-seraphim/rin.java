@@ -13,6 +13,7 @@ import rin.gl.lib3d.data.GLRenderThread;
 import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelManager.Format;
+import rin.system.RParams;
 import rin.util.math.Vec3;
 
 public class ActorList extends Thread {

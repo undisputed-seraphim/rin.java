@@ -32,7 +32,7 @@ public class Engine {
 
 	public static void init() { Engine.init( 900, 600 ); }
 	public static void init( int width, int height ) {
-		Thread.currentThread().setName( "rin.ai | Render Thread" );
+		//Thread.currentThread().setName( "rin.ai | Render Thread" );
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
 			Display.create();
@@ -198,13 +198,13 @@ public class Engine {
 	public static void stop() { Engine.destroy(); }
 	
 	public static void destroy() {
-		GLEventThread.requestDestroy();
-		ActorList.requestDestroy();
+		//GLEventThread.requestDestroy();
+		//ActorList.requestDestroy();
 
 		if( Engine.scene != null )
 			Engine.scene = Engine.scene.destroy();
 		
-		GUIManager.destroy();
+		//GUIManager.destroy();
 		//Input.requestDestroy();
 		
 		Display.destroy();
