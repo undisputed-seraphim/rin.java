@@ -6,6 +6,7 @@ import org.lwjgl.opengl.DisplayMode;
 
 import rin.gl.GL;
 import rin.gl.Scene;
+import rin.gl.model.ModelManager;
 import rin.engine.Engine;
 import rin.system.GameState;
 import static rin.gui.GUIFactory.*;
@@ -77,6 +78,17 @@ public class States {
 												}
 											})
 									)
+									.add( createButton()
+											.setText( "900 x 600" )
+											.onClick( new ButtonEvent() {
+												@Override public void run() {
+													States.GAME.setWidth( 900 );
+													States.GAME.setHeight( 600 );
+													this.target.destroyWindow();
+													States.MENU.pop();
+												}
+											})
+									)
 					)
 					.show();
 				}
@@ -110,6 +122,7 @@ public class States {
 			
 			/* start the gl render thread */
 			GL.init( States.GAME.getWidth(), States.GAME.getHeight() );
+			GL.addModel( ModelManager.Format.DAE, "noire_v" );
 			
 			/* start the scene update thread */
 			

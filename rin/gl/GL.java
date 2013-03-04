@@ -10,11 +10,10 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.engine.Engine;
-import rin.gl.font.Font;
+import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
-import rin.gl.lib3d.data.GLSource;
-import rin.sample.GSGL;
-import rin.sample.States;
+import rin.gl.lib3d.Poly;
+import rin.gl.model.ModelManager;
 import rin.system.SingletonThread;
 import rin.util.IO;
 
@@ -28,10 +27,9 @@ public class GL extends SingletonThread {
 		return GL.instance;
 	}
 	
-	public static ConcurrentLinkedQueue<GLSource> sources = new ConcurrentLinkedQueue<GLSource>();
+	public static ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
 	private Camera camera;
-	
 	private int vShader = -1, fShader = -1, program = -1;
 	public int getProgram() { return this.program; }
 	public static int getAttrib( String str ) { return GL.get().getAttributeLocation( str ); }
@@ -69,10 +67,19 @@ public class GL extends SingletonThread {
 		return new float[]{ tmp[0] / 255, tmp[1] / 255, tmp[2] / 255 };
 	}
 
-	public static void init() { GL.instance = new GL(); }
+	public static void init() { GL.instance = new GL( GL.width, GL.height ); }
 	public static void init( int width, int height ) { GL.instance = new GL( width, height ); }
 	
-	public GL() { this( 900, 600 ); }
+	public static void addModel( final ModelManager.Format format, final String name ) {
+		GL.sources.add( new Runnable() {
+			public void run() {
+				synchronized( GLScene.getActors() ) {
+					GLScene.getActors().add( ModelManager.create( format, name ) );
+				}
+			}
+		});
+	}
+	
 	public GL( int width, int height ) {
 		super( "rin.ai | Render Thread" );
 		GL.width = width;
@@ -155,11 +162,18 @@ public class GL extends SingletonThread {
 	}
 	
 	@Override public void main() {
+		Runnable tmp;
 		if( !Display.isCloseRequested() ) {
-			System.out.println( "gl loop" );
+			while( (tmp = GL.sources.poll() ) != null )
+				tmp.run();
+			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			this.camera.update();
 		
+			for( Actor a : GLScene.getActors() ) {
+				((Poly)a).render();
+			}
+			
 			Display.update();
 			Display.sync( 60 );
 		} else {
