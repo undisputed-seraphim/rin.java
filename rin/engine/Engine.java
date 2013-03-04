@@ -21,6 +21,7 @@ public class Engine {
 	public static final String SHADER_DIR = ROOTDIR+"inc"+LS+"shaders"+LS;
 	public static final String MODEL_DIR = ROOTDIR+"inc"+LS+"models"+LS;
 	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
+	public static final String IMG_DIR = ROOTDIR+"inc"+LS+"img"+LS;
 	
 	public static boolean DEBUG = true;
 	

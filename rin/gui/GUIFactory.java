@@ -57,6 +57,12 @@ public class GUIFactory extends GUIManager {
 		RIGHT	( 1.0f );
 		
 		protected float value;
+		public static int getPosition( Alignment alignment ) {
+			for( Position p : Position.values() )
+				if( p.toString().equals( alignment.toString() ) )
+					return p.value;
+			return Position.CENTER.value;
+		}
 		private Alignment( float value ) { this.value = value; }
 	}
 	
@@ -157,6 +163,16 @@ public class GUIFactory extends GUIManager {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new Pair( id ) ) )
 			return GUIFactory.getPair( id );
+		return null;
+	}
+	
+	public static Label getLabel( String id ) { return (Label)GUIManager.get( id ); }
+	public static Label createLabel() { return GUIFactory.createLabel( null, null ); }
+	public static Label createLabel( String id ) { return GUIFactory.createLabel( id, null ); }
+	public static Label createLabel( String id, String text ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Label( id, text ) ) )
+			return GUIFactory.getLabel( id );
 		return null;
 	}
 	
@@ -306,6 +322,12 @@ public class GUIFactory extends GUIManager {
 	public static class PairEvent extends GUIEvent<Pair> {
 		public PairEvent() {}
 		public PairEvent( Runnable r ) { super( r ); }
+	}
+	
+	public static class LabelEvent extends GUIEvent<Label> {
+		public String value = "";
+		public LabelEvent() {}
+		public LabelEvent( Runnable r ) { super( r ); }
 	}
 	
 	public static class TextFieldEvent extends GUIEvent<TextField> {

@@ -9,6 +9,11 @@ public abstract class GameState extends Thread {
 	public boolean isThreaded() { return this.threaded; }
 	private boolean threaded = false;
 	
+	/** Set whether or not this GameState should loop it's main method */
+	public void setLooped( boolean val ) { this.looped = val; }
+	public boolean isLooped() { return this.looped; }
+	private boolean looped = true;
+	
 	private boolean destroyRequested = false;
 	public boolean isDestroyRequested() { return this.destroyRequested; }
 	
@@ -21,14 +26,24 @@ public abstract class GameState extends Thread {
 		this.loop();
 	}
 	
-	/** Immediately exit this GameState */
-	public final void pop() { this.destroyRequested = true; }
+	/** Immediately exit or stop this GameState */
+	public final void pop() {
+		this.destroyRequested = true;
+		
+		if( !this.isLooped() )
+			this.onExit();
+	}
 	
 	private final void loop() {
 		this.onEnter();
 		
-		while( !this.destroyRequested ) {
+		if( this.isLooped() ) {
+			while( !this.destroyRequested ) {
+				this.main();
+			}
+		} else {
 			this.main();
+			return;
 		}
 
 		this.onExit();

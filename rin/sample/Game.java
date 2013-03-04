@@ -16,7 +16,7 @@ import static rin.system.RInput.*;
 
 public class Game {
 	public static void main( String args[] ) {
-		trackInput();
+		//trackInput();
 		
 		States.TITLE.push();
 		//Engine.init( 900, 600 );

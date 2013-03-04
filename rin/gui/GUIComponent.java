@@ -259,6 +259,20 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		return this.actual();
 	}
 	
+	public Window destroyWindow() {
+		if( this instanceof Window )
+			return (Window)this.destroy();
+		
+		GUIComponent<?, ?> tmp = this.parent;
+		while( tmp != null ) {
+			if( tmp instanceof Window )
+				return (Window)tmp.destroy();
+			tmp = tmp.parent;
+		}
+		
+		return null;
+	}
+	
 	protected GUIComponent<T, T2> destroy() {
 		this.target.removeComponentListener( this );
 		this.removeAll();
