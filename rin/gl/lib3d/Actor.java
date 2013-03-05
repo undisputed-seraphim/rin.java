@@ -38,7 +38,7 @@ public class Actor implements Positionable, Controllable, Animatable {
 	
 	/* -------------- positionable implementation ------------------ */
 	private Vec3 position =	new Vec3(), rotation = new Vec3(), scale = new Vec3();
-	private Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
+	private volatile Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
 	
 	public Transformation getTransformation() { return new Transformation( this.position, this.rotation, this.scale ); }
 	public void setTransformation( Transformation t ) {
@@ -201,7 +201,7 @@ public class Actor implements Positionable, Controllable, Animatable {
 	}
 	
 	public void update() {
-		this.spin( -0.01f, 0, 0 );
+		/*this.spin( -0.01f, 0, 0 );
 		synchronized( this.events ) {
 			for( GLEvent e : this.events ) {
 				if( e instanceof Transition ) {
@@ -216,6 +216,6 @@ public class Actor implements Positionable, Controllable, Animatable {
 					}
 				}
 			}
-		}
+		}*/
 	}
 }

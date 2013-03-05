@@ -105,9 +105,16 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 		return keycode;
 	}
 	
+	public int getHeight() { return this.target.getPreferredSize().height; }
+	public int getWidth() { return this.target.getPreferredSize().width; }
+	
 	public T setBackgroundColor( int r, int g, int b ) { return this.setBackgroundColor( r, g, b, 255 ); }
 	public T setBackgroundColor( int r, int g, int b, int a ) { this.target.setBackground( new Color( r, g, b, a ) ); return this.update(); }
+	
 	public T setSize( int width, int height ) { this.target.setPreferredSize( new GUIFactory.Dimension( width, height ) ); return this.update(); }
+	public T setWidth( int width ) { this.target.setPreferredSize( new GUIFactory.Dimension( width, this.getHeight() ) ); return this.update(); }
+	public T setHeight( int height ) { this.target.setPreferredSize( new GUIFactory.Dimension( this.getWidth(), height ) ); return this.update(); }
+	
 	//public T setLayout( GUIManager.GUILayout layout ) { this.target.setLayout( layout ); return this.update(); }
 	public T setToolTipText( String tip ) { this.target.setToolTipText( tip ); return this.update(); }
 	
@@ -208,7 +215,9 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	
 	@Override public void componentHidden( ComponentEvent e ) { System.out.println( "hidden" ); }
 	@Override public void componentMoved( ComponentEvent e ) {}
-	@Override public void componentResized( ComponentEvent e ) {}
+	
+	protected T2 runOnResize = null;
+	@Override public void componentResized( ComponentEvent e ) { if( this.runOnResize != null ) this.runOnResize.run(); }
 	@Override public void componentShown( ComponentEvent e ) { System.out.println( "Shown" ); }
 	
 	protected static class DoLater<T1, T2> implements Runnable {

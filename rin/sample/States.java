@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.gl.GL;
+import rin.gl.GLScene;
 import rin.gl.Scene;
 import rin.gl.model.ModelManager;
 import rin.engine.Engine;
@@ -125,7 +126,7 @@ public class States {
 			GL.addModel( ModelManager.Format.DAE, "noire_v" );
 			
 			/* start the scene update thread */
-			
+			GLScene.init();
 		}
 		
 		@Override public void main() {

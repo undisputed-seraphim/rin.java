@@ -4,6 +4,15 @@ public abstract class SingletonThread extends Thread {
 	private boolean destroyRequested = false;
 	public boolean isDestroyRequested() { return this.destroyRequested; }
 	public void requestDestroy() { this.destroyRequested = true; }
+	public void requestDestroyAndWait() {
+		this.destroyRequested = true;
+		try {
+			this.join();
+		} catch( InterruptedException e ) {
+			System.out.println( "[ERROR] InterruptedException while waiting for " + this.getName() );
+			this.destroy();
+		}
+	}
 	
 	private String name = "";
 	public SingletonThread( String name ) { this.name = name; }

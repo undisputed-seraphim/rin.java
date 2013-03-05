@@ -38,6 +38,14 @@ public class Buffer {
 		return str;
 	}
 	
+	public static String toString( Byte[] arr ) {
+		String str = "Byte[ ";
+		for( Byte b : arr )
+			str += b + " ";
+		str += "]";
+		return str;
+	}
+	
 	/* int buffers */
 	public static int[] toArray( IntBuffer buf ) {
 		int[] arr = new int[ buf.capacity() ];

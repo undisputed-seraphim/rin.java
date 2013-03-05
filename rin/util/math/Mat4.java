@@ -7,6 +7,8 @@ import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Mat4 {
+	public static final Mat4 IDENTITY = new Mat4();
+	
 	/* array that holds the values of the matrix */
 	public float[] m = new float[16];
 	

@@ -17,12 +17,13 @@ public class GUIFactory extends GUIManager {
 	public static void setAsync( boolean val ) { GUIFactory.async = val; }
 	
 	private static long limit = 5000;
-	public void setBuildTimeout( long ms ) { GUIFactory.limit = ms; }
+	public static void setBuildTimeout( long ms ) { GUIFactory.limit = ms; }
 	
+	public static void waitForBuild( long ms ) { GUIFactory.setBuildTimeout( ms ); GUIFactory.waitForBuild(); }
 	public static void waitForBuild() {
 		long time = System.currentTimeMillis();
 		while( GUIFactory.building ) {
-			if( (System.currentTimeMillis() - time) > GUIFactory.limit ) {
+			if( (System.currentTimeMillis() - time) > GUIFactory.limit && !(GUIFactory.limit == 0) ) {
 				System.out.println( "[WARNING] Wait limit of " + GUIFactory.limit + " ms reached while waiting for build to complete." );
 				break;
 			}
@@ -168,7 +169,7 @@ public class GUIFactory extends GUIManager {
 	
 	public static Label getLabel( String id ) { return (Label)GUIManager.get( id ); }
 	public static Label createLabel() { return GUIFactory.createLabel( null, null ); }
-	public static Label createLabel( String id ) { return GUIFactory.createLabel( id, null ); }
+	public static Label createLabel( String text ) { return GUIFactory.createLabel( null, text ); }
 	public static Label createLabel( String id, String text ) {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new Label( id, text ) ) )
@@ -182,6 +183,15 @@ public class GUIFactory extends GUIManager {
 		id = GUIFactory.checkId( id );
 		if( GUIManager.add( id, new TextField( id ) ) )
 			return GUIFactory.getTextField( id );
+		return null;
+	}
+	
+	public static TextArea getTextArea( String id ) { return (TextArea)GUIManager.get( id ); }
+	public static TextArea createTextArea() { return GUIFactory.createTextArea( null ); }
+	public static TextArea createTextArea( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new TextArea( id ) ) )
+			return GUIFactory.getTextArea( id );
 		return null;
 	}
 	
@@ -334,6 +344,12 @@ public class GUIFactory extends GUIManager {
 		public String value = "";
 		public TextFieldEvent() {}
 		public TextFieldEvent( Runnable r ) { super( r ); } 
+	}
+	
+	public static class TextAreaEvent extends GUIEvent<TextArea> {
+		public String value = "";
+		public TextAreaEvent() {}
+		public TextAreaEvent( Runnable r ) { super( r ); } 
 	}
 
 	public static class ScrollPaneEvent extends GUIEvent<ScrollPane> {

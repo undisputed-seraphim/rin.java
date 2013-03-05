@@ -14,6 +14,7 @@ import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
 import rin.gl.model.ModelManager;
+import rin.sample.States;
 import rin.system.SingletonThread;
 import rin.util.IO;
 
@@ -169,7 +170,7 @@ public class GL extends SingletonThread {
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			this.camera.update();
-		
+
 			for( Actor a : GLScene.getActors() ) {
 				((Poly)a).render();
 			}
@@ -179,5 +180,21 @@ public class GL extends SingletonThread {
 		} else {
 			this.requestDestroy();
 		}
+	}
+	
+	@Override public void destroy() {
+		GL.r = 0;
+		GL.g = 0;
+		GL.b = 0;
+		
+		for( Actor a : GLScene.getActors() )
+			a = a.destroy();
+		GLScene.get().requestDestroy();
+		
+		TextureManager.destroy();
+		Display.destroy();
+		
+		States.GAME.pop();
+		States.MENU.push();
 	}
 }
