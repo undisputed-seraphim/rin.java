@@ -19,6 +19,7 @@ public class Game {
 		//trackInput();
 		
 		States.TITLE.push();
+		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();
 		GLRenderThread.init( 900, 600 );

@@ -25,8 +25,10 @@ public class GLScene extends SingletonThread {
 	public static ArrayList<Actor> getActors() { return GLScene.actors; }
 	
 	@Override public void main() {
-		for( Actor a : GLScene.actors ) {
-			a.update();
+		synchronized( GLScene.actors ) {
+			for( Actor a : GLScene.actors ) {
+				a.update();
+			}
 		}
 	}
 	

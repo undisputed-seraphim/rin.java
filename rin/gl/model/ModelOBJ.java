@@ -16,13 +16,14 @@ public class ModelOBJ implements Model {
 		VN,
 		VT,
 		O,
-		F;
+		F,
+		NULL;
 		
 		public static Line get( String id ) {
 			for( Line l : Line.values() )
 				if( l.toString().toLowerCase().equals( id.toLowerCase() ) )
 					return l;
-			return null;
+			return NULL;
 		}
 	}
 	
