@@ -7,15 +7,17 @@ import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.lib3d.interfaces.Animatable;
+import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.Scene;
 import rin.gl.event.GLEvent;
-import rin.gl.event.Transition;
+import rin.sample.Transition;
 import rin.gl.event.GLEvent.*;
+import rin.gl.lib3d.properties.Position;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
 
-public class Actor implements Positionable, Controllable, Animatable {
+public class Actor implements Positionable, Controllable, Animatable, Transitionable {
 	private static int items = 0;
 
 	/** Name describing Actor */
@@ -37,10 +39,11 @@ public class Actor implements Positionable, Controllable, Animatable {
 	}
 	
 	/* -------------- positionable implementation ------------------ */
-	private Vec3 position =	new Vec3(), rotation = new Vec3(), scale = new Vec3();
+	private volatile Position position = new Position();
+	private Vec3 rotation = new Vec3(), scale = new Vec3();
 	private volatile Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
 	
-	public Transformation getTransformation() { return new Transformation( this.position, this.rotation, this.scale ); }
+	public Transformation getTransformation() { return new Transformation( this.position.asVec3(), this.rotation, this.scale ); }
 	public void setTransformation( Transformation t ) {
 		this.setPosition( t.getPosition() );
 		this.setRotation( t.getRotation() );
@@ -50,21 +53,27 @@ public class Actor implements Positionable, Controllable, Animatable {
 	@Override public Mat4 getMatrix() { return this.matrix; }
 	@Override public void setMatrix( Mat4 m ) { this.matrix = m; }
 	
-	@Override public Vec3 getPosition() { return this.position; }
+	@Override public Position getPosition() { return this.position; }
 	@Override public Mat4 getPositionMatrix() { return this.translate; }
 	@Override public void resetPosition() { this.setPosition( 0.0f, 0.0f, 0.0f ); }
-	@Override public void setPosition( Vec3 p ) { this.setPosition( p.x, p.y, p.z ); }
+	
+	public void setPosition( Vec3 p ) { this.setPosition( p.x, p.y, p.z ); }
+	public void setPosition( Position p ) { this.setPosition( p.x, p.y, p.z ); }
 	@Override public void setPosition( float x, float y, float z ) {
-		this.position.redefine( x, y, z );
+		System.out.println( x + " " + y + " " + z );
+		this.position.x = x;
+		this.position.y = y;
+		this.position.z = z;
 		this.transform();
 	}
 	
-	private void updatePosition() { this.translate = Mat4.translate( new Mat4(), this.position ); }
+	private void updatePosition() { this.translate = Mat4.translate( new Mat4(), this.position.asVec3() ); }
 
 	@Override public Vec3 getRotation() { return this.rotation; }
 	@Override public Mat4 getRotationMatrix() { return this.rotate; }
 	@Override public void resetRotation() { this.setRotation( 0.0f, 0.0f, 0.0f ); }
-	@Override public void setRotation( Vec3 r ) { this.setRotation( r.x, r.y, r.z ); }
+	
+	public void setRotation( Vec3 r ) { this.setRotation( r.x, r.y, r.z ); }
 	@Override public void setRotation( float x, float y, float z ) {
 		this.rotation.redefine( x * Quat4.PIOVER180, y * Quat4.PIOVER180, z * Quat4.PIOVER180 );
 		this.transform();
@@ -80,7 +89,8 @@ public class Actor implements Positionable, Controllable, Animatable {
 	@Override public Vec3 getScale() { return this.scale; }
 	@Override public Mat4 getScaleMatrix() { return this.scaled; }
 	@Override public void resetScale() { this.setScale( 1.0f, 1.0f, 1.0f ); }
-	@Override public void setScale( Vec3 s ) { this.setScale( s.x, s.y, s.z ); }
+	
+	public void setScale( Vec3 s ) { this.setScale( s.x, s.y, s.z ); }
 	@Override public void setScale( float x, float y, float z ) {
 		this.scale.redefine( x, y, z );
 		this.transform();
@@ -200,7 +210,9 @@ public class Actor implements Positionable, Controllable, Animatable {
 		}
 	}
 	
-	public void update() {
+	public void update( long dt ) {
+		for( Transition<?> t : this.transitions )
+			this.applyTransition( t, dt );
 		/*this.spin( -0.01f, 0, 0 );
 		synchronized( this.events ) {
 			for( GLEvent e : this.events ) {
@@ -217,5 +229,27 @@ public class Actor implements Positionable, Controllable, Animatable {
 				}
 			}
 		}*/
+	}
+	
+	/* ---------------- transitionable implementation ------------ */
+	private ArrayList<Transition<?>> transitions = new ArrayList<Transition<?>>();
+	
+	public void addPositionTransition( Position to, long duration ) {
+		this.transitions.add( new Transition<Position>( this.getPosition(), to, duration ) );
+	}
+	
+	@Override public void applyTransition( Transition<?> t, long dt ) {
+		t.update( dt );
+		if( t.getTarget() instanceof Position ) {
+			this.setPosition( (Position)t.getTarget() );
+		}
+	}
+	
+	@Override public void onTransitionBegin( Transition<?> t ) {
+		System.out.println( "Transition starting!" );
+	}
+	
+	@Override public void onTransitionEnd( Transition<?> t ) {
+		System.out.println( "Transition ending!" );
 	}
 }

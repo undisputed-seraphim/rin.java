@@ -1,6 +1,7 @@
 package rin.gl.lib3d.interfaces;
 
 import rin.gl.lib3d.Actor;
+import rin.gl.lib3d.properties.Position;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 
@@ -11,22 +12,19 @@ public interface Positionable extends Comparable<Positionable> {
 	
 	/** Obtain the x, y, z coordinates of this Positionable.
 	 * @return {@link Vec3} describing item's position in world coordinates. */
-	public Vec3 getPosition();
+	public Position getPosition();
 	public Mat4 getPositionMatrix();
 	public void resetPosition();
-	public void setPosition( Vec3 s );
 	public void setPosition( float x, float y, float z );
 	
 	public Vec3 getRotation();
 	public Mat4 getRotationMatrix();
 	public void resetRotation();
-	public void setRotation( Vec3 s );
 	public void setRotation( float x, float y, float z );
 	
 	public Vec3 getScale();
 	public Mat4 getScaleMatrix();
 	public void resetScale();
-	public void setScale( Vec3 s );
 	public void setScale( float x, float y, float z );
 	
 	public void spin( float xaxis, float yaxis, float zaxis );

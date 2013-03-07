@@ -123,9 +123,13 @@ public class States {
 			
 			/* start the gl render thread */
 			GL.init( States.GAME.getWidth(), States.GAME.getHeight() );
-			GL.addModel( ModelManager.Format.DAE, "noire_v" );
-			GL.addModel( ModelManager.Format.OBJ, "cornelia" );
-			
+			GL.addModel( ModelManager.Format.DAE, "noire_v" ).onFinish( new Runnable() {
+				@Override public void run() {
+					//GLScene.getActors().get( 0 ).addPositionTransition( new Position( 5, 5, 5 ), 5000L );
+				}
+			});
+			//GL.addModel( ModelManager.Format.OBJ, "cornelia" );
+
 			/* start the scene update thread */
 			GLScene.init();
 		}

@@ -11,6 +11,7 @@ import org.lwjgl.input.Mouse;
 import rin.gl.event.GLEvent.KeyRepeatEvent;
 import rin.gl.lib3d.Actor;
 import rin.gl.GL;
+import rin.gl.lib3d.properties.Position;
 import rin.util.Buffer;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
@@ -54,6 +55,11 @@ public class Camera extends Actor {
 	
 	public void detach() { this.resetPosition(); this.setControlled( true ); }
 	
+	@Override public void update( long dt ) {
+		super.update( dt );
+		this.update();
+	}
+	
 	public void update() {
 		//this.processInput();
 		//System.out.println(this.matrix.toString());
@@ -65,6 +71,8 @@ public class Camera extends Actor {
 				rotx = 0.0f,
 				roty = 0.0f;
 
+		if( Keyboard.isKeyDown( Keyboard.KEY_T ) ) {}
+		
 		if( Keyboard.isKeyDown( Keyboard.KEY_W ) ) { pChanged = true; step += 0.05f; }
 		if( Keyboard.isKeyDown( Keyboard.KEY_S ) ) { pChanged = true; step -= 0.05f; }
 		if( Keyboard.isKeyDown( Keyboard.KEY_A ) ) { pChanged = true; side += 0.05f; }

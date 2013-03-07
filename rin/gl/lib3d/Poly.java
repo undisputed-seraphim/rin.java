@@ -7,7 +7,6 @@ import static org.lwjgl.opengl.GL20.*;
 import rin.gl.GL;
 import rin.gl.TextureManager;
 import rin.gl.event.GLEvent;
-import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.interfaces.*;
 import rin.gl.lib3d.data.GLBuffer;
@@ -18,7 +17,7 @@ import rin.gl.lib3d.properties.Properties;
 import rin.gl.lib3d.shape.BoundingBox;
 import rin.util.math.Mat4;
 
-public class Poly extends Actor implements Renderable, Boundable, Pickable, Transitionable {
+public class Poly extends Actor implements Renderable, Boundable, Pickable {
 	private static int items = 0;
 	
 	private static final float	POS_INF = Float.POSITIVE_INFINITY,
@@ -292,16 +291,5 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable, Tran
 			TextureManager.unload( this.texture );
 		
 		return null;
-	}
-	
-	@Override public void applyTransition( Transition t ) {
-	}
-	
-	@Override public void onTransitionBegin(Transition t) {
-		System.out.println( "Transition starting!" );
-	}
-	
-	@Override public void onTransitionEnd(Transition t) {
-		System.out.println( "Transition ending!" );
 	}
 }

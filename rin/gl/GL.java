@@ -13,12 +13,14 @@ import rin.engine.Engine;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
+import rin.gl.model.ModelLoader;
 import rin.gl.model.ModelManager;
+import rin.gl.lib3d.properties.Position;
 import rin.sample.States;
 import rin.system.SingletonThread;
 import rin.util.IO;
 
-public class GL extends SingletonThread {
+public class GL extends SingletonThread<GL> {
 	private static GL instance;
 	private static int width = 900, height = 600;
 	public static GL get() {
@@ -31,6 +33,8 @@ public class GL extends SingletonThread {
 	public static ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
 	private Camera camera;
+	public Camera getCamera() { return this.camera; }
+	
 	private int vShader = -1, fShader = -1, program = -1;
 	public int getProgram() { return this.program; }
 	public static int getAttrib( String str ) { return GL.get().getAttributeLocation( str ); }
@@ -71,14 +75,17 @@ public class GL extends SingletonThread {
 	public static void init() { GL.instance = new GL( GL.width, GL.height ); }
 	public static void init( int width, int height ) { GL.instance = new GL( width, height ); }
 	
-	public static void addModel( final ModelManager.Format format, final String name ) {
+	public static ModelLoader addModel( final ModelManager.Format format, final String name ) {
+		final ModelLoader ml = new ModelLoader();
 		GL.sources.add( new Runnable() {
 			public void run() {
 				synchronized( GLScene.getActors() ) {
 					GLScene.getActors().add( ModelManager.create( format, name ) );
+					ml.finished();
 				}
 			}
 		});
+		return ml;
 	}
 	
 	public GL( int width, int height ) {
@@ -160,6 +167,7 @@ public class GL extends SingletonThread {
 		glViewport( 0, 0, width, height );
 
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
+		//this.camera.addPositionTransition( new Position( -5, -5, this.camera.getPosition().z ), 5000L );
 	}
 	
 	@Override public void main() {
@@ -169,7 +177,7 @@ public class GL extends SingletonThread {
 				tmp.run();
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			this.camera.update();
+			this.camera.update( this.getDt() );
 
 			for( Actor a : GLScene.getActors() ) {
 				((Poly)a).render();

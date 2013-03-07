@@ -1,27 +1,44 @@
 package rin.sample;
 
-public class Transition<T> {
-	private Transitionable<T> from = null, to = null;
-	private long duration = 1000L, predivided = 0;
-	private long current = 0L;
+import rin.gl.lib3d.properties.TransitionableProperty;
+
+public class Transition<T extends TransitionableProperty<T>> {
+	private T target = null, original = null, to = null;
+	public T getTarget() { return this.target; }
 	
-	public Transition( Transitionable<T> from, Transitionable<T> to, long duration ) {
-		this.from = from;
+	private long duration = 5000, current = 0;
+	private float predivided = 0;
+	
+	private boolean ascending = true;
+	public boolean isAscending() { return this.ascending; }
+	
+	public Transition( T target, T to, long duration ) {
+		this.target = target;
+		this.original = target.copy();
 		this.to = to;
-		this.duration = duration;
+		this.duration = duration * 1000000;
 		
 		if( this.duration != 0 ) {
-			this.predivided = 1 / this.duration;
-			this.current = 0L;
+			this.predivided = 1.0f / this.duration;
+			this.current = 0;
 		}
 	}
 	
-	public T getFrame( long dt ) {
-		if( this.duration == 0 || this.current >= this.duration )
-			return this.to.actual();
+	public void reverse() { this.ascending = !this.ascending; }
+	
+	public void update( long dt ) {
+		if( this.isAscending() ) {
+			if( this.duration == 0 || this.current >= this.duration )
+				return;
 		
-		this.current += dt;
-		return this.from.getFrame( to.actual(), this.current * this.predivided );
+			this.current += dt;
+		} else {
+			if( this.current <= 0 )
+				return;
+			
+			this.current -= dt;
+		}
+		this.target.update( this.original, this.to, this.current * this.predivided );
 	}
 	
 }

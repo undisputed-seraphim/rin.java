@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import rin.gl.lib3d.Actor;
 import rin.system.SingletonThread;
 
-public class GLScene extends SingletonThread {
+public class GLScene extends SingletonThread<GLScene> {
 	private static GLScene instance = null;
 	public static GLScene get() {
 		if( GLScene.instance == null )
@@ -25,9 +25,10 @@ public class GLScene extends SingletonThread {
 	public static ArrayList<Actor> getActors() { return GLScene.actors; }
 	
 	@Override public void main() {
-		synchronized( GLScene.actors ) {
+		synchronized( GLScene.getActors() ) {
+			
 			for( Actor a : GLScene.actors ) {
-				a.update();
+				a.update( this.getDt() );
 			}
 		}
 	}

@@ -45,7 +45,7 @@ public class ActorList extends Thread {
 	public void run() {
 		while( !ActorList.destroyRequested ) {
 			for( Actor a : this.actors )
-				a.update();
+				a.update( 0 );
 			
 			try {
 				Thread.sleep( 1L );
