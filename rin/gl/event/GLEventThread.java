@@ -23,7 +23,7 @@ public class GLEventThread extends Thread {
 		while( !GLEventThread.destroyRequested ) {
 			synchronized( GLEventThread.queue ) {
 				for( int i = 0; i < GLEventThread.items; i++ ) {
-					((Transition)GLEventThread.queue.get( i )).update();
+					//((Transition)GLEventThread.queue.get( i )).update();
 				}
 			}
 			

@@ -24,9 +24,15 @@ public class GLScene extends SingletonThread<GLScene> {
 	private static volatile ArrayList<Actor> actors = new ArrayList<Actor>();
 	public static ArrayList<Actor> getActors() { return GLScene.actors; }
 	
+	public static Actor getActor( String name ) {
+		for( Actor a : GLScene.actors )
+			if( a.getName().equals( name ) )
+				return a;
+		return null;
+	}
+	
 	@Override public void main() {
 		synchronized( GLScene.getActors() ) {
-			
 			for( Actor a : GLScene.actors ) {
 				a.update( this.getDt() );
 			}

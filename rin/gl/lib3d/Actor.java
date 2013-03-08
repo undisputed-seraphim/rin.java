@@ -1,8 +1,11 @@
 package rin.gl.lib3d;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import rin.gl.lib3d.properties.Point;
 import rin.gl.lib3d.properties.Properties;
+import rin.gl.lib3d.properties.Scale;
 import rin.gl.lib3d.properties.Transformation;
 import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
@@ -10,7 +13,7 @@ import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.Scene;
 import rin.gl.event.GLEvent;
-import rin.sample.Transition;
+import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
 import rin.gl.lib3d.properties.Position;
 import rin.util.math.Mat4;
@@ -40,10 +43,12 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	
 	/* -------------- positionable implementation ------------------ */
 	private volatile Position position = new Position();
-	private Vec3 rotation = new Vec3(), scale = new Vec3();
+	private volatile Scale scale = new Scale();
+	
+	private Vec3 rotation = new Vec3();
 	private volatile Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
 	
-	public Transformation getTransformation() { return new Transformation( this.position.asVec3(), this.rotation, this.scale ); }
+	public Transformation getTransformation() { return new Transformation( this.position.asVec3(), this.rotation, this.scale.asVec3() ); }
 	public void setTransformation( Transformation t ) {
 		this.setPosition( t.getPosition() );
 		this.setRotation( t.getRotation() );
@@ -60,7 +65,6 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	public void setPosition( Vec3 p ) { this.setPosition( p.x, p.y, p.z ); }
 	public void setPosition( Position p ) { this.setPosition( p.x, p.y, p.z ); }
 	@Override public void setPosition( float x, float y, float z ) {
-		System.out.println( x + " " + y + " " + z );
 		this.position.x = x;
 		this.position.y = y;
 		this.position.z = z;
@@ -86,17 +90,19 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 		this.rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();
 	}
 
-	@Override public Vec3 getScale() { return this.scale; }
+	@Override public Scale getScale() { return this.scale; }
 	@Override public Mat4 getScaleMatrix() { return this.scaled; }
 	@Override public void resetScale() { this.setScale( 1.0f, 1.0f, 1.0f ); }
 	
 	public void setScale( Vec3 s ) { this.setScale( s.x, s.y, s.z ); }
 	@Override public void setScale( float x, float y, float z ) {
-		this.scale.redefine( x, y, z );
+		this.scale.x = x;
+		this.scale.y = y;
+		this.scale.z = z;
 		this.transform();
 	}
 	
-	private void updateScale() { this.scaled = Mat4.scale( new Mat4(), this.scale ); }
+	private void updateScale() { this.scaled = Mat4.scale( new Mat4(), this.scale.asVec3() ); }
 	
 	@Override public void spin( float xaxis, float yaxis, float zaxis ) {
 		this.rotation.x += xaxis;
@@ -211,8 +217,12 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 	
 	public void update( long dt ) {
-		for( Transition<?> t : this.transitions )
-			this.applyTransition( t, dt );
+		for( String t : this.transitions.keySet() ) {
+			synchronized( this.transitions.get( t ) ) {
+				this.transitions.get( t ).update( dt );
+			}
+		}
+		this.transform();
 		/*this.spin( -0.01f, 0, 0 );
 		synchronized( this.events ) {
 			for( GLEvent e : this.events ) {
@@ -232,10 +242,44 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 	
 	/* ---------------- transitionable implementation ------------ */
-	private ArrayList<Transition<?>> transitions = new ArrayList<Transition<?>>();
+	private HashMap<String, Transition<?>> transitions = new HashMap<String, Transition<?>>();
 	
-	public void addPositionTransition( Position to, long duration ) {
-		this.transitions.add( new Transition<Position>( this.getPosition(), to, duration ) );
+	public Transition<?> addPositionTransition( Position to, long duration ) {
+		if( this.transitions.get( "position" ) != null ) {
+			synchronized( this.transitions.get( "position" ) ) {
+				this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ) );
+			}
+		} else {
+			this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ) );
+		}
+		return this.transitions.get( "position" );
+	}
+	
+	public void removePositionTransition() {
+		if( this.transitions.get( "position" ) != null ) {
+			synchronized( this.transitions.get( "position" ) ) {
+				this.transitions.remove( "position" );
+			}
+		}
+	}
+	
+	public Transition<?> addScaleTransition( Scale to, long duration ) {
+		if( this.transitions.get( "scale" ) != null ) {
+			synchronized( this.transitions.get( "scale" ) ) {
+				this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ) );
+			}
+		} else {
+			this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ) );
+		}
+		return this.transitions.get( "scale" );
+	}
+	
+	public void removeScaleTransition() {
+		if( this.transitions.get( "scale" ) != null ) {
+			synchronized( this.transitions.get( "scale" ) ) {
+				this.transitions.remove( "scale" );
+			}
+		}
 	}
 	
 	@Override public void applyTransition( Transition<?> t, long dt ) {

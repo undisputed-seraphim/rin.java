@@ -8,7 +8,9 @@ import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import rin.gl.event.GLEvent.KeyDownEvent;
 import rin.gl.event.GLEvent.KeyRepeatEvent;
+import rin.gl.event.TransitionEvent;
 import rin.gl.lib3d.Actor;
 import rin.gl.GL;
 import rin.gl.lib3d.properties.Position;
@@ -61,35 +63,6 @@ public class Camera extends Actor {
 	}
 	
 	public void update() {
-		//this.processInput();
-		//System.out.println(this.matrix.toString());
-		boolean pChanged = false,
-				rChanged = false;
-		float	step = 0.0f,
-				side = 0.0f,
-				rise = 0.0f,
-				rotx = 0.0f,
-				roty = 0.0f;
-
-		if( Keyboard.isKeyDown( Keyboard.KEY_T ) ) {}
-		
-		if( Keyboard.isKeyDown( Keyboard.KEY_W ) ) { pChanged = true; step += 0.05f; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_S ) ) { pChanged = true; step -= 0.05f; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_A ) ) { pChanged = true; side += 0.05f; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_D ) ) { pChanged = true; side -= 0.05f; }
-		
-		//camera look and turn
-		if( Keyboard.isKeyDown( Keyboard.KEY_UP ) ) { rChanged = true; rotx -= 0.001; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_DOWN ) ) { rChanged = true; rotx += 0.001; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_LEFT ) ) { rChanged = true; roty -= 0.001; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_RIGHT ) ) { rChanged = true; roty += 0.001; }
-		
-		//camera ascend/descend
-		if( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT) ) { pChanged = true; rise += 0.05f; }
-		if( Keyboard.isKeyDown( Keyboard.KEY_SPACE ) ) { pChanged = true; rise -= 0.05f; }
-		
-		if( rChanged ) this.spin( rotx, roty, 0.0f );
-		if( pChanged ) this.move( step, side, rise );
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.getMatrix().gl() );
 	}
 	
@@ -117,14 +90,33 @@ public class Camera extends Actor {
 		
 		Vec3 pos = Mat4.unProject( Mouse.getX(), Mouse.getY(), this.getMouseZ(),
 				Mat4.flatten( modelView ), Mat4.flatten( this.getMatrix() ), viewport );
-		//pos = Vec3.step( pos, this.rotate, 0.00001f );
-		//System.out.println( pos.toString() );
-		
-		//Cube cube = new Cube( 0.2f, pos );
-		//cube.init();
-		//cube.render();
 		
 		return pos;
+	}
+	
+	@Override public void processKeyDownEvent( KeyDownEvent e ) {
+		switch( e.key ) {
+		
+		case Keyboard.KEY_T:
+			this.removePositionTransition();
+			break;
+		
+		case Keyboard.KEY_Y:
+			this.addPositionTransition( new Position( -5, -5, this.getPosition().z ), 5000L )
+				.onStart( new TransitionEvent() {
+					@Override public void run() {
+						System.out.println( "transition starting!" + GL.get().getCamera().getPosition().toString() );
+					}
+				})
+				.onFinish( new TransitionEvent() {
+					@Override public void run() {
+						//System.out.println( "transition finished!" + GL.get().getCamera().getPosition().toString() );
+						//GL.get().getCamera().removePositionTransition();
+						this.transition.reverse();
+					}
+				});
+			break;
+		}
 	}
 	
 	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {

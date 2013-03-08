@@ -10,6 +10,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.engine.Engine;
+import rin.gl.gui.GLGUI;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
@@ -19,6 +20,7 @@ import rin.gl.lib3d.properties.Position;
 import rin.sample.States;
 import rin.system.SingletonThread;
 import rin.util.IO;
+import rin.util.math.Mat4;
 
 public class GL extends SingletonThread<GL> {
 	private static GL instance;
@@ -34,6 +36,9 @@ public class GL extends SingletonThread<GL> {
 	
 	private Camera camera;
 	public Camera getCamera() { return this.camera; }
+	
+	public GLGUI gui;
+	public GLGUI getGUI() { return this.gui; }
 	
 	private int vShader = -1, fShader = -1, program = -1;
 	public int getProgram() { return this.program; }
@@ -54,6 +59,10 @@ public class GL extends SingletonThread<GL> {
 		}
 		return shader;
 	}
+	
+	private String actorAtMouse = "";
+	public static String getUniqueAtMouse() { return GL.get().actorAtMouse; }
+	public static void setUniqueAtMouse( String actor ) { GL.get().actorAtMouse = actor; }
 	
 	private static int r = 0, g = 0, b = 0;
 	public static float[] getNextColor() {
@@ -167,7 +176,9 @@ public class GL extends SingletonThread<GL> {
 		glViewport( 0, 0, width, height );
 
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
-		//this.camera.addPositionTransition( new Position( -5, -5, this.camera.getPosition().z ), 5000L );
+		this.camera.init();
+		
+		this.gui = new GLGUI();
 	}
 	
 	@Override public void main() {
@@ -177,6 +188,15 @@ public class GL extends SingletonThread<GL> {
 				tmp.run();
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			
+			/* draw the GLGUI object */
+			if( this.gui != null ) {
+				glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.IDENTITY.gl() );
+				glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
+				this.gui.render( this.getDt() );
+			}
+			
+			Input.process();
 			this.camera.update( this.getDt() );
 
 			for( Actor a : GLScene.getActors() ) {

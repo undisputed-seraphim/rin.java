@@ -86,7 +86,7 @@ public class Input extends Thread {
 			if( Mouse.isButtonDown( 0 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_LEFT, Mouse.getX(), Mouse.getY() ) );
 			if( Mouse.isButtonDown( 1 ) ) GLEvent.fire( new MouseRepeatEvent( MouseEvent.BUTTON_RIGHT, Mouse.getX(), Mouse.getY() ) );
 			
-			String tmp = Scene.uniqueAtMouse;
+			String tmp = GL.getUniqueAtMouse();
 	
 			if( !Input.prev.equals( "" ) ) {
 				if( !Input.prev.equals( tmp ) ) {

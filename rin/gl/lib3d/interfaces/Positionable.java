@@ -2,6 +2,7 @@ package rin.gl.lib3d.interfaces;
 
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.properties.Position;
+import rin.gl.lib3d.properties.Scale;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 
@@ -22,7 +23,7 @@ public interface Positionable extends Comparable<Positionable> {
 	public void resetRotation();
 	public void setRotation( float x, float y, float z );
 	
-	public Vec3 getScale();
+	public Scale getScale();
 	public Mat4 getScaleMatrix();
 	public void resetScale();
 	public void setScale( float x, float y, float z );

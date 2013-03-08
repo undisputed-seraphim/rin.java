@@ -1,6 +1,6 @@
 package rin.gl.lib3d.interfaces;
 
-import rin.sample.Transition;
+import rin.gl.event.Transition;
 
 public interface Transitionable {
 	public void applyTransition( Transition<?> t, long dt );

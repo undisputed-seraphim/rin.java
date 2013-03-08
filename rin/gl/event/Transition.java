@@ -1,114 +1,121 @@
 package rin.gl.event;
 
-import rin.engine.Engine;
-import rin.gl.lib3d.interfaces.Transitionable;
-import rin.gl.lib3d.Actor;
-import rin.util.math.Vec3;
+import rin.gl.lib3d.properties.TransitionableProperty;
 
-public class Transition extends GLEvent {
-	public static enum Property {
-		POSITION,
-		POSITION_X,
-		POSITION_Y,
-		POSITION_Z,
-		
-		ROTATION,
-		ROTATION_X,
-		ROTATION_Y,
-		ROTATION_Z,
-		
-		SCALE,
-		SCALE_X,
-		SCALE_Y,
-		SCALE_Z
+public class Transition<T extends TransitionableProperty<T>> {
+	protected Type type;
+	private static enum Type {
+		INTERPOLATE
 	}
 	
-	public static enum Type {
-		LINEAR
-	}
+	protected T target = null, original = null, to = null;
+	public T getTarget() { return this.target; }
 	
-	protected volatile Transitionable target;
-	protected Property property = null;
-	protected Type type = null;
+	protected long duration = 5000, current = 0;
+	protected float predivided = 0;
 	
-	protected long delay = 0;
-	protected long duration = 0;
-	protected long start = 0;
-	protected Number targetValueN = 0;
-	protected Number[] targetValueA;
+	private boolean ascending = true;
+	public boolean isAscending() { return this.ascending; }
 	
 	private boolean started = false;
+	public boolean isStarted() { return this.started; }
 	
-	public Transition( final Transitionable target ) { this( target, Property.POSITION ); }
-	public Transition( final Transitionable target, Property property ) {
-		this.target = target;
-		this.setProperty( property );
-		this.setType( Type.LINEAR );
-	}
+	private boolean finished = false;
+	public boolean isFinished() { return this.finished; }
 	
-	public Property getProperty() { return this.property; }
-	public Transition set( Property property ) { return this.setProperty( property ); }
-	public Transition setProperty( Property property ) {
-		this.property = property;
-		return this;
-	}
-	
-	public Number getTargetValueN() { return this.targetValueN; }
-	public Transition to( Number val ) { return this.setTargetValue( val ); }
-	public Transition setTargetValue( Number val ) {
-		this.targetValueN = val;
-		return this;
-	}
-	
-	public Number[] getTargetValueA() { return this.targetValueA; }
-	public Transition to( Number[] val ) { return this.setTargetValue( val ); }
-	public Transition setTargetValue( Number[] val ) {
-		this.targetValueA = val;
-		return this;
-	}
-	
-	public Type getType() { return this.type; }
-	public Transition using( Type type ) { return this.setType( type ); }
-	public Transition setType( Type type ) {
-		this.type = type;
-		return this;
-	}
-	
-	public long getDelay() { return this.delay; }
-	public Transition in( long ms ) { return this.setDelay( ms ); }
-	public Transition setDelay( long ms ) {
-		this.delay = ms;
-		return this;
-	}
-	
-	public long getDuration() { return this.duration; }
-	public Transition until( long ms ) { return this.setDuration( ms ); }
-	public Transition setDuration( long ms ) {
-		this.duration = ms;
-		return this;
-	}
-	
-	/* push this transition to the event thread */
-	public Transition start() {
-		this.start = System.currentTimeMillis();
-		return (Transition)GLEventThread.fire( this );
-	}
-	
-	public void update() {
-		if( !this.started ) {
-			this.started = true;
-			System.out.println( "Transition starts!" );
-		} else {
-			System.out.println( "updating " + ((Actor)this.target).getName() );
-			Vec3 rot = Engine.getScene().getActor( 1 ).getRotation();
-			float x = rot.x + 0.01f;
-			float y = rot.y;
-			float z = rot.z;
-			Engine.getScene().getActor( 1 ).setRotation( x, y, z );
+	public static class Interpolate<T1 extends TransitionableProperty<T1>> extends Transition<T1> {
+		public Interpolate( T1 target, T1 to, long duration ) {
+			this.type = Type.INTERPOLATE;
+			
+			this.target = target;
+			this.original = target.copy();
+			this.to = to;
+			this.duration = duration * 1000000;
+			
+			if( this.duration != 0 ) {
+				this.predivided = 1.0f / this.duration;
+				this.current = 0;
+			}
 		}
 	}
 	
-	public Transition onComplete( Runnable r ) {
+	public Transition<?> reverse() {
+		if( !this.started )
+			this.current = this.duration;
+
+		this.ascending = !this.ascending;
+		this.finished = false;
 		return this;
 	}
+	
+	private TransitionEvent runOnStart = null;
+	public Transition<?> onStart( TransitionEvent e ) {
+		this.runOnStart = e.setTarget( this );
+		return this;
+	}
+	
+	private TransitionEvent runOnFinish = null;
+	public Transition<?> onFinish( TransitionEvent e ) {
+		this.runOnFinish = e.setTarget( this );
+		return this;
+	}
+	
+	public void update( long dt ) {
+		if( !this.finished ) {
+			if( this.isAscending() ) {
+				
+				if( this.current == 0 && !this.started ) {
+					this.started = true;
+					
+					if( this.runOnStart != null )
+						this.runOnStart.run();
+				}
+				
+				if( this.current == this.duration ) {
+					this.finished = true;
+					
+					if( this.runOnFinish != null )
+						this.runOnFinish.run();
+					
+					return;
+				}
+			
+				this.current += dt;
+				this.current = this.current > this.duration ? this.duration : this.current;
+				
+			} else {
+
+				if( this.current == 0 ) {
+					this.finished = true;
+					
+					if( this.runOnFinish != null )
+						this.runOnFinish.run();
+					
+					return;
+				}
+				
+				if( this.current == this.duration && !this.started ) {
+					this.started = true;
+					
+					if( this.runOnStart != null )
+						this.runOnStart.run();
+				}
+				
+				this.current -= dt;
+				this.current = this.current < 0 ? 0 : this.current;
+			}
+			
+			/* clamp the dt between 0.0 - 1.0 */
+			float dif = this.current * this.predivided;
+			dif = dif > 1 ? 1 : dif;
+			dif = dif < 0 ? 0 : dif;
+			
+			switch( this.type ) {
+			
+			case INTERPOLATE: this.target.doInterpolate( this.original, this.to, dif ); break;
+			
+			}
+		}
+	}
+	
 }
