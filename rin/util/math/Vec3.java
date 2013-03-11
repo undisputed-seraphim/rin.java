@@ -38,6 +38,8 @@ public class Vec3 {
 		return new Vec3( v.x / mag, v.y / mag, v.z / mag );
 	}
 	
+	public static float dot( Vec3 v, Vec3 w ) { return v.x * w.x + v.y * w.y + v.z * w.z; }
+	
 	/* translate towards or away from matrix m's rotation */
 	public static Vec3 step( Vec3 v, Mat4 m, float d ) {
 		return new Vec3( v.x += m.m[8] * d, v.y += m.m[9] * d, v.z += m.m[10] * d );

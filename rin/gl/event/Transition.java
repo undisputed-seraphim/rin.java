@@ -1,8 +1,13 @@
 package rin.gl.event;
 
+import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.properties.TransitionableProperty;
 
 public class Transition<T extends TransitionableProperty<T>> {
+	private Actor actor;
+	public Transition<?> setActor( Actor a ) { this.actor = a; return this; }
+	public Actor getActor() { return this.actor; }
+	
 	protected Type type;
 	private static enum Type {
 		INTERPOLATE
@@ -22,6 +27,12 @@ public class Transition<T extends TransitionableProperty<T>> {
 	
 	private boolean finished = false;
 	public boolean isFinished() { return this.finished; }
+	
+	public static enum Speed {
+		SLOW,
+		NORMAL,
+		FAST
+	}
 	
 	public static class Interpolate<T1 extends TransitionableProperty<T1>> extends Transition<T1> {
 		public Interpolate( T1 target, T1 to, long duration ) {

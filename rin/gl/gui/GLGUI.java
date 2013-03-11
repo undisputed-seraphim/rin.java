@@ -7,25 +7,19 @@ import static org.lwjgl.opengl.GL20.glUniform1i;
 import java.util.HashMap;
 
 import rin.gl.GL;
-import rin.gl.lib3d.properties.Scale;
 import rin.util.Buffer;
 
 public class GLGUI {
 
 	private HashMap<String, GLGUIComponent<?>> components = new HashMap<String, GLGUIComponent<?>>();
 	
-	public GLGUI() {
-		GLGUIComponent<GLPane> pane = new GLPane();
-		pane.addScaleTransition( new Scale( 1.0f, 0.0f, 1.0f ), 5000L );
-		
-		this.addComponent( pane );
-	}
+	public GLGUI() {}
 	
-	public void addComponent( GLGUIComponent<?> component ) {
+	public void add( GLGUIComponent<?> component ) {
 		this.components.put( component.getName(), component );
 	}
 	
-	public GLGUIComponent<?> getComponent( String name ) {
+	public GLGUIComponent<?> get( String name ) {
 		if( this.components.get( name ) != null )
 			return this.components.get( name );
 		

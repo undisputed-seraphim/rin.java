@@ -176,7 +176,7 @@ public class Mat4 {
         
         glTranslatef(-eyex, -eyey, -eyez);*/
 	public static Mat4 lookAt( float eyex, float eyey, float eyez, float centerx, float centery, float centerz, float upx, float upy, float upz ) {
-        float mag;
+		/*float mag;
         
         Vec3 z = new Vec3( eyex - centerx, eyey - centery, eyez - centerz );
         mag = Vec3.magnitude( z );
@@ -206,11 +206,39 @@ public class Mat4 {
                 y.z /= mag;
         }
         
-        return new Mat4( x.x, x.y, x.z, 0.0f,
+        Mat4 m = new Mat4( x.x, x.y, x.z, 0.0f,
         				y.x, y.y, y.z, 0.0f,
         				z.x, z.y, z.z, 0.0f,
         				0.0f, 0.0f, 0.0f, 1.0f );
-	}
+        
+        Mat4 t = Mat4.translate( new Mat4(), new Vec3( -eyex, -eyey, -eyez ) );
+        
+        return Mat4.multiply( t, m );*/
+		
+		/*zaxis = normal(At - Eye)
+xaxis = normal(cross(Up, zaxis))
+yaxis = cross(zaxis, xaxis)
+
+ xaxis.x           yaxis.x           zaxis.x          0
+ xaxis.y           yaxis.y           zaxis.y          0
+ xaxis.z           yaxis.z           zaxis.z          0
+-dot(xaxis, eye)  -dot(yaxis, eye)  -dot(zaxis, eye)  l*/
+		
+		Vec3 eye = new Vec3( eyex, eyey, eyez );
+		Vec3 center = new Vec3( centerx, centery, centerz );
+		Vec3 zaxis = Vec3.normalize( Vec3.subtract( center, eye ) );
+		Vec3 xaxis = Vec3.normalize( Vec3.cross( new Vec3( upx, upy, upz ), zaxis ) );
+		Vec3 yaxis = Vec3.cross( zaxis, xaxis );
+		
+		Mat4 m = new Mat4(
+				xaxis.x, xaxis.y, xaxis.z, 0,
+				yaxis.x, yaxis.y, yaxis.z, 0,
+				zaxis.x, zaxis.y, zaxis.z, 0,
+				0, 0, 0, 1 );
+
+		return m;
+
+		}
 	
 	public static Vec3 unProject( float x, float y, float z, Mat4 mod, Mat4 cam, IntBuffer viewport ) {
 		Mat4 mat = new Mat4();

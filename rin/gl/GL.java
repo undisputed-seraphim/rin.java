@@ -11,20 +11,28 @@ import org.lwjgl.opengl.DisplayMode;
 
 import rin.engine.Engine;
 import rin.gl.gui.GLGUI;
+import rin.gl.gui.GLGUIFactory;
+import static rin.gl.gui.GLGUIFactory.*;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
+import rin.gl.lib3d.properties.Scale;
 import rin.gl.model.ModelLoader;
 import rin.gl.model.ModelManager;
-import rin.gl.lib3d.properties.Position;
+import rin.gui.GUIFactory;
 import rin.sample.States;
+import rin.system.Loader;
 import rin.system.SingletonThread;
 import rin.util.IO;
 import rin.util.math.Mat4;
 
 public class GL extends SingletonThread<GL> {
 	private static GL instance;
+	
 	private static int width = 900, height = 600;
+	public int getWidth() { return GL.width; }
+	public int getHeight() { return GL.height; }
+	
 	public static GL get() {
 		if( GL.instance == null )
 			GL.instance = new GL( GL.width, GL.height );
@@ -34,11 +42,8 @@ public class GL extends SingletonThread<GL> {
 	
 	public static ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
-	private Camera camera;
+	private volatile Camera camera;
 	public Camera getCamera() { return this.camera; }
-	
-	public GLGUI gui;
-	public GLGUI getGUI() { return this.gui; }
 	
 	private int vShader = -1, fShader = -1, program = -1;
 	public int getProgram() { return this.program; }
@@ -84,17 +89,17 @@ public class GL extends SingletonThread<GL> {
 	public static void init() { GL.instance = new GL( GL.width, GL.height ); }
 	public static void init( int width, int height ) { GL.instance = new GL( width, height ); }
 	
-	public static ModelLoader addModel( final ModelManager.Format format, final String name ) {
-		final ModelLoader ml = new ModelLoader();
+	public static Loader<Actor> addModel( final ModelManager.Format format, final String name ) {
+		final Loader<Actor> lr = new Loader<Actor>();
 		GL.sources.add( new Runnable() {
 			public void run() {
 				synchronized( GLScene.getActors() ) {
 					GLScene.getActors().add( ModelManager.create( format, name ) );
-					ml.finished();
+					lr.loaded();
 				}
 			}
 		});
-		return ml;
+		return lr;
 	}
 	
 	public GL( int width, int height ) {
@@ -110,6 +115,7 @@ public class GL extends SingletonThread<GL> {
 		
 		try {
 			Display.setDisplayMode( new DisplayMode( width, height ) );
+			//Display.setParent( GUIFactory.getCanvas( "canvas" ).getCanvas() );
 			Display.create();
 			Display.setVSyncEnabled( true );
 		} catch( LWJGLException e ) {
@@ -178,7 +184,10 @@ public class GL extends SingletonThread<GL> {
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
 		this.camera.init();
 		
-		this.gui = new GLGUI();
+		GLGUIFactory.createPane( "root" )
+				.onShow( Transitions.SCALE_BURST_SHOW )
+				.onHide( Transitions.SCALE_BURST_HIDE )
+				.show();
 	}
 	
 	@Override public void main() {
@@ -190,13 +199,12 @@ public class GL extends SingletonThread<GL> {
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
 			/* draw the GLGUI object */
-			if( this.gui != null ) {
-				glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.IDENTITY.gl() );
-				glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
-				this.gui.render( this.getDt() );
-			}
+			glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.IDENTITY.gl() );
+			glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
+			GLGUIFactory.render( this.getDt() );
 			
 			Input.process();
+			//System.out.println( Keyboard.isKeyDown( Keyboard.KEY_W ) );
 			this.camera.update( this.getDt() );
 
 			for( Actor a : GLScene.getActors() ) {
@@ -208,6 +216,7 @@ public class GL extends SingletonThread<GL> {
 		} else {
 			this.requestDestroy();
 		}
+		
 	}
 	
 	@Override public void destroy() {

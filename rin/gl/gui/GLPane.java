@@ -10,7 +10,7 @@ public class GLPane extends GLGUIComponent<GLPane> {
 	
 	public GLPane() { this( "GLPane-" + GLPane.items++ ); }
 	public GLPane( String id ) {
-		super( id, new Properties() );
+		super( id );
 		
 		float[][] verts = new float[][] {
 				{ -0.5f, -0.5f, 0 }, { -0.5f, 0.5f, 0 },
@@ -44,6 +44,7 @@ public class GLPane extends GLGUIComponent<GLPane> {
 		v.add( verts[0][2] );
 		
 		this.setPicking( true );
+		this.setVisible( false );
 		this.build( Buffer.toArrayf( v ), new float[0], new float[0], new float[0] );
 	}
 }

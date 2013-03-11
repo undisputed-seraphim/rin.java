@@ -49,6 +49,7 @@ public class GLEvent {
 		public KeyEvent( int key, State state ) { this.key = key; this.state = state; }
 		
 		public static void addListener( KeyEventListener el ) {
+			System.out.println( "adding key event listener" );
 			if( KeyEvent.listeners.indexOf( el ) == -1 )
 				KeyEvent.listeners.add( el );
 		}

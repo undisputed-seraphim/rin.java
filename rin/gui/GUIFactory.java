@@ -167,6 +167,15 @@ public class GUIFactory extends GUIManager {
 		return null;
 	}
 	
+	public static Canvas getCanvas( String id ) { return (Canvas)GUIManager.get( id ); }
+	public static Canvas createCanvas() { return GUIFactory.createCanvas( null ); }
+	public static Canvas createCanvas( String id ) {
+		id = GUIFactory.checkId( id );
+		if( GUIManager.add( id, new Canvas( id ) ) )
+			return GUIFactory.getCanvas( id );
+		return null;
+	}
+	
 	public static Label getLabel( String id ) { return (Label)GUIManager.get( id ); }
 	public static Label createLabel() { return GUIFactory.createLabel( null, null ); }
 	public static Label createLabel( String text ) { return GUIFactory.createLabel( null, text ); }
@@ -287,6 +296,11 @@ public class GUIFactory extends GUIManager {
 	public static class ContainerEvent extends GUIEvent<Container> {
 		public ContainerEvent() {}
 		public ContainerEvent( Runnable r ) { super( r ); }
+	}
+	
+	public static class CanvasEvent extends GUIEvent<Canvas> {
+		public CanvasEvent() {}
+		public CanvasEvent( Runnable r ) { super( r ); }
 	}
 	
 	public static class PanelEvent extends GUIEvent<Panel> {

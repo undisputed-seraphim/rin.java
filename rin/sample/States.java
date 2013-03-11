@@ -1,11 +1,12 @@
 package rin.sample;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 
 import rin.gl.GL;
 import rin.gl.GLScene;
+import rin.gl.Input;
 import rin.gl.Scene;
 import rin.gl.model.ModelManager;
 import rin.engine.Engine;
@@ -121,9 +122,16 @@ public class States {
 		@Override public void onEnter() {
 			System.out.println( "Entering Game State" );
 			
+			/*createCanvas( "canvas" )
+					.setSize( States.GAME.getWidth(), States.GAME.getHeight() )
+					.show();
+			
+			getCanvas( "canvas" ).getCanvas().addKeyListener( getCanvas( "canvas" ) );
+			getCanvas( "canvas" ).getWindow().addKeyListener( getCanvas( "canvas" ) );*/
+			
 			/* start the gl render thread */
 			GL.init( States.GAME.getWidth(), States.GAME.getHeight() );
-			GL.addModel( ModelManager.Format.DAE, "noire_v" ).onFinish( new Runnable() {
+			GL.addModel( ModelManager.Format.DAE, "noire_v" ).onLoad( new Runnable() {
 				@Override public void run() {
 					//GLScene.getActors().get( 0 ).addPositionTransition( new Position( 5, 5, 5 ), 5000L );
 				}

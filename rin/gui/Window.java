@@ -14,7 +14,7 @@ import rin.gui.GUIFactory.WindowEvent;
 public class Window extends GUIComponent<Window, WindowEvent> implements WindowFocusListener, WindowListener {
 	private static int items = 0;
 	
-	private JFrame window;
+	protected JFrame window;
 	private boolean sized = false;
 	protected boolean loaded = false;
 	protected Stack<Runnable> onLoads = new Stack<Runnable>();
@@ -98,7 +98,7 @@ public class Window extends GUIComponent<Window, WindowEvent> implements WindowF
 	@Override public void windowClosed( java.awt.event.WindowEvent e ) {}
 	@Override public void windowClosing( java.awt.event.WindowEvent e ) {}
 	@Override public void windowDeactivated( java.awt.event.WindowEvent e ) {}
-	@Override public void windowDeiconified(java.awt.event.WindowEvent arg0) {}
+	@Override public void windowDeiconified( java.awt.event.WindowEvent e ) {}
 	@Override public void windowIconified( java.awt.event.WindowEvent e ) {}
 	@Override public void windowOpened( java.awt.event.WindowEvent e ) {}
 	

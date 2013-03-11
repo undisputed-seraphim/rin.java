@@ -11,6 +11,7 @@ import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.lib3d.interfaces.Transitionable;
+import rin.gl.GL;
 import rin.gl.Scene;
 import rin.gl.event.GLEvent;
 import rin.gl.event.Transition;
@@ -118,6 +119,24 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 		this.transform();
 	}
 	
+	public void lookAt( float x, float y, float z ) {
+		float posx = this.position.x;
+		float posy = this.position.y;
+		float posz = this.position.z;
+
+		//this.setMatrix( Mat4.multiply( GL.get().getCamera().getPerspectiveMatrix(), Mat4.lookAt(posx, posy, posz, x, y, z, 0, 1, 0) ) );
+		Mat4 m = Mat4.lookAt(posx, posy, posz, x, y, z, 0, 1, 0);
+        double rx = Math.atan2( m.m[6], m.m[10] );
+        double tmp2 = Math.sqrt( m.m[0] * m.m[0] + m.m[1] * m.m[1] );
+        double ry = Math.atan2( -m.m[2], tmp2 );
+        double rz = Math.atan2( m.m[1], m.m[0] );
+        System.out.println( "angles?: " + rx + " " + ry + " " + rz );
+        this.setRotation( (float)rx, (float)ry, this.getRotation().z );
+	}
+	
+	public void applyMatrix( Mat4 m ) {
+	}
+	
 	@Override public void transform() {
 		this.updatePosition();
 		this.updateRotation();
@@ -217,12 +236,19 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 	
 	public void update( long dt ) {
+		
+		boolean updated = false;
+		
 		for( String t : this.transitions.keySet() ) {
+			updated = true;
 			synchronized( this.transitions.get( t ) ) {
 				this.transitions.get( t ).update( dt );
 			}
 		}
-		this.transform();
+		
+		if( updated )
+			this.transform();
+		
 		/*this.spin( -0.01f, 0, 0 );
 		synchronized( this.events ) {
 			for( GLEvent e : this.events ) {
@@ -247,10 +273,10 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	public Transition<?> addPositionTransition( Position to, long duration ) {
 		if( this.transitions.get( "position" ) != null ) {
 			synchronized( this.transitions.get( "position" ) ) {
-				this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ) );
+				this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ).setActor( this ) );
 			}
 		} else {
-			this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ) );
+			this.transitions.put( "position", new Transition.Interpolate<Point>( this.getPosition(), to, duration ).setActor( this ) );
 		}
 		return this.transitions.get( "position" );
 	}
@@ -266,10 +292,10 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	public Transition<?> addScaleTransition( Scale to, long duration ) {
 		if( this.transitions.get( "scale" ) != null ) {
 			synchronized( this.transitions.get( "scale" ) ) {
-				this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ) );
+				this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ).setActor( this ) );
 			}
 		} else {
-			this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ) );
+			this.transitions.put( "scale", new Transition.Interpolate<Point>( this.getScale(), to, duration ).setActor( this ) );
 		}
 		return this.transitions.get( "scale" );
 	}
@@ -283,10 +309,6 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 	
 	@Override public void applyTransition( Transition<?> t, long dt ) {
-		t.update( dt );
-		if( t.getTarget() instanceof Position ) {
-			this.setPosition( (Position)t.getTarget() );
-		}
 	}
 	
 	@Override public void onTransitionBegin( Transition<?> t ) {
