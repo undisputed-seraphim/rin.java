@@ -262,14 +262,47 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		}
 	}
 	
+	protected Runnable runOnPickClick = null;
+	public Poly onPickClick( Runnable r ) {
+		this.runOnPickClick = r;
+		return this;
+	}
+	
+	@Override public void processMouseDownEvent( MouseDownEvent e ) {
+		
+		super.processMouseDownEvent( e );
+		
+		if( this.isMouseOver() ) {
+			if( this.runOnPickClick != null )
+				this.runOnPickClick.run();
+		}
+		
+	}
+	
+	protected Runnable runOnPickIn = null;
+	public Poly onPickIn( Runnable r ) {
+		this.runOnPickIn = r;
+		return this;
+	}
+	
 	@Override public void processPickInEvent( PickInEvent e ) {
-		System.out.println( "in" );
 		this.setMouseOver( true );
+		
+		if( this.runOnPickIn != null )
+			this.runOnPickIn.run();
+	}
+	
+	protected Runnable runOnPickOut = null;
+	public Poly onPickOut( Runnable r ) {
+		this.runOnPickOut = r;
+		return this;
 	}
 	
 	@Override public void processPickOutEvent( PickOutEvent e ) {
-		System.out.println( "out" );
 		this.setMouseOver( false );
+		
+		if( this.runOnPickOut != null )
+			this.runOnPickOut.run();
 	}
 	
 	@Override public void processPickRepeatEvent( PickRepeatEvent e ) {

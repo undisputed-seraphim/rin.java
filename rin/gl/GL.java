@@ -184,9 +184,18 @@ public class GL extends SingletonThread<GL> {
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
 		this.camera.init();
 		
+		GLGUIFactory.init( GL.width, GL.height );
+		
 		GLGUIFactory.createPane( "root" )
 				.onShow( Transitions.SCALE_BURST_SHOW )
 				.onHide( Transitions.SCALE_BURST_HIDE )
+				.onClick( new GLGUIFactory.GLGUIEvent() {
+					
+					@Override public void event() {
+						System.out.println( "clicked" );
+					}
+					
+				})
 				.show();
 	}
 	

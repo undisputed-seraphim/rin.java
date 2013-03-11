@@ -13,7 +13,14 @@ public class GLGUI {
 
 	private HashMap<String, GLGUIComponent<?>> components = new HashMap<String, GLGUIComponent<?>>();
 	
-	public GLGUI() {}
+	private int width = 0, height = 0;
+	public int getWidth() { return this.width; }
+	public int getHeight() { return this.height; }
+	
+	public GLGUI( int width, int height ) {
+		this.width = width;
+		this.height = height;
+	}
 	
 	public void add( GLGUIComponent<?> component ) {
 		this.components.put( component.getName(), component );

@@ -145,62 +145,50 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 
 	@Override public Actor destroy() {
-		if( this.isControlled() )
-			this.setControlled( false );
+		this.setKeyboardControlled( false );
+		this.setMouseControlled( false );
 		
 		return null;
 	}
 	
 	
 	/* ------------- controllable implementation ------------- */
-	private boolean controllableListening = false;
-	
-	private boolean controlled = false;
-	@Override public boolean isControlled() { return this.controlled; }
-	@Override public void setControlled( boolean val ) {
-		this.controlled = val;
-		if( val && !this.controllableListening ) {
+	private boolean keyboardListening = false;	
+	private boolean keyboardControlled = false;
+	@Override public boolean isKeyboardControlled() { return this.keyboardControlled; }
+	@Override public void setKeyboardControlled( boolean val ) {
+		this.keyboardControlled = val;
+		if( val && !this.keyboardListening ) {
 			GLEvent.addKeyEventListener( this );
-			GLEvent.addMouseEventListener( this );
-			this.controllableListening = true;
-		} else if( this.controllableListening ) {
+			this.keyboardListening = true;
+		} else if( this.keyboardListening ) {
 			GLEvent.removeKeyEventListener( this );
+			this.keyboardListening = false;
+		}
+	}
+	
+	private boolean mouseListening = false;
+	private boolean mouseControlled = false;
+	@Override public boolean isMouseControlled() { return this.mouseControlled; }
+	@Override public void setMouseControlled( boolean val ) {
+		this.mouseControlled = val;
+		if( val && !this.mouseListening ) {
+			GLEvent.addMouseEventListener( this );
+			this.mouseListening = true;
+		} else if( this.mouseListening ) {
 			GLEvent.removeMouseEventListener( this );
-			this.controllableListening = false;
+			this.mouseListening = false;
 		}
 	}
 
-	@Override public void processKeyUpEvent( KeyUpEvent e ) {
-		//System.out.println( "Key Up Event: " + e.key );
-	}
-	
-	@Override public void processKeyDownEvent( KeyDownEvent e ) {
-		//System.out.println( "Key Down Event: " + e.key );
-	}
-	
-	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {
-		//System.out.println( "Key Repeat Event: " + e.key );
-	}
-
-	@Override public void processMouseUpEvent( MouseUpEvent e ) {
-		//System.out.println( "Mouse Up Event at: " + e.x + " " + e.y );
-	}
-	
-	@Override public void processMouseDownEvent( MouseDownEvent e ) {
-		//System.out.println( "Mouse Down Event at: " + e.x + " " + e.y );
-	}
-	
-	@Override public void processMouseMoveEvent( MouseMoveEvent e ) {
-		//System.out.println( "Mouse Move Event at: " + e.x + " " + e.y + " dx: " + e.dx + " dy: " + e.dy );
-	}
-	
-	@Override public void processMouseRepeatEvent( MouseRepeatEvent e ) {
-		//System.out.println( "Mouse Repeat Event at: " + e.x + " " + e.y );
-	}
-	
-	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {
-		//System.out.println( "Mouse Wheel Event at: " + e.x + " " + e.y + " Delta: " + e.delta + "["+e.state+"]" );
-	}
+	@Override public void processKeyUpEvent( KeyUpEvent e ) {}
+	@Override public void processKeyDownEvent( KeyDownEvent e ) {}
+	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {}
+	@Override public void processMouseUpEvent( MouseUpEvent e ) {}
+	@Override public void processMouseDownEvent( MouseDownEvent e ) {}
+	@Override public void processMouseMoveEvent( MouseMoveEvent e ) {}
+	@Override public void processMouseRepeatEvent( MouseRepeatEvent e ) {}
+	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {}
 
 	@Override public int compareTo( Positionable p ) {
 		// TODO Auto-generated method stub

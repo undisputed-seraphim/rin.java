@@ -41,7 +41,7 @@ public class Camera extends Actor {
 		this.transform();
 		//glUniformMatrix4( Scene.getUniform( "pMatrix" ), false, this.perspective.gl() );
 		glUniformMatrix4( GL.getUniform( "vMatrix" ), false, this.getMatrix().gl() );
-		this.setControlled( true );
+		this.setKeyboardControlled( true );
 	}
 	
 	public void attach( Actor a ) {
@@ -55,7 +55,7 @@ public class Camera extends Actor {
 		}*/
 	}
 	
-	public void detach() { this.resetPosition(); this.setControlled( true ); }
+	public void detach() { this.resetPosition(); this.setKeyboardControlled( true ); }
 	
 	@Override public void update( long dt ) {
 		super.update( dt );
