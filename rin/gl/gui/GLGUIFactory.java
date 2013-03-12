@@ -50,12 +50,14 @@ public class GLGUIFactory {
 	public static enum Position {
 		TOP,
 		BOTTOM,
-		CENTER,
 		LEFT,
+		CENTER,
 		RIGHT
 	}
 	
 	public static enum Alignment {
+		TOP,
+		BOTTOM,
 		LEFT,
 		CENTER,
 		RIGHT
@@ -66,12 +68,13 @@ public class GLGUIFactory {
 		public Integer width, height;
 		public int padding, margin;
 		public Position position;
-		public Alignment alignment;
+		public Alignment halign, valign;
 		
 		public GLGUIParams() {
-			this.setWidth( null ).setHeight( null );
+			this.setWidth( 100 ).setHeight( 100 );
 			this.setPadding( 20 ).setMargin( 20 );
-			this.setPosition( Position.RIGHT ).setAlignment( Alignment.CENTER );
+			this.setPosition( Position.LEFT );
+			this.setHorizontalAlignment( Alignment.CENTER ).setVerticalAlignment( Alignment.CENTER );
 		}
 		
 		public GLGUIParams setWidth( Integer width ) { this.width = width; return this; }
@@ -79,7 +82,8 @@ public class GLGUIFactory {
 		public GLGUIParams setPadding( int padding ) {this.padding = padding; return this; }
 		public GLGUIParams setMargin( int margin ) { this.margin = margin; return this; }
 		public GLGUIParams setPosition( Position position ) { this.position = position; return this; }
-		public GLGUIParams setAlignment( Alignment alignment ) { this.alignment = alignment; return this; }
+		public GLGUIParams setHorizontalAlignment( Alignment alignment ) { this.halign = alignment; return this; }
+		public GLGUIParams setVerticalAlignment( Alignment alignment ) { this.valign = alignment; return this; }
 		
 	}
 	

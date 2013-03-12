@@ -11,11 +11,14 @@ public class GLGUIComponent<T> extends Poly {
 	
 	protected float left, right, bottom, top;
 	
-	private GLGUIFactory.Position position = GLGUIFactory.Position.BOTTOM;
+	private GLGUIFactory.Position position;
 	public GLGUIFactory.Position getGUIPosition() { return this.position; }
 	
-	private GLGUIFactory.Alignment alignment = GLGUIFactory.Alignment.CENTER;
-	public GLGUIFactory.Alignment getGUIAlignment() { return this.alignment; }
+	private GLGUIFactory.Alignment halign;
+	public GLGUIFactory.Alignment getHorizontalAlignment() { return this.halign; }
+	
+	private GLGUIFactory.Alignment valign;
+	public GLGUIFactory.Alignment getVerticalAlignment() { return this.valign; }
 	
 	private Integer width = null, height = null;
 	public int getWindowWidth() { return GLGUIFactory.getRootGUI().getWidth(); }
@@ -25,10 +28,11 @@ public class GLGUIComponent<T> extends Poly {
 		
 		float l = 0, t = 0, r = 0, b = 0, mh = 0, mw = 0;
 		
-		/* no width or height set; item should take up entire space of desired position */
-		int width, height;
-		mh = (float)this.margin / (float)this.getWindowHeight();
-		mw = (float)this.margin / (float)this.getWindowWidth();
+		float width, height;
+		float wwidth = (float)this.getWindowWidth();
+		float wheight = (float)this.getWindowHeight();
+		mh = (float)this.margin / wheight;
+		mw = (float)this.margin / wwidth;
 		
 		switch( this.position ) {
 		
@@ -76,6 +80,121 @@ public class GLGUIComponent<T> extends Poly {
 			}
 			break;
 			
+		case LEFT:
+			if( this.width == null && this.height == null ) {
+				b = -1 + mh;
+				t = 1 - mh;
+				r = 0 - mw;
+				l = -1 + mw;
+			} else {
+				if( this.width == null ) {
+					height = (this.height - mh * 2) / wheight;
+					r = 0 - mw;
+					l = -1 + mw;
+					switch( this.valign ) {
+					
+					case LEFT: case RIGHT:
+						b = -1 + mh;
+						t = 1 - mh;
+						break;
+						
+					case CENTER:
+						t = Math.min( 0 + height / 2, 1 - mh );
+						b = Math.max( 0 - height / 2, -1 + mh );
+						break;
+						
+					case TOP:
+						t = 1 - mh;
+						b = Math.max( t - height, -1 + mh );
+						break;
+						
+					case BOTTOM:
+						b = -1 + mh;
+						t = Math.min( b + height, 1 - mh );
+						break;
+						
+					}
+				} else if( this.height == null ) {
+					width = (this.width - mw * 2) / wwidth;
+					b = -1 + mh;
+					t = 1 - mh;
+					switch( this.halign ) {
+					
+					case TOP: case BOTTOM:
+						l = -1 + mw;
+						r = 1 - mw;
+						break;
+						
+					case CENTER:
+						l = Math.max( -0.5f + width / 2, -1 + mw );
+						r = Math.min( -0.5f - width / 2, 0 - mw );
+						break;
+						
+					case LEFT:
+						l = -1 + mw;
+						r = Math.min( l + width, 0 - mw );
+						break;
+						
+					case RIGHT:
+						r = 0 - mw;
+						l = Math.max( r - width, -1 + mw );
+						break;
+						
+					}
+				} else {
+					height = (this.height - mh * 2) / wheight;
+					switch( this.valign ) {
+					
+					case LEFT: case RIGHT:
+						b = -1 + mh;
+						t = 1 - mh;
+						break;
+						
+					case CENTER:
+						t = Math.min( 0 + height / 2, 1 - mh );
+						b = Math.max( 0 - height / 2, -1 + mh );
+						break;
+						
+					case TOP:
+						t = 1 - mh;
+						b = Math.max( t - height, -1 + mh );
+						break;
+						
+					case BOTTOM:
+						b = -1 + mh;
+						t = Math.min( b + height, 1 - mh );
+						break;
+						
+					}
+					
+					width = (this.width - mw * 2) / wwidth;
+					switch( this.halign ) {
+					
+					case TOP: case BOTTOM:
+						l = -1 + mw;
+						r = 1 - mw;
+						break;
+						
+					case CENTER:
+						l = Math.max( -0.5f + width / 2, -1 + mw );
+						r = Math.min( -0.5f - width / 2, 0 - mw );
+						break;
+						
+					case LEFT:
+						l = -1 + mw;
+						r = Math.min( l + width, 0 - mw );
+						break;
+						
+					case RIGHT:
+						r = 0 - mw;
+						l = Math.max( r - width, -1 + mw );
+						break;
+						
+					}
+				}
+			}
+			break;
+			
 		}
 		
 		this.top = t;
@@ -98,7 +217,8 @@ public class GLGUIComponent<T> extends Poly {
 		this.margin = p.margin;
 		this.padding = p.padding;
 		this.position = p.position;
-		this.alignment = p.alignment;
+		this.halign = p.halign;
+		this.valign = p.valign;
 		
 		this.setMouseControlled( true );
 		this.setVisible( false );
