@@ -12,7 +12,6 @@ import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.GL;
-import rin.gl.Scene;
 import rin.gl.event.GLEvent;
 import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
@@ -39,8 +38,12 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	public Actor( String name, Properties p ) {
 		this.name = name;
 		this.setTransformation( p.getTransformation() );
-		this.uniqueColor = Scene.getNextColor();
+		this.uniqueColor = GL.getNextColor();
 	}
+	
+	public Poly asPoly() { return (Poly)this; }
+	public Mesh asMesh() { return (Mesh)this; }
+	public SkinnedMesh asSkinnedMesh() { return (SkinnedMesh)this; }
 	
 	/* -------------- positionable implementation ------------------ */
 	private volatile Position position = new Position();
@@ -189,11 +192,6 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	@Override public void processMouseMoveEvent( MouseMoveEvent e ) {}
 	@Override public void processMouseRepeatEvent( MouseRepeatEvent e ) {}
 	@Override public void processMouseWheelEvent( MouseWheelEvent e ) {}
-
-	@Override public int compareTo( Positionable p ) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 	
 	/* ----------------- animatable implementation ------------------- */
 	private ArrayList<GLEvent> events = new ArrayList<GLEvent>();

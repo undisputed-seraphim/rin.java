@@ -8,6 +8,7 @@ import rin.util.math.Vec3;
 
 public class Mat4 {
 	public static final Mat4 IDENTITY = new Mat4();
+	public static final Mat4 GUI = Mat4.orthographic( -1, 1, -1, 1, 1, -10 );
 	
 	/* array that holds the values of the matrix */
 	public float[] m = new float[16];
@@ -85,6 +86,21 @@ public class Mat4 {
     	float	xmax = ymax * aspect;
     	
     	return	Mat4.frustum( xmin, xmax, ymin, ymax, znear, zfar );
+	}
+	
+	public static Mat4 orthographic( float left, float right, float bottom, float top, float znear, float zfar ) {
+		float tx = - ( (right + left) / (right - left) );
+		float ty = - ( (top + bottom) / (top - bottom) );
+		float tz = - ( (zfar + znear) / (zfar - znear) );
+		
+		float sx = 2 / (right-left);
+		float sy = 2 / (top-bottom);
+		float sz = -2 / (zfar-znear);
+		
+		return new Mat4( sx, 0, 0, tx,
+						 0, sy, 0, ty,
+						 0, 0, sz, tz,
+						 0, 0, 0, 1 );
 	}
 	
 	public static Quat4 multVec3( Mat4 mat, Vec3 v ) {

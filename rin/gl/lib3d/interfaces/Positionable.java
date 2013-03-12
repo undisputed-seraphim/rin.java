@@ -6,7 +6,7 @@ import rin.gl.lib3d.properties.Scale;
 import rin.util.math.Mat4;
 import rin.util.math.Vec3;
 
-public interface Positionable extends Comparable<Positionable> {
+public interface Positionable {
 	
 	public Mat4 getMatrix();
 	public void setMatrix( Mat4 m );
@@ -33,7 +33,5 @@ public interface Positionable extends Comparable<Positionable> {
 	public void transform();
 	
 	public Actor destroy();
-	
-	public int compareTo( Positionable p );
 	
 }

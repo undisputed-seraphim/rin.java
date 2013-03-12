@@ -15,7 +15,7 @@ public class Mesh extends Poly {
 	public void setPolyPicking( boolean val ) { this.polyPicking = val; }
 	
 	public Mesh() {}
-	public Mesh( String name ) {}
+	public Mesh( String name ) { super( name ); }
 	
 	public void addPoly( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
 		Poly poly = new Poly();

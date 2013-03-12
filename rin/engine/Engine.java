@@ -5,10 +5,16 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static rin.gui.GUIFactory.*;
 
-import rin.gl.Scene;
+import rin.gl.GL;
+import rin.gl.GLScene;
 import rin.gl.event.GLEventThread;
-import rin.gl.lib3d.ActorList;
+import rin.gl.lib3d.properties.Properties;
+import rin.gl.model.Model;
+import rin.gl.model.ModelDAE;
+import rin.gl.model.ModelManager;
+import rin.gl.model.ModelOBJ;
 import rin.gui.*;
+import rin.sample.States;
 import rin.util.Buffer;
 
 public class Engine {
@@ -23,192 +29,91 @@ public class Engine {
 	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
 	public static final String IMG_DIR = ROOTDIR+"inc"+LS+"img"+LS;
 	
-	public static boolean DEBUG = true;
+	public static GLScene getScene() { return GLScene.get(); }
 	
-	private static boolean started = false;
-	public static boolean isStarted() { return Engine.started; }
+	public static enum ModelFormat {
+		DAE		( new ModelDAE() ),
+		OBJ		( new ModelOBJ() );
+		
+		public Model manager;
+		
+		ModelFormat( Model manager ) {
+			this.manager = manager;
+		}
+	}
 	
-	private static Scene scene = null;
-	public static Scene getScene() { return Engine.scene; }
-
-	public static void init() { Engine.init( 900, 600 ); }
-	public static void init( int width, int height ) {
-		//Thread.currentThread().setName( "rin.ai | Render Thread" );
-		try {
-			Display.setDisplayMode( new DisplayMode( width, height ) );
-			Display.create();
-			Display.setVSyncEnabled( true );
-			Engine.scene = new Scene( width, height );
-			if( Engine.scene.isReady() ) {
-				Engine.scene.getCamera().init();
-				Engine.started = true;
-
-				//Engine.createDebugWindow();
-			}
-		} catch( LWJGLException e ) {
-			System.out.println( "lwjgl instance failed to display [" + width + "x" + height + "]" );
+	public static class ModelParams {
+		public String name = "noire_v";
+		public ModelFormat format = ModelFormat.DAE;
+		
+		public ModelParams( ModelFormat format, String name ) {
+			this.format = format;
+			this.name = name;
+		}
+	}
+	
+	public static class ShapeParams {
+		public Properties properties = new Properties();
+		public boolean wire = false;
+	}
+	
+	public static class TetrahedronParams extends ShapeParams {}
+	
+	public static class CuboidParams extends ShapeParams {
+		public float width = 1.0f;
+		public float height = 1.0f;
+		public float depth = 1.0f;
+		
+		public CuboidParams() {}
+		public CuboidParams( Float width ) { this( width, null, null, null, null ); }
+		public CuboidParams( Float width, Float height ) { this( width, height, null, null, null ); }
+		public CuboidParams( Float width, Float height, Float depth ) { this( width, height, depth, null, null ); }
+		public CuboidParams( Float width, Float height, Float depth, Properties p ) { this( width, height, depth, p, null ); }
+		public CuboidParams( Float width, Float height, Float depth, Properties p, Boolean wire ) {
+			if( width != null ) this.width = width;
+			if( height != null ) this.height = height;
+			if( depth != null ) this.depth = depth;
+			if( p != null ) this.properties = p;
+			if( wire != null ) this.wire = wire;
 		}
 	}
 
-	public static void createDebugWindow() {
-		new GUI() {
-			@Override public void build() {
-				createWindow( "#window1" )
-						.setTitle( "rin.ai | Debug" )
-						.setLocation( 20, 20 )
-						.onWindowLoad( new OnLoadEvent() {
-							@Override public void run() {
-								System.out.println( "THIS WINDOW LOADED" );
-							}
-						})
-						.addMenu( createMenuBar()
-								.add( createMenu( "Menu 1" )
-										.onOpen( new MenuEvent() {
-											@Override public void run() {
-												System.out.println( "menu open success" );
-											}
-										})
-										.onWindowLoad( new OnLoadEvent() {
-											@Override public void run() {
-												System.out.println( "haha" );
-											}
-										})
-										.add( createMenuItem( "One" ) )
-										.add( createMenu( "Two" )
-												.add( createMenuItem( "Two One" )
-														.setShortcut( ModifierKey.ALT, "A" )
-														.onSelect( new MenuItemEvent() {
-															@Override public void run() {
-																System.out.println( "shortcut worked" );
-															}
-														}))
-												.addSeparator()
-												.add( createMenuItem( "Two Two" ) )
-										)
-										.add( createMenuItem( "Three" ) )
-								)
-								.add( createMenu( "Menu 2" ) )
-								.addHorizontalSeparator()
-								.add( createMenu( "Menu 2" ) )
-								.addHorizontalSeparator()
-								.add( createMenu( "Menu 3" ) )
-						)
-						.add( createContainer()
-								.setAlignment( Alignment.CENTER )
-								.add( createCheckBox().setLabel( "test" ) )
-								.add( createPanel()
-										.setAlignment( Alignment.CENTER )
-										.add( createColumns( 2 )
-												.add( 1, createCheckBox( "asdf" ).setLabel( "test" ) )
-												.add( 1, createContainer()
-														.add( createCheckBox() )
-														.add( createCheckBox() ) )
-												.add( 2, createTextField().onEnter(new TextFieldEvent() {
-													@Override public void run() {
-														getCheckBox( "asdf" ).check();
-													}
-												}))
-												
-												.add( 2, createButton() )
-										)
-								)
-								.add( createCheckBox() )
-								.add( createTabbedPane()
-										.addTab( "Overall", createContainer()
-												.onFocus( new ContainerEvent() {
-													@Override public void run() {
-														System.out.println( "FOCUSED OVERALL" );
-													}
-												})
-												.add( createPanel()
-														.setAlignment( Alignment.CENTER )
-														.add( createPair()
-																.setLeftItem( createCheckBox() )
-																.setRightItem( createCheckBox() )
-														)
-												)
-										)
-										.addTab( "Actors", createContainer() )
-										.addTab( "Misc", createContainer() )
-								)
-								.add( createScrollPane()
-										.scrollToY( 100 )
-										.setAlignment( Alignment.CENTER )
-										.add( createCheckBox() )
-										.add( createCheckBox() )
-										.add( createCheckBox() )
-										.add( createComboBox()
-												.onSelect( new ComboBoxEvent() {
-													@Override public void run() {
-														System.out.println( "an option was selected " + this.currentIndex + " " + this.previousIndex + " " + this.value );
-													}
-												})
-												.add( createComboItem( "Option One" ).onSelect( new ComboItemEvent() {
-													@Override public void run() {
-														System.out.println( "Option One selected." );
-													}
-												}) )
-												.add( createComboItem( "Option Two" ).select() )
-										)
-										.add( createList()
-												.add( createListItem( "Oneeeee" )
-														.onSelect( new ListItemEvent() {
-															@Override public void run() {
-																System.out.println( Buffer.toString( this.selected ) );
-															}
-														})
-														.onDeselect( new ListItemEvent() {
-															@Override public void run() {
-																System.out.println( " deselected " + this.text );
-															}
-														}) )
-												.add( createListItem( "Twoooo" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ).select() )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-												.add( createListItem( "Threee" ) )
-										)
-										.add( createSlider() )
-								)
-						).show();
-			}
-		};
+	public static class DodecahedronParams extends ShapeParams {}
+	public static class OctahedronParams extends ShapeParams {}
+	public static class IcosahedronParams extends ShapeParams {}
+	public static class SphereParams extends ShapeParams {
+		public float radius = 0.5f;
+		public int slices = 10;
+		public int stacks = 10;
+		
+		public SphereParams() {}
+		public SphereParams( Float radius ) { this( radius, null, null, null, null ); }
+		public SphereParams( Float radius, Integer slices ) { this( radius, slices, null, null, null ); }
+		public SphereParams( Float radius, Integer slices, Integer stacks ) { this( radius, slices, stacks, null, null ); }
+		public SphereParams( Float radius, Integer slices, Integer stacks, Properties p ) { this( radius, slices, stacks, p, null ); }
+		public SphereParams( Float radius, Integer slices, Integer stacks, Properties p, Boolean wire ) {
+			if( radius != null ) this.radius = radius;
+			if( slices != null ) this.slices = slices;
+			if( stacks != null ) this.stacks = stacks;
+			if( p != null ) this.properties = p;
+			if( wire != null ) this.wire = wire;
+		}
+	}
+	
+	public static void init( int width, int height ) {
+		GL.init( width, height );
+		GLScene.init();
 	}
 	
 	public static void start() {
-		//new Input( "Rin Input/Event Thread" ).start();
-		Engine.loop();
-		Engine.destroy();
+		GL.get().run();
 	}
 				
 	/* You're Fun. */
 	
-	public static void loop() {
-		while( !Display.isCloseRequested() ) {
-			Engine.scene.update();
-			Display.sync( 60 );
-			Display.update();
-		}
-	}
-	
 	public static void stop() { Engine.destroy(); }
 	
 	public static void destroy() {
-		//GLEventThread.requestDestroy();
-		//ActorList.requestDestroy();
-
-		if( Engine.scene != null )
-			Engine.scene = Engine.scene.destroy();
-		
-		//GUIManager.destroy();
-		//Input.requestDestroy();
-		
-		Display.destroy();
-		System.exit( 0 );
+		GL.get().requestDestroy();
 	}
 }

@@ -1,9 +1,6 @@
 package rin.system;
 
-public abstract class SingletonThread<T> extends Thread {
-	private T instance;
-	public T getInstance() { return this.instance; }
-	
+public abstract class SingletonThread<T> extends Thread {	
 	private boolean destroyRequested = false;
 	public boolean isDestroyRequested() { return this.destroyRequested; }
 	public void requestDestroy() { this.destroyRequested = true; }

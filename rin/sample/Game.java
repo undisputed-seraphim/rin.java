@@ -2,15 +2,14 @@ package rin.sample;
 
 import java.util.ArrayList;
 
-import rin.engine.Engine;
+import static rin.engine.Engine.*;
 import rin.gl.event.Transition;
-import rin.gl.lib3d.ActorList;
+import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
-import rin.gl.lib3d.data.GLRenderThread;
 import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.lib3d.shape.*;
 import rin.gl.model.ModelManager;
-import rin.gl.model.ModelManager.Format;
+import rin.system.LoadEvent;
 import rin.util.RinUtils;
 import static rin.system.RInput.*;
 
@@ -18,7 +17,21 @@ public class Game {
 	public static void main( String args[] ) {
 		//trackInput();
 		
-		States.TITLE.push();
+		init( 900, 600 );
+		
+		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) ).onLoad( new LoadEvent<Actor>() {
+			public void load() {
+				System.out.println( this.target + "yes" );
+			}
+		});
+		
+		getScene().addShape( new SphereParams( null, null, null, null, true ) ).onLoad( new LoadEvent<Actor>() {
+			public void load() {
+				System.out.println( this.target.getName() );
+			}
+		});
+		
+		start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

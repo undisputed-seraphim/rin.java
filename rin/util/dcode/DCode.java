@@ -9,7 +9,7 @@ public class DCode {
 	protected static BIO bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = BIO.fromFile( Engine.MODEL_DIR + "test.pssg" );
+		DCode.bio = BIO.fromFile( Engine.FONT_DIR + "arial.ttf" );
 		DCode.createGUI();
 		waitForBuild( 0 );
 		DCode.load();

@@ -10,6 +10,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.engine.Engine;
+import static rin.engine.Engine.*;
 import rin.gl.gui.GLGUI;
 import rin.gl.gui.GLGUIFactory;
 import static rin.gl.gui.GLGUIFactory.*;
@@ -17,8 +18,11 @@ import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.properties.Scale;
+import rin.gl.lib3d.shape.Shape;
+import rin.gl.lib3d.shape.Sphere;
 import rin.gl.model.ModelLoader;
 import rin.gl.model.ModelManager;
+import rin.engine.Engine.ModelParams;
 import rin.gui.GUIFactory;
 import rin.sample.States;
 import rin.system.Loader;
@@ -27,19 +31,13 @@ import rin.util.IO;
 import rin.util.math.Mat4;
 
 public class GL extends SingletonThread<GL> {
-	private static GL instance;
+	private static GL instance = null;
+	public static GL get() { return GL.instance; }
 	
 	private static int width = 900, height = 600;
 	public int getWidth() { return GL.width; }
 	public int getHeight() { return GL.height; }
-	
-	public static GL get() {
-		if( GL.instance == null )
-			GL.instance = new GL( GL.width, GL.height );
-		
-		return GL.instance;
-	}
-	
+
 	public static ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
 	private volatile Camera camera;
@@ -89,13 +87,29 @@ public class GL extends SingletonThread<GL> {
 	public static void init() { GL.instance = new GL( GL.width, GL.height ); }
 	public static void init( int width, int height ) { GL.instance = new GL( width, height ); }
 	
-	public static Loader<Actor> addModel( final ModelManager.Format format, final String name ) {
+	public static Loader<Actor> addModel( final ModelParams p ) {
 		final Loader<Actor> lr = new Loader<Actor>();
 		GL.sources.add( new Runnable() {
 			public void run() {
+				Actor actor = ModelManager.create( p.format, p.name );
 				synchronized( GLScene.getActors() ) {
-					GLScene.getActors().add( ModelManager.create( format, name ) );
-					lr.loaded();
+					GLScene.getActors().add( actor );
+					lr.setTarget( actor ).loaded();
+				}
+			}
+		});
+		return lr;
+	}
+	
+	public static Loader<Actor> addShape( final ShapeParams p ) {
+		final Loader<Actor> lr = new Loader<Actor>();
+		GL.sources.add( new Runnable() {
+			public void run() {
+				Actor actor = Shape.create( p );
+				
+				synchronized( GLScene.getActors() ) {
+					GLScene.getActors().add( actor );
+					lr.setTarget( actor ).loaded();
 				}
 			}
 		});
@@ -106,7 +120,6 @@ public class GL extends SingletonThread<GL> {
 		super( "rin.ai | Render Thread" );
 		GL.width = width;
 		GL.height = height;
-		super.start();
 	}
 	
 	@Override public void preload() {
@@ -206,9 +219,8 @@ public class GL extends SingletonThread<GL> {
 				tmp.run();
 			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			
 			/* draw the GLGUI object */
-			glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.IDENTITY.gl() );
+			glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
 			glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
 			GLGUIFactory.render( this.getDt() );
 			
@@ -239,8 +251,5 @@ public class GL extends SingletonThread<GL> {
 		
 		TextureManager.destroy();
 		Display.destroy();
-		
-		States.GAME.pop();
-		States.MENU.push();
 	}
 }

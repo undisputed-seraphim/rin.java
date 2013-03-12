@@ -31,7 +31,7 @@ public class TextField extends GUIComponent<TextField, TextFieldEvent> {
 			@Override public void run() {
 				this.target.enforceLimit();
 			}
-		};
+		}.setTarget( this );
 	}
 	
 	private JTextField real() { return (JTextField)this.target; }

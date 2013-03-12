@@ -27,7 +27,7 @@ public class ModelDAE implements Model {
 		
 		//TODO: everything below this line needs tidying up... badly
 		/* DAE models will utilize the mesh class */
-		Mesh mesh = new Mesh();
+		Mesh mesh = new Mesh( file.substring( file.lastIndexOf( Engine.LS ) + 1, file.lastIndexOf( "." ) ) );
 		mesh.setPicking( true );
 		//mesh.setInterleaved( false );
 		float[] V_SRC, N_SRC, T_SRC;

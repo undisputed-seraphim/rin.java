@@ -6,8 +6,6 @@ import org.lwjgl.opengl.Display;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;
-import rin.gl.lib3d.ActorList;
-import rin.gl.Scene;
 
 public class Input extends Thread {
 	private static boolean destroyRequested = false;

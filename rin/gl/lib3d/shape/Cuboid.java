@@ -4,26 +4,19 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.GL_LINES;
 
-import rin.gl.lib3d.properties.Properties;
+import rin.engine.Engine.CuboidParams;
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Cuboid extends Shape {
 	private static int items = 0;
 
-	public Cuboid() { this( 1.0f, 1.0f, 1.0f, new Properties(), false ); }
-	public Cuboid( boolean wire ) { this( 1.0f, 1.0f, 1.0f, new Properties(), wire ); }
-	public Cuboid( Properties p ) { this( 1.0f, 1.0f, 1.0f, p, false ); }
-	public Cuboid( Properties p, boolean wire ) { this( 1.0f, 1.0f, 1.0f, p, wire ); }
-	public Cuboid( float size ) { this( size, size, size, new Properties(), false ); }
-	public Cuboid( float size, boolean wire ) { this( size, size, size, new Properties(), wire ); }
-	public Cuboid( float size, Properties p ) { this( size, size, size, p, false ); }
-	public Cuboid( float size, Properties p, boolean wire ) { this( size, size, size, p, wire ); }
-	public Cuboid( float width, float height, float depth ) { this( width, height, depth, new Properties(), false ); }
-	public Cuboid( float width, float height, float depth, boolean wire ) { this( width, height, depth, new Properties(), wire ); }
-	public Cuboid( float width, float height, float depth, Properties p ) { this( width, height, depth, p, false ); }
-	public Cuboid( float width, float height, float depth, Properties p, boolean wire ) {
-		super( "Cuboid-" + Cuboid.items++, p );
+	public Cuboid( CuboidParams p ) {
+		super( "Cuboid-" + Cuboid.items++, p.properties );
+		float width = p.width;
+		float height = p.height;
+		float depth = p.depth;
+		boolean wire = p.wire;
 		
 		this.setColored( true );
 		if( wire )
