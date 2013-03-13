@@ -4,22 +4,17 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.GL_LINES;
 
-import rin.gl.lib3d.properties.Properties;
+import rin.engine.Engine.TetrahedronParams;
 import rin.util.Buffer;
 import rin.util.math.Vec3;
 
 public class Tetrahedron extends Shape {
 	private static int items = 0;
-	
-	public Tetrahedron() { this( 0.5f, new Properties(), false ); }
-	public Tetrahedron( boolean wire ) { this( 0.5f, new Properties(), wire ); }
-	public Tetrahedron( Properties p ) { this( 0.5f, p, false ); }
-	public Tetrahedron( Properties p, boolean wire ) { this( 0.5f, p, wire ); }
-	public Tetrahedron( float radius ) { this( radius, new Properties(), false ); }
-	public Tetrahedron( float radius, boolean wire ) { this( radius, new Properties(), wire ); }
-	public Tetrahedron( float radius, Properties p ) { this( radius, p, false ); }
-	public Tetrahedron( float radius, Properties p, boolean wire ) {
-		super( "Tetrahedron-" + Tetrahedron.items++, p );
+
+	public Tetrahedron( TetrahedronParams p ) {
+		super( "Tetrahedron-" + Tetrahedron.items++, p.properties );
+		float radius = p.radius;
+		boolean wire = p.wire;
 		
 		this.setColored( true );
 		if( wire )

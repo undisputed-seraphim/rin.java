@@ -2,14 +2,45 @@ package rin.util.dcode;
 
 import static rin.gui.GUIFactory.*;
 import rin.engine.Engine;
-import rin.util.BIO;
-import rin.util.Buffer;
+import rin.util.bio.BIOBuffer;
+import rin.util.bio.BIOChunk;
+import rin.util.bio.BIOFile;
+import rin.util.bio.BIOTypes;
+import rin.util.dcode.ttf.TTFTypes;
 
 public class DCode {
-	protected static BIO bio;
+	protected static BIOFile bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = BIO.fromFile( Engine.FONT_DIR + "arial.ttf" );
+		DCode.bio = new BIOFile( Engine.FONT_DIR + "arial.ttf" );
+		DCode.bio.addChunk( new BIOChunk( "header" )
+				.addPart( TTFTypes.FIXED, 1, "version" )
+				.addPart( BIOTypes.SHORT, 1, "numTables" )
+				.addPart( BIOTypes.SHORT, 1, "searchRange" )
+				.addPart( BIOTypes.SHORT, 1, "entrySelector" )
+				.addPart( BIOTypes.SHORT, 1, "rangeShift" )
+		, true );
+
+		DCode.bio.addChunk( new BIOChunk( "table_" )
+				.addPart( TTFTypes.TAG, 1, "tag_" )
+				.addPart( BIOTypes.LONG, 1, "table_0_version" )
+				.addPart( BIOTypes.SHORT, 1, "short" )
+				.addPart( BIOTypes.SHORT, 1, "short" )
+		, true );
+		
+		DCode.bio.addChunk( new BIOChunk( "table_" )
+				.addPart( TTFTypes.TAG, 1, "tag_" )
+				.addPart( BIOTypes.LONG, 1, "table__version" )
+				.addPart( BIOTypes.INT, 1, "short" )
+				.addPart( BIOTypes.INT, 1, "short" )
+		, true );
+
+		for( int i = 0; i < DCode.bio.getShort( "numTables" ); i++ ) {
+
+		}
+		DCode.bio.previewChunks();
+		
+		System.out.println( DCode.bio.getLong( "table_0_version" ) );
 		DCode.createGUI();
 		waitForBuild( 0 );
 		DCode.load();
@@ -36,25 +67,25 @@ public class DCode {
 												.setCharacterLimit( 3 )
 												.onEnter( new TextFieldEvent() {
 													@Override public void run() {
-														getTextField( "pByte" ).setText( BIO.asString( DCode.bio.previewBytes(
+														getTextField( "pByte" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewBytes(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pChar" ).setText( BIO.asString( DCode.bio.previewChars(
+														getTextField( "pChar" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewChars(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pShort" ).setText( BIO.asString( DCode.bio.previewShorts(
+														getTextField( "pShort" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewShorts(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pInt" ).setText( BIO.asString( DCode.bio.previewInts(
+														getTextField( "pInt" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewInts(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pFloat" ).setText( BIO.asString( DCode.bio.previewFloats(
+														getTextField( "pFloat" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewFloats(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pDouble" ).setText( BIO.asString( DCode.bio.previewDoubles(
+														getTextField( "pDouble" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewDoubles(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
-														getTextField( "pLong" ).setText( BIO.asString( DCode.bio.previewLongs(
+														getTextField( "pLong" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewLongs(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 													}
 												})

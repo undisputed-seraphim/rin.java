@@ -25,7 +25,7 @@ public class Game {
 			}
 		});
 		
-		getScene().addShape( new SphereParams( null, null, null, null, true ) ).onLoad( new LoadEvent<Actor>() {
+		getScene().addShape( new SphereParams( 2.0f, null, null, null, true ) ).onLoad( new LoadEvent<Actor>() {
 			public void load() {
 				System.out.println( this.target.getName() );
 			}

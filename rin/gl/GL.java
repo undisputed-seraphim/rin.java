@@ -92,6 +92,7 @@ public class GL extends SingletonThread<GL> {
 		GL.sources.add( new Runnable() {
 			public void run() {
 				Actor actor = ModelManager.create( p.format, p.name );
+				
 				synchronized( GLScene.getActors() ) {
 					GLScene.getActors().add( actor );
 					lr.setTarget( actor ).loaded();

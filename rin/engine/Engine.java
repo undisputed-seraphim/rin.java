@@ -57,7 +57,18 @@ public class Engine {
 		public boolean wire = false;
 	}
 	
-	public static class TetrahedronParams extends ShapeParams {}
+	public static class TetrahedronParams extends ShapeParams {
+		public float radius = 0.5f;
+		
+		public TetrahedronParams() {}
+		public TetrahedronParams( Float radius ) { this( radius, null, null ); }
+		public TetrahedronParams( Float radius, Properties p ) { this( radius, p, null ); }
+		public TetrahedronParams( Float radius, Properties p, Boolean wire ) {
+			if( radius != null ) this.radius = radius;
+			if( p != null ) this.properties = p;
+			if( wire != null ) this.wire = wire;
+		}
+	}
 	
 	public static class CuboidParams extends ShapeParams {
 		public float width = 1.0f;
