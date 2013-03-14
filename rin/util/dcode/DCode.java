@@ -3,17 +3,21 @@ package rin.util.dcode;
 import static rin.gui.GUIFactory.*;
 import rin.engine.Engine;
 import rin.util.bio.BIOBuffer;
-import rin.util.bio.BIOChunk;
 import rin.util.bio.BIOFile;
-import rin.util.bio.BIOTypes;
+import rin.util.bio.BIOFileAdapter;
+import rin.util.dcode.ttf.TTFFile;
 import rin.util.dcode.ttf.TTFTypes;
+import static rin.util.bio.BIOTypes.*;
 
 public class DCode {
 	protected static BIOFile bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = new BIOFile( Engine.FONT_DIR + "arial.ttf" );
-		DCode.bio.addChunk( new BIOChunk( "header" )
+		DCode.bio = new BIOFileAdapter( Engine.FONT_DIR + "arial.ttf" );
+		DCode.bio.read( TTFTypes.FIXED, SHORT, SHORT, SHORT, SHORT );
+		//DCode.bio = new TTFFile( Engine.FONT_DIR + "arial.ttf" );
+		//DCode.bio.read();
+		/*DCode.bio.addChunk( new BIOChunk( "header" )
 				.addPart( TTFTypes.FIXED, 1, "version" )
 				.addPart( BIOTypes.SHORT, 1, "numTables" )
 				.addPart( BIOTypes.SHORT, 1, "searchRange" )
@@ -21,18 +25,18 @@ public class DCode {
 				.addPart( BIOTypes.SHORT, 1, "rangeShift" )
 		, true );
 
-		/*DCode.bio.addChunk( new BIOChunk( "table_" )
+		DCode.bio.addChunk( new BIOChunk( "table_" )
 				.addPart( TTFTypes.TAG, 1, "tag_" )
 				.addPart( BIOTypes.INT, 1, "table_0_version" )
 				.addPart( BIOTypes.INT, 1, "short" )
 				.addPart( BIOTypes.INT, 1, "short" )
 		, true );
-		
+
 
 
 		DCode.bio.addChunk( new BIOChunk( "table_" )
 				.addPart( TTFTypes.TAG, 1, "tag_" )
-		, true );*/
+		, true );
 		
 		for( int i = 0; i < DCode.bio.getShort( "numTables" ); i++ ) {
 			DCode.bio.addChunk( new BIOChunk( "table_"+i )
@@ -47,7 +51,7 @@ public class DCode {
 				} else {
 					DCode.bio.getChunk( "table_" + i ).addPart( BIOTypes.BYTE, 3, "short", true );
 				}
-		}
+		}*/
 		
 		DCode.bio.previewChunks();
 		

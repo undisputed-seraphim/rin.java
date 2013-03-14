@@ -16,7 +16,6 @@ public class BIOBuffer {
 		for( byte b : data.getBytes() )
 			this.data.put( b );
 		this.data.flip();
-		//System.out.println( this.data.limit() );
 	}
 	
 	public static BIOBuffer fromString( String data ) { return new BIOBuffer( data ); }
@@ -33,8 +32,8 @@ public class BIOBuffer {
 	
 	public BIOBuffer reset() { this.pointer = 0; this.data.position( 0 ); return this; }
 	
-	private <T> T preview( Types<T> t ) { T res = t.getData( this.data ); this.data.position( this.pointer ); return res; }
-	private <T> T[] preview( Types<T> t, T[] res ) {
+	private <T> T preview( Type<T> t ) { T res = t.getData( this.data ); this.data.position( this.pointer ); return res; }
+	private <T> T[] preview( Type<T> t, T[] res ) {
 		for( int i = 0; i < res.length; i++ )
 			res[i] = t.getData( this.data );
 		
@@ -64,8 +63,8 @@ public class BIOBuffer {
 	public long previewLong() { return this.<Long>preview( LONG ); }
 	public Long[] previewLongs( int num ) { return this.<Long>preview( LONG, new Long[num] ); }
 	
-	private <T> T read( Types<T> t ) { T res = t.getData( this.data ); this.pointer = this.data.position(); return res; }
-	private <T> T[] read( Types<T> t, T[] res ) {
+	private <T> T read( Type<T> t ) { T res = t.getData( this.data ); this.pointer = this.data.position(); return res; }
+	private <T> T[] read( Type<T> t, T[] res ) {
 		for( int i = 0; i < res.length; i++ )
 			res[i] = t.getData( this.data );
 		
@@ -74,7 +73,7 @@ public class BIOBuffer {
 		return res;
 	}
 	
-	public <T> T[] read( Types<T> t, int amount ) {
+	public <T> T[] read( Type<T> t, int amount ) {
 		T[] res = t.allocate( amount );
 		for( int i = 0; i < amount; i++ )
 			res[i] = t.getData( this.data );
