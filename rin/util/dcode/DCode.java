@@ -21,26 +21,36 @@ public class DCode {
 				.addPart( BIOTypes.SHORT, 1, "rangeShift" )
 		, true );
 
-		DCode.bio.addChunk( new BIOChunk( "table_" )
+		/*DCode.bio.addChunk( new BIOChunk( "table_" )
 				.addPart( TTFTypes.TAG, 1, "tag_" )
-				.addPart( BIOTypes.LONG, 1, "table_0_version" )
-				.addPart( BIOTypes.SHORT, 1, "short" )
-				.addPart( BIOTypes.SHORT, 1, "short" )
+				.addPart( BIOTypes.INT, 1, "table_0_version" )
+				.addPart( BIOTypes.INT, 1, "short" )
+				.addPart( BIOTypes.INT, 1, "short" )
 		, true );
 		
+
+
 		DCode.bio.addChunk( new BIOChunk( "table_" )
 				.addPart( TTFTypes.TAG, 1, "tag_" )
-				.addPart( BIOTypes.LONG, 1, "table__version" )
-				.addPart( BIOTypes.INT, 1, "short" )
-				.addPart( BIOTypes.INT, 1, "short" )
-		, true );
-
+		, true );*/
+		
 		for( int i = 0; i < DCode.bio.getShort( "numTables" ); i++ ) {
-
+			DCode.bio.addChunk( new BIOChunk( "table_"+i )
+					.addPart( TTFTypes.TAG, 1, "tag_"+i )
+					.addPart( BIOTypes.UINT32, 1, "table_"+i+"_version" )
+					.addPart( BIOTypes.UINT32, 1, "short" )
+			, true );
+			
+			if( DCode.bio.getString( "tag_" + i ) != null )
+				if( !DCode.bio.getString( "tag_" + i ).equals( "cmap" ) ) {
+					DCode.bio.getChunk( "table_" + i ).addPart( BIOTypes.UINT32, 1, "short", true );
+				} else {
+					DCode.bio.getChunk( "table_" + i ).addPart( BIOTypes.BYTE, 3, "short", true );
+				}
 		}
+		
 		DCode.bio.previewChunks();
 		
-		System.out.println( DCode.bio.getLong( "table_0_version" ) );
 		DCode.createGUI();
 		waitForBuild( 0 );
 		DCode.load();

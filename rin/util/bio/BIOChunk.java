@@ -48,13 +48,23 @@ public class BIOChunk {
 	
 	public void load() {}
 	
-	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount ) {
+	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount ) { return this.addPart( type, amount, false ); }
+	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount, boolean read ) {
 		this.parts.add( new Part<T>( type, amount ).setParent( this ) );
+		
+		if( read )
+			this.parts.get( this.parts.size() - 1 ).read();
+		
 		return this;
 	}
 	
-	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount, String id ) {
+	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount, String id ) { return this.addPart( type, amount, id, false ); }
+	public <T> BIOChunk addPart( BIOTypes.Types<T> type, int amount, String id, boolean read ) {
 		this.parts.add( new Part<T>( type, amount, id ).setParent( this ) );
+		
+		if( read )
+			this.parts.get( this.parts.size() - 1 ).read();
+		
 		return this;
 	}
 	

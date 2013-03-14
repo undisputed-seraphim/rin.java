@@ -27,6 +27,12 @@ public class BIOTypes {
 		public String toString() { return "SHORT"; }
 	};
 	
+	public static final Types<Integer> UINT32 = new Types<Integer>() {
+		public Integer[] allocate( int amount ) { return new Integer[amount]; }
+		public Integer getData( ByteBuffer bb ) { return bb.get() << 24 | bb.get() << 16 | bb.get() << 8 | bb.get(); }
+		public String toString() { return "UINT32"; }
+	};
+	
 	public static final Types<Integer> INT = new Types<Integer>() {
 		public Integer[] allocate( int amount ) { return new Integer[amount]; }
 		public Integer getData( ByteBuffer bb ) { return bb.getInt(); }
