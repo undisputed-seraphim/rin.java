@@ -50,7 +50,7 @@ public class IO {
 				while( ( line = reader.readLine() ) != null )
 					source.append(line).append( IO.LS );
 			} catch( IOException e ) {
-				System.out.println( "IOException raised. file = " + file );
+				System.out.println( "IOException raisedin asString. [" + file + "]" );
 				return "";
 			}
 			
@@ -60,6 +60,19 @@ public class IO {
 		public static String[] asArray( String file ) {
 			String data = IO.file.asString( file );
 			return data.split( IO.LS );
+		}
+		
+		public static byte[] asByteArray( String file ) {
+			InputStream in = IO.file.asInputStream( file );
+			byte[] res;
+			try {
+				res = new byte[in.available()];
+				in.read( res );
+				return res;
+			} catch( IOException e1 ) {
+				System.out.println( "IOException raised in asByteArray. [" + file + "]" );
+			}
+			return new byte[0];
 		}
 	}
 }

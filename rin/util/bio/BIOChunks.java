@@ -5,6 +5,13 @@ import rin.util.bio.BIOParts.Part;
 
 public class BIOChunks {
 	public static abstract class Chunk {
+		public static Chunk copy( final Chunk chunk, String id ) {
+			return new Chunk( id ) {
+				@Override public void define( Chunk c ) {
+					chunk.define( this );
+				}
+			};
+		}
 		private static int items = 0;
 		
 		public String id;
@@ -17,6 +24,14 @@ public class BIOChunks {
 		
 		private ArrayList<Part<?>> parts = new ArrayList<Part<?>>();
 		public ArrayList<Part<?>> getParts() { return this.parts; }
+		@SuppressWarnings("unchecked") public <T> ArrayList<Part<T>> getParts( Class<T> cls ) {
+			ArrayList<Part<T>> res = new ArrayList<Part<T>>();
+			for( Part<?> p : this.parts )
+				if( cls.isInstance( p.getData()[0] ) )
+					res.add( (Part<T>)p );
+			return res;
+		}
+		
 		public Part<?> getPart( String id ) {
 			for( Part<?> p : this.parts )
 				if( p.id.equals( id ) )
@@ -60,7 +75,36 @@ public class BIOChunks {
 			return this;
 		}
 		
-		public abstract void define();
+		public abstract void define( Chunk c );
+		
+		public Chunk copy( String id ) {
+			final Chunk chunk = this;
+			return new Chunk( id ) {
+				@Override public void define( Chunk c ) {
+					chunk.define( this );
+				}
+			};
+		}
+		
+		private <T> T get( String id, Class<T> cls ) {
+			for( Part<?> p : this.parts )
+				if( p.id.equals( id ) )
+					if( cls.isInstance( p.getData()[0] ) )
+						return cls.cast( p.getData()[0] );
+			return null;
+		}
+		
+		public short getUByte( String id ) { return this.get( id, Short.class ); }
+		public byte getByte( String id ) { return this.get( id, Byte.class ); }
+		public char getChar( String id ) { return this.get( id, Character.class ); }
+		public String getString( String id ) { return this.get( id, String.class ); }
+		public int getUShort( String id ) { return this.get( id, Integer.class ); }
+		public short getShort( String id ) { return this.get( id, Short.class ); }
+		public long getUInt( String id ) { return this.get( id, Long.class ); }
+		public int getInt( String id ) { return this.get( id, Integer.class ); }
+		public float getFloat( String id ) { return this.get( id, Float.class ); }
+		public double getDouble( String id ) { return this.get( id, Double.class ); }
+		public long getLong( String id ) { return this.get( id, Long.class ); }
 		
 		public Chunk read() {
 			for( Part<?> p : this.parts )

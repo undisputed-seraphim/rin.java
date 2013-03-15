@@ -5,6 +5,7 @@ import rin.engine.Engine;
 import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOFile;
 import rin.util.bio.BIOFileAdapter;
+import rin.util.bio.BIOTypes;
 import rin.util.dcode.ttf.TTFFile;
 import rin.util.dcode.ttf.TTFTypes;
 import static rin.util.bio.BIOTypes.*;
@@ -13,10 +14,15 @@ public class DCode {
 	protected static BIOFile bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = new BIOFileAdapter( Engine.FONT_DIR + "arial.ttf" );
+		/*DCode.bio = new BIOFileAdapter( Engine.FONT_DIR + "arial.ttf" );
 		DCode.bio.read( TTFTypes.FIXED, SHORT, SHORT, SHORT, SHORT );
-		//DCode.bio = new TTFFile( Engine.FONT_DIR + "arial.ttf" );
-		//DCode.bio.read();
+		
+		DCode.bio.read( UBYTE, 32 );
+		System.out.println( DCode.bio.getBuffer().position() );
+		DCode.bio.read( TTFTypes.TAG, UINT32, UINT32, UINT32 );*/
+		DCode.bio = new TTFFile( Engine.FONT_DIR + "arial.ttf" );
+		//DCode.bio.read( BIOTypes.HUINT8 );
+		DCode.bio.read();
 		/*DCode.bio.addChunk( new BIOChunk( "header" )
 				.addPart( TTFTypes.FIXED, 1, "version" )
 				.addPart( BIOTypes.SHORT, 1, "numTables" )
@@ -53,7 +59,7 @@ public class DCode {
 				}
 		}*/
 		
-		DCode.bio.previewChunks();
+		//DCode.bio.previewChunks();
 		
 		DCode.createGUI();
 		waitForBuild( 0 );

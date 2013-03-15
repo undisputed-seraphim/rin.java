@@ -1,25 +1,157 @@
 package rin.util.dcode.ttf;
 
-import rin.util.bio.BIOTypes;
+import static rin.util.dcode.ttf.TTFTypes.*;
 import rin.util.bio.BIOChunks.Chunk;;
 
 public class TTFChunks {
 	public static final Chunk HEADER = new Chunk( "header" ) {
-		@Override public void define() {
-			this.addPart( TTFTypes.FIXED, 1, "version" );
-			this.addPart( BIOTypes.USHORT, 1, "numTables" );
-			this.addPart( BIOTypes.USHORT, 1, "searchRange" );
-			this.addPart( BIOTypes.USHORT, 1, "entrySelector" );
-			this.addPart( BIOTypes.USHORT, 1, "rangeShift" );
+		@Override public void define( Chunk c ) {
+			c.addPart( FIXED, 1, "version" );
+			c.addPart( USHORT, 1, "numTables" );
+			c.addPart( USHORT, 1, "searchRange" );
+			c.addPart( USHORT, 1, "entrySelector" );
+			c.addPart( USHORT, 1, "rangeShift" );
+		}
+	};
+	
+	public static final Chunk TABLE_RECORD = new Chunk() {
+		@Override public void define( Chunk c ) {
+			c.addPart( TAG, 1, c.id + "_tag" );
+			c.addPart( ULONG, 1, c.id + "_checkSum" );
+			c.addPart( ULONG, 1, c.id + "_offset" );
+			c.addPart( ULONG, 1, c.id + "_length" );
+		}
+	};
+	
+	public static final Chunk HEAD = new Chunk( "head" ) {
+		@Override public void define( Chunk c ) {
+			this.getParent().getBuffer().advance( 4+4+4+4+2 );
+			c.addPart( USHORT, 1, "head_unitsPerEm", true );
+			c.addPart( LONGDATETIME, 1, "head_created", true );
+			c.addPart( LONGDATETIME, 1, "head_modified", true );
+			this.getParent().getBuffer().advance( 2+2+2+2+2+2+2 );
+			c.addPart( SHORT, 1, "head_indexToLocFormat", true );
+			c.addPart( SHORT, 1, "head_glyphDataFormat", true );
+		}
+	};
+	
+	public static final Chunk MAXP = new Chunk( "maxp" ) {
+		@Override public void define( Chunk c ) {
+			c.addPart( FIXED, 1, "maxp_version", true );
+			c.addPart( USHORT, 1, "maxp_numGlyphs", true );
+		}
+	};
+	
+	public static final Chunk LOCA = new Chunk( "loca" ) {
+		@Override public void define( Chunk c ) {
+			int longorshort = c.getParent().getShort( "head_indexToLocFormat" );
+			int numGlyphs = c.getParent().getUShort( "maxp_numGlyphs" );
+			switch( longorshort ) {
+			
+			//short
+			case 0:
+				c.addPart( USHORT, numGlyphs + 1, "loca_offsets", true );
+				break;
+				
+			//long
+			case 1:
+				c.addPart( ULONG, numGlyphs + 1, "loca_offsets", true );
+				break;
+				
+			}
 		}
 	};
 	
 	public static final Chunk DSIG = new Chunk( "dsig" ) {
-		@Override public void define() {
-			this.addPart( TTFTypes.TAG, 1, "tag" );
-			this.addPart( BIOTypes.UINT, 1, "version" );
-			this.addPart( BIOTypes.USHORT, 1, "num" );
-			this.addPart( BIOTypes.USHORT, 1, "flags" );
+		@Override public void define( Chunk c ) {
+			int start = this.getParent().getBuffer().position();
+			
+			c.addPart( ULONG, 1, "dsig_version", true );
+			c.addPart( USHORT, 1, "dsig_numSigs", true );
+			c.addPart( USHORT, 1, "dsig_flags", true );
+			
+			for( int i = 0; i < c.getParent().getUShort( "dsig_numSigs" ); i++ ) {
+				c.addPart( ULONG, 1, "dsig_"+i+"_format", true );
+				c.addPart( ULONG, 1, "dsig_"+i+"_length", true );
+				c.addPart( ULONG, 1, "dsig_"+i+"_offset", true );
+				
+				int back = this.getParent().getBuffer().position();
+				this.getParent().getBuffer().position( (int)(start + this.getParent().getUInt( "dsig_"+i+"_offset" )) );
+				
+				c.addPart( USHORT, 1, "dsig_"+i+"_reserve1", true );
+				c.addPart( USHORT, 1, "dsig_"+i+"_reserve2", true );
+				c.addPart( ULONG, 1, "dsig_"+i+"_siglength", true );
+				c.addPart( UBYTE, (int)this.getParent().getUInt( "dsig_"+i+"_siglength" ), "dsig_"+i+"_sig", true );
+				
+				this.getParent().getBuffer().position( back );
+			}
+		}
+	};
+	
+	public static final Chunk CMAP = new Chunk( "cmap" ) {
+		@Override public void define( Chunk c ) {
+			int start = this.getParent().getBuffer().position();
+			
+			c.addPart( USHORT, 1, "cmap_version", true );
+			c.addPart( USHORT, 1, "cmap_numTables", true );
+			
+			for( int i = 0; i < this.getParent().getUShort( "cmap_numTables" ); i++ ) {
+				c.addPart( USHORT, 1, "cmap_"+i+"_platform", true );
+				c.addPart( USHORT, 1, "cmap_"+i+"_encoding", true );
+				c.addPart( ULONG, 1, "cmap_"+i+"_offset", true );
+				
+				int back = this.getParent().getBuffer().position();
+				this.getParent().getBuffer().position( (int)(start + this.getParent().getUInt( "cmap_"+i+"_offset" )) );
+				
+				c.addPart( USHORT, 1, "cmap_"+i+"_format", true );
+				c.addPart( USHORT, 1, "cmap_"+i+"_length", true );
+				c.addPart( USHORT, 1, "cmap_"+i+"_version", true );
+				
+				switch( this.getParent().getUShort( "cmap_"+i+"_format" ) ) {
+				
+				// apple standard
+				case 0:
+					c.addPart( UBYTE, 256, "cmap_"+i+"_glyphId", true );
+					break;
+					
+				// microsoft standard
+				case 4:
+					c.addPart( USHORT, 1, "cmap_"+i+"_segCountX2", true );
+					c.addPart( USHORT, 1, "cmap_"+i+"_searchRange", true );
+					c.addPart( USHORT, 1, "cmap_"+i+"_entrySelector", true );
+					c.addPart( USHORT, 1, "cmap_"+i+"_rangeShift", true );
+					
+					int segCount = this.getUShort( "cmap_"+i+"_segCountX2" ) / 2;
+					c.addPart( USHORT, segCount, "cmap_"+i+"_endCount", true );
+					c.addPart( USHORT, 1, "cmap_"+i+"_reserved", true );
+					c.addPart( USHORT, segCount, "cmap_"+i+"_startCount", true );
+					c.addPart( USHORT, segCount, "cmap_"+i+"_idDelta", true );
+					c.addPart( USHORT, segCount, "cmap_"+i+"_idRangeOffsets", true );
+					break;
+				}
+				
+				this.getParent().getBuffer().position( back );
+			}
+		}
+	};
+	
+	public static final Chunk GLYF = new Chunk( "glyf" ) {
+		@Override public void define( Chunk c ) {
+			c.addPart( SHORT, 1, "glyf_" + c.id + "_contours", true );
+			c.addPart( FWORD, 1, "glyf_" + c.id + "_xMin", true );
+			c.addPart( FWORD, 1, "glyf_" + c.id + "_yMin", true );
+			c.addPart( FWORD, 1, "glyf_" + c.id + "_xMax", true );
+			c.addPart( FWORD, 1, "glyf_" + c.id + "_yMax", true );
+			
+			short contours = c.getShort( "glyf_" + c.id + "_contours" );
+			if( contours > 0 ) {
+				c.addPart( USHORT, contours, "glyf_"+c.id+"_c"+i+"_endPoints", true );
+				c.addPart( USHORT, 1, "glyf_"+c.id+"_instructionLength", true );
+				int ins = c.getUShort( "glyf_"+c.id+"_instructionLength" );
+				c.addPart( UBYTE, ins, "glyf_"+c.id+"_instructions", true );
+				
+				c.addPart( UBYTE, contours, "glyf_"+c.id+"_flags", true );
+			}
 		}
 	};
 }

@@ -18,15 +18,33 @@ public class BIOTypes {
 	public static abstract class Type<T> {
 		public static <T> Type<T> copy( final Type<T> t, final String id ) {
 			return new Type<T>() {
-				public T[] allocate( int amount ) { return t.allocate( amount ); }
-				public T getData( ByteBuffer bb ) { return t.getData( bb ); }
-				public String toString() { return id; }
+				@Override public T[] allocate( int amount ) { return t.allocate( amount ); }
+				@Override public T getData( ByteBuffer bb ) { return t.getData( bb ); }
+				@Override public String toString() { return id; }
 			};
 		}
 		public abstract T[] allocate( int amount );
 		public abstract T getData( ByteBuffer bb );
 		public abstract String toString();
+		
+		public Type<T> copy( final String id ) {
+			final Type<T> t = this;
+			return new Type<T>() {
+				@Override public T[] allocate( int amount ) { return t.allocate( amount ); }
+				@Override public T getData( ByteBuffer bb ) { return t.getData( bb ); }
+				@Override public String toString() { return id; }
+			};
+		}
 	}
+	
+	public static final Type<String> HUINT8 = new Type<String>() {
+		public String[] allocate( int amount ) { return new String[amount]; }
+		public String getData( ByteBuffer bb ) {
+			//Integer.toHexString(byte).subString((Integer.SIZE - Byte.SIZE) / 4);
+			return ""+Integer.parseInt( ""+UINT16.getData( bb ), 2 );
+		}
+		public String toString() { return "HUINT8"; }
+	};
 	
 	public static final Type<Short> UINT8 = new Type<Short>() {
 		public Short[] allocate( int amount ) { return new Short[amount]; }

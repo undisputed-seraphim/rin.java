@@ -11,15 +11,10 @@ public class BIOBuffer {
 	public int position() { return this.pointer; }
 	public void position( int position ) { this.pointer = position; this.data.position( position ); }
 	
-	public BIOBuffer( String data ) {
-		this.data = ByteBuffer.allocate( data.length() );
-		for( byte b : data.getBytes() )
-			this.data.put( b );
-		this.data.flip();
-	}
+	public BIOBuffer( byte[] data ) { this.data = ByteBuffer.wrap( data ); }
 	
-	public static BIOBuffer fromString( String data ) { return new BIOBuffer( data ); }
-	public static BIOBuffer fromFile( String file ) { return new BIOBuffer( IO.file.asString( file ) ); }
+	public static BIOBuffer fromFile( String file ) { return new BIOBuffer( IO.file.asByteArray( file ) ); }
+	public static BIOBuffer fromByteArray( byte[] arr ) { return new BIOBuffer( arr ); }
 	public static String asString( Object[] arr ) {
 		String res = "";
 		
@@ -30,7 +25,26 @@ public class BIOBuffer {
 		return res;
 	}
 	
+	public BIOBuffer advance() { return this.advance( 1 ); }
+	public BIOBuffer advance( int bytes ) {
+		this.pointer += bytes;
+		this.data.position( this.pointer );
+		return this;
+	}
+	
+	public BIOBuffer rewind() { return this.rewind( 1 ); }
+	public BIOBuffer rewind( int bytes ) {
+		this.pointer -= bytes;
+		this.data.position( this.pointer );
+		return this;
+	}
+	
 	public BIOBuffer reset() { this.pointer = 0; this.data.position( 0 ); return this; }
+	public BIOBuffer jumpTo( int bytes ) {
+		this.pointer = bytes;
+		this.data.position( this.pointer );
+		return this;
+	}
 	
 	private <T> T preview( Type<T> t ) { T res = t.getData( this.data ); this.data.position( this.pointer ); return res; }
 	private <T> T[] preview( Type<T> t, T[] res ) {
