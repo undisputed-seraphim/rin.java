@@ -136,6 +136,15 @@ public class TTFChunks {
 	};
 	
 	public static final Chunk GLYF = new Chunk( "glyf" ) {
+		private int getMax( Integer[] endpoints ) {
+			int res = endpoints[0];
+			for( Integer i : endpoints ) {
+				if( i > res )
+					res = i;
+			}
+			return res;
+		}
+		
 		@Override public void define( Chunk c ) {
 			c.addPart( SHORT, 1, "glyf_" + c.id + "_contours", true );
 			c.addPart( FWORD, 1, "glyf_" + c.id + "_xMin", true );
@@ -145,12 +154,28 @@ public class TTFChunks {
 			
 			short contours = c.getShort( "glyf_" + c.id + "_contours" );
 			if( contours > 0 ) {
-				c.addPart( USHORT, contours, "glyf_"+c.id+"_c"+i+"_endPoints", true );
+				c.addPart( USHORT, contours, "glyf_"+c.id+"_endPoints", true );
 				c.addPart( USHORT, 1, "glyf_"+c.id+"_instructionLength", true );
 				int ins = c.getUShort( "glyf_"+c.id+"_instructionLength" );
 				c.addPart( UBYTE, ins, "glyf_"+c.id+"_instructions", true );
 				
-				c.addPart( UBYTE, contours, "glyf_"+c.id+"_flags", true );
+				int max = this.getMax( c.getUShorts( "glyf_"+c.id+"_endPoints" ) );
+				
+				for( int i = 1; i < max; i++ ) {
+					c.addPart( FLAG, 1, "glyf_"+c.id+"_flags"+i, true );
+				}
+				
+				for( int i = 1; i < max; i++ ) {
+					String flags = c.getString( "glyf_"+c.id+"_flags"+i );
+					boolean xShort = flags.charAt( 6 ) == '1' ? true : false;
+					boolean yShort = flags.charAt( 5 ) == '1' ? true : false;
+					if( xShort ) {
+						c.addPart( UBYTE, 1, "glyf_"+c.id+"_x"+i, true );
+					} else {
+						c.addPart( USHORT, 1, "glyf_"+c.id+"_x"+i, true );
+					}
+					
+				}
 			}
 		}
 	};

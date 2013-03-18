@@ -13,7 +13,7 @@ public abstract class BIOFile {
 	public void setBuffer( BIOBuffer buffer ) { this.buffer = buffer; }
 	
 	private ArrayList<Chunk> chunks = new ArrayList<Chunk>();
-	public Chunk[] getChunks() { return (Chunk[])this.chunks.toArray(); }
+	public ArrayList<Chunk> getChunks() { return this.chunks; }
 
 	public BIOFile( String file ) { this.buffer = BIOBuffer.fromByteArray( IO.file.asByteArray( file ) ); }
 	

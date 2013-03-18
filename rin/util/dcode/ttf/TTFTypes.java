@@ -36,6 +36,8 @@ public class TTFTypes {
 		@Override public String toString() { return "LONGDATETIME"; }
 	};
 	
+	public static final Type<String> FLAG = BIOTypes.BIT8.copy( "FLAG" );
+	
 	public static final Type<Short> FWORD = BIOTypes.SHORT.copy( "FWORD" );
 	public static final Type<Short> UBYTE = BIOTypes.UBYTE.copy( "UBYTE" );
 	public static final Type<Short> SHORT = BIOTypes.SHORT.copy( "SHORT" );

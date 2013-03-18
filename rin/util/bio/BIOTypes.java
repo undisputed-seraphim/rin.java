@@ -23,10 +23,12 @@ public class BIOTypes {
 				@Override public String toString() { return id; }
 			};
 		}
+		
 		public abstract T[] allocate( int amount );
 		public abstract T getData( ByteBuffer bb );
 		public abstract String toString();
 		
+		public Type<T> copy() { return this.copy( this.toString() + "_COPY" ); }
 		public Type<T> copy( final String id ) {
 			final Type<T> t = this;
 			return new Type<T>() {
@@ -37,13 +39,16 @@ public class BIOTypes {
 		}
 	}
 	
-	public static final Type<String> HUINT8 = new Type<String>() {
+	public static final Type<String> BIT8 = new Type<String>() {
 		public String[] allocate( int amount ) { return new String[amount]; }
-		public String getData( ByteBuffer bb ) {
-			//Integer.toHexString(byte).subString((Integer.SIZE - Byte.SIZE) / 4);
-			return ""+Integer.parseInt( ""+UINT16.getData( bb ), 2 );
-		}
-		public String toString() { return "HUINT8"; }
+		public String getData( ByteBuffer bb ) { return String.format( "%08d", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) ); }
+		public String toString() { return "BIT8"; }
+	};
+	
+	public static final Type<String> HEX8 = new Type<String>() {
+		public String[] allocate( int amount ) { return new String[amount]; }
+		public String getData( ByteBuffer bb ) { return String.format( "%08x", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) ); }
+		public String toString() { return "HEX8"; }
 	};
 	
 	public static final Type<Short> UINT8 = new Type<Short>() {
@@ -88,6 +93,12 @@ public class BIOTypes {
 		public String toString() { return "INT32"; }
 	};
 	
+	public static final Type<Long> INT64 = new Type<Long>() {
+		public Long[] allocate( int amount ) { return new Long[amount]; }
+		public Long getData( ByteBuffer bb ) { return bb.getLong(); }
+		public String toString() { return "INT64"; }
+	};
+	
 	public static final Type<Short> UBYTE = Type.copy( UINT8, "UBYTE" );
 	public static final Type<Byte> BYTE = Type.copy( INT8, "BYTE" );
 	
@@ -99,6 +110,8 @@ public class BIOTypes {
 	public static final Type<Long> UINT = Type.copy( UINT32, "UINT" );
 	public static final Type<Integer> INT = Type.copy( INT32, "INT" );
 	
+	public static final Type<Long> LONG = INT64.copy( "LONG" );
+	
 	public static final Type<Float> FLOAT = new Type<Float>() {
 		public Float[] allocate( int amount ) { return new Float[amount]; }
 		public Float getData( ByteBuffer bb ) { return bb.getFloat(); }
@@ -109,11 +122,5 @@ public class BIOTypes {
 		public Double[] allocate( int amount ) { return new Double[amount]; }
 		public Double getData( ByteBuffer bb ) { return bb.getDouble(); }
 		public String toString() { return "DOUBLE"; }
-	};
-	
-	public static final Type<Long> LONG = new Type<Long>() {
-		public Long[] allocate( int amount ) { return new Long[amount]; }
-		public Long getData( ByteBuffer bb ) { return bb.getLong(); }
-		public String toString() { return "LONG"; }
 	};
 }

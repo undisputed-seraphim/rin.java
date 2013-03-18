@@ -2,6 +2,7 @@ package rin.util.bio;
 
 import java.util.ArrayList;
 import rin.util.bio.BIOParts.Part;
+import rin.util.bio.BIOTypes.Type;
 
 public class BIOChunks {
 	public static abstract class Chunk {
@@ -23,7 +24,7 @@ public class BIOChunks {
 		public Chunk setParent( BIOFile f ) { this.parent = f; return this; }
 		
 		private ArrayList<Part<?>> parts = new ArrayList<Part<?>>();
-		public ArrayList<Part<?>> getParts() { return this.parts; }
+		public ArrayList<Part<?>> getParts() { return this.parts; }		
 		@SuppressWarnings("unchecked") public <T> ArrayList<Part<T>> getParts( Class<T> cls ) {
 			ArrayList<Part<T>> res = new ArrayList<Part<T>>();
 			for( Part<?> p : this.parts )
@@ -94,10 +95,19 @@ public class BIOChunks {
 			return null;
 		}
 		
+		private <T> T[] getArray( String id, Class<T> cls ) {
+			for( Part<T> p : this.getParts( cls ) )
+				if( p.id.equals( id ) )
+					return p.getData();
+							
+			return null;
+		}
+		
 		public short getUByte( String id ) { return this.get( id, Short.class ); }
 		public byte getByte( String id ) { return this.get( id, Byte.class ); }
 		public char getChar( String id ) { return this.get( id, Character.class ); }
 		public String getString( String id ) { return this.get( id, String.class ); }
+		public Integer[] getUShorts( String id ) { return this.getArray( id, Integer.class ); }
 		public int getUShort( String id ) { return this.get( id, Integer.class ); }
 		public short getShort( String id ) { return this.get( id, Short.class ); }
 		public long getUInt( String id ) { return this.get( id, Long.class ); }

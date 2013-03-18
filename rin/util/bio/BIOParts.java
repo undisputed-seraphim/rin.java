@@ -1,10 +1,14 @@
 package rin.util.bio;
 
+import java.lang.reflect.ParameterizedType;
+
 import rin.util.bio.BIOChunks.Chunk;
 
 public class BIOParts {
 	public static abstract class Part<T> {
 		private static int items = 0;
+		
+		public ParameterizedType pt = (ParameterizedType)this.getClass().getGenericSuperclass();
 		
 		private Chunk parent = null;
 		public Chunk getParent() { return this.parent; }
