@@ -44,8 +44,8 @@ public class TTFChunks {
 	
 	public static final Chunk LOCA = new Chunk( "loca" ) {
 		@Override public void define( Chunk c ) {
-			int longorshort = c.getParent().getShort( "head_indexToLocFormat" );
-			int numGlyphs = c.getParent().getUShort( "maxp_numGlyphs" );
+			int longorshort = c.getParent().get( SHORT, "head_indexToLocFormat" );
+			int numGlyphs = c.getParent().get( USHORT, "maxp_numGlyphs" );
 			switch( longorshort ) {
 			
 			//short
@@ -70,18 +70,18 @@ public class TTFChunks {
 			c.addPart( USHORT, 1, "dsig_numSigs", true );
 			c.addPart( USHORT, 1, "dsig_flags", true );
 			
-			for( int i = 0; i < c.getParent().getUShort( "dsig_numSigs" ); i++ ) {
+			for( int i = 0; i < c.getParent().get( USHORT, "dsig_numSigs" ); i++ ) {
 				c.addPart( ULONG, 1, "dsig_"+i+"_format", true );
 				c.addPart( ULONG, 1, "dsig_"+i+"_length", true );
 				c.addPart( ULONG, 1, "dsig_"+i+"_offset", true );
 				
 				int back = this.getParent().getBuffer().position();
-				this.getParent().getBuffer().position( (int)(start + this.getParent().getUInt( "dsig_"+i+"_offset" )) );
+				this.getParent().getBuffer().position( (int)(start + this.getParent().get( ULONG, "dsig_"+i+"_offset" ) ) );
 				
 				c.addPart( USHORT, 1, "dsig_"+i+"_reserve1", true );
 				c.addPart( USHORT, 1, "dsig_"+i+"_reserve2", true );
 				c.addPart( ULONG, 1, "dsig_"+i+"_siglength", true );
-				c.addPart( UBYTE, (int)this.getParent().getUInt( "dsig_"+i+"_siglength" ), "dsig_"+i+"_sig", true );
+				c.addPart( UBYTE, (int)(long)this.getParent().get( ULONG, "dsig_"+i+"_siglength" ), "dsig_"+i+"_sig", true );
 				
 				this.getParent().getBuffer().position( back );
 			}
@@ -95,19 +95,19 @@ public class TTFChunks {
 			c.addPart( USHORT, 1, "cmap_version", true );
 			c.addPart( USHORT, 1, "cmap_numTables", true );
 			
-			for( int i = 0; i < this.getParent().getUShort( "cmap_numTables" ); i++ ) {
+			for( int i = 0; i < this.getParent().get( USHORT, "cmap_numTables" ); i++ ) {
 				c.addPart( USHORT, 1, "cmap_"+i+"_platform", true );
 				c.addPart( USHORT, 1, "cmap_"+i+"_encoding", true );
 				c.addPart( ULONG, 1, "cmap_"+i+"_offset", true );
 				
 				int back = this.getParent().getBuffer().position();
-				this.getParent().getBuffer().position( (int)(start + this.getParent().getUInt( "cmap_"+i+"_offset" )) );
+				this.getParent().getBuffer().position( (int)(start + this.getParent().get( ULONG, "cmap_"+i+"_offset" )) );
 				
 				c.addPart( USHORT, 1, "cmap_"+i+"_format", true );
 				c.addPart( USHORT, 1, "cmap_"+i+"_length", true );
 				c.addPart( USHORT, 1, "cmap_"+i+"_version", true );
 				
-				switch( this.getParent().getUShort( "cmap_"+i+"_format" ) ) {
+				switch( this.getParent().get( USHORT, "cmap_"+i+"_format" ) ) {
 				
 				// apple standard
 				case 0:
@@ -121,7 +121,7 @@ public class TTFChunks {
 					c.addPart( USHORT, 1, "cmap_"+i+"_entrySelector", true );
 					c.addPart( USHORT, 1, "cmap_"+i+"_rangeShift", true );
 					
-					int segCount = this.getUShort( "cmap_"+i+"_segCountX2" ) / 2;
+					int segCount = this.get( USHORT, "cmap_"+i+"_segCountX2" ) / 2;
 					c.addPart( USHORT, segCount, "cmap_"+i+"_endCount", true );
 					c.addPart( USHORT, 1, "cmap_"+i+"_reserved", true );
 					c.addPart( USHORT, segCount, "cmap_"+i+"_startCount", true );
@@ -152,21 +152,21 @@ public class TTFChunks {
 			c.addPart( FWORD, 1, "glyf_" + c.id + "_xMax", true );
 			c.addPart( FWORD, 1, "glyf_" + c.id + "_yMax", true );
 			
-			short contours = c.getShort( "glyf_" + c.id + "_contours" );
+			short contours = c.get( SHORT, "glyf_" + c.id + "_contours" );
 			if( contours > 0 ) {
 				c.addPart( USHORT, contours, "glyf_"+c.id+"_endPoints", true );
 				c.addPart( USHORT, 1, "glyf_"+c.id+"_instructionLength", true );
-				int ins = c.getUShort( "glyf_"+c.id+"_instructionLength" );
+				int ins = c.get( USHORT, "glyf_"+c.id+"_instructionLength" );
 				c.addPart( UBYTE, ins, "glyf_"+c.id+"_instructions", true );
 				
-				int max = this.getMax( c.getUShorts( "glyf_"+c.id+"_endPoints" ) );
+				int max = this.getMax( c.getArray( USHORT, "glyf_"+c.id+"_endPoints" ) );
 				
 				for( int i = 1; i < max; i++ ) {
 					c.addPart( FLAG, 1, "glyf_"+c.id+"_flags"+i, true );
 				}
 				
 				for( int i = 1; i < max; i++ ) {
-					String flags = c.getString( "glyf_"+c.id+"_flags"+i );
+					String flags = c.get( FLAG, "glyf_"+c.id+"_flags"+i );
 					boolean xShort = flags.charAt( 6 ) == '1' ? true : false;
 					boolean yShort = flags.charAt( 5 ) == '1' ? true : false;
 					if( xShort ) {

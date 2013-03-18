@@ -1,10 +1,6 @@
 package rin.util.dcode.ttf;
 
-import static rin.util.dcode.ttf.TTFTypes.FLAG;
-import static rin.util.dcode.ttf.TTFTypes.FWORD;
-import static rin.util.dcode.ttf.TTFTypes.SHORT;
-import static rin.util.dcode.ttf.TTFTypes.UBYTE;
-import static rin.util.dcode.ttf.TTFTypes.USHORT;
+import static rin.util.dcode.ttf.TTFTypes.*;
 import rin.util.bio.BIOChunks.Chunk;
 import rin.util.bio.BIOFile;
 import rin.util.bio.BIOParts.Part;
@@ -48,21 +44,21 @@ public class TTFFile extends BIOFile {
 	}
 	
 	public long[] mapCharacter( char c ) {
-		int encodings = this.getUShort( "cmap_numTables" );
+		int encodings = this.get( USHORT, "cmap_numTables" );
 		long[] res = new long[] { 0, 0 };
 		for( int i = 0; i < encodings; i++ ) {
-			int format = this.getUShort( "cmap_"+i+"_format" );
-			int platform = this.getUShort( "cmap_"+i+"_platform" );
-			int encoding = this.getUShort( "cmap_"+i+"_encoding" );
+			int format = this.get( USHORT, "cmap_"+i+"_format" );
+			int platform = this.get( USHORT, "cmap_"+i+"_platform" );
+			int encoding = this.get( USHORT, "cmap_"+i+"_encoding" );
 			
 			//for now, use microsoft platform 3, encoding 1, format 4
 			if( platform == 3 && encoding == 1 && format == 4 ) {
-				Integer[] endCount = this.getUShorts( "cmap_"+i+"_endCount" );
-				Integer[] startCount = this.getUShorts( "cmap_"+i+"_startCount" );
-				Integer[] idDelta = this.getUShorts( "cmap_"+i+"_idDelta" );
-				Integer[] idRangeOffsets = this.getUShorts( "cmap_"+i+"_idRangeOffsets" );
+				Integer[] endCount = this.getArray( USHORT, "cmap_"+i+"_endCount" );
+				Integer[] startCount = this.getArray( USHORT, "cmap_"+i+"_startCount" );
+				Integer[] idDelta = this.getArray( USHORT, "cmap_"+i+"_idDelta" );
+				Integer[] idRangeOffsets = this.getArray( USHORT, "cmap_"+i+"_idRangeOffsets" );
 				
-				Long[] offsets = this.getUInts( "loca_offsets" );
+				Long[] offsets = this.getArray( ULONG, "loca_offsets" );
 				
 				int code = (int)c;
 				//System.out.println( endCount.length + " " + startCount.length + " " + idDelta.length + " " + idRangeOffsets.length );
@@ -118,21 +114,21 @@ public class TTFFile extends BIOFile {
 		c.addPart( FWORD, 1, "glyf_" + c.id + "_xMax", true );
 		c.addPart( FWORD, 1, "glyf_" + c.id + "_yMax", true );
 		
-		short contours = c.getShort( "glyf_" + c.id + "_contours" );
+		short contours = c.get( SHORT, "glyf_" + c.id + "_contours" );
 		if( contours > 0 ) {
 			c.addPart( USHORT, contours, "glyf_"+c.id+"_endPoints", true );
 			c.addPart( USHORT, 1, "glyf_"+c.id+"_instructionLength", true );
-			int ins = c.getUShort( "glyf_"+c.id+"_instructionLength" );
+			int ins = c.get( USHORT, "glyf_"+c.id+"_instructionLength" );
 			c.addPart( UBYTE, ins, "glyf_"+c.id+"_instructions", true );
 			
-			int max = this.getMax( c.getUShorts( "glyf_"+c.id+"_endPoints" ) ) - 1;
+			int max = this.getMax( c.getArray( USHORT, "glyf_"+c.id+"_endPoints" ) ) - 1;
 			
 			for( int i = 1; i < max; i++ ) {
 				c.addPart( FLAG, 1, "glyf_"+c.id+"_flags"+i, true );
 			}
 			
 			for( int i = 1; i < max; i++ ) {
-				String flags = c.getString( "glyf_"+c.id+"_flags"+i );
+				String flags = c.get( FLAG, "glyf_"+c.id+"_flags"+i );
 				boolean xShort = flags.charAt( 6 ) == '1' ? true : false;
 				if( xShort ) {
 					c.addPart( UBYTE, 1, "glyf_"+c.id+"_x"+i, true );
@@ -143,7 +139,7 @@ public class TTFFile extends BIOFile {
 			}
 			
 			for( int i = 1; i < max; i++ ) {
-				String flags = c.getString( "glyf_"+c.id+"_flags"+i );
+				String flags = c.get( FLAG, "glyf_"+c.id+"_flags"+i );
 				boolean yShort = flags.charAt( 5 ) == '1' ? true : false;
 				if( yShort ) {
 					c.addPart( UBYTE, 1, "glyf_"+c.id+"_y"+i, true );
@@ -156,18 +152,18 @@ public class TTFFile extends BIOFile {
 		System.out.println( this.getBuffer().position() + " " + end );
 	}
 	
-	@Override public void read() {
+	@Override public void process() {
 		this.addChunk( TTFChunks.HEADER, true );
 		
-		this.records = new TableRecord[ this.getUShort( "numTables" ) ];
+		this.records = new TableRecord[ this.get( USHORT, "numTables" ) ];
 		
-		for( int i = 0; i < this.getUShort( "numTables" ); i++ ) {
+		for( int i = 0; i < this.get( USHORT, "numTables" ); i++ ) {
 			this.addChunk( TTFChunks.TABLE_RECORD.copy( "table_" + i ), true );
 			this.records[i] = new TableRecord(
-					this.getString( "table_" + i + "_tag" ),
-					this.getUInt( "table_" + i + "_checkSum" ),
-					this.getUInt( "table_" + i + "_offset" ),
-					this.getUInt( "table_" + i + "_length" )
+					this.get( TAG, "table_" + i + "_tag" ),
+					this.get( ULONG, "table_" + i + "_checkSum" ),
+					this.get( ULONG, "table_" + i + "_offset" ),
+					this.get( ULONG, "table_" + i + "_length" )
 			);
 		}
 		

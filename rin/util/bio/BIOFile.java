@@ -58,58 +58,34 @@ public abstract class BIOFile {
 	public void previewChunks() {
 		for( Chunk c : this.chunks ) {
 			System.out.println( c.id + " [" + c.getParts().size() + " parts]" );
-			for( Part<?> p : c.getParts() ) {
+			for( Part<?,?> p : c.getParts() ) {
 				System.out.println( "\t" + p.id + " [" + p.type.toString() + " " + p.amount + "]" );
 				System.out.println( "\t\t" + BIOBuffer.asString( p.getData() ) );
 			}
 		}
 	}
 	
-	public void read( Type<?> ... ts ) {
-		for( Type<?> t : ts ) {
-			System.out.println( BIOBuffer.asString( this.getBuffer().read( t, 1 ) ) );
-		}
-	}
+	public <R, T extends Type<R>> R read( T type ) { return this.getBuffer().read( type ); }
+	public <R, T extends Type<R>> R[] read( T type, int amount ) { return this.getBuffer().read( type, amount ); }
 	
-	public void read( Type<?> t, int amount ) {
-		System.out.println( BIOBuffer.asString( this.getBuffer().read( t, amount ) ) );
-	}
-	
-	public abstract void read();
+	public abstract void process();
 	public abstract void write();
 	
-	private <T> T get( String id, Class<T> cls ) {
+	public <R, T extends Type<R>> R get( T type, String id ) {
 		for( Chunk c : this.chunks )
-			for( Part<?> p : c.getParts() )
+			for( Part<R, T> p : c.getParts( type ) )
 				if( p.id.equals( id ) )
-					if( cls.isInstance( p.getData()[0] ) )
-						return cls.cast( p.getData()[0] );
-						
+					return p.getData()[0];
+		
 		return null;
 	}
 	
-	private <T> T[] getArray( String id, Class<T> cls ) {
+	public <R, T extends Type<R>> R[] getArray( T type, String id ) {
 		for( Chunk c : this.chunks )
-			for( Part<T> p : c.getParts( cls ) )
+			for( Part<R,T> p : c.getParts( type ) )
 				if( p.id.equals( id ) )
 					return p.getData();
-						
+		
 		return null;
 	}
-	
-	public short getUByte( String id ) { return this.get( id, Short.class ); }
-	public byte getByte( String id ) { return this.get( id, Byte.class ); }
-	public char getChar( String id ) { return this.get( id, Character.class ); }
-	public String getString( String id ) { return this.get( id, String.class ); }
-	
-	public Integer[] getUShorts( String id ) { return this.getArray( id, Integer.class ); }
-	public int getUShort( String id ) { return this.get( id, Integer.class ); }
-	public short getShort( String id ) { return this.get( id, Short.class ); }
-	
-	public long getUInt( String id ) { return this.get( id, Long.class ); }
-	public Long[] getUInts( String id ) { return this.getArray( id, Long.class ); }
-	public int getInt( String id ) { return this.get( id, Integer.class ); }
-	public float getFloat( String id ) { return this.get( id, Float.class ); }
-	public double getDouble( String id ) { return this.get( id, Double.class ); }
-	public long getLong( String id ) { return this.get( id, Long.class ); }
 }

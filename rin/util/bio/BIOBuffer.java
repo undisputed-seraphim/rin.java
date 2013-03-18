@@ -7,6 +7,8 @@ import rin.util.IO;
 
 public class BIOBuffer {
 	private ByteBuffer data;
+	public ByteBuffer actual() { return this.data; }
+	
 	private int pointer = 0;
 	public int position() { return this.pointer; }
 	public void position( int position ) { this.pointer = position; this.data.position( position ); }
@@ -15,12 +17,14 @@ public class BIOBuffer {
 	
 	public static BIOBuffer fromFile( String file ) { return new BIOBuffer( IO.file.asByteArray( file ) ); }
 	public static BIOBuffer fromByteArray( byte[] arr ) { return new BIOBuffer( arr ); }
-	public static String asString( Object[] arr ) {
+	public static String asString( Object[] arr ) { return BIOBuffer.asString( arr, false ); }
+	public static String asString( Object[] arr, boolean trim ) {
 		String res = "";
+		String split = trim ? "" : " ";
 		
 		if( arr != null )
 			for( Object o : arr )
-				res += o + " ";
+				res += o + split;
 		
 		return res;
 	}
@@ -77,7 +81,7 @@ public class BIOBuffer {
 	public long previewLong() { return this.<Long>preview( LONG ); }
 	public Long[] previewLongs( int num ) { return this.<Long>preview( LONG, new Long[num] ); }
 	
-	private <T> T read( Type<T> t ) { T res = t.getData( this.data ); this.pointer = this.data.position(); return res; }
+	//private <T> T read( Type<T> t ) { T res = t.getData( this.data ); this.pointer = this.data.position(); return res; }
 	private <T> T[] read( Type<T> t, T[] res ) {
 		for( int i = 0; i < res.length; i++ )
 			res[i] = t.getData( this.data );
@@ -87,8 +91,15 @@ public class BIOBuffer {
 		return res;
 	}
 	
-	public <T> T[] read( Type<T> t, int amount ) {
-		T[] res = t.allocate( amount );
+	public <T> T read( Type<T> t ) {
+		T res = t.getData( this.data );
+		
+		this.pointer = this.data.position();
+		return res;
+	}
+	
+	public <T> T[] read( Type<T> t, long amount ) {
+		T[] res = t.allocate( (int)amount );
 		for( int i = 0; i < amount; i++ )
 			res[i] = t.getData( this.data );
 		

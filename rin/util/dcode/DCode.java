@@ -15,9 +15,10 @@ public class DCode {
 	protected static BIOFile bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = new TTFFile( Engine.FONT_DIR + "arial.ttf" );
-		DCode.bio.read();
-		DCode.bio.previewChunks();
+		DCode.bio = new PSSGFile( Engine.MODEL_DIR + "test.pssg" );
+		
+		DCode.bio.process();
+		//DCode.bio.previewChunks();
 		
 		DCode.createGUI();
 		waitForBuild( 0 );

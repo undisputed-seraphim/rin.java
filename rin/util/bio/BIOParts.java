@@ -1,29 +1,25 @@
 package rin.util.bio;
 
-import java.lang.reflect.ParameterizedType;
-
 import rin.util.bio.BIOChunks.Chunk;
 
 public class BIOParts {
-	public static abstract class Part<T> {
+	public static abstract class Part<R, T extends BIOTypes.Type<R>> {
 		private static int items = 0;
-		
-		public ParameterizedType pt = (ParameterizedType)this.getClass().getGenericSuperclass();
 		
 		private Chunk parent = null;
 		public Chunk getParent() { return this.parent; }
-		public Part<T> setParent( Chunk c ) { this.parent = c; return this; }
+		public Part<R, T> setParent( Chunk c ) { this.parent = c; return this; }
 			
-		private T[] data = null;
-		public T[] getData() { return this.data; }
-		public void read() { this.data = this.parent.getParent().getBuffer().<T>read( this.type, this.amount ); }
+		private R[] data = null;
+		public R[] getData() { return this.data; }
+		public void read() { this.data = this.parent.getParent().getBuffer().<R>read( this.type, this.amount ); }
 			
-		public BIOTypes.Type<T> type;
-		public int amount;
+		public BIOTypes.Type<R> type;
+		public long amount;
 		public String id;
 			
-		public Part( BIOTypes.Type<T> type, int amount ) { this( type, amount, "Part-" + Part.items++ ); }
-		public Part( BIOTypes.Type<T> type, int amount, String id ) {
+		public Part( BIOTypes.Type<R> type, long amount ) { this( type, amount, "Part-" + Part.items++ ); }
+		public Part( BIOTypes.Type<R> type, long amount, String id ) {
 			this.id = id;
 			this.type = type;
 			this.amount = amount;
