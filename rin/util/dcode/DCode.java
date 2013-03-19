@@ -17,7 +17,7 @@ public class DCode {
 	public static void main( String args[] ) {
 		DCode.bio = new PSSGFile( Engine.MODEL_DIR + "test.pssg" );
 		
-		DCode.bio.process();
+		DCode.bio.read();
 		//DCode.bio.previewChunks();
 		
 		DCode.createGUI();
@@ -46,7 +46,7 @@ public class DCode {
 												.setCharacterLimit( 3 )
 												.onEnter( new TextFieldEvent() {
 													@Override public void run() {
-														getTextField( "pByte" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewBytes(
+														/*getTextField( "pByte" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewBytes(
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
 														getTextField( "pChar" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewChars(
@@ -65,7 +65,7 @@ public class DCode {
 																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
 														
 														getTextField( "pLong" ).setText( BIOBuffer.asString( DCode.bio.getBuffer().previewLongs(
-																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );
+																Integer.parseInt( getTextField( "p" ).getText() ) ) ) );*/
 													}
 												})
 										)										

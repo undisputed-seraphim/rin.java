@@ -6,7 +6,8 @@ import rin.util.bio.BIOFile;
 import rin.util.bio.BIOParts.Part;
 
 public class TTFFile extends BIOFile {
-	public static class TableRecord {
+	public TTFFile( String file ) { super( file ); }
+	/*public static class TableRecord {
 		public String id;
 		public long checksum;
 		public long offset;
@@ -19,8 +20,6 @@ public class TTFFile extends BIOFile {
 			this.length = length;
 		}
 	}
-	
-	public TTFFile( String file ) { super( file ); }
 	
 	private TableRecord[] records;
 	public TableRecord getRecord( String id ) {
@@ -150,10 +149,10 @@ public class TTFFile extends BIOFile {
 			}
 		}
 		System.out.println( this.getBuffer().position() + " " + end );
-	}
+	}*/
 	
-	@Override public void process() {
-		this.addChunk( TTFChunks.HEADER, true );
+	@Override public void read() {
+		/*this.addChunk( TTFChunks.HEADER, true );
 		
 		this.records = new TableRecord[ this.get( USHORT, "numTables" ) ];
 		
@@ -169,7 +168,7 @@ public class TTFFile extends BIOFile {
 		
 		this.loadChunks( "head", "maxp", "cmap", "loca" );
 		this.getGlyphData( 'A' );
-		this.previewChunks();
+		this.previewChunks();*/
 	}
 	
 	@Override public void write() {}

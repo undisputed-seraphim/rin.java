@@ -9,7 +9,7 @@ import rin.util.bio.BIOTypes;
 import rin.util.bio.BIOTypes.Type;
 
 public class TTFTypes {
-	public static final Type<Float> FIXED = new Type<Float>() {
+	/*public static final Type<Float> FIXED = new Type<Float>() {
 		@Override public Float[] allocate( int amount ) { return new Float[amount]; }
 		@Override public Float getData( ByteBuffer bb ) { return Float.parseFloat( new String( bb.getShort() + "." + bb.getShort() ) ); }
 		@Override public String toString() { return "TTF_FIXED"; }
@@ -42,5 +42,5 @@ public class TTFTypes {
 	public static final Type<Short> UBYTE = BIOTypes.UBYTE.copy( "UBYTE" );
 	public static final Type<Short> SHORT = BIOTypes.SHORT.copy( "SHORT" );
 	public static final Type<Integer> USHORT = BIOTypes.USHORT.copy( "USHORT" );
-	public static final Type<Long> ULONG = BIOTypes.UINT32.copy( "ULONG" );
+	public static final Type<Long> ULONG = BIOTypes.UINT32.copy( "ULONG" );*/
 }

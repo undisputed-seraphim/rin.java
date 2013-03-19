@@ -4,7 +4,7 @@ import static rin.util.dcode.ttf.TTFTypes.*;
 import rin.util.bio.BIOChunks.Chunk;;
 
 public class TTFChunks {
-	public static final Chunk HEADER = new Chunk( "header" ) {
+	/*public static final Chunk HEADER = new Chunk( "header" ) {
 		@Override public void define( Chunk c ) {
 			c.addPart( FIXED, 1, "version" );
 			c.addPart( USHORT, 1, "numTables" );
@@ -178,5 +178,5 @@ public class TTFChunks {
 				}
 			}
 		}
-	};
+	};*/
 }

@@ -10,9 +10,9 @@ public class BIOParts {
 		public Chunk getParent() { return this.parent; }
 		public Part<R, T> setParent( Chunk c ) { this.parent = c; return this; }
 			
-		private R[] data = null;
-		public R[] getData() { return this.data; }
-		public void read() { this.data = this.parent.getParent().getBuffer().<R>read( this.type, this.amount ); }
+		private R data = null;
+		public R getData() { return this.data; }
+		public void read() { this.data = this.parent.getParent().read( this.type, this.amount ); }
 			
 		public BIOTypes.Type<R> type;
 		public long amount;

@@ -2,10 +2,10 @@ package rin.util.bio;
 
 import java.util.ArrayList;
 import rin.util.bio.BIOParts.Part;
-import rin.util.bio.BIOTypes.Type;
+import static rin.util.bio.BIOTypes.*;
 
 public class BIOChunks {
-	public static abstract class Chunk {
+	public static abstract class Chunk extends BIOReader {
 		private static int items = 0;
 		
 		public static Chunk copy( final Chunk chunk, String id ) {
@@ -15,6 +15,8 @@ public class BIOChunks {
 				}
 			};
 		}
+		
+		@Override public BIOBuffer getBuffer() { return this.getParent().getBuffer(); }
 		
 		public String id;
 		public String getId() { return this.id; }
@@ -95,16 +97,16 @@ public class BIOChunks {
 			};
 		}
 		
-		public <R, T extends Type<R>> R get( T type, String id ) {
-			for( Part<R,T> p : this.getParts( type ) )
+		public <R, T extends Type<R[]>> R get( T type, String id ) {
+			for( Part<R[], T> p : this.getParts( type ) )
 				if( p.id.equals( id ) )
 					return p.getData()[0];
 			
 			return null;
 		}
 		
-		public <R, T extends Type<R>> R[] getArray( T type, String id ) {
-			for( Part<R,T> p : this.getParts( type ) )
+		public <R, T extends Type<R[]>> R[] getArray( T type, String id ) {
+			for( Part<R[], T> p : this.getParts( type ) )
 				if( p.id.equals( id ) )
 					return p.getData();
 			
