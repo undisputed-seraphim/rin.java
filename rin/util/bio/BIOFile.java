@@ -58,18 +58,18 @@ public abstract class BIOFile extends BIOReader {
 	public abstract void read();
 	public abstract void write();
 	
-	public <R, T extends Type<R[]>> R get( T type, String id ) {
+	public <T> T get( Type<T> type, String id ) {
 		for( Chunk c : this.chunks )
-			for( Part<R[], T> p : c.getParts( type ) )
+			for( Part<T> p : c.getParts( type ) )
 				if( p.id.equals( id ) )
 					return p.getData()[0];
 		
 		return null;
 	}
 	
-	public <R, T extends Type<R[]>> R[] getArray( T type, String id ) {
+	public <T> T[] getArray( Type<T> type, String id ) {
 		for( Chunk c : this.chunks )
-			for( Part<R[], T> p : c.getParts( type ) )
+			for( Part<T> p : c.getParts( type ) )
 				if( p.id.equals( id ) )
 					return p.getData();
 		

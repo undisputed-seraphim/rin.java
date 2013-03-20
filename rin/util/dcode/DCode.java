@@ -19,7 +19,6 @@ public class DCode {
 		
 		DCode.bio.read();
 		//DCode.bio.previewChunks();
-		
 		DCode.createGUI();
 		waitForBuild( 0 );
 		DCode.load();

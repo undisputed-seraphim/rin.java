@@ -15,55 +15,112 @@ import java.nio.ByteBuffer;
  * </ul>
  */
 public class BIOTypes {
-	public static abstract class Type<T> {
-		public static <T> Type<T> copy( final Type<T> t, final String id ) {
-			return new Type<T>() {
-				@Override public String toString() { return id; }
-				@Override public T getData( ByteBuffer bb, int amount ) { return t.getData( bb, amount ); }
-			};
-		}
-		
+	protected static abstract class PrimitiveType {
 		public abstract String toString();
-		public abstract T getData( ByteBuffer bb, int amount );
-		
-		public Type<T> copy() { return this.copy( this.toString() + "_COPY" ); }
-		public Type<T> copy( final String id ) {
-			final Type<T> t = this;
-			return new Type<T>() {
-				@Override public String toString() { return id; }
-				@Override public T getData( ByteBuffer bb, int amount ) { return t.getData( bb, amount ); }
-			};
-		}
 	}
 	
-	public static final Type<String[]> STRING8 = new Type<String[]>() {
-		public String toString() { return "STRING8"; }
-		public String[] getData( ByteBuffer bb, int length ) {
-			return new String[] { BIOBuffer.asString( CHAR8.getData( bb, length ), true ) };
-		}
+	public static abstract class PrimitiveByte extends PrimitiveType {
+		public byte[] allocate( int amount ) { return new byte[amount]; }
+		public abstract byte getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveChar extends PrimitiveType {
+		public char[] allocate( int amount ) { return new char[amount]; }
+		public abstract char getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveShort extends PrimitiveType {
+		public short[] allocate( int amount ) { return new short[amount]; }
+		public abstract short getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveInt extends PrimitiveType {
+		public int[] allocate( int amount ) { return new int[amount]; }
+		public abstract int getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveLong extends PrimitiveType {
+		public long[] allocate( int amount ) { return new long[amount]; }
+		public abstract long getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveFloat extends PrimitiveType {
+		public float[] allocate( int amount ) { return new float[amount]; }
+		public abstract float getData( ByteBuffer bb );
+	}
+	
+	public static abstract class PrimitiveDouble extends PrimitiveType {
+		public double[] allocate( int amount ) { return new double[amount]; }
+		public abstract double getData( ByteBuffer bb );
+	}
+	
+	/* ------------------ default primitive types ----------------- */
+	
+	public static final PrimitiveShort pUINT8 = new PrimitiveShort() {
+		public String toString() { return "UINT8"; }
+		public short getData( ByteBuffer bb ) { return (short)(bb.get() & 0xFF); }
 	};
 	
-	public static final Type<String[]> BIT8 = new Type<String[]>() {
-		public String toString() { return "BIT8"; }
-		public String[] getData( ByteBuffer bb, int amount ) {
-			String[] res = new String[amount];
-			for( int i = 0; i < amount; i++ )
-				res[i] = String.format( "%08d", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) );
-			return res;
-		}
+	public static final Type<Short> UINT8 = new Type<Short>() {
+		public String toString() { return "UINT8"; }
+		public int sizeof() { return 1; }
+		public Short[] allocate( int amount ) { return new Short[amount]; }
+		public Short getData( ByteBuffer bb ) { return (short)(bb.get() & 0xFF); }
 	};
 	
-	public static final Type<String[]> HEX8 = new Type<String[]>() {
-		public String toString() { return "HEX8"; }
-		public String[] getData( ByteBuffer bb, int amount ) {
-			String[] res = new String[ amount ];
-			for( int i = 0; i < amount; i++ )
-				res[i] = String.format( "%08x", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) );
-			return res;
-		}
+	public static final PrimitiveByte INT8 = new PrimitiveByte() {
+		public String toString() { return "INT8"; }
+		public byte getData( ByteBuffer bb ) { return bb.get(); }
 	};
 	
-	public static final Type<short[]> UINT8 = new Type<short[]>() {
+	public static final PrimitiveChar CHAR8 = new PrimitiveChar() {
+		public String toString() { return "CHAR8"; }
+		public char getData( ByteBuffer bb ) { return new String( new byte[] { bb.get() } ).charAt( 0 ); }
+	};
+	
+	public static final Type<Character> CHAR = new Type<Character>() {
+		public String toString() { return "CHAR"; }
+		public int sizeof() { return 1; }
+		public Character[] allocate( int amount ) { return new Character[amount]; }
+		public Character getData( ByteBuffer bb ) { return new String( new byte[] { bb.get() } ).charAt( 0 ); }
+	};
+	
+	public static final PrimitiveInt UINT16 = new PrimitiveInt() {
+		public String toString() { return "UINT16"; }
+		public int getData( ByteBuffer bb ) { return bb.getShort() & 0xFFFF; }
+	};
+	
+	public static final PrimitiveShort INT16 = new PrimitiveShort() {
+		public String toString() { return "INT16"; }
+		public short getData( ByteBuffer bb ) { return bb.getShort(); }
+	};
+	
+	public static final PrimitiveLong UINT32 = new PrimitiveLong() {
+		public String toString() { return "UINT32"; }
+		public long getData( ByteBuffer bb ) { return (long)bb.getInt() & 0xFFFFFFFFL; }
+	};
+	
+	public static final PrimitiveInt INT32 = new PrimitiveInt() {
+		public String toString() { return "INT32"; }
+		public int getData( ByteBuffer bb ) { return bb.getInt(); }
+	};
+	
+	public static final PrimitiveLong INT64 = new PrimitiveLong() {
+		public String toString() { return "INT64"; }
+		public long getData( ByteBuffer bb ) { return bb.getLong(); }
+	};
+	
+	public static final PrimitiveFloat FLOAT = new PrimitiveFloat() {
+		public String toString() { return "FLOAT"; }
+		public float getData( ByteBuffer bb ) { return bb.getFloat(); }
+	};
+	
+	public static final PrimitiveDouble DOUBLE = new PrimitiveDouble() {
+		public String toString() { return "DOBLE"; }
+		public double getData( ByteBuffer bb ) { return bb.getDouble(); }
+	};
+	
+	/*public static final Type<short[]> UINT8 = new Type<short[]>() {
 		public String toString() { return "UINT8"; }
 		public short[] getData( ByteBuffer bb, int amount ) {
 			short[] res = new short[ amount ];
@@ -141,39 +198,44 @@ public class BIOTypes {
 				res[i] = bb.getLong();
 			return res;
 		}
-	};
+	};*/
 	
-	public static final Type<short[]> UBYTE = Type.copy( UINT8, "UBYTE" );
-	public static final Type<byte[]> BYTE = Type.copy( INT8, "BYTE" );
+	public static abstract class Type<T> {
+		
+		public abstract String toString();
+		public abstract int sizeof();
+		public abstract T[] allocate( int amount );
+		public abstract T getData( ByteBuffer bb );
+		
+		public Type<T> copy() { return this.copy( this.toString() + "_COPY" ); }
+		public Type<T> copy( final String id ) {
+			final Type<T> t = this;
+			return new Type<T>() {
+				@Override public String toString() { return id; }
+				public int sizeof() { return t.sizeof(); }
+				@Override public T[] allocate( int amount ) { return t.allocate( amount ); }
+				@Override public T getData( ByteBuffer bb ) { return t.getData( bb ); }
+			};
+		}
+	}
 	
-	public static final Type<char[]> CHAR = Type.copy( CHAR8, "CHAR" );
-	public static final Type<String[]> STRING = Type.copy( STRING8, "STRING" );
+	/* --------------- default object types --------------- */
 	
-	public static final Type<int[]> USHORT = Type.copy( UINT16, "USHORT" );
-	public static final Type<short[]> SHORT = Type.copy( INT16, "SHORT" );
-	
-	public static final Type<long[]> UINT = Type.copy( UINT32, "UINT" );
-	public static final Type<int[]> INT = Type.copy( INT32, "INT" );
-	
-	public static final Type<long[]> LONG = INT64.copy( "LONG" );
-	
-	public static final Type<float[]> FLOAT = new Type<float[]>() {
-		public String toString() { return "FLOAT"; }
-		public float[] getData( ByteBuffer bb, int amount ) {
-			float[] res = new float[ amount ];
-			for( int i = 0; i < amount; i++ )
-				res[i] = bb.getFloat();
-			return res;
+	public static final Type<String> BIT8 = new Type<String>() {
+		public String toString() { return "BIT8"; }
+		public int sizeof() { return 1; }
+		public String[] allocate( int amount ) { return new String[amount]; }
+		public String getData( ByteBuffer bb ) {
+			return String.format( "%08d", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) );
 		}
 	};
 	
-	public static final Type<double[]> DOUBLE = new Type<double[]>() {
-		public String toString() { return "DOUBLE"; }
-		public double[] getData( ByteBuffer bb, int amount ) {
-			double[] res = new double[ amount ];
-			for( int i = 0; i < amount; i++ )
-				res[i] = bb.getDouble();
-			return res;
+	public static final Type<String> HEX8 = new Type<String>() {
+		public String toString() { return "HEX8"; }
+		public int sizeof() { return 1; }
+		public String[] allocate( int amount ) { return new String[amount]; }
+		public String getData( ByteBuffer bb ) {
+			return String.format( "%08x", Integer.parseInt( Integer.toBinaryString( bb.get() ) ) );
 		}
 	};
 }

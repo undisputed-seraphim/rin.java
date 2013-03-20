@@ -16,10 +16,6 @@ public class BIOBuffer extends BIOReader {
 	public static BIOBuffer fromFile( String file ) { return new BIOBuffer( IO.file.asByteArray( file ) ); }
 	public static BIOBuffer fromByteArray( byte[] arr ) { return new BIOBuffer( arr ); }
 	
-	public <T> T[] newArray( T[] arr, Class<T[]> type, int size ) {
-		return type.cast( Array.newInstance( type.getComponentType(), size ) );
-	}
-	
 	public static String asString( Object arr ) { return BIOBuffer.asString( arr, false ); }
 	public static String asString( Object arr, boolean trim ) {
 		String res = "";

@@ -11,35 +11,52 @@ import static rin.util.dcode.pssg.PSSGTypes.*;
 
 public class PSSGFile extends BIOFile {
 	public static enum DataOnlyChunks {
-		BOUNDINGBOX,
-		DATA,
-		DATABLOCKDATA,
-		DATABLOCKBUFFERED,
-		INDEXSOURCEDATA,
-		INVERSEBINDMATRIX,
-		MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT,
-		RENDERINTERFACEBOUNDBUFFERED,
-		SHADERINPUT,
-		SHADERPROGRAMCODEBLOCK,
-		TEXTUREIMAGEBLOCKDATA,
-		TRANSFORM;
+		BOUNDINGBOX										( PSSGFLOAT ),
+		DATA											( null ),
+		DATABLOCKDATA									( null ),
+		DATABLOCKBUFFERED								( null ),
+		INDEXSOURCEDATA									( null ),
+		INVERSEBINDMATRIX								( null ),
+		MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT		( null ),
+		RENDERINTERFACEBOUNDBUFFERED					( null ),
+		SHADERINPUT										( UINT8 ),
+		SHADERPROGRAMCODEBLOCK							( CHAR ),
+		TEXTUREIMAGEBLOCKDATA							( UINT8 ),
+		TRANSFORM										( PSSGFLOAT );
 		
-		public static boolean find( String name ) {
+		public Type<?> type;
+		
+		private <T> DataOnlyChunks( Type<T> type ) { this.type = type; }
+		
+		public static DataOnlyChunks find( String name ) {
 			for( DataOnlyChunks c : DataOnlyChunks.values() )
 				if( c.toString().equals( name.toUpperCase() ) )
-					return true;
-			
-			return false;
+					return c;
+			return null;
+		}
+	}
+	
+	public static enum PropertyMap {
+		CODETYPE				( PSSGSTRING, 1 ),
+		CREATOR					( PSSGSTRING, 1 ),
+		CREATIONMACHINE			( PSSGSTRING, 1 ),
+		SCALE					( PSSGFLOAT, 3 );
+		
+		public Type<?> type;
+		public int amount;
+		
+		private <T> PropertyMap( Type<T> type, int amount ) { this.type = type; this.amount = amount; }
+		
+		public static PropertyMap find( String name ) {
+			for( PropertyMap p : PropertyMap.values() )
+				if( p.toString().equals( name.toUpperCase() ) )
+					return p;
+			return null;
 		}
 	}
 	
 	private static int depth = 0;
 	private static String getTabs() { String res = ""; for( int i = 0; i < PSSGFile.depth; i++ ) { res += "   "; } return res; }
-	
-	public static final HashMap<String, Type<?>> propertyMap = new HashMap<String, Type<?>>();
-	static {
-		propertyMap.put( "creator",					PSSGSTRING );
-	}
 	
 	public static PSSGFile instance;
 	public PSSGFile( String file ) { super( file ); PSSGFile.instance = this; }
@@ -50,7 +67,7 @@ public class PSSGFile extends BIOFile {
 		public long size;
 		public long propertyTypes;
 		public long chunkTypes;
-		public PSSGChunk root;
+		public PSSGChunk<?> root;
 		
 		public HashMap<Integer, PSSGChunkInfo> chunkInfoMap = new HashMap<Integer, PSSGChunkInfo>();
 		public PSSGChunkInfo getChunkInfo( int index ) { return chunkInfoMap.get( index ); }
@@ -71,13 +88,6 @@ public class PSSGFile extends BIOFile {
 			
 			return null;
 		}
-	}
-	
-	public static class Header {
-		public String pssg;
-		public Long chunksize;
-		public Long props;
-		public Long params;
 	}
 	
 	public static class PSSGChunkInfo extends PSSGPropertyInfo {
@@ -103,25 +113,42 @@ public class PSSGFile extends BIOFile {
 		}
 	}
 	
-	public static class PSSGChunk {
+	public static class PSSGChunk<T> {
 		public long index;
 		public String name;
 		public long chunksize;
 		public long propsize;
 		public boolean hasData = false;
-		public byte[] data;
+		public T[] data;
+		
+		public PSSGChunk() {}
 		
 		public ArrayList<PSSGProperty<?>> properties = new ArrayList<PSSGProperty<?>>();
-		public ArrayList<PSSGChunk> children = new ArrayList<PSSGChunk>();
+		public PSSGProperty<?> getProperty( String name ) {
+			for( PSSGProperty<?> p : this.properties )
+				if( p.name.toUpperCase().equals( name.toUpperCase() ) )
+					return p;
+			return null;
+		}
+		
+		public PSSGChunk<?> parent = null;
+		public ArrayList<PSSGChunk<?>> children = new ArrayList<PSSGChunk<?>>();
+		public ArrayList<PSSGChunk<?>> getChildren( String name ) {
+			ArrayList<PSSGChunk<?>> res = new ArrayList<PSSGChunk<?>>();
+			for( PSSGChunk<?> c : this.children )
+				if( c.name.toUpperCase().equals( name.toUpperCase() ) )
+					res.add( c );
+			return res;
+		}
 		
 		public void info() { System.out.println( this.toString() ); PSSGFile.depth = 0; }
 		public void tree() {
-			System.out.println( PSSGFile.getTabs() + "CHUNK " + this.name );
-			if( this.children.size() > 0 )
-				System.out.println( PSSGFile.getTabs() + "Children: " );
+			System.out.println( PSSGFile.getTabs() + this.name );
 			
-			for( PSSGChunk c : this.children )
+			PSSGFile.depth++;
+			for( PSSGChunk<?> c : this.children )
 				c.tree();
+			PSSGFile.depth--;
 		}
 		
 		public String toString() {
@@ -132,7 +159,7 @@ public class PSSGFile extends BIOFile {
 			for( PSSGProperty<?> p : this.properties ) { res += p.toString(); }
 			
 			PSSGFile.depth++;
-			for( PSSGChunk c : this.children )
+			for( PSSGChunk<?> c : this.children )
 				res += c.toString();
 			PSSGFile.depth--;
 			
@@ -140,40 +167,23 @@ public class PSSGFile extends BIOFile {
 		}
 	}
 	
+	public ArrayList<PSSGChunk<?>> getChunks( String name ) {
+		ArrayList<PSSGChunk<?>> res = new ArrayList<PSSGChunk<?>>();
+		for( PSSGChunk<?> c : PSSG.root.children )
+			if( c.name.toUpperCase().equals( name.toUpperCase() ) )
+				res.add( c );
+		return res;
+	}
+	
 	public static class PSSGProperty<T> {
-		public Long index;
-		public Long size;
+		public long index;
+		public long size;
 		public String name;
 		public Type<T> type;
-		public long amount;
-		public T data;
+		public int amount;
+		public T[] data;
 		
-		public static void create( PSSGChunk parent ) {
-			/*Long index = PSSGFile.instance.read( UINT32 );
-			Long size = PSSGFile.instance.read( UINT32 );
-			
-			Property prop = PSSG.prop_map.get( index.intValue() );
-			if( prop != null ) {
-				if( propertyMap.containsKey( prop.name ) ) {
-					parent.properties.add( PSSGProperty.create( propertyMap.get( prop.name ), index, size, prop.name ) );
-				} else {
-					PSSGFile.instance.getBuffer().advance( size.intValue() );
-				}
-			}*/
-		}
-		
-		public static <T> PSSGProperty<T> create( Type<T> type, long index, long size, String name, T data ) {
-			/*PSSGProperty<T> res = new PSSGProperty<T>();
-			
-			res.index = index;
-			res.size = size;
-			res.name = name;
-			res.type = type;
-			res.data = type.getData( PSSGFile.instance.getBuffer().actual() );
-			
-			return res;*/
-			return null;
-		}
+		public PSSGProperty( Type<T> type, long index, long size ) { this.type = type; this.index = index; this.size = size; }
 		
 		public String toString() {
 			PSSGFile.depth++;
@@ -207,13 +217,6 @@ public class PSSGFile extends BIOFile {
 			this.addChunk( PSSGChunks.INFOLIST );
 		
 		this.addChunk( PSSGChunks.PSSGDATABASE );
-		
-		PSSG.root.tree();
-		/*for( int i = 0; i < PSSG.header.params; i++ )
-			this.addChunk( PSSGChunks.PARAM_LIST.copy( "param_" + i ) );
-		
-		PSSG.root = PSSGNode.create();
-		PSSG.root.info();*/
 	}
 	
 	@Override public void write() {}

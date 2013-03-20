@@ -1,9 +1,8 @@
 package rin.util.dcode.pssg;
 
-import java.util.HashMap;
-
 import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOChunks.Chunk;
+import rin.util.dcode.pssg.PSSGFile.DataOnlyChunks;
 import static rin.util.bio.BIOTypes.*;
 import static rin.util.dcode.pssg.PSSGTypes.*;
 import static rin.util.dcode.pssg.PSSGFile.*;
@@ -14,7 +13,7 @@ public class PSSGChunks {
 			String magic = c.readString( 4 );
 			
 			if( !magic.toUpperCase().equals( "PSSG" ) )
-				System.out.println( "HUGE ERROR TO BE REPLACED WITH PSSGIncorrectHeaderFormatException" );
+				System.out.println( "HUGE ERROR TO BE REPLACED WITH PSSGHeaderFormatException" );
 			
 			PSSG.size = c.readUInt32();
 			PSSG.propertyTypes = c.readUInt32();
@@ -26,15 +25,15 @@ public class PSSGChunks {
 		@Override public void define( Chunk c ) {
 			
 			PSSGChunkInfo cinfo = new PSSGChunkInfo();
-			cinfo.index = c.readUInt32();
-			cinfo.name = c.read( PSSGSTRING );
-			cinfo.props = c.readUInt32();
+			cinfo.index = readUInt32();
+			cinfo.name = read( PSSGSTRING );
+			cinfo.props = readUInt32();
 			cinfo.properties = new PSSGPropertyInfo[ (int)cinfo.props ];
 			
 			for( int i = 0; i < cinfo.props; i++ ) {
 				PSSGPropertyInfo pinfo = new PSSGPropertyInfo();
-				pinfo.index = c.readUInt32();
-				pinfo.name = c.read( PSSGSTRING );
+				pinfo.index = readUInt32();
+				pinfo.name = read( PSSGSTRING );
 				
 				cinfo.properties[i] = pinfo;
 				PSSG.propInfoMap.put( (int)pinfo.index, pinfo );
@@ -45,71 +44,120 @@ public class PSSGChunks {
 	};
 	
 	public static final Chunk PSSGDATABASE = new Chunk( "PSSGDATABASE" ) {
-		@Override public void define( Chunk c ) {
-			long index = c.readUInt32();
+		
+		public <T> PSSGProperty<T> createProperty( Type<T> type, int amount, long index, long size ) {
+			PSSGProperty<T> prop = new PSSGProperty<T>( type, index, size );
+			prop.index = index;
+			prop.size = size;
+			int start = position();
+			
+			prop.name = PSSG.propInfoMap.get( (int)prop.index ).name;
+			prop.data = read( type, amount );
+			System.out.println( BIOBuffer.asString( prop.data ) );
+			
+			if( position() != start + prop.size ) {
+				System.out.println( "Property [" + prop.name + "] did not take up required space." );
+				position( start + prop.size );
+			}
+			
+			/*if( prop.size == 4 ) {
+				prop.data = ""+readUInt32();
+			} else if( prop.size > 4 ) {
+				long length = readUInt32();
+				if( prop.size - 4 == length ) {
+					prop.data = readString( length );
+				} else {
+					rewind( 4 );
+					prop.data = BIOBuffer.asString( readUInt8s( prop.size ) );
+				}
+			} else {
+				prop.data = BIOBuffer.asString( readUInt8s( prop.size ) );
+			}*/
+
+			return prop;
+		}
+		
+		public Type<?> findType( long index ) {
+			DataOnlyChunks c;
 			if( PSSG.chunkInfoMap.containsKey( (int)index ) )
-				if( !PSSG.chunkInfoMap.get( (int)index ).name.toUpperCase().equals( "PSSGDATABASE" ) )
-					System.out.println( "MASSIVE ERROR TO BE REPLACED WITH EXCEPTION" );
-			//TODO: instead of exceptioning, allow searching for the pssgdatabase node, then exception if it does not exist
+				if( ( c =  DataOnlyChunks.find( PSSG.chunkInfoMap.get( (int)index ).name ) ) != null )
+					if( c.type != null )
+						return c.type;
 			
-			c.rewind( 4 );
-			c.getParent().addChunk( PSSGCHUNK );
-		}
-	};
-	
-	public static final Chunk PSSGCHUNK = new Chunk( "PSSGCHUNK" ) {
-		private <T> PSSGProperty<T> create( Type<T> type, long index, long size ) {
-			PSSGProperty<T> res = new PSSGProperty<T>();
-			res.index = index;
-			res.size = size;
-			res.type = type;
-			res.amount = 1;
-			res.data = type.getData( this.getBuffer().actual(), 1 );
-			return res;
+			return UINT8;
 		}
 		
-		public PSSGChunk create() {
-			return null;
-		}
-		
-		@Override public void define( Chunk c ) {
-			PSSGChunk chunk = new PSSGChunk();
-			if( PSSG.root == null )
-				PSSG.root = chunk;
+		public <T> PSSGChunk<T> create( PSSGChunk<?> parent, Type<T> type ) {
+			PSSGChunk<T> chunk = new PSSGChunk<T>();
 			
-			chunk.index = c.readUInt32();
+			if( parent != null )
+				chunk.parent = parent;
+			
+			chunk.index = readUInt32();
 			PSSGChunkInfo cinfo = PSSG.chunkInfoMap.get( (int)chunk.index );
 			chunk.name = cinfo.name;
-			chunk.chunksize = c.readUInt32();
-			chunk.propsize = c.readUInt32();
 			
-			long chunkStop = c.position() + chunk.chunksize;
-			long propStop = PSSGFile.instance.getBuffer().position() + chunk.propsize;
+			chunk.chunksize = readUInt32();
+			long chunkStop = position() + chunk.chunksize;
 			
-			while( c.position() < propStop ) {
-				long index = c.readUInt32();
-				long size = c.readUInt32();
+			chunk.propsize = readUInt32();
+			long propStop = position() + chunk.propsize;
+			
+			while( position() < propStop ) {
+				long index = readUInt32();
+				long size = readUInt32();
 				
-				PSSGPropertyInfo pinfo = PSSG.propInfoMap.get( (int)index );
-				if( pinfo != null ) {
-					if( propertyMap.containsKey( pinfo.name ) ) {
-						chunk.properties.add( this.create( propertyMap.get( pinfo.name ), index, size ) );
-					} else {
-						c.advance( (int)size );
-					}
-				}
+				PropertyMap p;
+				if( PSSG.propInfoMap.containsKey( (int)index ) )
+					if( (p = PropertyMap.find( PSSG.propInfoMap.get( (int)index ).name ) ) != null )
+						chunk.properties.add( this.createProperty( p.type, p.amount, index, size ) );
+					else advance( size );
+				else advance( size );
 			}
 			
-			/*if( DataOnlyChunks.find( chunk.name ) ) {
+			if( position() != propStop ) {
+				System.out.println( "Something has caused the reader to be ahead of schedule..." );
+				position( propStop );
+			}
+			
+			DataOnlyChunks c;
+			if( ( c = DataOnlyChunks.find( chunk.name ) ) != null ) {
 				chunk.hasData = true;
-				chunk.data = c.readInt8s( chunkStop - c.position() );
+				switch( c ) {
+				
+				case SHADERPROGRAMCODEBLOCK:
+					System.out.println( chunk.parent.getProperty( "codeType" ).name );
+					break;
+					
+				default:
+					chunk.data = read( type, (chunkStop - position()) / type.sizeof() );
+					break;
+					
+				}
+				
+				if( type != UINT8 )
+					System.out.println( chunk.name + " " + BIOBuffer.asString( chunk.data ) );
+				
+				if( position() < chunkStop )
+					position( chunkStop );
 			} else {
-				while( PSSGFile.instance.getBuffer().position() < chunkStop ) {
-					chunk.children.add( PSSGNode.create() );
+				while( position() < chunkStop ) {
+					Type<?> t = this.findType( previewUInt32() );
+					chunk.children.add( this.create( chunk, t ) );
 				}
 			}
 			
-			return node;*/
+			return chunk;
+		}
+		
+		@Override public void define( Chunk c ) {
+			long index = previewUInt32();
+			if( PSSG.chunkInfoMap.containsKey( (int)index ) )
+				if( !PSSG.chunkInfoMap.get( (int)index ).name.toUpperCase().equals( "PSSGDATABASE" ) )
+					System.out.println( "MASSIVE ERROR TO BE REPLACED WITH EXCEPTION PSSGDatabaseNotFoundException" );
+			//TODO: instead of exceptioning, allow searching for the pssgdatabase node, then exception if it does not exist
+
+			PSSG.root = this.create( null, this.findType( previewUInt32() ) );
 		}
 	};
 }
