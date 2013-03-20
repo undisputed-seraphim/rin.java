@@ -39,10 +39,7 @@ public class BIOTypes {
 	public static final Type<String[]> STRING8 = new Type<String[]>() {
 		public String toString() { return "STRING8"; }
 		public String[] getData( ByteBuffer bb, int length ) {
-			String res = "";
-			for( int i = 0; i < length; i++ )
-				res += CHAR8.getData( bb, 1 )[0];
-			return new String[] { res };
+			return new String[] { BIOBuffer.asString( CHAR8.getData( bb, length ), true ) };
 		}
 	};
 	
@@ -71,7 +68,7 @@ public class BIOTypes {
 		public short[] getData( ByteBuffer bb, int amount ) {
 			short[] res = new short[ amount ];
 			for( int i = 0; i < amount; i++ )
-				res[i] = (short)(bb.get() & 0xff);
+				res[i] = (short)(bb.get() & 0xFF);
 			return res;
 		}
 	};
@@ -101,7 +98,7 @@ public class BIOTypes {
 		public int[] getData( ByteBuffer bb, int amount ) {
 			int[] res = new int[ amount ];
 			for( int i = 0; i < amount; i++ )
-				res[i] = bb.getShort() & 0xffff;
+				res[i] = bb.getShort() & 0xFFFF;
 			return res;
 		}
 	};
@@ -121,7 +118,7 @@ public class BIOTypes {
 		@Override public long[] getData( ByteBuffer bb, int amount ) {
 			long[] res = new long[ amount ];
 			for( int i = 0; i < amount; i++ )
-				res[i] = (long)bb.getInt() & 0xffffffffL;
+				res[i] = (long)bb.getInt() & 0xFFFFFFFFL;
 			return res;
 		}
 	};
@@ -150,6 +147,7 @@ public class BIOTypes {
 	public static final Type<byte[]> BYTE = Type.copy( INT8, "BYTE" );
 	
 	public static final Type<char[]> CHAR = Type.copy( CHAR8, "CHAR" );
+	public static final Type<String[]> STRING = Type.copy( STRING8, "STRING" );
 	
 	public static final Type<int[]> USHORT = Type.copy( UINT16, "USHORT" );
 	public static final Type<short[]> SHORT = Type.copy( INT16, "SHORT" );

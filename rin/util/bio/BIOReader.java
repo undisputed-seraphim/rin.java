@@ -45,6 +45,7 @@ public abstract class BIOReader {
 	public float previewFloat() { return this.preview( FLOAT, 1 )[0]; }
 	public float[] previewFloats( long amount ) { return this.preview( FLOAT, amount ); }
 	
+	public <T> T read( Type<T> type ) { return type.getData( this.getBuffer().actual(), 1 ); }
 	public <T> T read( Type<T> type, long amount ) { return type.getData( this.getBuffer().actual(), (int)amount ); }
 	
 	public byte readInt8() { return this.read( INT8, 1 )[0]; }
@@ -55,7 +56,7 @@ public abstract class BIOReader {
 	public char readChar() { return this.read( CHAR, 1 )[0]; }
 	public char[] readChars( long amount ) { return this.read( CHAR, amount ); }
 	
-	public String readString( long length ) { return BIOBuffer.asString( this.readChars( length ) ); }
+	public String readString( long length ) { return this.read( STRING8, length )[0]; }
 	
 	public short readInt16() { return this.read( INT16, 1 )[0]; }
 	public short[] readInt16s( long amount ) { return this.read( INT16, amount ); }
@@ -72,4 +73,7 @@ public abstract class BIOReader {
 	
 	public float readFloat() { return this.read( FLOAT, 1 )[0]; }
 	public float[] readFloats( long amount ) { return this.read( FLOAT, amount ); }
+	
+	public double readDouble() { return this.read( DOUBLE, 1 )[0]; }
+	public double[] readDoubles( long amount ) { return this.read( DOUBLE, amount ); }
 }

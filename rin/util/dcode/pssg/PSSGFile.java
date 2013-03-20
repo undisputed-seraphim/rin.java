@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOFile;
 import rin.util.bio.BIOTypes.Type;
 import static rin.util.bio.BIOTypes.*;
-import static rin.util.dcode.pssg.PSSGTypes.PSSGSTRING;
+import static rin.util.dcode.pssg.PSSGTypes.*;
 
 public class PSSGFile extends BIOFile {
 	public static enum DataOnlyChunks {
@@ -48,27 +47,27 @@ public class PSSGFile extends BIOFile {
 	public static final PSSG PSSG = new PSSG();
 	
 	public static class PSSG {
-		public Long size;
-		public Long propertyTypes;
-		public Long chunkTypes;
-		public PSSGNode root;
+		public long size;
+		public long propertyTypes;
+		public long chunkTypes;
+		public PSSGChunk root;
 		
-		public HashMap<Integer, Parameter> param_map = new HashMap<Integer, Parameter>();
-		public Parameter getParameter( int index ) { return param_map.get( index ); }
-		public Parameter getParameter( String name ) {
-			for( int i : this.param_map.keySet() )
-				if( this.param_map.get( i ).name.toUpperCase().equals( name.toUpperCase() ) )
-					return this.param_map.get( i );
+		public HashMap<Integer, PSSGChunkInfo> chunkInfoMap = new HashMap<Integer, PSSGChunkInfo>();
+		public PSSGChunkInfo getChunkInfo( int index ) { return chunkInfoMap.get( index ); }
+		public PSSGChunkInfo getChunkInfo( String name ) {
+			for( int i : this.chunkInfoMap.keySet() )
+				if( this.chunkInfoMap.get( i ).name.toUpperCase().equals( name.toUpperCase() ) )
+					return this.chunkInfoMap.get( i );
 			
 			return null;
 		}
 		
-		public HashMap<Integer, Property> prop_map = new HashMap<Integer, Property>();
-		public Property getProperty( int index ) { return prop_map.get( index ); }
-		public Property getProperty( String name ) {
-			for( int i : this.prop_map.keySet() )
-				if( this.prop_map.get( i ).name.toUpperCase().equals( name.toUpperCase() ) )
-					return this.prop_map.get( i );
+		public HashMap<Integer, PSSGPropertyInfo> propInfoMap = new HashMap<Integer, PSSGPropertyInfo>();
+		public PSSGPropertyInfo getPropertyInfo( int index ) { return propInfoMap.get( index ); }
+		public PSSGPropertyInfo getPropertyInfo( String name ) {
+			for( int i : this.propInfoMap.keySet() )
+				if( this.propInfoMap.get( i ).name.toUpperCase().equals( name.toUpperCase() ) )
+					return this.propInfoMap.get( i );
 			
 			return null;
 		}
@@ -81,22 +80,21 @@ public class PSSGFile extends BIOFile {
 		public Long params;
 	}
 	
-	public static class Parameter extends Property {
-		public Long props;
-		public Property[] properties;
+	public static class PSSGChunkInfo extends PSSGPropertyInfo {
+		public long props;
+		public PSSGPropertyInfo[] properties;
 		
 		public void info() {
 			System.out.println( "PARAMETER " + this.name );
 			System.out.println( "Index:  " + this.index );
 			System.out.println( "Property Count: " + this.props );
-			for( Property p : this.properties )
+			for( PSSGPropertyInfo p : this.properties )
 				p.info();
 		}
 	}	
 	
-	public static class Property {
-		public Long index;
-		public Long namelength;
+	public static class PSSGPropertyInfo {
+		public long index;
 		public String name;
 		
 		public void info() {
@@ -105,51 +103,25 @@ public class PSSGFile extends BIOFile {
 		}
 	}
 	
-	public static class PSSGNode {
-		public Long index;
+	public static class PSSGChunk {
+		public long index;
 		public String name;
-		public Long chunksize;
-		public Long propsize;
+		public long chunksize;
+		public long propsize;
 		public boolean hasData = false;
-		public Byte[] data;
+		public byte[] data;
 		
 		public ArrayList<PSSGProperty<?>> properties = new ArrayList<PSSGProperty<?>>();
-		public ArrayList<PSSGNode> children = new ArrayList<PSSGNode>();
-		
-		public static PSSGNode create() {
-			/*PSSGNode node = new PSSGNode();
-			
-			node.index = PSSGFile.instance.read( UINT32 );
-			Parameter param = PSSG.param_map.get( node.index.intValue() );
-			node.name = param.name;
-			
-			node.chunksize = PSSGFile.instance.read( UINT32 );
-			long chunkStop = PSSGFile.instance.getBuffer().position() + node.chunksize;
-		
-			node.propsize = PSSGFile.instance.read( UINT32 );
-			long propStop = PSSGFile.instance.getBuffer().position() + node.propsize;
-			
-			while( PSSGFile.instance.getBuffer().position() < propStop )
-				PSSGProperty.create( node );
-			
-			if( DataOnlyChunks.find( node.name ) ) {
-				node.hasData = true;
-				node.data = PSSG.buffer.read( BYTE, chunkStop - PSSG.buffer.position() );
-			} else {
-				while( PSSGFile.instance.getBuffer().position() < chunkStop ) {
-					node.children.add( PSSGNode.create() );
-				}
-			}
-			
-			return node;*/
-			return null;
-		}
+		public ArrayList<PSSGChunk> children = new ArrayList<PSSGChunk>();
 		
 		public void info() { System.out.println( this.toString() ); PSSGFile.depth = 0; }
-		public void info( boolean tree ) {
-			PSSGFile.depth = 0;
+		public void tree() {
+			System.out.println( PSSGFile.getTabs() + "CHUNK " + this.name );
+			if( this.children.size() > 0 )
+				System.out.println( PSSGFile.getTabs() + "Children: " );
 			
-			System.out.println();
+			for( PSSGChunk c : this.children )
+				c.tree();
 		}
 		
 		public String toString() {
@@ -160,8 +132,8 @@ public class PSSGFile extends BIOFile {
 			for( PSSGProperty<?> p : this.properties ) { res += p.toString(); }
 			
 			PSSGFile.depth++;
-			for( PSSGNode n : this.children )
-				res += n.toString();
+			for( PSSGChunk c : this.children )
+				res += c.toString();
 			PSSGFile.depth--;
 			
 			return res;
@@ -173,9 +145,10 @@ public class PSSGFile extends BIOFile {
 		public Long size;
 		public String name;
 		public Type<T> type;
+		public long amount;
 		public T data;
 		
-		public static void create( PSSGNode parent ) {
+		public static void create( PSSGChunk parent ) {
 			/*Long index = PSSGFile.instance.read( UINT32 );
 			Long size = PSSGFile.instance.read( UINT32 );
 			
@@ -189,7 +162,7 @@ public class PSSGFile extends BIOFile {
 			}*/
 		}
 		
-		public static <T> PSSGProperty<T> create( Type<T> type, Long index, Long size, String name ) {
+		public static <T> PSSGProperty<T> create( Type<T> type, long index, long size, String name, T data ) {
 			/*PSSGProperty<T> res = new PSSGProperty<T>();
 			
 			res.index = index;
@@ -213,11 +186,11 @@ public class PSSGFile extends BIOFile {
 		}
 	}
 	
-	public void printMaps() { this.printParamMap(); this.printPropMap(); }
-	public void printParamMap() { this.printMap( PSSGFile.PSSG.param_map, "PARAMETER_MAP" ); }
-	public void printPropMap() { this.printMap( PSSGFile.PSSG.prop_map, "PROPERTY_MAP" ); }
+	public void printInfo() { this.printChunkInfo(); this.printPropertyInfo(); }
+	public void printChunkInfo() { this.printMap( PSSGFile.PSSG.chunkInfoMap, "PARAMETER_MAP" ); }
+	public void printPropertyInfo() { this.printMap( PSSGFile.PSSG.propInfoMap, "PROPERTY_MAP" ); }
 	
-	private void printMap( Map<Integer,? extends Property> m, String title ) {
+	private void printMap( Map<Integer,? extends PSSGPropertyInfo> m, String title ) {
 		if( !title.equals( "" ) )
 			System.out.println( "_______" + title + "_______" );
 		
@@ -230,6 +203,12 @@ public class PSSGFile extends BIOFile {
 	@Override public void read() {
 		this.addChunk( PSSGChunks.PSSGHEADER );
 		
+		for( int i = 0; i < PSSG.chunkTypes; i++ )
+			this.addChunk( PSSGChunks.INFOLIST );
+		
+		this.addChunk( PSSGChunks.PSSGDATABASE );
+		
+		PSSG.root.tree();
 		/*for( int i = 0; i < PSSG.header.params; i++ )
 			this.addChunk( PSSGChunks.PARAM_LIST.copy( "param_" + i ) );
 		
