@@ -26,7 +26,7 @@ public abstract class BIOReader {
 	
 	public byte previewInt8() { return this.readBytes( INT8, 1, true )[0]; }
 	public byte[] previewInt8s( long amount ) { return this.readBytes( INT8, amount, true ); }
-	public short previewUInt8() { return this.read( UINT8, 1, true )[0]; }
+	public short previewUInt8() { return this.read( UINT8, true ); }
 	public short[] previewUInt8s( long amount ) { return this.toPrimitive( new short[(int)amount], this.read( UINT8, amount, true ) ); }
 	
 	public short previewInt16() { return this.readShorts( INT16, 1, true )[0]; }
@@ -36,8 +36,8 @@ public abstract class BIOReader {
 	
 	public int previewInt32() { return this.readInts( INT32, 1, true )[0]; }
 	public int[] previewInt32s( long amount ) { return this.readInts( INT32, amount, true ); }
-	public long previewUInt32() { return this.readLongs( UINT32, 1, true )[0]; }
-	public long[] previewUInt32s( long amount ) { return this.readLongs( UINT32, amount, true ); }
+	public long previewUInt32() { return this.read( UINT32, true ); }
+	public long[] previewUInt32s( long amount ) { return this.toPrimitive( new long[(int)amount], this.read( UINT32, amount, true ) ); }
 	
 	public long previewInt64() { return this.readLongs( INT64, 1, true )[0]; }
 	public long[] previewInt64s( long amount ) { return this.readLongs( INT64, amount, true ); }
@@ -193,7 +193,7 @@ public abstract class BIOReader {
 	public int readInt32() { return INT32.getData( this.actual() ); }
 	public int[] readInt32s( long amount ) { return this.readInts( INT32, amount ); }
 	public long readUInt32() { return UINT32.getData( this.actual() ); }
-	public long[] readUInt32s( long amount ) { return this.readLongs( UINT32, amount ); }
+	public long[] readUInt32s( long amount ) { return this.toPrimitive( new long[(int)amount], this.read( UINT32, amount ) ); }
 	
 	public long readInt64() { return INT64.getData( this.actual() ); }
 	public long[] readInt64s( long amount ) { return this.readLongs( INT64, amount ); }

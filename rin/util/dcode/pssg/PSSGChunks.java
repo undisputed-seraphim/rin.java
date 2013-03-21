@@ -52,15 +52,15 @@ public class PSSGChunks {
 			int start = position();
 			
 			prop.name = PSSG.propInfoMap.get( (int)prop.index ).name;
-			prop.data = read( type, amount );
-			System.out.println( BIOBuffer.asString( prop.data ) );
+			//prop.data = read( type, amount );
+			//System.out.println( BIOBuffer.asString( prop.data ) );
 			
-			if( position() != start + prop.size ) {
+			/*if( position() != start + prop.size ) {
 				System.out.println( "Property [" + prop.name + "] did not take up required space." );
 				position( start + prop.size );
-			}
+			}*/
 			
-			/*if( prop.size == 4 ) {
+			if( prop.size == 4 ) {
 				prop.data = ""+readUInt32();
 			} else if( prop.size > 4 ) {
 				long length = readUInt32();
@@ -72,7 +72,7 @@ public class PSSGChunks {
 				}
 			} else {
 				prop.data = BIOBuffer.asString( readUInt8s( prop.size ) );
-			}*/
+			}
 
 			return prop;
 		}
@@ -119,14 +119,39 @@ public class PSSGChunks {
 				System.out.println( "Something has caused the reader to be ahead of schedule..." );
 				position( propStop );
 			}
+
+			if( chunk.name.equals( "RENDERSTREAMINSTANCE" ) || chunk.name.equals( "MODIFIERNETWORKINSTANCE" ) ) {
+				PSSG.addToStream( chunk.parent, chunk );
+			} else if( chunk.name.equals( "RISTREAM" ) ) {
+				PSSG.addToStream( chunk.parent.parent, chunk );
+			} else if( chunk.name.equals( "RENDERINSTANCESOURCE" ) ) {
+				PSSG.addToStream( chunk.parent.parent, chunk );
+			} else if( chunk.name.equals( "RENDERINSTANCESTREAM" ) ) {
+				PSSG.addToStream( chunk.parent.parent, chunk );
+			}
 			
 			DataOnlyChunks c;
 			if( ( c = DataOnlyChunks.find( chunk.name ) ) != null ) {
 				chunk.hasData = true;
 				switch( c ) {
 				
-				case SHADERPROGRAMCODEBLOCK:
-					System.out.println( chunk.parent.getProperty( "codeType" ).name );
+				case INVERSEBINDMATRIX:
+					chunk.data = read( type, (chunkStop - position() ) / type.sizeof() );
+					PSSG.skeleton.addMatrix( chunk.parent, chunk );
+					break;
+					
+				case SKINJOINT:
+					PSSG.addNode( chunk.parent, chunk );
+					break;
+					
+				case TRANSFORM:
+					chunk.data = read( type, (chunkStop - position() ) / type.sizeof() );
+					PSSG.addNode( chunk.parent, chunk );
+					break;
+					
+				case BOUNDINGBOX:
+					chunk.data = read( type, (chunkStop - position() ) / type.sizeof() );
+					PSSG.addNode( chunk.parent, chunk );
 					break;
 					
 				default:
@@ -135,8 +160,8 @@ public class PSSGChunks {
 					
 				}
 				
-				if( type != UINT8 )
-					System.out.println( chunk.name + " " + BIOBuffer.asString( chunk.data ) );
+				//if( type != UINT8 )
+				//	System.out.println( chunk.name + " " + BIOBuffer.asString( chunk.data ) );
 				
 				if( position() < chunkStop )
 					position( chunkStop );

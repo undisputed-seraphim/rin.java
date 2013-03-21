@@ -14,43 +14,50 @@ import java.nio.ByteBuffer;
  * <li>double - 64bit double precision</li>
  * </ul>
  */
-public class BIOTypes {
+public class BIOTypes {	
 	protected static abstract class PrimitiveType {
 		public abstract String toString();
 	}
 	
 	public static abstract class PrimitiveByte extends PrimitiveType {
 		public byte[] allocate( int amount ) { return new byte[amount]; }
+		public int sizeof() { return 1; }
 		public abstract byte getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveChar extends PrimitiveType {
 		public char[] allocate( int amount ) { return new char[amount]; }
+		public int sizeof() { return 1; }
 		public abstract char getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveShort extends PrimitiveType {
 		public short[] allocate( int amount ) { return new short[amount]; }
+		public int sizeof() { return 2; }
 		public abstract short getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveInt extends PrimitiveType {
 		public int[] allocate( int amount ) { return new int[amount]; }
+		public int sizeof() { return 4; }
 		public abstract int getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveLong extends PrimitiveType {
 		public long[] allocate( int amount ) { return new long[amount]; }
+		public int sizeof() { return 8; }
 		public abstract long getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveFloat extends PrimitiveType {
 		public float[] allocate( int amount ) { return new float[amount]; }
+		public int sizeof() { return 4; }
 		public abstract float getData( ByteBuffer bb );
 	}
 	
 	public static abstract class PrimitiveDouble extends PrimitiveType {
 		public double[] allocate( int amount ) { return new double[amount]; }
+		public int sizeof() { return 4; }
 		public abstract double getData( ByteBuffer bb );
 	}
 	
@@ -95,9 +102,16 @@ public class BIOTypes {
 		public short getData( ByteBuffer bb ) { return bb.getShort(); }
 	};
 	
-	public static final PrimitiveLong UINT32 = new PrimitiveLong() {
+	public static final PrimitiveLong pUINT32 = new PrimitiveLong() {
 		public String toString() { return "UINT32"; }
 		public long getData( ByteBuffer bb ) { return (long)bb.getInt() & 0xFFFFFFFFL; }
+	};
+	
+	public static final Type<Long> UINT32 = new Type<Long>() {
+		public String toString() { return "UINT32"; }
+		public int sizeof() { return 4; }
+		public Long[] allocate( int amount ) { return new Long[amount]; }
+		public Long getData( ByteBuffer bb ) { return (long)bb.getInt() & 0xFFFFFFFFL; }
 	};
 	
 	public static final PrimitiveInt INT32 = new PrimitiveInt() {

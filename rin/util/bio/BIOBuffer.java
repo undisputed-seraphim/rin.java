@@ -24,7 +24,7 @@ public class BIOBuffer extends BIOReader {
 		if( arr != null )
 			if( arr.getClass().isArray() )
 				for( int i = 0; i < Array.getLength( arr ); i++ )
-					res += Array.get( arr, i ) + split;
+					res += Array.get( arr, i ) + (i+1<Array.getLength( arr )?split:"");
 		
 		return res;
 	}
@@ -35,8 +35,8 @@ public class BIOBuffer extends BIOReader {
 		String split = trim ? "" : " ";
 		
 		if( arr != null )
-			for( Object o : arr )
-				res += o + split;
+			for( int i = 0; i < arr.length; i++ )
+				res += arr[i] + (i+1<Array.getLength(arr)?split:"");
 		
 		return res;
 	}
