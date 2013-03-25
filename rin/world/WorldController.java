@@ -1,28 +1,55 @@
 package rin.world;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import rin.system.adapters.ControllerAdapter;
-import rin.system.interfaces.Event;
+import rin.system.interfaces.Processor;
+import rin.world.adapters.WorldAdapter;
+import rin.world.interfaces.World;
 
 public class WorldController extends ControllerAdapter<World> {
 	
-	private static WorldController instance;
-	private static WorldController get() { return WorldController.instance; }
-	
-	public WorldController() { super(); WorldController.instance = this; }
-	
-	public static void execute( WorldEvent<?> e ) {
-		
+	public WorldController() {
+		super();
+		this.setTarget( new WorldAdapter() );
 	}
 	
-	public static <R> Future<R> submit( WorldEvent<R> e ) {
-		return WorldController.get().getProcessor().submit( e );
+	public WorldController( World w ) {
+		super();
+		this.setTarget( w );
 	}
 	
-	public static <R> submitNow( WorldEvent<R> e ) {
-		
+	public WorldController( Processor p ) {
+		super( p );
+		this.setTarget( new WorldAdapter() );
+	}
+	
+	
+	
+	public World getWorld() {
+		return this.getTarget();
+	}
+	
+	
+	
+	public void execute( WorldEvent e ) {
+		e.setTarget( this.getTarget() );
+		this.getProcessor().execute( e );
+	}
+	
+	public void executeNow( WorldEvent e ) {
+		e.setTarget( this.getTarget() );
+		this.getProcessor().executeNow( e );
+	}
+	
+	public Future<World> submit( WorldEvent e ) {
+		e.setTarget( this.getTarget() );
+		return this.getProcessor().submit( e );
+	}
+	
+	public World submitNow( WorldEvent e ) {
+		e.setTarget( this.getTarget() );
+		return this.getProcessor().submitNow( e );
 	}
 	
 }

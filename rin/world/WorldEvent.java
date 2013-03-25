@@ -1,9 +1,14 @@
 package rin.world;
 
 import rin.system.interfaces.Event;
+import rin.world.interfaces.World;
 
-public abstract class WorldEvent<T> extends Event<T> {
+public class WorldEvent extends Event<World> {
 
 	@Override
-	public abstract T handle();
+	public void handle() {}
+	
+	@Override
+	public final World result() { return this.target; }
+
 }

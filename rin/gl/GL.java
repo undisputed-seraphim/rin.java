@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.Drawable;
 
 import rin.engine.Engine;
 import static rin.engine.Engine.*;
@@ -34,6 +35,8 @@ import rin.util.math.Mat4;
 public class GL extends SingletonThread<GL> {
 	private static GL instance = null;
 	public static GL get() { return GL.instance; }
+	
+	private static CL cl;
 	
 	private static int width = 900, height = 600;
 	public int getWidth() { return GL.width; }
@@ -204,6 +207,8 @@ public class GL extends SingletonThread<GL> {
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
 		this.camera.init();
 		
+		//GL.cl = new CL( Display.getDrawable() );
+		
 		GLGUIFactory.init( GL.width, GL.height );
 		
 		GLGUIFactory.createPane( "root" )
@@ -212,7 +217,7 @@ public class GL extends SingletonThread<GL> {
 				.onClick( new GLGUIFactory.GLGUIEvent() {
 					
 					@Override public void event() {
-						System.out.println( "clicked" );
+						this.target.hide();
 					}
 					
 				})

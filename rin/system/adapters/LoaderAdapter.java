@@ -5,7 +5,7 @@ import rin.system.interfaces.Loader;
 
 public class LoaderAdapter<T> implements Loader<T> {
 	
-	private volatile T target = null;
+	private T target = null;
 	private Event<T> event = null;
 	
 	@Override

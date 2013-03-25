@@ -17,6 +17,7 @@ import rin.gl.model.ModelPSSG;
 import rin.gui.*;
 import rin.sample.States;
 import rin.util.Buffer;
+import rin.world.WorldController;
 
 public class Engine {
 	public static final String LS = System.getProperty( "file.separator" );
@@ -30,6 +31,9 @@ public class Engine {
 	public static final String MODEL_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"models"+LS;
 	public static final String FONT_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"fonts"+LS;
 	public static final String IMG_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"img"+LS;
+	
+	private static WorldController wc;
+	public static WorldController getWorldController() { return Engine.wc; }
 	
 	public static GLScene getScene() { return GLScene.get(); }
 	
@@ -122,6 +126,7 @@ public class Engine {
 	}
 	
 	public static void init( int width, int height ) {
+		Engine.wc = new WorldController();
 		GL.init( width, height );
 		GLScene.init();
 	}

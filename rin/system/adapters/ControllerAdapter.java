@@ -8,8 +8,18 @@ public class ControllerAdapter<T> implements Controller<T> {
 	private Processor processor;
 	private T target;
 	
+	public ControllerAdapter() {
+		this( new ProcessorAdapter() );
+	}
+	
+	public ControllerAdapter( Processor p ) {
+		this.setProcessor( p );
+	}
+	
+	
+	
 	@Override
-	public final Processor getProcessor() { return this.processor; }
+	public Processor getProcessor() { return this.processor; }
 	
 	@Override
 	public final void setProcessor( Processor p ) { this.processor = p; }
@@ -19,13 +29,5 @@ public class ControllerAdapter<T> implements Controller<T> {
 	
 	@Override
 	public void setTarget( T object ) { this.target = object; }
-	
-	public ControllerAdapter() {
-		this( new ProcessorAdapter() );
-	}
-	
-	public ControllerAdapter( Processor p ) {
-		this.setProcessor( p );
-	}
 	
 }
