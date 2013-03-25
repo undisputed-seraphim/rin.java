@@ -9,7 +9,7 @@ import rin.gl.lib3d.Poly;
 import rin.gl.lib3d.interfaces.Transitionable;
 import rin.gl.lib3d.shape.*;
 import rin.gl.model.ModelManager;
-import rin.system.LoadEvent;
+import rin.system.LoaderEvent;
 import rin.util.RinUtils;
 import static rin.system.RInput.*;
 
@@ -19,15 +19,17 @@ public class Game {
 		
 		init( 900, 600 );
 		
-		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) ).onLoad( new LoadEvent<Actor>() {
-			public void load() {
+		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) ).onLoad( new LoaderEvent<Actor>() {
+			public Actor handle() {
 				System.out.println( this.target + "yes" );
+				return null;
 			}
 		});
 		
-		getScene().addShape( new SphereParams( 2.0f, null, null, null, true ) ).onLoad( new LoadEvent<Actor>() {
-			public void load() {
+		getScene().addModel( new ModelParams( ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
+			public Actor handle() {
 				System.out.println( this.target.getName() );
+				return null;
 			}
 		});
 		

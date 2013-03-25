@@ -25,7 +25,8 @@ import rin.gl.model.ModelManager;
 import rin.engine.Engine.ModelParams;
 import rin.gui.GUIFactory;
 import rin.sample.States;
-import rin.system.Loader;
+import rin.system.adapters.LoaderAdapter;
+import rin.system.interfaces.Loader;
 import rin.system.SingletonThread;
 import rin.util.IO;
 import rin.util.math.Mat4;
@@ -88,10 +89,15 @@ public class GL extends SingletonThread<GL> {
 	public static void init( int width, int height ) { GL.instance = new GL( width, height ); }
 	
 	public static Loader<Actor> addModel( final ModelParams p ) {
-		final Loader<Actor> lr = new Loader<Actor>();
+		final Loader<Actor> lr = new LoaderAdapter<Actor>();
 		GL.sources.add( new Runnable() {
 			public void run() {
-				Actor actor = ModelManager.create( p.format, p.name );
+				
+				Actor actor = null;
+				if( p.pack.equals( "" ) )
+					actor = ModelManager.create( p.format, p.name );
+				else
+					actor = ModelManager.create( p.format, p.pack, p.name );
 				
 				synchronized( GLScene.getActors() ) {
 					GLScene.getActors().add( actor );
@@ -103,7 +109,7 @@ public class GL extends SingletonThread<GL> {
 	}
 	
 	public static Loader<Actor> addShape( final ShapeParams p ) {
-		final Loader<Actor> lr = new Loader<Actor>();
+		final Loader<Actor> lr = new LoaderAdapter<Actor>();
 		GL.sources.add( new Runnable() {
 			public void run() {
 				Actor actor = Shape.create( p );

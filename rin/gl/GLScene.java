@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import static rin.engine.Engine.*;
-import rin.system.Loader;
+import rin.system.interfaces.Loader;
 import rin.system.SingletonThread;
 
 public class GLScene extends SingletonThread<GLScene> {

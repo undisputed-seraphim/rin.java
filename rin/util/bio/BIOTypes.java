@@ -15,6 +15,10 @@ import java.nio.ByteBuffer;
  * </ul>
  */
 public class BIOTypes {	
+	public static abstract class test<T> {
+		public abstract T[] getData( ByteBuffer bb, int amount );
+	}
+	
 	protected static abstract class PrimitiveType {
 		public abstract String toString();
 	}

@@ -9,6 +9,7 @@ import rin.gl.lib3d.Poly;
 
 public class Mesh extends Poly {
 	private ArrayList<Poly> polys = new ArrayList<Poly>();
+	public ArrayList<Poly> getPolys() { return this.polys; }
 	
 	private boolean polyPicking = false;
 	public boolean isPolyPicking() { return this.polyPicking; }

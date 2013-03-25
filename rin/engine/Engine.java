@@ -13,6 +13,7 @@ import rin.gl.model.Model;
 import rin.gl.model.ModelDAE;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelOBJ;
+import rin.gl.model.ModelPSSG;
 import rin.gui.*;
 import rin.sample.States;
 import rin.util.Buffer;
@@ -22,18 +23,20 @@ public class Engine {
 	public static final String OS = System.getProperty( "os.name" ).toLowerCase();
 	public static final String ROOT = OS.indexOf( "window" ) != -1 ? "C:" : "";
 	public static final String USER = OS.indexOf( "window" ) != -1 ? "johall" : "Musashi";
-	public static final String MAINDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS+"rin"+LS;
-	public static final String ROOTDIR = OS.indexOf( "linux" ) != -1 ? LS+"media"+LS+"sf_Horo"+LS+"rin.java"+LS+"rin"+LS : MAINDIR;
-	public static final String SHADER_DIR = ROOTDIR+"inc"+LS+"shaders"+LS;
-	public static final String MODEL_DIR = ROOTDIR+"inc"+LS+"models"+LS;
-	public static final String FONT_DIR = ROOTDIR+"inc"+LS+"fonts"+LS;
-	public static final String IMG_DIR = ROOTDIR+"inc"+LS+"img"+LS;
+	public static final String MAINDIR = ROOT + LS + "Users"+LS+USER+LS+"Desktop"+LS+"Horo"+LS+"rin.java"+LS;
+	public static final String ROOTDIR = OS.indexOf( "linux" ) != -1 ? LS+"media"+LS+"sf_Horo"+LS+"rin.java"+LS : MAINDIR;
+	public static final String PACK_DIR = ROOTDIR+"packs"+LS;
+	public static final String SHADER_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"shaders"+LS;
+	public static final String MODEL_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"models"+LS;
+	public static final String FONT_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"fonts"+LS;
+	public static final String IMG_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"img"+LS;
 	
 	public static GLScene getScene() { return GLScene.get(); }
 	
 	public static enum ModelFormat {
 		DAE		( new ModelDAE() ),
-		OBJ		( new ModelOBJ() );
+		OBJ		( new ModelOBJ() ),
+		PSSG	( new ModelPSSG() );
 		
 		public Model manager;
 		
@@ -44,7 +47,14 @@ public class Engine {
 	
 	public static class ModelParams {
 		public String name = "noire_v";
+		public String pack = "";
 		public ModelFormat format = ModelFormat.DAE;
+		
+		public ModelParams( ModelFormat format, String pack, String name ) {
+			this.format = format;
+			this.name = name;
+			this.pack = pack;
+		}
 		
 		public ModelParams( ModelFormat format, String name ) {
 			this.format = format;

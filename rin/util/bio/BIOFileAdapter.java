@@ -11,5 +11,4 @@ public class BIOFileAdapter extends BIOFile {
 	@Override public void write() {
 		
 	}
-	
 }

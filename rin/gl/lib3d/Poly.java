@@ -1,4 +1,4 @@
-package rin.gl.lib3d;
+ package rin.gl.lib3d;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL11.*;

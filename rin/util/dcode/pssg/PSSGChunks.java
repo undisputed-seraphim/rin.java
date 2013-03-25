@@ -1,5 +1,13 @@
 package rin.util.dcode.pssg;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOChunks.Chunk;
 import rin.util.dcode.pssg.PSSGFile.DataOnlyChunks;
@@ -95,6 +103,9 @@ public class PSSGChunks {
 			
 			chunk.index = readUInt32();
 			PSSGChunkInfo cinfo = PSSG.chunkInfoMap.get( (int)chunk.index );
+			if( cinfo == null )
+				return chunk;
+			
 			chunk.name = cinfo.name;
 			
 			chunk.chunksize = readUInt32();
@@ -108,11 +119,16 @@ public class PSSGChunks {
 				long size = readUInt32();
 				
 				PropertyMap p;
-				if( PSSG.propInfoMap.containsKey( (int)index ) )
-					if( (p = PropertyMap.find( PSSG.propInfoMap.get( (int)index ).name ) ) != null )
+				if( PSSG.propInfoMap.containsKey( (int)index ) ) {
+					if( (p = PropertyMap.find( PSSG.propInfoMap.get( (int)index ).name ) ) != null ) {
+						/*if( chunk.name.equals( "RENDERINSTANCESTREAM" ) ) {
+							if( parent.parent.name.equals( "SKINNODE" ) ) {
+								System.out.println( "here" + " " + p.toString() + " " + size + " " + BIOBuffer.asString( preview( CHAR, 4 ) ) );
+							}
+						}*/
 						chunk.properties.add( this.createProperty( p.type, p.amount, index, size ) );
-					else advance( size );
-				else advance( size );
+					} else advance( size );
+				} else advance( size );
 			}
 			
 			if( position() != propStop ) {
@@ -127,7 +143,20 @@ public class PSSGChunks {
 			} else if( chunk.name.equals( "RENDERINSTANCESOURCE" ) ) {
 				PSSG.addToStream( chunk.parent.parent, chunk );
 			} else if( chunk.name.equals( "RENDERINSTANCESTREAM" ) ) {
+				if( parent.parent.name.equals( "SKINNODE" ) ) {
+					
+				}
 				PSSG.addToStream( chunk.parent.parent, chunk );
+			} else if( chunk.name.equals( "DATABLOCK" ) ) {
+				PSSG.addNode( chunk, chunk );
+			} else if( chunk.name.equals( "DATABLOCKSTREAM" ) ) {
+				PSSG.addNode( chunk.parent, chunk );
+			} else if( chunk.name.equals( "RENDERINDEXSOURCE" ) ) {
+				PSSG.addNode( chunk.parent, chunk );
+			} else if( chunk.name.equals( "RENDERDATASOURCE" ) ) {
+				PSSG.addNode( chunk, chunk );
+			} else if( chunk.name.equals( "RENDERSTREAM" ) ) {
+				PSSG.addNode( chunk.parent, chunk );
 			}
 			
 			DataOnlyChunks c;
@@ -154,6 +183,44 @@ public class PSSGChunks {
 					PSSG.addNode( chunk.parent, chunk );
 					break;
 					
+				case TEXTUREIMAGEBLOCKDATA:
+					//chunk.data = read( , (chunkStop - position() ) / type.sizeof() );
+					Texture tex = new Texture();
+					tex.id = chunk.parent.parent.getProperty( "id" ).data;
+					tex.format = chunk.parent.parent.getProperty( "texelFormat" ).data;
+					tex.width = Integer.parseInt( chunk.parent.parent.getProperty( "width" ).data );
+					tex.height = Integer.parseInt( chunk.parent.parent.getProperty( "height" ).data );
+					tex.data = readInt8s( (chunkStop - position() ) / type.sizeof() );
+					PSSG.master.textures.add( tex );
+					//System.out.println( tex.id );
+					//chunk.parent.parent.info();
+					//BIOBuffer buf = new BIOBuffer( data );
+					//System.out.println( BIOBuffer.asString( buf.readUInt8s( 4 ) ) );
+					/*int width = Integer.parseInt( chunk.parent.parent.getProperty( "width" ).data );
+					int height = Integer.parseInt( chunk.parent.parent.getProperty( "height" ).data );
+					System.out.println( width + "x" + height + " " + data.length + " " + position() + " " + chunkStop );
+					BufferedImage img = new BufferedImage( width, height, BufferedImage.TYPE_4BYTE_ABGR );
+					int count = 0;
+					for(int h=0;h<height;h++){
+		                for(int w=0;w<width;w++){
+		                    img.setRGB(w, h, data[count] & data[count] & data[count] );
+		                    count++;
+		                }
+		            }
+					
+					rin.gui.GUIFactory.createWindow()
+						.add( rin.gui.GUIFactory.createLabel().setImage( img ) )
+						.show();*/
+					break;
+					
+				case DATABLOCKDATA:
+					PSSG.addNode( chunk.parent, chunk );
+					break;
+					
+				case INDEXSOURCEDATA:
+					PSSG.addNode( chunk.parent, chunk );
+					break;
+					
 				default:
 					chunk.data = read( type, (chunkStop - position()) / type.sizeof() );
 					break;
@@ -163,8 +230,10 @@ public class PSSGChunks {
 				//if( type != UINT8 )
 				//	System.out.println( chunk.name + " " + BIOBuffer.asString( chunk.data ) );
 				
-				if( position() < chunkStop )
+				if( position() != chunkStop ) {
+					System.out.println( "did not make it on " + chunk.name + " " + position() + " " + chunkStop );
 					position( chunkStop );
+				}
 			} else {
 				while( position() < chunkStop ) {
 					Type<?> t = this.findType( previewUInt32() );

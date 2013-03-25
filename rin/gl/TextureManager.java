@@ -40,6 +40,27 @@ public class TextureManager {
 		glTexImage3D( GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, 1024, 1024, 10, 0, GL_RGBA, GL_UNSIGNED_BYTE, Buffer.toBuffer( new byte[41943040] ) );*/
 	}
 	
+	public static int find( String id ) {
+		if( TextureManager.names.indexOf( id ) != -1 ) {
+			int pos = TextureManager.names.indexOf( id );
+			return TextureManager.ids.get( pos );
+		}
+		
+		return -1;
+	}
+	
+	public static int add( int gl, String id ) {
+		if( TextureManager.names.indexOf( id ) != -1 ) {
+			int pos = TextureManager.names.indexOf( id );
+			return TextureManager.ids.get( pos );
+		}
+		
+		TextureManager.names.add( id );
+		TextureManager.ids.add( gl );
+		TextureManager.uses.add( 0 );
+		return gl;
+	}
+	
 	/** Create an opengl Texture resource.
 	 * @param file absolute file location of desired image
 	 * @return int id of the opengl resource
@@ -60,6 +81,9 @@ public class TextureManager {
 			buf = ByteBuffer.allocateDirect( 4 * decoder.getWidth() * decoder.getHeight() );
 			decoder.decode( buf, decoder.getWidth()*4, Format.RGBA );
 			buf.rewind();
+		} catch( NullPointerException e ) {
+			System.out.println( "[ERROR] Loading of texture failed. " );
+			return -1;
 		} catch( FileNotFoundException e ) {
 			System.out.println( "[WARNING] Could not find file [" + file + "]." );
 			return -1;

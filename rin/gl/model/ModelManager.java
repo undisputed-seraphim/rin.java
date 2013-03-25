@@ -12,8 +12,13 @@ import rin.engine.Engine;
  */
 public class ModelManager {
 
-	public static Actor create( Engine.ModelFormat format, String file ) {
-		String model = Engine.MODEL_DIR + file + Engine.LS + file + "." + format.toString();
+	public static Actor create( Engine.ModelFormat format, String name, String pack ) {
+		String model = Engine.PACK_DIR + pack + Engine.LS + name + Engine.LS + name + "." + format.toString();
+		return format.manager.fromFile( model );
+	}
+	
+	public static Actor create( Engine.ModelFormat format, String name ) {
+		String model = Engine.MODEL_DIR + name + Engine.LS + name + "." + format.toString();
 		return format.manager.fromFile( model );
 	}
 	

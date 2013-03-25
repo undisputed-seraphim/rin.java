@@ -36,7 +36,12 @@ public class Label extends GUIComponent<Label, LabelEvent> {
 			System.out.println( "IOException for Image " + file );
 		}
 		
-		return this;
+		return this.update();
+	}
+	
+	public Label setImage( BufferedImage img ) {
+		this.real().setIcon( new ImageIcon( img ) );
+		return this.update();
 	}
 	
 	public Label setAlignmentX( GUIFactory.Alignment alignment ) {
