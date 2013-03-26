@@ -3,9 +3,12 @@ package rin.gl;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opencl.CLDevice;
+import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.Drawable;
@@ -207,7 +210,7 @@ public class GL extends SingletonThread<GL> {
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
 		this.camera.init();
 		
-		//GL.cl = new CL( Display.getDrawable() );
+		GL.cl = new CL( Display.getDrawable() );
 		
 		GLGUIFactory.init( GL.width, GL.height );
 		
