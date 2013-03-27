@@ -14,19 +14,19 @@ import static rin.util.dcode.pssg.PSSGTypes.*;
 
 public class PSSGFile extends BIOFile {
 	public static enum DataOnlyChunks {
-		BOUNDINGBOX										( PSSGFLOAT ),
+		BOUNDINGBOX										( FLOAT32 ),
 		DATA											( null ),
 		DATABLOCKDATA									( null ),
 		DATABLOCKBUFFERED								( null ),
 		INDEXSOURCEDATA									( null ),
-		INVERSEBINDMATRIX								( PSSGFLOAT ),
+		INVERSEBINDMATRIX								( FLOAT32 ),
 		MODIFIERNETWORKINSTANCEUNIQUEMODIFIERINPUT		( null ),
 		RENDERINTERFACEBOUNDBUFFERED					( null ),
 		SHADERINPUT										( UINT8 ),
 		SHADERPROGRAMCODEBLOCK							( CHAR ),
 		SKINJOINT										( UINT8 ),
 		TEXTUREIMAGEBLOCKDATA							( UINT8 ),
-		TRANSFORM										( PSSGFLOAT );
+		TRANSFORM										( FLOAT32 );
 		
 		public Type<?> type;
 		
@@ -61,7 +61,7 @@ public class PSSGFile extends BIOFile {
 		NUMBERMIPMAPLEVELS		( UINT32, 1 ),
 		RENDERTYPE				( PSSGSTRING, 1 ),
 		RENDERTYPENAME			( PSSGSTRING, 1 ),
-		SCALE					( PSSGFLOAT, 3 ),
+		SCALE					( FLOAT32, 3 ),
 		SHADER					( PSSGSTRING, 1 ),
 		SHADERGROUP				( PSSGSTRING, 1 ),
 		SIZE					( UINT32, 1 ),
