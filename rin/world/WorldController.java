@@ -24,6 +24,10 @@ public class WorldController extends ControllerAdapter<World> {
 		this.setTarget( new WorldAdapter() );
 	}
 	
+	public WorldController( World w, Processor p ) {
+		super( p );
+		this.setTarget( w );
+	}
 	
 	
 	public World getWorld() {

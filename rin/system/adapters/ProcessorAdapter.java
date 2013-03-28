@@ -10,7 +10,11 @@ import rin.system.interfaces.Processor;
 
 public class ProcessorAdapter implements Processor {
 	
-	private ExecutorService pool = Executors.newFixedThreadPool( 5 );
+	private ExecutorService pool;
+	
+	public ProcessorAdapter() { this.pool = Executors.newFixedThreadPool( 5 ); }
+	
+	public ProcessorAdapter( int cores ) { this.pool = Executors.newFixedThreadPool( cores ); }
 	
 	@Override
 	public void execute( Runnable process ) {
