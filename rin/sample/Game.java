@@ -19,7 +19,7 @@ public class Game {
 		
 		init( 900, 600 );
 		
-		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) ).onLoad( new LoaderEvent<Actor>() {
+		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
 				System.out.println( this.target + "yes" );
 			}
