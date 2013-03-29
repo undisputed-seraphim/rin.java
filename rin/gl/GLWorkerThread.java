@@ -1,5 +1,6 @@
 package rin.gl;
 
+import java.lang.reflect.Type;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
@@ -14,7 +15,7 @@ public class GLWorkerThread extends Thread {
 	public static ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
 	public GLWorkerThread() {
-		
+
 		try {
 			this.drawable = new SharedDrawable( Display.getDrawable() );
 		} catch( LWJGLException e ) {

@@ -2,7 +2,7 @@ package rin.system.interfaces;
 
 import java.util.concurrent.Callable;
 
-public abstract class Event<T> implements Runnable, Callable<T> {
+public abstract class Event<T> implements Runnable, Callable<T>, Cancellable {
 	
 	public T target;
 	
@@ -22,6 +22,10 @@ public abstract class Event<T> implements Runnable, Callable<T> {
 	@Override
 	public final T call() {
 		return this.result();
+	}
+	
+	@Override
+	public final void cancel() {
 	}
 	
 }
