@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/rin/lib/lwjgl_util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/rin/lib/lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/rin/lib/PNGDecoder.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
