@@ -34,21 +34,21 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	protected ArrayList<GUIComponent<?, ?>> children = new ArrayList<GUIComponent<?, ?>>();
 	
 	@SuppressWarnings("unchecked") public T actual() { return (T)this; }
-	public Window toWindow() { return (Window)this; }
-	public Container toContainer() { return (Container)this; }
-	public Panel toPanel() { return (Panel)this; }
+	public Window toWindow() { return (Window)this.actual(); }
+	public Container toContainer() { return (Container)this.actual(); }
+	public Panel toPanel() { return (Panel)this.actual(); }
 	
-	public ScrollPane toScrollPane() { return (ScrollPane)this; }
-	public TabbedPane toTabbedPane() { return (TabbedPane)this; }
-	public List toList() { return (List)this; }
+	public ScrollPane toScrollPane() { return (ScrollPane)this.actual(); }
+	public TabbedPane toTabbedPane() { return (TabbedPane)this.actual(); }
+	public List toList() { return (List)this.actual(); }
 	
-	public Button toButton() { return (Button)this; }
-	public TextField toTextField() { return (TextField)this; }
-	public CheckBox toCheckBox() { return (CheckBox)this; }
-	public ComboBox toComboBox() { return (ComboBox)this; }
-	
-	public Menu toMenu() { return (Menu)this; }
-	public MenuItem toMenuItem() { return (MenuItem)this; }
+	public Button toButton() { return (Button)this.actual(); }
+	public TextField toTextField() { return (TextField)this.actual(); }
+	public CheckBox toCheckBox() { return (CheckBox)this.actual(); }
+	public ComboBox toComboBox() { return (ComboBox)this.actual(); }
+
+	public Menu toMenu() { return (Menu)this.actual(); }
+	public MenuItem toMenuItem() { return (MenuItem)this.actual(); }
 	
 	public String getId() { return this.id; }
 	
@@ -269,8 +269,8 @@ public class GUIComponent<T, T2 extends GUIEvent<T>> implements ActionListener, 
 	}
 	
 	public Window destroyWindow() {
-		if( this instanceof Window )
-			return (Window)this.destroy();
+		if( this.actual() instanceof Window )
+			return ((Window)this.actual()).destroy();
 		
 		GUIComponent<?, ?> tmp = this.parent;
 		while( tmp != null ) {
