@@ -1,21 +1,52 @@
 package rin.util.bio;
 
+import rin.util.IO;
+
 import java.nio.ByteBuffer;
 
-public class BinaryReader {
+public abstract class BinaryReader {
 
     private ByteBuffer data;
 
-    public BinaryReader( String file ) {}
-
-    private <T> T[] fillArray( Class<T> cls, T[] arr ) {
+    public BinaryReader( String file ) {
+        this.data = ByteBuffer.wrap(IO.file.asByteArray( file ) );
     }
 
-    public <T> T read( BinaryType<T> type ) { return type.getData( this.data ); }
-    public <T> T[] read( BinaryType<T> type, int amount ) {
+    public abstract void read();
+
+    public int position() { return this.data.position(); }
+    public void position( int pos ) { this.data.position( pos ); }
+
+    public void rewind( int amount ) { this.position( this.position() - amount ); }
+
+    public int length() { return this.data.capacity(); }
+
+    public <T> T read( BinaryType<T> type ) { return this.read( type, false ); }
+    private <T> T read( BinaryType<T> type, boolean preview ) {
+        int start = this.position();
+
+        T res = type.getData( this.data );
+
+        if( preview ) this.position( start );
+        return res;
+    }
+
+    public <T> T[] read( BinaryType<T> type, int amount ) { return this.read( type, amount, false ); }
+    private <T> T[] read( BinaryType<T> type, int amount, boolean preview ) {
+        int start = this.position();
+
         T[] res = type.allocate( amount );
         for( int i = 0; i < res.length; i++ )
             res[i] = this.read( type );
+
+        if( preview ) this.position( start );
+        return res;
+    }
+
+    public String readString( int length ) {
+        String res = "";
+        for( int i = 0; i < length; i++ )
+            res += this.readChar();
         return res;
     }
 
@@ -88,6 +119,14 @@ public class BinaryReader {
         float[] res = new float[amount];
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readFloat32();
+        return res;
+    }
+
+    public double readFloat64() { return this.data.getDouble(); }
+    public double[] readFloat64( int amount ) {
+        double[] res = new double[amount];
+        for( int i = 0; i < res.length; i++ )
+            res[i] = this.readFloat64();
         return res;
     }
 

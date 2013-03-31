@@ -2,22 +2,22 @@ package rin.util.dcode;
 
 import static rin.gui.GUIFactory.*;
 import rin.engine.Engine;
-import rin.util.bio.BIOBuffer;
-import rin.util.bio.BIOFile;
-import rin.util.bio.BIOFileAdapter;
-import rin.util.bio.BIOTypes;
+import rin.util.bio.*;
+import rin.util.dcode.n64.N64Reader;
 import rin.util.dcode.pssg.PSSGFile;
 import rin.util.dcode.ttf.TTFFile;
 import rin.util.dcode.ttf.TTFTypes;
 import static rin.util.bio.BIOTypes.*;
 
 public class DCode {
-	protected static BIOFile bio;
+	protected static BinaryReader bio;
 	
 	public static void main( String args[] ) {
-		DCode.bio = new PSSGFile( Engine.MODEL_DIR + "test.pssg" );
-		
-		DCode.bio.read();
+
+        DCode.bio = new N64Reader( Engine.MODEL_DIR + "ZELOOTMA.Z64" );
+        DCode.bio.read();
+        //DCode.bio = new PSSGFile( Engine.MODEL_DIR + "test.pssg" );
+		//DCode.bio.read();
 		//DCode.bio.previewChunks();
 		DCode.createGUI();
 		waitForBuild( 0 );
