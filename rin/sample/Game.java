@@ -31,6 +31,15 @@ public class Game {
 			}
 		});
 		
+		LoaderEvent<Actor> tmp = new LoaderEvent<Actor>() {
+			public void handle() {
+				System.out.println( "yup" );
+				this.cancel();
+			}
+		};
+		
+		tmp.run();
+		
 		start();
 		
 		//Engine.init( 900, 600 );
