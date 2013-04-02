@@ -10,7 +10,7 @@ import rin.util.dcode.ttf.TTFTypes;
 import static rin.util.bio.BIOTypes.*;
 
 public class DCode {
-	protected static BinaryReader bio;
+	protected static BinaryDecoder bio;
 	
 	public static void main( String args[] ) {
 

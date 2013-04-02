@@ -1,9 +1,8 @@
 package rin.util.dcode.n64;
 
 import rin.util.bio.BIOBuffer;
-import rin.util.bio.BIOFile;
-import rin.util.bio.BinaryReader;
-import static rin.util.bio.BinaryType.*;
+import rin.util.bio.BinaryDecoder;
+import static rin.util.bio.BinaryTypes.*;
 
 /*0000h              (1 byte): initial PI_BSB_DOM1_LAT_REG value (0x80)
 0001h              (1 byte): initial PI_BSB_DOM1_PGS_REG value (0x37)
@@ -29,7 +28,7 @@ import static rin.util.bio.BinaryType.*;
                              0x5500 = Australia ('U')
 0040h - 0FFFh (1008 dwords): Boot code*/
 
-public class N64Reader extends BinaryReader {
+public class N64Reader extends BinaryDecoder {
 
     static final String PI_BSB_DOM1_LAT_REG = "0x80";
 
@@ -40,18 +39,9 @@ public class N64Reader extends BinaryReader {
         System.out.println( "size: " + length() );
 
         System.out.println( BIOBuffer.asString( read( HEX8, 4 ) ) );
-        System.out.println( BIOBuffer.asString( read( WORD, 28 ) ) );
-        System.out.println( BIOBuffer.asString( readChar( 20 ) ) );
-
-        /* end of header parsing; move to end */
-        position( 4096 );
-
-        /* end of memory mappings, move to end */
-        position( 12772384 );
-
-        //rewind( 16800 );
-        for( int i = 0; i < 50; i++ )
-            System.out.println( readFloat32() );
+        System.out.println( BIOBuffer.asString( read( WORD, 14 ) ) );
+        System.out.println( BIOBuffer.asString( readHex8At( 0x0000 ) ) );
+        
     }
 
     public void write() {

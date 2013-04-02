@@ -22,9 +22,10 @@ public class BIOBuffer extends BIOReader {
 		String split = trim ? "" : " ";
 		
 		if( arr != null )
-			if( arr.getClass().isArray() )
+			if( arr.getClass().isArray() ) {
 				for( int i = 0; i < Array.getLength( arr ); i++ )
 					res += Array.get( arr, i ) + (i+1<Array.getLength( arr )?split:"");
+			} else res += arr;
 		
 		return res;
 	}
