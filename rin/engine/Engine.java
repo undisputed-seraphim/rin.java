@@ -16,6 +16,7 @@ import rin.gl.model.ModelOBJ;
 import rin.gl.model.ModelPSSG;
 import rin.gui.*;
 import rin.sample.States;
+import rin.system.StateController;
 import rin.util.Buffer;
 import rin.world.WorldController;
 
@@ -34,6 +35,9 @@ public class Engine {
 	
 	private static WorldController wc;
 	public static WorldController getWorldController() { return Engine.wc; }
+	
+	private static StateController sc;
+	public static StateController getStateController() { return Engine.sc; }
 	
 	public static GLScene getScene() { return GLScene.get(); }
 	
@@ -127,6 +131,7 @@ public class Engine {
 	
 	public static void init( int width, int height ) {
 		Engine.wc = new WorldController();
+		Engine.sc = new StateController();
 		GL.init( width, height );
 		GLScene.init();
 	}
