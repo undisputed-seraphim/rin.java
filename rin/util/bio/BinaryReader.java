@@ -60,6 +60,19 @@ public abstract class BinaryReader {
         return res;
     }
 
+    public <T> T readAt( BinaryType<T> type, int pos ) {
+    	int start = this.position();
+    	this.position( pos );
+    	
+    	T res = this.read( type );
+    	this.position( start );
+    	return res;
+    }
+    
+    public <T> T[] readAt( BinaryType<T> type, int pos, int amount ) {
+    	return this.readRange( type, pos, pos + (amount * type.sizeof()) );
+    }
+    
     public <T> T[] readRange( BinaryType<T> type, int start, int end ) {
     	int init = this.position();
     	this.position( start );
