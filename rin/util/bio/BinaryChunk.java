@@ -9,7 +9,7 @@ public abstract class BinaryChunk extends BinaryReader {
 	
 	@Override
 	public ByteBuffer getBuffer() { return this.parent.getBuffer(); }
-
-    public abstract void define();
+	
+	public abstract void define();
 
 }
