@@ -1,6 +1,5 @@
 package rin.util.dcode.n64;
 
-import rin.util.bio.BIOBuffer;
 import rin.util.bio.BinaryDecoder;
 import static rin.util.bio.BinaryTypes.*;
 
@@ -30,22 +29,12 @@ import static rin.util.bio.BinaryTypes.*;
 
 public class N64Reader extends BinaryDecoder {
 
-    static final String PI_BSB_DOM1_LAT_REG = "0x80";
-
     public N64Reader( String file ) { super( file ); }
 
     public void read() {
 
-        System.out.println( "size: " + length() );
-
-        System.out.println( BIOBuffer.asString( read( HEX8, 4 ) ) );
-        System.out.println( BIOBuffer.asString( read( WORD, 14 ) ) );
-        System.out.println( BIOBuffer.asString( readHex8At( 0x0000 ) ) );
+        this.read( N64Chunks.HEADER );
         
-    }
-
-    public void write() {
-
     }
 
 }

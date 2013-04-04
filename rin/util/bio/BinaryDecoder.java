@@ -18,7 +18,8 @@ public abstract class BinaryDecoder extends BinaryReader {
     public abstract void read();
     
     public void read( BinaryChunk chunk ) {
-    	
+    	chunk.setParent( this );
+    	chunk.define();
     }
     
 }
