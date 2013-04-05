@@ -3,6 +3,7 @@ package rin.util.dcode;
 import static rin.gui.GUIFactory.*;
 import rin.engine.Engine;
 import rin.util.bio.*;
+import rin.util.dcode.gmo.GMODecoder;
 import rin.util.dcode.n64.N64Reader;
 import rin.util.dcode.pssg.PSSGFile;
 import rin.util.dcode.ttf.TTFFile;
@@ -14,7 +15,8 @@ public class DCode {
 	
 	public static void main( String args[] ) {
 
-        DCode.bio = new N64Reader( Engine.MODEL_DIR + "ZELOOTMA.Z64" );
+        //DCode.bio = new N64Reader( Engine.MODEL_DIR + "ZELOOTMA.Z64" );
+		DCode.bio = new GMODecoder( Engine.MODEL_DIR + "test.gmo" );
         DCode.bio.read();
         //DCode.bio = new PSSGFile( Engine.MODEL_DIR + "test.pssg" );
 		//DCode.bio.read();

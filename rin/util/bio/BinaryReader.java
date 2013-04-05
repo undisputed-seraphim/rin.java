@@ -1,6 +1,8 @@
 package rin.util.bio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import static rin.util.bio.BinaryTypes.*;
 
 public abstract class BinaryReader {
@@ -21,7 +23,10 @@ public abstract class BinaryReader {
     public void advance( int amount ) { this.position( this.position() + amount ); }
 
     public int length() { return this.getBuffer().capacity(); }
-
+    
+    public void setBigEndian() { this.getBuffer().order( ByteOrder.BIG_ENDIAN ); }
+    public void setLittleEndian() { this.getBuffer().order( ByteOrder.LITTLE_ENDIAN ); }
+    
     private void ensureSize( int bytes, int amount, String type ) {
     	if( this.position() + bytes * amount > this.length() )
     		System.out.println( "BinaryBufferCapacityException" );
@@ -127,7 +132,7 @@ public abstract class BinaryReader {
     	return res;
     }
     
-    public String readHex8() { return HEX8.getData( this.getBuffer() ); }
+    public String readHex8() { return String.format( "0x%02x", this.getBuffer().get() ); }
     public String[] readHex8( int amount ) {
     	String[] res = new String[amount];
     	for( int i = 0; i < amount; i++ )
@@ -154,6 +159,9 @@ public abstract class BinaryReader {
     	this.position( init );
     	return res;
     }
+    
+    public String readHex16() { return String.format( "0x%04x", this.getBuffer().getShort() ); }
+    public String readHex32() { return String.format( "0x%06x", this.getBuffer().getInt() ); }
     
     public byte readInt8() { return this.getBuffer().get(); }
     public byte[] readInt8( int amount ) {
