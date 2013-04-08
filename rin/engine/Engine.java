@@ -5,6 +5,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import static rin.gui.GUIFactory.*;
 
+import rin.engine.view.View;
+import rin.engine.view.opengl.OpenGLView;
 import rin.gl.GL;
 import rin.gl.GLScene;
 import rin.gl.event.GLEventThread;
@@ -20,6 +22,20 @@ import rin.util.Buffer;
 import rin.world.WorldController;
 
 public class Engine {
+	
+	private static View view = null;
+	public static View getView() {
+		if( Engine.view == null )
+			Engine.view = new OpenGLView();
+		
+		return Engine.view;
+	}
+	
+	public static void setView( View view ) {
+		//TODO: allow switching view's dynamically, just because
+		Engine.view = view;
+	}
+	
 	public static final String LS = System.getProperty( "file.separator" );
 	public static final String OS = System.getProperty( "os.name" ).toLowerCase();
 	public static final String ROOT = OS.indexOf( "window" ) != -1 ? "C:" : "";

@@ -2,13 +2,11 @@ package rin.engine.game.entity.animated;
 
 import rin.engine.event.Trackable;
 import rin.engine.event.Tracker;
-import rin.engine.game.entity.EntityAdapter;
+import rin.engine.game.entity.RenderedEntityAdapter;
 import rin.engine.meta.RinTracked;
 import rin.engine.meta.RinTrackedType;
 
-public class AnimatedEntityAdapter extends EntityAdapter implements AnimatedEntity, Trackable {
-	
-	private Tracker tracker = new Tracker( this );
+public class AnimatedEntityAdapter extends RenderedEntityAdapter implements AnimatedEntity, Trackable {
 	
 	private AnimationData animationData = new AnimationData( this );
 	private AnimationState animationState = new AnimationState( this );
@@ -33,6 +31,9 @@ public class AnimatedEntityAdapter extends EntityAdapter implements AnimatedEnti
 			this.tracker.update();
 	}
 
+	
+	private Tracker tracker = new Tracker( this );
+	
 	@Override
 	public Tracker getTracker() {
 		return this.tracker;

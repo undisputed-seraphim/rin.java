@@ -16,11 +16,11 @@ import static rin.system.RInput.*;
 public class Game {
 	public static void main( String args[] ) {
 		
-		States.STATE_GAME.push();
+		//States.STATE_GAME.push();
 		
 		//trackInput();
 		
-		/*init( 900, 600 );
+		init( 900, 600 );
 		
 		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -34,7 +34,7 @@ public class Game {
 			}
 		});
 		
-		start();*/
+		start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();
