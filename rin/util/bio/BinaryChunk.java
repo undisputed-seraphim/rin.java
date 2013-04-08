@@ -11,5 +11,8 @@ public abstract class BinaryChunk extends BinaryReader {
 	public ByteBuffer getBuffer() { return this.parent.getBuffer(); }
 	
 	public abstract void define();
+	
+	protected final void read() {
+	}
 
 }
