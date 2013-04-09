@@ -23,6 +23,7 @@ public abstract class GUIComponent<T> {
 	
 	public boolean isVisible() { return this.target.isVisible(); }
 	public boolean isEnabled() { return this.target.isEnabled(); }
+	public boolean isFocused() { return this.target.isFoc
 	
 	@RinChainable
 	public GUIComponent<T> show() {
