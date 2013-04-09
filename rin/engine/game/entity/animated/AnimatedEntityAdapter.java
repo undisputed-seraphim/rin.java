@@ -8,8 +8,8 @@ import rin.engine.meta.RinTrackedType;
 
 public class AnimatedEntityAdapter extends RenderedEntityAdapter implements AnimatedEntity, Trackable {
 	
-	private AnimationData animationData = new AnimationData( this );
-	private AnimationState animationState = new AnimationState( this );
+	private AnimationData animationData = new AnimationData();
+	private Animation currentAnimation = null;
 	
 	@Override
 	public AnimationData getAnimationData() {
@@ -17,20 +17,25 @@ public class AnimatedEntityAdapter extends RenderedEntityAdapter implements Anim
 	}
 	
 	@Override
-	public AnimationState getAnimationState() {
-		return this.animationState;
-	}
-	
 	public Animation getCurrentAnimation() {
-		return this.animationState.getCurrentAnimation();
+		return this.currentAnimation;
 	}
 	
-	@RinTracked( types = { RinTrackedType.UPDATE } )
-	public void setCurrentAnimation( String anim ) {
-		if( this.animationState.setCurrentAnimation( anim ) )
-			this.tracker.update();
+	@Override
+	public boolean hasAnimation( String id ) {
+		return this.animationData.getAnimation( id ) != null;
 	}
-
+	
+	@Override
+	@RinTracked( types = { RinTrackedType.UPDATE } )
+	public void setCurrentAnimation( String id ) {
+		if( !this.currentAnimation.id.equals( id ) ) {
+			if( this.hasAnimation( id ) ) {
+				this.currentAnimation = this.animationData.getAnimation( id );
+				this.tracker.update();
+			}
+		}
+	}
 	
 	private Tracker tracker = new Tracker( this );
 	

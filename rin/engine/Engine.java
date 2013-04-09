@@ -3,9 +3,11 @@ package rin.engine;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import static rin.gui.GUIFactory.*;
 
+import rin.engine.game.scene.Scene;
+import rin.engine.system.Processor;
 import rin.engine.view.View;
+import rin.engine.view.gui.GUI;
 import rin.engine.view.opengl.OpenGLView;
 import rin.gl.GL;
 import rin.gl.GLScene;
@@ -35,6 +37,30 @@ public class Engine {
 		//TODO: allow switching view's dynamically, just because
 		Engine.view = view;
 	}
+
+	public static GUI getGUI() {
+		return GUI.get();
+	}
+	
+	private static Scene scene = null;
+	public static Scene getScene() {
+		if( Engine.scene == null )
+			Engine.scene = new Scene();
+		
+		return Engine.scene;
+	}
+	
+	private static Processor processor = null;
+	public static Processor getProcessor() {
+		if( Engine.processor == null )
+			Engine.processor = new Processor( 10 );
+		
+		return Engine.processor;
+	}
+	
+	public static void doWhenever( Runnable process ) {
+		Engine.getProcessor().execute( process );
+	}
 	
 	public static final String LS = System.getProperty( "file.separator" );
 	public static final String OS = System.getProperty( "os.name" ).toLowerCase();
@@ -51,7 +77,7 @@ public class Engine {
 	private static WorldController wc;
 	public static WorldController getWorldController() { return Engine.wc; }
 	
-	public static GLScene getScene() { return GLScene.get(); }
+	//public static GLScene getScene() { return GLScene.get(); }
 	
 	public static enum ModelFormat {
 		DAE		( new ModelDAE() ),

@@ -5,6 +5,9 @@ import rin.engine.game.entity.RenderedEntity;
 public interface AnimatedEntity extends RenderedEntity {
 	
 	public AnimationData getAnimationData();
-	public AnimationState getAnimationState();
+	
+	public Animation getCurrentAnimation();
+	public boolean hasAnimation( String id );
+	public void setCurrentAnimation( String id );
 
 }

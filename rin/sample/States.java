@@ -20,11 +20,11 @@ public class States {
 		@Override
 		public void onEnter() {
 			Engine.init( 600, 900 );
-			Engine.getScene().addModel( new Engine.ModelParams( Engine.ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
+			/*Engine.getScene().addModel( new Engine.ModelParams( Engine.ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
 				public void handle() {
 					System.out.println( this.target.getName() );
 				}
-			});
+			});*/
 			Engine.start();
 		}
 		

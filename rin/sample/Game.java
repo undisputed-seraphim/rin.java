@@ -3,6 +3,8 @@ package rin.sample;
 import java.util.ArrayList;
 
 import static rin.engine.Engine.*;
+import rin.engine.Engine;
+import rin.engine.view.gui.GUIWindow;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
@@ -12,6 +14,7 @@ import rin.gl.model.ModelManager;
 import rin.system.LoaderEvent;
 import rin.util.RinUtils;
 import static rin.system.RInput.*;
+import static rin.engine.view.gui.GUIFactory.*;
 
 public class Game {
 	public static void main( String args[] ) {
@@ -20,7 +23,10 @@ public class Game {
 		
 		//trackInput();
 		
-		init( 900, 600 );
+		createWindow( "yup" );
+		System.out.println( getWindow( "yup" ).getId() );
+		
+		/*init( 900, 600 );
 		
 		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -34,7 +40,7 @@ public class Game {
 			}
 		});
 		
-		start();
+		start();*/
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

@@ -95,7 +95,7 @@ public class Font {
 		}
 		
 		poly.addTexture( this.textureFile );
-		poly.setMatrix( Mat4.inverse( Engine.getScene().getCamera().getRotationMatrix() ) );
+		//poly.setMatrix( Mat4.inverse( Engine.getScene().getCamera().getRotationMatrix() ) );
 		poly.build( Buffer.toArrayf( v ), new float[0], Buffer.toArrayf( t ), new float[0] );
 		poly.render();
 	}

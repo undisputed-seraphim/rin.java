@@ -2,10 +2,11 @@ package rin.engine.game.entity.animated;
 
 public class KeyFrame {
 
-	private float id;
+	private float time;
+	public float getTime() { return this.time; }
 	
-	public KeyFrame( float id ) {
-		this.id = id;
+	public KeyFrame( float time ) {
+		this.time = time;
 	}
 	
 }
