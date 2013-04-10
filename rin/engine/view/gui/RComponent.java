@@ -2,8 +2,6 @@ package rin.engine.view.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 
 import rin.engine.meta.RinChainable;
@@ -32,6 +30,9 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 	
 	public abstract T swing();
 	protected abstract G actual();
+	
+	@Override
+	protected Container getTarget() { return this.target; }
 	
 	public String getId() { return this.id; }
 	public int getWidth() { return this.target.getPreferredSize().width; }
@@ -127,8 +128,39 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 		return this.update();
 	}
 
+	@RinChainable
+	public G setMouseListening( boolean listen ) {
+		this.mouseListening( listen );
+		return this.actual();
+	}
+	
+	@RinChainable
 	public G onClick( GUIEvent<G> event ) {
 		this.runOnClick = event.setTarget( this.actual() );
+		return this.actual();
+	}
+	
+	@RinChainable
+	public G onMouseIn( GUIEvent<G> event ) {
+		this.runOnMouseIn = event.setTarget( this.actual() );
+		return this.actual();
+	}
+	
+	@RinChainable
+	public G onMouseOut( GUIEvent<G> event ) {
+		this.runOnMouseOut = event.setTarget( this.actual() );
+		return this.actual();
+	}
+	
+	@RinChainable
+	public G onMouseUp( GUIEvent<G> event ) {
+		this.runOnMouseUp = event.setTarget( this.actual() );
+		return this.actual();
+	}
+	
+	@RinChainable
+	public G onMouseDown( GUIEvent<G> event ) {
+		this.runOnMouseDown = event.setTarget( this.actual() );
 		return this.actual();
 	}
 	

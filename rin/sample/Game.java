@@ -29,6 +29,11 @@ public class Game {
 			public void run() {
 				System.out.println( "test" );
 			}
+		}).setMouseListening( true )
+		.onMouseIn( new WindowEvent() {
+			public void run() {
+				System.out.println( "IN!" );
+			}
 		});
 		
 		/*init( 900, 600 );

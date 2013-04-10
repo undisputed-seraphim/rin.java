@@ -1,11 +1,25 @@
 package rin.engine.view.gui;
 
+import java.awt.Container;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import rin.engine.view.gui.GUIFactory.GUIEvent;
 
-public class REventAdapter<G> implements MouseListener {
+public abstract class REventAdapter<G> implements MouseListener {
+	
+	protected abstract Container getTarget();
+	
+	protected boolean isMouseListening = false;
+	protected void mouseListening( boolean listen ) {
+		if( !this.isMouseListening && listen ) {
+			this.getTarget().addMouseListener( this );
+			this.isMouseListening = true;
+		} else if( this.isMouseListening && !listen ) {
+			this.getTarget().removeMouseListener( this );
+			this.isMouseListening = false;
+		}
+	}
 	
 	protected GUIEvent<G> runOnClick;
 	protected GUIEvent<G> runOnMouseIn;
@@ -42,4 +56,5 @@ public class REventAdapter<G> implements MouseListener {
 		if( this.runOnMouseDown != null )
 			this.runOnMouseDown.run();
 	}
+	
 }

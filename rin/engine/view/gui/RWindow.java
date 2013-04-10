@@ -9,7 +9,6 @@ public class RWindow extends RComponent<JFrame, RWindow> {
 	public RWindow( String id ) {
 		super( id, new JFrame() );
 		this.swing().setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-		this.swing().addMouseListener( this );
 	}
 	
 	@Override
