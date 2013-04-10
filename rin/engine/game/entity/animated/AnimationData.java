@@ -9,6 +9,8 @@ public class AnimationData {
 	private TreeMap<Float, KeyFrame> frames = new TreeMap<Float, KeyFrame>();
 	private Skeleton skeleton = new Skeleton();
 	
+	public Skeleton getSkeleton() { return this.skeleton; }
+	
 	protected Animation getAnimation( String id ) {
 		//TODO: unknown animation exception
 		return this.animationMap.get( id );

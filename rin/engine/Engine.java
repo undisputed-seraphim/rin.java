@@ -7,7 +7,7 @@ import org.lwjgl.opengl.DisplayMode;
 import rin.engine.game.scene.Scene;
 import rin.engine.system.Processor;
 import rin.engine.view.View;
-import rin.engine.view.gui.GUI;
+import rin.engine.view.gui.GUIManager;
 import rin.engine.view.opengl.OpenGLView;
 import rin.gl.GL;
 import rin.gl.GLScene;
@@ -38,8 +38,8 @@ public class Engine {
 		Engine.view = view;
 	}
 
-	public static GUI getGUI() {
-		return GUI.get();
+	public static GUIManager getGUIManager() {
+		return GUIManager.get();
 	}
 	
 	private static Scene scene = null;

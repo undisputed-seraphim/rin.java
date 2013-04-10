@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
-import rin.engine.view.gui.GUIWindow;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
@@ -22,9 +21,15 @@ public class Game {
 		//States.STATE_GAME.push();
 		
 		//trackInput();
-		
-		createWindow( "yup" );
-		System.out.println( getWindow( "yup" ).getId() );
+
+		createWindow( "yup" )
+		.show()
+		.setSize( 300, 300 )
+		.onClick( new WindowEvent() {
+			public void run() {
+				System.out.println( "test" );
+			}
+		});
 		
 		/*init( 900, 600 );
 		
