@@ -6,7 +6,8 @@ public class RMenu extends RComponent<JMenu, RMenu> {
 	
 	public RMenu( String id, String text ) {
 		super( id, new JMenu( text ) );
-		this.validParents = new Class<?>[] { RMenuBar.class, RMenu.class };
+		this.setValidParents( RMenuBar.class, RMenu.class, RContextMenu.class );
+		this.setValidChildren( RMenu.class, RMenuItem.class );
 	}
 	
 	@Override

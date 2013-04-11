@@ -21,6 +21,12 @@ public class GUIManager extends SwingDispatcher {
 		return "__$RComponent-" + GUIManager.count++;
 	}
 	
+	public static void print() {
+		System.out.println( get().windows.size() + " " + get().components.size() );
+	}
+	
+	// CONTAINERS
+	
 	public static RWindow getWindow( final String id ) {
 		return invokeLaterAndWait( new Callable<RWindow>() {
 			@Override public RWindow call() {
@@ -36,6 +42,16 @@ public class GUIManager extends SwingDispatcher {
 			}
 		});
 	}
+	
+	public static RToolBar getToolBar( final String id ) {
+		return invokeLaterAndWait( new Callable<RToolBar>() {
+			@Override public RToolBar call() {
+				return (RToolBar)(get().components.get( id ));
+			}
+		});
+	}
+	
+	// MENUS
 	
 	public static RMenuBar getMenuBar( final String id ) {
 		return invokeLaterAndWait( new Callable<RMenuBar>() {
@@ -57,6 +73,24 @@ public class GUIManager extends SwingDispatcher {
 		return invokeLaterAndWait( new Callable<RMenuItem>() {
 			@Override public RMenuItem call() {
 				return (RMenuItem)(get().components.get( id ));
+			}
+		});
+	}
+	
+	public static RContextMenu getContextMenu( final String id ) {
+		return invokeLaterAndWait( new Callable<RContextMenu>() {
+			@Override public RContextMenu call() {
+				return (RContextMenu)(get().components.get( id ));
+			}
+		});
+	}
+	
+	// INPUTS
+	
+	public static RButton getButton( final String id ) {
+		return invokeLaterAndWait( new Callable<RButton>() {
+			@Override public RButton call() {
+				return (RButton)(get().components.get( id ));
 			}
 		});
 	}

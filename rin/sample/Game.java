@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
+import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
@@ -24,17 +25,12 @@ public class Game {
 
 		createWindow( "yup" )
 		.show()
-		.setSize( 300, 300 )
-		.onClick( new WindowEvent() {
-			public void run() {
-				System.out.println( "test" );
-			}
-		}).setMouseListening( true )
-		.onMouseIn( new WindowEvent() {
-			public void run() {
-				System.out.println( "IN!" );
-			}
-		});
+		.setMouseListening( true )
+		.setContextMenu( createContextMenu().add( createMenu( "lol" ) ) )
+		.add( createPanel()
+				.add( createButton( "testin" ) ), createToolBar().add( createButton( "hi" ), createButton( "bye" ) ) )
+		.add( createMenuBar()
+				.add( createMenu( "One" ) ) );
 		
 		/*init( 900, 600 );
 		
