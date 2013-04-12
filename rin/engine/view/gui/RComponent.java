@@ -333,7 +333,6 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 	}
 	
 	public void destroy() {
-		System.out.println( "BEGIN: " + this.getId() );
 		this.setFocusListening( false );
 		this.setMouseListening( false );
 
@@ -352,7 +351,6 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 		}
 		
 		this.target = null;
-		System.out.println( "END: " + this.getId() );
 	}
 	
 }

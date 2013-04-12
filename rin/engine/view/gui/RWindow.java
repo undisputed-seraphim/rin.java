@@ -101,8 +101,8 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 		this.setWindowFocusListening( false );
 		
 		this.swing().removeAll();
-		this.swing().dispose();
 		super.destroy();
+		this.swing().dispose();
 	}
 	
 }
