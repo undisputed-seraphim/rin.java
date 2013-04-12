@@ -24,14 +24,16 @@ public class Game {
 		//trackInput();
 
 		createWindow( "yup" )
-		.show()
 		.setMouseListening( true )
-		.setContextMenu( createContextMenu().add( createMenu( "lol" ) ) )
-		.add( createPanel()
-				.add( createButton( "testin" ) ), createToolBar().add( createButton( "hi" ), createButton( "bye" ) ) )
-		.add( createMenuBar()
-				.add( createMenu( "One" ) ) );
+		.add( createMenuBar( "mb" ).add( createMenu( "one" ) ) )
+		.add( createPanel().add( createButton( "b1", "hi" ) ) )
+		.add( createPanel( "p1" ).add( createButton( "bye" ) ) )
+		.show();
 		
+		//getPanel( "p1" ).add( getButton( "b1" ) ).destroy();
+		
+		getWindow( "yup" ).destroy();
+		GUIManager.print();
 		/*init( 900, 600 );
 		
 		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {

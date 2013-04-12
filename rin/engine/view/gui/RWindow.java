@@ -3,6 +3,7 @@ package rin.engine.view.gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import rin.engine.meta.RinChainable;
 import rin.engine.view.gui.GUIFactory.GUIEvent;
@@ -10,14 +11,18 @@ import rin.engine.view.gui.event.GUIWindowFocusListener;
 
 public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFocusListener<RWindow> {
 	
+	private JFrame window;
+	
 	public RWindow( String id ) {
-		super( id, new JFrame() );
-		this.setValidParents( Void.class );
+		super( id, new JPanel() );
+		this.window = new JFrame();
+		this.window.add( this.target );
 		this.swing().setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		this.setValidParents( Void.class );
 	}
 	
 	@Override
-	public JFrame swing() { return (JFrame)this.target; }
+	public JFrame swing() { return this.window; }
 	
 	@Override
 	protected RWindow actual() { return this; }
@@ -39,28 +44,27 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	
 	@Override
 	@RinChainable
-	public RWindow add( RComponent<?, ?> ... components ) {
-		for( RComponent<?, ?> component : components ) {
-			// RMenuBars must be added in a special way to RWindows
-			if( component instanceof RMenuBar ) {
-				this.swing().setJMenuBar( ((RMenuBar)component).swing() );
-				this.children.put( component.id, component );
-				continue;
-			} else if( component instanceof RToolBar ) {
-				this.swing().add( component.target, BorderLayout.PAGE_START );
-				this.children.put( component.id, component );
-				continue;
-			}
-			
-			super.add( component );
+	public RWindow add( RComponent<?, ?> component ) {
+		// RMenuBars must be added in a special way to RWindows
+		if( component instanceof RMenuBar ) {
+			this.swing().setJMenuBar( ((RMenuBar)component).swing() );
+			this.children.put( component.id, component );
+			return this.update();
+		} else if( component instanceof RToolBar ) {
+			this.swing().add( component.target, BorderLayout.PAGE_START );
+			this.children.put( component.id, component );
+			return this.update();
 		}
 		
-		return this.update();
+		return super.add( component );
 	}
 	
 	// WINDOW FOCUS EVENTS
 	
 	private boolean isWindowFocusListening = false;
+	
+	@Override
+	public boolean isWindowFocusListening() { return this.isWindowFocusListening; }
 	
 	@Override
 	@RinChainable
@@ -90,6 +94,15 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 		this.setWindowFocusListening( true );
 		this.runOnWindowFocusLost = e.setTarget( this );
 		return this;
+	}
+	
+	@Override
+	public void destroy() {
+		this.setWindowFocusListening( false );
+		
+		this.swing().removeAll();
+		this.swing().dispose();
+		super.destroy();
 	}
 	
 }

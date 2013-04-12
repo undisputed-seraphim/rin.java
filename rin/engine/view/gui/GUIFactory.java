@@ -23,6 +23,15 @@ public class GUIFactory extends SwingDispatcher {
 		});
 	}
 	
+	public static abstract class DesktopEvent extends GUIEvent<RDesktop> {}
+	public static RDesktop getDesktop( String id ) { return GUIManager.getDesktop( id ); }
+	public static RDesktop createDesktop() { return createDesktop( getNextId() ); }
+	public static RDesktop createDesktop( final String id ) {
+		return invokeLaterAndWait( new Callable<RDesktop>() {
+			@Override public RDesktop call() { return new RDesktop( id ); }
+		});
+	}
+	
 	public static abstract class PanelEvent extends GUIEvent<RPanel> {}
 	public static RPanel getPanel( String id ) { return GUIManager.getPanel( id ); }
 	public static RPanel createPanel() { return createPanel( getNextId() ); }
@@ -83,6 +92,7 @@ public class GUIFactory extends SwingDispatcher {
 	
 	public static abstract class ButtonEvent extends GUIEvent<RButton> {}
 	public static RButton getButton( String id ) { return GUIManager.getButton( id ); }
+	public static RButton createButton() { return createButton( getNextId(), null ); }
 	public static RButton createButton( String text ) { return createButton( getNextId(), text ); }
 	public static RButton createButton( final String id, final String text ) {
 		return invokeLaterAndWait( new Callable<RButton>() {

@@ -9,8 +9,11 @@ import rin.engine.view.gui.event.GUIActionListener;
 public class RButton extends RComponent<JButton, RButton> implements GUIActionListener<RButton> {
 	
 	public RButton( String id, String text ) {
-		super( id, new JButton( text ) );
+		super( id, new JButton() );
 		this.canHaveChildren = false;
+		
+		if( text != null )
+			this.setText( text );
 	}
 	
 	@Override
@@ -19,9 +22,18 @@ public class RButton extends RComponent<JButton, RButton> implements GUIActionLi
 	@Override
 	protected RButton actual() { return this; }
 	
+	@RinChainable
+	public RButton setText( String text ) {
+		this.swing().setText( text );
+		return this.update();
+	}
+	
 	// ACTION EVENTS
 	
 	private boolean isActionListening = false;
+	
+	@Override
+	public boolean isActionListening() { return this.isActionListening; }
 	
 	@Override
 	@RinChainable

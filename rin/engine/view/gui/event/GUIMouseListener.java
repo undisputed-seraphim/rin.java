@@ -4,6 +4,7 @@ import rin.engine.view.gui.GUIFactory.GUIEvent;
 
 public interface GUIMouseListener<G> {
 
+	public boolean isMouseListening();
 	public G setMouseListening( boolean listen );
 	
 	public G onClick( GUIEvent<G> e );

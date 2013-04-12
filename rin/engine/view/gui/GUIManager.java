@@ -13,12 +13,37 @@ public class GUIManager extends SwingDispatcher {
 		return GUIManager.instance;
 	}
 	
-	protected HashMap<String, RWindow> windows = new HashMap<String, RWindow>();
+	protected HashMap<String, RComponent<?, ?>> windows = new HashMap<String, RComponent<?, ?>>();
 	protected HashMap<String, RComponent<?, ?>> components = new HashMap<String, RComponent<?, ?>>();
 	private static int count = 0;
 	
+	protected static void add( String id, RComponent<?,?> component ) {
+		if( component instanceof RWindow ) {
+			get().windows.put( id, (RWindow)component );
+		} else if( component instanceof RDesktop ) {
+			get().windows.put( id, (RDesktop)component );
+		}
+		
+		else
+			get().components.put( id, component );
+	}
+	
+	protected static void remove( RComponent<?,?> component ) {
+		if( componentExists( component.id ) ) {
+			if( component instanceof RWindow )
+				get().windows.remove( component.id );
+			
+			else
+				get().components.remove( component.id );
+		}
+	}
+	
 	protected static String getNextId() {
 		return "__$RComponent-" + GUIManager.count++;
+	}
+	
+	public static boolean componentExists( String id ) {
+		return get().windows.containsKey( id ) || get().components.containsKey( id );
 	}
 	
 	public static void print() {
@@ -30,7 +55,15 @@ public class GUIManager extends SwingDispatcher {
 	public static RWindow getWindow( final String id ) {
 		return invokeLaterAndWait( new Callable<RWindow>() {
 			@Override public RWindow call() {
-				return get().windows.get( id );
+				return (RWindow)get().windows.get( id );
+			}
+		});
+	}
+	
+	public static RDesktop getDesktop( final String id ) {
+		return invokeLaterAndWait( new Callable<RDesktop>() {
+			@Override public RDesktop call() {
+				return (RDesktop)get().windows.get( id );
 			}
 		});
 	}
@@ -38,7 +71,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RPanel getPanel( final String id ) {
 		return invokeLaterAndWait( new Callable<RPanel>() {
 			@Override public RPanel call() {
-				return (RPanel)(get().components.get( id ));
+				return (RPanel)get().components.get( id );
 			}
 		});
 	}
@@ -46,7 +79,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RToolBar getToolBar( final String id ) {
 		return invokeLaterAndWait( new Callable<RToolBar>() {
 			@Override public RToolBar call() {
-				return (RToolBar)(get().components.get( id ));
+				return (RToolBar)get().components.get( id );
 			}
 		});
 	}
@@ -56,7 +89,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RMenuBar getMenuBar( final String id ) {
 		return invokeLaterAndWait( new Callable<RMenuBar>() {
 			@Override public RMenuBar call() {
-				return (RMenuBar)(get().components.get( id ));
+				return (RMenuBar)get().components.get( id );
 			}
 		});
 	}
@@ -64,7 +97,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RMenu getMenu( final String id ) {
 		return invokeLaterAndWait( new Callable<RMenu>() {
 			@Override public RMenu call() {
-				return (RMenu)(get().components.get( id ));
+				return (RMenu)get().components.get( id );
 			}
 		});
 	}
@@ -72,7 +105,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RMenuItem getMenuItem( final String id ) {
 		return invokeLaterAndWait( new Callable<RMenuItem>() {
 			@Override public RMenuItem call() {
-				return (RMenuItem)(get().components.get( id ));
+				return (RMenuItem)get().components.get( id );
 			}
 		});
 	}
@@ -80,7 +113,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RContextMenu getContextMenu( final String id ) {
 		return invokeLaterAndWait( new Callable<RContextMenu>() {
 			@Override public RContextMenu call() {
-				return (RContextMenu)(get().components.get( id ));
+				return (RContextMenu)get().components.get( id );
 			}
 		});
 	}
@@ -90,7 +123,7 @@ public class GUIManager extends SwingDispatcher {
 	public static RButton getButton( final String id ) {
 		return invokeLaterAndWait( new Callable<RButton>() {
 			@Override public RButton call() {
-				return (RButton)(get().components.get( id ));
+				return (RButton)get().components.get( id );
 			}
 		});
 	}

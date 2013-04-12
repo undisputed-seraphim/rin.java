@@ -79,20 +79,12 @@ public class GUIEventAdapter<G> implements MouseListener, ActionListener, Window
 	public void mouseReleased( MouseEvent e ) {
 		if( this.runOnMouseUp != null )
 			this.runOnMouseUp.run();
-		
-		if( e.isPopupTrigger() && this.contextMenu != null )
-			if( !this.contextMenu.swing().isVisible() )
-				contextMenu.swing().show( e.getComponent(), e.getX(), e.getY() );
 	}
 	
 	@Override
 	public void mousePressed( MouseEvent e ) {
 		if( this.runOnMouseDown != null )
 			this.runOnMouseDown.run();
-		
-		if( e.isPopupTrigger() && this.contextMenu != null )
-			if( !this.contextMenu.swing().isVisible() )
-				contextMenu.swing().show( e.getComponent(), e.getX(), e.getY() );
 	}
 
 	// ACTION

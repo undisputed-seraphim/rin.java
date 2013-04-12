@@ -11,8 +11,14 @@ public class SwingDispatcher {
 
 	protected static <R> Future<R> invokeLater( Callable<R> process ) {
 		FutureTask<R> task = new FutureTask<R>( process );
-		SwingUtilities.invokeLater( task );
 		
+		// if called from EDT, run in current thread
+		if( SwingUtilities.isEventDispatchThread() ) {
+			task.run();
+			return task;
+		}
+		
+		SwingUtilities.invokeLater( task );
 		return task;
 	}
 	

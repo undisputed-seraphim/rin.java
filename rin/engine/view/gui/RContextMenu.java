@@ -2,6 +2,8 @@ package rin.engine.view.gui;
 
 import javax.swing.JPopupMenu;
 
+import rin.engine.meta.RinChainable;
+
 public class RContextMenu extends RComponent<JPopupMenu, RContextMenu> {
 
 	public RContextMenu( String id ) {
@@ -15,4 +17,11 @@ public class RContextMenu extends RComponent<JPopupMenu, RContextMenu> {
 	
 	@Override
 	protected RContextMenu actual() { return this; }
+	
+	@RinChainable
+	public RContextMenu addSeparator() {
+		this.swing().addSeparator();
+		return this.update();
+	}
+	
 }

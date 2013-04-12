@@ -4,6 +4,7 @@ import rin.engine.view.gui.GUIFactory.GUIEvent;
 
 public interface GUIFocusListener<G> {
 
+	public boolean isFocusListening();
 	public G setFocusListening( boolean listen );
 	
 	public G onFocusGained( GUIEvent<G> e );
