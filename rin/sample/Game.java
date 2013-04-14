@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
+import rin.engine.resource.ResourceManager;
 import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
@@ -23,17 +24,29 @@ public class Game {
 		
 		//trackInput();
 
-		createWindow( "yup" )
+		createDesktop( "yup" )
+		.setSize( 300, 300 )
 		.setMouseListening( true )
-		.add( createMenuBar( "mb" ).add( createMenu( "one" ) ) )
-		.add( createPanel().add( createButton( "b1", "hi" ) ) )
-		.add( createPanel( "p1" ).add( createButton( "bye" ) ) )
+		.onWindowClosing( new WindowEvent() {
+			public void run() {
+				Engine.requestDestroy();
+			}
+		})
+		.add( createMenuBar( "mb" ).add( createMenu( "one" ) .add( createMenuItem( "first" ) ) ) )
+		.add( createToolBar().add( createButton( "button 1" ) ) )
+		.add( createDesktopWindow().add( createButton( "b1", "hi" ).onClick( new ButtonEvent() {
+			@Override public void run() {
+				Engine.requestDestroy();
+			}
+		}) ).show() )
 		.show();
 		
+		//Engine.start( new MyGame() );
 		//getPanel( "p1" ).add( getButton( "b1" ) ).destroy();
 		
-		getWindow( "yup" ).destroy();
-		GUIManager.print();
+		//getWindow( "yup" ).destroy();
+		//GUIManager.print();
+		System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*init( 900, 600 );
 		
 		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {

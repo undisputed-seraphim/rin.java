@@ -4,6 +4,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import rin.engine.game.Game;
 import rin.engine.game.scene.Scene;
 import rin.engine.system.Processor;
 import rin.engine.view.View;
@@ -25,7 +26,7 @@ import rin.world.WorldController;
 
 public class Engine {
 	
-	private static View view = null;
+	private volatile static View view = null;
 	public static View getView() {
 		if( Engine.view == null )
 			Engine.view = new OpenGLView();
@@ -60,6 +61,36 @@ public class Engine {
 	
 	public static void doWhenever( Runnable process ) {
 		Engine.getProcessor().execute( process );
+	}
+	
+	private static volatile boolean destroyRequested = false;
+	public static void requestDestroy() { Engine.destroyRequested = true; }
+	
+	private static long dt = 0L;
+	private static long start = 0L;
+	public static long getDt() {
+		long current = System.nanoTime();
+		Engine.dt = current - Engine.start;
+		Engine.start = current;
+		return Engine.dt;
+	}
+	
+	public static void start( final Game game ) {
+		Engine.dt = System.nanoTime();
+		new Thread( new Runnable() {
+			@Override public void run() {
+				game.preload();
+				getScene().setView( game.getView() );
+				game.initGUI();
+				game.load();
+				
+				while( !Engine.destroyRequested ) {
+					getScene().update( Engine.getDt() );
+					getScene().render();
+				}
+				game.destroy();
+			}
+		}).start();
 	}
 	
 	public static final String LS = System.getProperty( "file.separator" );

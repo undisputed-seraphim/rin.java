@@ -64,7 +64,7 @@ public class IO {
 		
 		public static byte[] asByteArray( String file ) {
 			InputStream in = IO.file.asInputStream( file );
-			byte[] res;
+			byte[] res = null;
 			try {
 				res = new byte[in.available()];
 				in.read( res );
@@ -72,7 +72,8 @@ public class IO {
 			} catch( IOException e1 ) {
 				System.out.println( "IOException raised in asByteArray. [" + file + "]" );
 			}
-			return new byte[0];
+			
+			return res;
 		}
 	}
 }

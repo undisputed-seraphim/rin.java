@@ -32,6 +32,15 @@ public class GUIFactory extends SwingDispatcher {
 		});
 	}
 	
+	public static abstract class DesktopWindowEvent extends GUIEvent<RDesktopWindow> {}
+	public static RDesktopWindow getDesktopWindow( String id ) { return GUIManager.getDesktopWindow( id ); }
+	public static RDesktopWindow createDesktopWindow() { return createDesktopWindow( getNextId() ); }
+	public static RDesktopWindow createDesktopWindow( final String id ) {
+		return invokeLaterAndWait( new Callable<RDesktopWindow>() {
+			@Override public RDesktopWindow call() { return new RDesktopWindow( id ); }
+		});
+	}
+	
 	public static abstract class PanelEvent extends GUIEvent<RPanel> {}
 	public static RPanel getPanel( String id ) { return GUIManager.getPanel( id ); }
 	public static RPanel createPanel() { return createPanel( getNextId() ); }

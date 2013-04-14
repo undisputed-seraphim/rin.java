@@ -8,11 +8,13 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 
 import rin.engine.view.gui.RContextMenu;
 import rin.engine.view.gui.GUIFactory.GUIEvent;
 
-public class GUIEventAdapter<G> implements MouseListener, ActionListener, WindowFocusListener, FocusListener {
+public class GUIEventAdapter<G> implements MouseListener, ActionListener, WindowFocusListener, FocusListener,
+		WindowListener {
 	
 	// WINDOW FOCUS
 	
@@ -30,6 +32,34 @@ public class GUIEventAdapter<G> implements MouseListener, ActionListener, Window
 		if( this.runOnWindowFocusLost != null )
 			this.runOnWindowFocusLost.run();
 	}
+	
+	// WINDOW
+	
+	protected GUIEvent<G> runOnWindowClosing;
+	
+	@Override
+	public void windowActivated( WindowEvent e ) {}
+
+	@Override
+	public void windowClosed( WindowEvent e ) {}
+
+	@Override
+	public void windowClosing( WindowEvent e ) {
+		if( this.runOnWindowClosing != null )
+			this.runOnWindowClosing.run();
+	}
+
+	@Override
+	public void windowDeactivated( WindowEvent e ) {}
+
+	@Override
+	public void windowDeiconified( WindowEvent e ) {}
+
+	@Override
+	public void windowIconified( WindowEvent e ) {}
+
+	@Override
+	public void windowOpened( WindowEvent e ) {}
 	
 	// FOCUS
 	

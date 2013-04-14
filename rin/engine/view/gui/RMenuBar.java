@@ -9,7 +9,7 @@ public class RMenuBar extends RComponent<JMenuBar, RMenuBar> {
 	
 	public RMenuBar( String id ) {
 		super( id, new JMenuBar() );
-		this.setValidParents( RWindow.class );
+		this.setValidParents( RWindow.class, RDesktopWindow.class );
 		this.setValidChildren( RMenu.class );
 	}
 	

@@ -18,11 +18,8 @@ public class GUIManager extends SwingDispatcher {
 	private static int count = 0;
 	
 	protected static void add( String id, RComponent<?,?> component ) {
-		if( component instanceof RWindow ) {
+		if( component instanceof RWindow )
 			get().windows.put( id, (RWindow)component );
-		} else if( component instanceof RDesktop ) {
-			get().windows.put( id, (RDesktop)component );
-		}
 		
 		else
 			get().components.put( id, component );
@@ -64,6 +61,14 @@ public class GUIManager extends SwingDispatcher {
 		return invokeLaterAndWait( new Callable<RDesktop>() {
 			@Override public RDesktop call() {
 				return (RDesktop)get().windows.get( id );
+			}
+		});
+	}
+	
+	public static RDesktopWindow getDesktopWindow( final String id ) {
+		return invokeLaterAndWait( new Callable<RDesktopWindow>() {
+			@Override public RDesktopWindow call() {
+				return (RDesktopWindow)get().components.get( id );
 			}
 		});
 	}

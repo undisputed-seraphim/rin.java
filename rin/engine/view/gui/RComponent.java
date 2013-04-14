@@ -146,7 +146,7 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 	
 	@RinChainable
 	public G update() {
-		this.swing().revalidate();
+		this.swing().validate();
 		this.swing().repaint();
 		
 		return this.actual();
@@ -188,6 +188,9 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 		if( this.children.containsKey( component.getId() ) ) {
 			this.children.remove( component.getId() );
 			this.target.remove( component.swing() );
+			
+			if( this.swing().getParent() != null )
+				this.swing().getParent().remove( this.swing() );
 		}
 		
 		return this.update();
@@ -337,9 +340,6 @@ public abstract class RComponent<T extends Container, G extends RComponent<T, G>
 		this.setMouseListening( false );
 
 		this.removeAndDestroyAll();
-		
-		if( this.swing().getParent() != null )
-			this.swing().getParent().remove( this.swing() );
 		GUIManager.remove( this );
 		
 		if( this.contextMenu != null )

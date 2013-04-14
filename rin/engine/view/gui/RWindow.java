@@ -8,17 +8,19 @@ import javax.swing.JPanel;
 import rin.engine.meta.RinChainable;
 import rin.engine.view.gui.GUIFactory.GUIEvent;
 import rin.engine.view.gui.event.GUIWindowFocusListener;
+import rin.engine.view.gui.event.GUIWindowListener;
 
-public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFocusListener<RWindow> {
+public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFocusListener<RWindow>,
+		GUIWindowListener<RWindow> {
 	
 	private JFrame window;
 	
 	public RWindow( String id ) {
 		super( id, new JPanel() );
+		this.setValidParents( Void.class );
 		this.window = new JFrame();
 		this.window.add( this.target );
 		this.swing().setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-		this.setValidParents( Void.class );
 	}
 	
 	@Override
@@ -93,6 +95,35 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	public RWindow onWindowFocusLost( GUIEvent<RWindow> e ) {
 		this.setWindowFocusListening( true );
 		this.runOnWindowFocusLost = e.setTarget( this );
+		return this;
+	}
+	
+	// WINDOW EVENTS
+	
+	private boolean isWindowListening = false;
+	
+	@Override
+	public boolean isWindowListening() { return this.isWindowListening; }
+	
+	@Override
+	@RinChainable
+	public RWindow setWindowListening( boolean listen ) {
+		if( !this.isWindowListening && listen ) {
+			this.swing().addWindowListener( this );
+			this.isWindowListening = true;
+		} else if( this.isWindowListening && !listen ) {
+			this.swing().removeWindowListener( this );
+			this.isWindowListening = false;
+		}
+		
+		return this;
+	}
+	
+	@Override
+	@RinChainable
+	public RWindow onWindowClosing( GUIEvent<RWindow> e ) {
+		this.setWindowListening( true );
+		this.runOnWindowClosing = e.setTarget( this );
 		return this;
 	}
 	

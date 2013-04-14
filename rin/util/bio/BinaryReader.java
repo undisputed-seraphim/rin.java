@@ -95,6 +95,11 @@ public abstract class BinaryReader {
         return res;
     }
 
+    public BinaryReader printString( int length ) {
+    	System.out.println( readString( length ) );
+    	return this;
+    }
+    
     public String readStringAt( int pos, int length ) {
     	int start = this.position();
     	this.position( pos );
@@ -160,6 +165,13 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public BinaryReader printHex8() { return printHex8( 1 ); }
+    public BinaryReader printHex8( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readHex8() );
+    	return this;
+    }
+    
     public String readHex16() { return String.format( "0x%04x", this.getBuffer().getShort() ); }
     public String readHex32() { return String.format( "0x%06x", this.getBuffer().getInt() ); }
     
@@ -198,6 +210,13 @@ public abstract class BinaryReader {
             res[i] = this.readUInt8();
         return res;
     }
+    
+    public BinaryReader printInt8() { return printInt8( 1 ); }
+    public BinaryReader printInt8( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readInt8() );
+    	return this;
+    }
 
     public short readUInt8At( int pos ) {
     	int start = this.position();
@@ -219,6 +238,13 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public BinaryReader printUInt8() { return printUInt8( 1 ); }
+    public BinaryReader printUInt8( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readUInt8() );
+    	return this;
+    }
+    
     public char readChar() { return new String( new byte[] { this.getBuffer().get() } ).charAt( 0 ); }
     public char[] readChar( int amount ) {
         char[] res = new char[amount];
@@ -236,6 +262,13 @@ public abstract class BinaryReader {
     	return res;    
     }
 
+    public BinaryReader printChar() { return printChar( 1 ); }
+    public BinaryReader printChar( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readChar() );
+    	return this;
+    }
+    
     public char[] readCharAt( int pos, int amount ) { return this.readCharRange( pos, pos + (amount * 1) ); }
     public char[] readCharRange( int start, int end ) {
     	int init = this.position();
@@ -253,6 +286,13 @@ public abstract class BinaryReader {
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readInt16();
         return res;
+    }
+    
+    public BinaryReader printInt16() { return printInt16( 1 ); }
+    public BinaryReader printInt16( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readInt16() );
+    	return this;
     }
 
     public short[] readInt16Range( int start, int end ) {
@@ -283,6 +323,13 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public BinaryReader printUInt16() { return printUInt16( 1 ); }
+    public BinaryReader printUInt16( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readUInt16() );
+    	return this;
+    }
+    
     public int readInt32() { return this.getBuffer().getInt(); }
     public int[] readInt32( int amount ) {
         int[] res = new int[amount];
@@ -299,6 +346,13 @@ public abstract class BinaryReader {
     	int[] res =  this.readInt32( amount );
     	this.position( init );
     	return res;
+    }
+    
+    public BinaryReader printInt32() { return printInt32( 1 ); }
+    public BinaryReader printInt32( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readInt32() );
+    	return this;
     }
     
     public long readUInt32() { return this.getBuffer().getInt() & 0xFFFFFFFFL; }
@@ -319,6 +373,13 @@ public abstract class BinaryReader {
     	return res;
     }
 
+    public BinaryReader printUInt32() { return printUInt32( 1 ); }
+    public BinaryReader printUInt32( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readUInt32() );
+    	return this;
+    }
+    
     public long readInt64() { return this.getBuffer().getLong(); }
     public long[] readInt64( int amount ) {
         long[] res = new long[amount];
@@ -337,6 +398,13 @@ public abstract class BinaryReader {
     	return res;
     }
 
+    public BinaryReader printInt64() { return printInt64( 1 ); }
+    public BinaryReader printInt64( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readInt64() );
+    	return this;
+    }
+    
     public float readFloat32() { return this.getBuffer().getFloat(); }
     public float[] readFloat32( int amount ) {
         float[] res = new float[amount];
@@ -355,6 +423,13 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public BinaryReader printFloat32() { return printFloat32( 1 ); }
+    public BinaryReader printFloat32( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readFloat32() );
+    	return this;
+    }
+    
     public double readFloat64() { return this.getBuffer().getDouble(); }
     public double[] readFloat64( int amount ) {
         double[] res = new double[amount];
@@ -371,6 +446,13 @@ public abstract class BinaryReader {
     	double[] res = this.readFloat64( amount );
     	this.position( init );
     	return res;
+    }
+    
+    public BinaryReader printFloat64() { return printFloat64( 1 ); }
+    public BinaryReader printFloat64( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readFloat64() );
+    	return this;
     }
 
 }
