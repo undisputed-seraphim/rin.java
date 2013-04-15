@@ -24,7 +24,7 @@ public class Game {
 		
 		//trackInput();
 
-		createDesktop( "yup" )
+		/*createDesktop( "yup" )
 		.setSize( 300, 300 )
 		.setMouseListening( true )
 		.onWindowClosing( new WindowEvent() {
@@ -39,17 +39,17 @@ public class Game {
 				Engine.requestDestroy();
 			}
 		}) ).show() )
-		.show();
+		.show();*/
 		
 		//Engine.start( new MyGame() );
 		//getPanel( "p1" ).add( getButton( "b1" ) ).destroy();
 		
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
-		System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		/*init( 900, 600 );
+		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
+		init( 900, 600 );
 		
-		getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
+		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
 				System.out.println( this.target + "yes" );
 			}
@@ -59,9 +59,10 @@ public class Game {
 			public void handle() {
 				System.out.println( this.target.getName() );
 			}
-		});
+		});*/
+		getScene().addModel( new ModelParams( ModelFormat.ISM2, "meruru", "001" ) );
 		
-		start();*/
+		start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

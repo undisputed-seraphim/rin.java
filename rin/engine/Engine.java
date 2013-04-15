@@ -16,6 +16,7 @@ import rin.gl.event.GLEventThread;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.model.Model;
 import rin.gl.model.ModelDAE;
+import rin.gl.model.ModelISM2;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelOBJ;
 import rin.gl.model.ModelPSSG;
@@ -44,12 +45,12 @@ public class Engine {
 	}
 	
 	private static Scene scene = null;
-	public static Scene getScene() {
+	/*public static Scene getScene() {
 		if( Engine.scene == null )
 			Engine.scene = new Scene();
 		
 		return Engine.scene;
-	}
+	}*/
 	
 	private static Processor processor = null;
 	public static Processor getProcessor() {
@@ -76,7 +77,7 @@ public class Engine {
 	}
 	
 	public static void start( final Game game ) {
-		Engine.dt = System.nanoTime();
+		/*Engine.dt = System.nanoTime();
 		new Thread( new Runnable() {
 			@Override public void run() {
 				game.preload();
@@ -90,7 +91,7 @@ public class Engine {
 				}
 				game.destroy();
 			}
-		}).start();
+		}).start();*/
 	}
 	
 	public static final String LS = System.getProperty( "file.separator" );
@@ -108,12 +109,13 @@ public class Engine {
 	private static WorldController wc;
 	public static WorldController getWorldController() { return Engine.wc; }
 	
-	//public static GLScene getScene() { return GLScene.get(); }
+	public static GLScene getScene() { return GLScene.get(); }
 	
 	public static enum ModelFormat {
 		DAE		( new ModelDAE() ),
 		OBJ		( new ModelOBJ() ),
-		PSSG	( new ModelPSSG() );
+		PSSG	( new ModelPSSG() ),
+		ISM2	( new ModelISM2() );
 		
 		public Model manager;
 		

@@ -1,23 +1,25 @@
 package rin.engine.util;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
+import rin.engine.Engine;
 import rin.util.bio.BinaryReader;
 
 public class PSSGExtractor extends BinaryReader {
 
-	private final int C_PROPERTY_MAP = 33;
-	private final int C_46 = 46;				//something to do with textures
-	private final int C_121 = 121;				//something to do with complex properties of light
-	private final int C_97 = 97;
-	private final int C_98 = 98;
-	private final int C_3 = 3;					//skeleton / node graph
-	private final int C_50 = 50;
-	private final int C_11 = 11;
+	private final int C_PROPERTY_MAP = 33;		// Property Map
+	private final int C_46 = 46;				//? something to do with textures
+	private final int C_121 = 121;				//? something to do with complex properties of light
+	private final int C_97 = 97;				//? properties about... different meshes? (hair, body, face, etc)
+	private final int C_98 = 98;				//? FX
+	private final int C_3 = 3;					// skeleton / node graph
+	private final int C_SKIN = 50;				// Skin Data
+	private final int C_11 = 11;				//? suspected vertex data
 	
-	private final int T_12 = 12;			// ARRAYS! ... i think. next int32 after this is array size
-	private final int T_45 = 45;			//something to do with textures
+	private final int T_12 = 12;			//? ARRAYS! ... i think. next int32 after this is array size
+	private final int T_45 = 45;			//? something to do with textures
 	private final int T_89 = 89;
 	private final int T_70 = 70;
 	private final int T_91 = 91;
@@ -33,6 +35,8 @@ public class PSSGExtractor extends BinaryReader {
 	private TreeMap<Integer, Integer> chunkMap = new TreeMap<Integer, Integer>();
 	private String[] propMap;
 	private String[] texMap;
+	public ArrayList<float[]> vmap = new ArrayList<float[]>();
+	public ArrayList<int[]> imap = new ArrayList<int[]>();
 	
 	@Override
 	public ByteBuffer getBuffer() { return this.data; }
@@ -43,7 +47,7 @@ public class PSSGExtractor extends BinaryReader {
 	}
 	
 	public static void main( String[] args ) {
-		new PSSGExtractor( "/Users/Musashi/Desktop/Horo/rin.java/packs/rin/003.ism2" );
+		new PSSGExtractor( Engine.MAINDIR + "packs/rin/003.ism2" );
 	}
 	
 	private void header() {
@@ -178,18 +182,73 @@ public class PSSGExtractor extends BinaryReader {
 				break;
 				
 			case C_97:
-				/*printInt32( 5 );
-				System.out.println( propMap[ readInt32() ] );
-				printInt32( 20 );*/
+				/*type = readInt32();
+				if( type == 12 ) {
+					int[] tmp97 = new int[readInt32()];
+					for( int i = 0; i < tmp97.length; i++ )
+						tmp97[i] = readInt32();
+					
+					for( int i = 0; i < tmp97.length; i++ ) {
+						position( tmp97[i] );
+						System.out.println( "one " + tmp97[i] );
+						readInt32( 2 );
+						
+						int[] ttmp97 = new int[readInt32()];
+						System.out.println( propMap[ readInt32() ] );
+						System.out.println( propMap[ readInt32() ] );
+						printInt32( 2 );
+						
+						for( int j = 0; j < ttmp97.length; j++ )
+							ttmp97[j] = readInt32();
+						
+						for( int j = 0; j < ttmp97.length; j++ ) {
+							position( ttmp97[j] );
+							System.out.println( "two " + ttmp97[j] );
+							printInt32( 1 );
+							type = readInt32();
+							if( type == 12 ) {
+								int[] tttmp97 = new int[readInt32()];
+								for( int k = 0; k < tttmp97.length; k++ )
+									tttmp97[k] = readInt32();
+								
+								for( int k = 0; k < tttmp97.length; k++ ) {
+									position( tttmp97[k] );
+									System.out.println( "three " + tttmp97[k] );
+									printInt32( 2 );
+									int[] ttttmp97 = new int[readInt32()];
+									System.out.println( propMap[ readInt32() ] );
+									printInt32( 1 );
+									for( int l = 0; l < ttttmp97.length; l++ )
+										ttttmp97[l] = readInt32();
+									for( int l = 0; l < ttttmp97.length; l++ ) {
+										position( ttttmp97[l] );
+										System.out.println( "four " + ttttmp97[l] );
+										printInt32( 9 );
+									}
+								}
+							}
+						}
+					}
+				}*/
 				break;
 				
 			case C_98:
-				/*printInt32( 5 );
-				System.out.println( propMap[ readInt32() ] );
-				printInt32( 20 );*/
+				/*printInt32( 1 );
+				int c98_num = readInt32();
+				int[] ctmp = new int[c98_num];
+				for( int i = 0; i < c98_num; i++ )
+					ctmp[i] = readInt32();
+				
+				for( int i = 0; i < ctmp.length; i++ ) {
+					position( ctmp[i] );
+					System.out.println( "one " + ctmp[i] );
+					printInt32( 3 );
+					System.out.println( propMap[ readInt32() ] );
+					printInt32( 30 );
+				}*/
 				break;
 				
-			//case C_3:
+			//case C_3:				
 			case 0:
 				//TODO: unsure what this 20 means, its on others as well
 				printInt32( 1 );
@@ -303,13 +362,20 @@ public class PSSGExtractor extends BinaryReader {
 				
 				break;
 			
-			case C_50:
-				/*printInt32( 16 );
+			case C_SKIN:
+				/*printInt32( 5 );
+				printInt32( 3 );
+				System.out.println( propMap[ readInt32() ] );
+				System.out.println( propMap[ readInt32() ] );
+				printInt32( 2 );
+				System.out.println( propMap[ readInt32() ] );
+				printInt32( 3 );
 				printFloat32( 16 );
-				printInt32( 16 );*/
+				printInt32( 5 );
+				printUInt32( 100 );*/
 				break;
 				
-			case C_11:
+			/*case C_11:
 				 //TODO: number of meshes, perhaps?
 				printInt32( 3 );
 				
@@ -371,11 +437,124 @@ public class PSSGExtractor extends BinaryReader {
 					
 					System.out.println( "finished at " + position() );
 				}
+				break;*/
+				
+			/*case C_11:
+				printInt32( 3 );
+				printInt32( 2 );
+				
+				int snum = readInt32();
+				
+				System.out.println( propMap[ readInt32() ] );
+				System.out.println( propMap[ readInt32() ] );
+				printInt32( 3 );
+				
+				int[] stmp = new int[snum];
+				for( int i = 0; i < snum; i++ )
+					stmp[i] = readInt32();
+				
+				for( int i = 0; i < stmp.length; i++ ) {
+					position( stmp[i] );
+					System.out.println( "one " + stmp[i] );
+					printInt32();
+					advance( 2 );
+					printInt32( 10 );
+					
+					break;
+				}
+				break;*/
+				
+			case C_11:
+				printInt32( 3 );
+				printInt32( 2 );
+				
+				int snum = readInt32();
+				
+				System.out.println( propMap[ readInt32() ] );
+				System.out.println( propMap[ readInt32() ] );
+				printInt32( 3 );
+				
+				int[] stmp = new int[snum];
+				for( int i = 0; i < snum; i++ )
+					stmp[i] = readInt32();
+				
+				for( int i = 0; i < stmp.length; i++ ) {
+					position( stmp[i] );
+					System.out.println( "one " + stmp[i] );
+					
+					switch( readInt32() ) {
+					
+					case 70:
+						printInt32( 1 );
+						int[] ssstmp = new int[readInt32()];
+						System.out.println( propMap[ readInt32() ] );
+						printInt32( 2 );
+						snum = readInt32();
+						
+						for( int j = 0; j < ssstmp.length; j++ )
+							ssstmp[j] = readInt32();
+						
+						for( int j = 0; j < ssstmp.length; j++ ) {
+							position( ssstmp[j] );
+							System.out.println( "70two " + ssstmp[j] );
+							switch( readInt32() ) {
+							
+							case 110:
+								printInt32( 2 );
+								readFloat32( 9 );
+								break;
+								
+							case 69:
+								printInt32( 1 );
+								int ttnum = readInt32();
+								printInt32( 2 );
+								imap.add( readUInt16( ttnum ) );
+								printInt32( 3 );
+								break;
+							
+							default:
+								break;
+							
+							}
+							System.out.println( "70two ended at " + position() );
+						}
+						break;
+					
+					case 89:
+						printInt32( 1 );
+						int[] sstmp = new int[readInt32()];
+						int pos = 0;
+						printInt32( 1 );
+						snum = readInt32();
+						System.out.println( "[snum] " + (snum * 4) );
+						int mt = readInt32();
+						printInt32( 1 );
+						
+						for( int j = 0; j < sstmp.length; j++ )
+							sstmp[j] = readInt32();
+						
+						for( int j = 0; j < sstmp.length; j++ ) {
+							position( sstmp[j] );
+							System.out.println( "two " + sstmp[j] );
+							readInt32( 5 );
+							pos = readInt32();
+						}
+						
+						position( pos );
+						System.out.println( "three: " + pos + " [" + (snum * (mt/4)) + "]" );
+						vmap.add( readFloat32( snum * (mt/4) ) );
+						break;
+						
+					}
+					
+					System.out.println( "finished one at " + position() );
+				}
+				
 				break;
 				
 			default:
 				break;
-				
+			
 			}
 			
 			System.out.println( "\tFinished at " + position() );
@@ -386,7 +565,6 @@ public class PSSGExtractor extends BinaryReader {
 	
 	private void decode() {
 		header();
-		
 		if( chunkMap.size() > 0 )
 			readChunks();
 	}
