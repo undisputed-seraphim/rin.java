@@ -344,7 +344,7 @@ public class PSSGExtractor extends BinaryReader {
 						//TODO: unsure
 						System.out.println( "[per T_89] UNKNOWN 1 int32 " + ArrayUtils.asString( readInt32( 1 ) ) );
 						
-						System.out.println( "IMPORTANT?: " + readInt32() );
+						int important = readInt32();
 						
 						//TODO: unsure
 						System.out.println( "[per T_89] UNKNOWN 2 int32 " + ArrayUtils.asString( readInt32( 2 ) ) );
@@ -361,7 +361,7 @@ public class PSSGExtractor extends BinaryReader {
 						}
 						System.out.println( "POS " + position() + " " + impo );
 						position( impo );
-						printFloat32( 200 );
+						printFloat32( important );
 						break;
 						
 					default:
