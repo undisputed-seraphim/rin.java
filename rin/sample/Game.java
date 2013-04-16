@@ -60,7 +60,7 @@ public class Game {
 				System.out.println( this.target.getName() );
 			}
 		});*/
-		getScene().addModel( new ModelParams( ModelFormat.ISM2, "meruru", "001" ) );
+		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) );
 		
 		start();
 		
