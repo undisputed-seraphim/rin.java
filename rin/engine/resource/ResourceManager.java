@@ -12,28 +12,29 @@ public class ResourceManager {
 	
 	protected static final String FS = Engine.LS;
 	
-	private static final HashMap<String, ResourceDecoder> decoders = new HashMap<String, ResourceDecoder>();
+	private static final HashMap<Class<?>, ResourceDecoder> decoders = new HashMap<Class<?>, ResourceDecoder>();
 	static {
-		addDecoder( "PSSG", PSSGDecoder.class );
+		addDecoder( PSSGDecoder.class );
 	}
 	
-	public static <R extends ResourceDecoder> void addDecoder( String id, Class<R> cls ) {
+	public static <T extends ResourceDecoder> void addDecoder(Class<T> cls ) {
 		try {
-			ResourceManager.decoders.put( id.toUpperCase(), cls.newInstance() );
+			ResourceManager.decoders.put( cls, cls.newInstance() );
 		} catch (InstantiationException e) {
-			System.err.println( "[ResourceManager] Could not add format " + id + "("+cls.getName()+")" );
+			System.err.println( "[ResourceManager] Could not add format ("+cls.getName()+")" );
 		} catch (IllegalAccessException e) {
-			System.err.println( "[ResourceManager] Could not add format " + id + "("+cls.getName()+")" );
+			System.err.println( "[ResourceManager] Could not add format ("+cls.getName()+")" );
 		}
 	}
 	
-	public static ResourceDecoder getDecoder( String format ) {
-		ResourceDecoder decoder = ResourceManager.decoders.get( format.toUpperCase() );
+	public static <T extends ResourceDecoder> T getDecoder( Class<T> cls ) {
+		T decoder = cls.cast( ResourceManager.decoders.get( cls ) );
 		if( decoder == null )
-			System.err.println( "[ResourceManager] No decoder found for format " + format );
+			System.err.println( "[ResourceManager] No decoder found for format " + cls );
 		
 		return decoder;
 	}
+	
 	public static URL getResourceURL( String path ) {
 		URL url = ResourceManager.class.getResource( path );
 		if( url == null )

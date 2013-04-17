@@ -33,8 +33,4 @@ public class ResourceIdentifier {
 		return FileUtils.asByteArray( this.url.getPath() );
 	}
 	
-	public void decodeAs( String format ) {
-		ResourceManager.getDecoder( format ).decode( this );
-	}
-	
 }

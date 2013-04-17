@@ -11,7 +11,7 @@ public class ArrayUtils {
 		for( int i = 0; i < Array.getLength( arr ); i++ ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
-			res += Array.get( arr, i ).toString();
+			res += Array.get( arr, i );
 		}
 		
 		return res + " ]";
@@ -22,7 +22,7 @@ public class ArrayUtils {
 		for( T t : arr ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
-			res += t.toString();
+			res += t;
 		}
 		
 		return res + " ]";
@@ -33,7 +33,7 @@ public class ArrayUtils {
 		for( T t : collection ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
-			res += t.toString();
+			res += t;
 		}
 		
 		return res + " ]";
@@ -44,7 +44,7 @@ public class ArrayUtils {
 		for( T1 t1 : map.keySet() ) {
 			if( !res.equals( "{ " ) )
 				res += ", ";
-			res += "[" + t1 + " : " + map.get( t1 ).toString() + "]";
+			res += "[" + t1 + " : " + map.get( t1 ) + "]";
 		}
 		
 		return res + " }";

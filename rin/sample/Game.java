@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
 import rin.engine.resource.ResourceManager;
+import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
@@ -20,6 +21,7 @@ import static rin.engine.view.gui.GUIFactory.*;
 public class Game {
 	public static void main( String args[] ) {
 		
+		ResourceManager.getDecoder( PSSGDecoder.class ).decode( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//States.STATE_GAME.push();
 		
 		//trackInput();
@@ -47,7 +49,7 @@ public class Game {
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		init( 900, 600 );
+		//init( 900, 600 );
 		
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -60,9 +62,9 @@ public class Game {
 				System.out.println( this.target.getName() );
 			}
 		});*/
-		getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) );
+		//getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) );
 		
-		start();
+		//start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();
