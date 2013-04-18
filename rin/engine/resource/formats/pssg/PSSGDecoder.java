@@ -1,6 +1,7 @@
 package rin.engine.resource.formats.pssg;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import rin.engine.Engine;
@@ -20,10 +21,60 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
 	private int keyCount = -1;
 	private String keyType = "";
-	private int count = 0;
 	
 	private String[] propMap;
 	private String[] chunkMap;
+	
+	private ArrayList<Animation> anims = new ArrayList<Animation>();
+	private Animation canim;
+	private ChannelRef cref;
+	private ConstantChannel cconstant;
+	private String ctime;
+	private String cvalue;
+	
+	
+	public static class AnimationChannel {
+		public String id;
+		public String time;
+		public String value;
+		
+		public AnimationChannel( String id ) {
+			this.id = id.substring( 1 );
+		}
+		
+		public void setBlocks( String time, String value ) {
+			this.time = time;
+			this.value = value;
+		}
+	}
+	
+	public static class ChannelRef {
+		String target;
+		AnimationChannel channel;
+	}
+	
+	public static class ConstantChannel {
+		float[] values;
+		String target;
+	}
+	
+	public static class Animation {
+		public ConstantChannel[] constants;
+		public ChannelRef[] refs;
+		public int ccount = 0;
+		public int rcount = 0;
+	}
+	
+	private AnimationChannel findAnimationChannel( String id ) {
+		System.out.println( id );
+		for( Animation a : anims )
+			for( ChannelRef cr : a.refs )
+				if( cr.channel.id.toUpperCase().equals( id.toUpperCase() ) )
+					return cr.channel;
+		
+		System.err.println( "ANIMATION DID NOT EXIST: " + id );
+		return new AnimationChannel( "asdf" );
+	}
 	
 	private boolean dataOnlyChunk( int index ) {
 		return chunkMap[index].toUpperCase().equals( "KEYS" );
@@ -64,37 +115,71 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		long propSize = readUInt32();
 		long propStop = position() + propSize;
 		
+		if( ccur.toUpperCase().equals( "ANIMATION" ) ) {
+			anims.add( new Animation() );
+			canim = anims.get( anims.size() - 1 );
+		} else if( ccur.toUpperCase().equals( "CHANNELREF" ) ) {
+			canim.refs[canim.rcount] = new ChannelRef();
+			cref = canim.refs[canim.rcount++];
+		} else if( ccur.toUpperCase().equals( "CONSTANTCHANNEL" ) ) {
+			canim.constants[canim.ccount] = new ConstantChannel();
+			cconstant = canim.constants[canim.ccount++];
+		}
+		
 		while( position() < propStop ) {
 			int pindex = readInt32();
 			int psize = readInt32();
 			int ppstop = position() + psize;
 			
 			String pcur = propMap[pindex];
-			if( pcur.toUpperCase().equals( "TARGETNAME" ) ) {
+			if( pcur.toUpperCase().equals( "TARGETNAME" ) && ccur.toUpperCase().equals( "CHANNELREF" ) ) {
+				cref.target = readString( readInt32() );
+			} else if( pcur.toUpperCase().equals( "TARGETNAME" ) && ccur.toUpperCase().equals( "CONSTANTCHANNEL" ) ) {
+				cconstant.target = readString( readInt32() );
+			} else if( pcur.toUpperCase().equals( "TARGETNAME" ) ) {
 				System.out.println( "targetName: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "CHANNEL" ) ) {
-				System.out.println( "channel: " + readString( readInt32() ) );
+				cref.channel = new AnimationChannel( readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "ANIMATIONCOUNT" ) ) {
 				System.out.println( "animationCount: " + readInt32() );
-			} else if( pcur.toUpperCase().equals( "ID" ) ) {
+			} else if( pcur.toUpperCase().equals( "ID" )  && ccur.toUpperCase().equals( "ANIMATIONCHANNEL" ) ) {
+				findAnimationChannel( readString( readInt32() ) ).setBlocks( ctime, cvalue );
+			}  else if( pcur.toUpperCase().equals( "ID" ) ) {
 				System.out.println( "id: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "CHANNELCOUNT" ) ) {
-				System.out.println( "channelCount: " + readInt32() );
+				canim.refs = new ChannelRef[ readInt32() ];
 			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELCOUNT" ) ) {
-				System.out.println( "constantChannelCount: " + readInt32() );
+				canim.constants = new ConstantChannel[ readInt32() ];
+			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELSTARTTIME" ) ) {
+				System.out.println( "constantChannelStartTime: " + readFloat32() );
+			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELENDTIME" ) ) {
+				System.out.println( "constantChannelEndTime: " + readFloat32() );
+			} else if( pcur.toUpperCase().equals( "TIMEBLOCK" ) ) {
+				ctime = readString( readInt32() );
+			} else if( pcur.toUpperCase().equals( "VALUEBLOCK" ) ) {
+				cvalue = readString( readInt32() );
+			} else if( pcur.toUpperCase().equals( "ANIMATION" ) ) {
+				System.out.println( "animation: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "KEYCOUNT" ) ) {
 				//System.out.println( "keyCount: " + readInt32() );
 				keyCount = readInt32();
 			} else if( pcur.toUpperCase().equals( "KEYTYPE" ) ) {
 				keyType = readString( readInt32() );
 			} else if( pcur.toUpperCase().equals( "VALUE" ) ) {
-				System.out.println( readFloat32( 8 ) );
+				cconstant.values = readFloat32( 4 );
+				//System.out.println( position() + " " + ppstop );
 			} else {
 				System.out.println( "prop: " + propMap[pindex] );
 			}
 			
 			position( ppstop );
 		}
+		
+		/*
+		 * animationchanneldatablock
+		 * 		id > animationchannel
+		 * 		KEYS > floats
+		 */
 		
 		if( !dataOnlyChunk( index ) ) {
 			if( position() != chunkStop ) {
@@ -113,17 +198,13 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		}
 		
 		position( (int)chunkStop );
-		if( chunkMap[index].toUpperCase().equals( "CONSTANTCHANNEL" ) )
-			count++;
-		if( chunkMap[index].toUpperCase().equals( "ANIMATION" ) ) {
-			System.out.println( count );
-			System.exit( 0 );
-		}
+		//if( ccur.toUpperCase().equals( "ANIMATIONCHANNEL" ) )
+			//System.exit( 0 );
 	}
 	
 	@Override
 	public PSSGResource decode( ResourceIdentifier resource ) {
-		this.data = ByteBuffer.wrap( FileUtils.asByteArray( Engine.MAINDIR + "packs\\meruru\\models\\meruru\\PC22_MOTION1.pssg" ) );
+		this.data = ByteBuffer.wrap( FileUtils.asByteArray( Engine.MAINDIR + "packs/meruru/models/meruru/PC22_MOTION1.pssg" ) );
 		header();
 		
 		infoList();
