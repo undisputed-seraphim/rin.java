@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import rin.engine.util.ArrayUtils;
 import rin.util.RinUtils;
 import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOFile;
@@ -167,7 +168,7 @@ public class PSSGFile extends BIOFile {
 				ArrayList<PSSGChunk<?>> current = this.nodes.get( name );
 				System.out.println( "Skeleton " + name );
 				for( PSSGChunk<?> m : current ) {
-					System.out.println( "matrix: " + BIOBuffer.asString( m.data ) );
+					System.out.println( " matrix: " + BIOBuffer.asString( m.data ) );
 				}
 			}
 		}
@@ -217,10 +218,14 @@ public class PSSGFile extends BIOFile {
 		}
 		
 		public void print() {
-			System.out.println( PSSGFile.getTabs() + this.id + " [" + this.transform + "] [" + this.bbox + "]" );
+			System.out.println( this.getClass().toString() + PSSGFile.getTabs() + this.id + " [" + this.transform + "] [" + this.bbox + "]" );
 			PSSGFile.depth++;
 			for( Node n : this.children )
-				n.print();
+				/*if( !(n instanceof RenderNode ) )
+					if( !(n instanceof DataBlock ) )
+						if( !(n instanceof RenderDataSource ) )
+							if( !(n instanceof RenderIndexSource ) )*/
+								n.print();
 			PSSGFile.depth--;
 		}
 	}

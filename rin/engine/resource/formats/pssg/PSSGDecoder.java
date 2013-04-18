@@ -10,6 +10,7 @@ import rin.engine.resource.ResourceIdentifier;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
 import rin.util.bio.BinaryReader;
+import rin.util.dcode.pssg.PSSGFile;
 
 public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
@@ -19,19 +20,32 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	private int propCount;
 	private int chunkCount;
 	
-	private int keyCount = -1;
 	private String keyType = "";
+	private int keyCount = -1;
 	
 	private String[] propMap;
 	private String[] chunkMap;
 	
 	private ArrayList<Animation> anims = new ArrayList<Animation>();
+	private HashMap<String, ActualAnimation> animMap = new HashMap<String, ActualAnimation>();
+	private static HashMap<String, AnimationChannelDataBlock> blockMap = new HashMap<String, AnimationChannelDataBlock>();
+	private static HashMap<String, AnimationChannel> chanMap = new HashMap<String, AnimationChannel>();
 	private Animation canim;
 	private ChannelRef cref;
 	private ConstantChannel cconstant;
+	private AnimationChannelDataBlock cblock;
 	private String ctime;
 	private String cvalue;
 	
+	public static class AnimationChannelDataBlock {
+		public String id;
+		public float[] data;
+		public String type;
+		
+		public AnimationChannelDataBlock( String id ) {
+			this.id = id;
+		}
+	}
 	
 	public static class AnimationChannel {
 		public String id;
@@ -43,6 +57,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		}
 		
 		public void setBlocks( String time, String value ) {
+			//System.out.println( time + " " + value );
 			this.time = time;
 			this.value = value;
 		}
@@ -50,7 +65,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
 	public static class ChannelRef {
 		String target;
-		AnimationChannel channel;
+		String channel;
 	}
 	
 	public static class ConstantChannel {
@@ -58,22 +73,115 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		String target;
 	}
 	
+	public static class Channel {
+		public String type;
+		public float[] data = new float[0];
+		
+		public Channel( String type ) {
+			this.type = type;
+		}
+	}
+	
+	public static class Bone {
+		public String id;
+		
+		ArrayList<Channel> channels = new ArrayList<Channel>();
+		ArrayList<float[]> constants = new ArrayList<float[]>();
+		
+		public Bone( String id ) {
+			this.id = id;
+			this.channels.add( new Channel( "Scale" ) );
+			this.channels.add( new Channel( "Rotation" ) );
+			this.channels.add( new Channel( "Time" ) );
+			this.channels.add( new Channel( "Translation" ) );
+			this.channels.add( new Channel( "MorphTargetWeight1" ) );
+		}
+		
+		public Channel getChannel( String type ) {
+			for( Channel c : channels )
+				if( c.type.equals( type ) )
+					return c;
+			
+			return null;
+		}
+		
+		public void addChannel( String id ) {
+			AnimationChannel cur = chanMap.get( id );
+			if( cur != null ) {
+				AnimationChannelDataBlock time = blockMap.get( cur.time );
+				if( time != null )
+					getChannel( "Time" ).data = time.data;
+				
+				time = blockMap.get( cur.value );
+				if( time != null ) {
+					getChannel( time.type ).data = time.data;
+				}
+			}
+		}
+	}
+	
+	public static class ActualAnimation {
+		public String id;
+		HashMap<String, Bone> boneMap = new HashMap<String, Bone>();
+		
+		public ActualAnimation( String id ) {
+			this.id = id;
+		}
+		
+		public Bone getBone( String id ) {
+			if( !boneMap.containsKey( id ) )
+				boneMap.put( id, new Bone( id ) );
+			
+			return boneMap.get( id );
+		}
+	}
+	
 	public static class Animation {
+		public String id;
+		public float start;
+		public float end;
 		public ConstantChannel[] constants;
 		public ChannelRef[] refs;
 		public int ccount = 0;
 		public int rcount = 0;
+		
+		public void print() {
+			System.out.println( "Animation id: " + id );
+			System.out.println( "\tStart: " + start + " Finish: " + end );
+			System.out.println( "\tChannels: " + refs.length );
+			System.out.println( "\t\tFirst ten: " );
+			for( int i = 0; i < 10; i++ ) {
+				System.out.println( "\t\t\tChannel: " + findAnimationChannel( refs[i].channel ).id );
+				System.out.println( "\t\t\tTarget: " + refs[i].target );
+			}
+			System.out.println( "\tConstant Channels: " + constants.length );
+		}
 	}
 	
-	private AnimationChannel findAnimationChannel( String id ) {
-		System.out.println( id );
+	public Animation getAnimation( String id ) {
 		for( Animation a : anims )
-			for( ChannelRef cr : a.refs )
-				if( cr.channel.id.toUpperCase().equals( id.toUpperCase() ) )
-					return cr.channel;
+			if( a.id.toUpperCase().equals( id.toUpperCase() ) )
+				return a;
 		
-		System.err.println( "ANIMATION DID NOT EXIST: " + id );
-		return new AnimationChannel( "asdf" );
+		return null;
+	}
+	
+	private static AnimationChannel findAnimationChannel( String id ) {
+		if( chanMap.containsKey( id ) )
+			return chanMap.get( id );
+		
+		//System.err.println( "ANIMATION DID NOT EXIST: " + id );
+		chanMap.put( id, new AnimationChannel( id ) );
+		return chanMap.get( id );
+	}
+	
+	private AnimationChannelDataBlock findAnimationBlock( String id ) {
+		if( blockMap.containsKey( id ) )
+			return blockMap.get( id );
+		
+		//System.err.println( "ANIMATIONBLOCK DID NOT EXIST: " + id );
+		blockMap.put( id, new AnimationChannelDataBlock( id ) );
+		return blockMap.get( id );
 	}
 	
 	private boolean dataOnlyChunk( int index ) {
@@ -106,7 +214,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
 	private void readChunks() {		
 		int index = readInt32();
-		System.out.println( "chunk: " + chunkMap[index] );
+		//System.out.println( "chunk: " + chunkMap[index] );
 		String ccur = chunkMap[index];
 		
 		long size = readUInt32();
@@ -136,28 +244,36 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 				cref.target = readString( readInt32() );
 			} else if( pcur.toUpperCase().equals( "TARGETNAME" ) && ccur.toUpperCase().equals( "CONSTANTCHANNEL" ) ) {
 				cconstant.target = readString( readInt32() );
+				//System.out.println( "CONSTANT: " + cconstant.target );
 			} else if( pcur.toUpperCase().equals( "TARGETNAME" ) ) {
 				System.out.println( "targetName: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "CHANNEL" ) ) {
-				cref.channel = new AnimationChannel( readString( readInt32() ) );
+				cref.channel = readString( readInt32() );
+				chanMap.put( cref.channel, new AnimationChannel( cref.channel ) );
 			} else if( pcur.toUpperCase().equals( "ANIMATIONCOUNT" ) ) {
 				System.out.println( "animationCount: " + readInt32() );
-			} else if( pcur.toUpperCase().equals( "ID" )  && ccur.toUpperCase().equals( "ANIMATIONCHANNEL" ) ) {
+			} else if( pcur.toUpperCase().equals( "ID" ) && ccur.toUpperCase().equals( "ANIMATIONCHANNEL" ) ) {
 				findAnimationChannel( readString( readInt32() ) ).setBlocks( ctime, cvalue );
-			}  else if( pcur.toUpperCase().equals( "ID" ) ) {
-				System.out.println( "id: " + readString( readInt32() ) );
+				blockMap.put( ctime, new AnimationChannelDataBlock( ctime ) );
+				blockMap.put( cvalue, new AnimationChannelDataBlock( cvalue ) );
+			} else if( pcur.toUpperCase().equals( "ID" ) && ccur.toUpperCase().equals( "ANIMATIONCHANNELDATABLOCK" ) ) {
+				cblock = findAnimationBlock( readString( readInt32() ) );
+				cblock.type = keyType;
+			} else if( pcur.toUpperCase().equals( "ID" ) && ccur.toUpperCase().equals( "ANIMATION" ) ) {
+				canim.id = readString( readInt32() );
 			} else if( pcur.toUpperCase().equals( "CHANNELCOUNT" ) ) {
 				canim.refs = new ChannelRef[ readInt32() ];
+				//System.out.println( "CHANELS: " + canim.refs.length );
 			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELCOUNT" ) ) {
 				canim.constants = new ConstantChannel[ readInt32() ];
 			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELSTARTTIME" ) ) {
-				System.out.println( "constantChannelStartTime: " + readFloat32() );
+				canim.start = readFloat32();
 			} else if( pcur.toUpperCase().equals( "CONSTANTCHANNELENDTIME" ) ) {
-				System.out.println( "constantChannelEndTime: " + readFloat32() );
+				canim.end = readFloat32();
 			} else if( pcur.toUpperCase().equals( "TIMEBLOCK" ) ) {
-				ctime = readString( readInt32() );
+				ctime = readString( readInt32() ).substring( 1 );
 			} else if( pcur.toUpperCase().equals( "VALUEBLOCK" ) ) {
-				cvalue = readString( readInt32() );
+				cvalue = readString( readInt32() ).substring( 1 );
 			} else if( pcur.toUpperCase().equals( "ANIMATION" ) ) {
 				System.out.println( "animation: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "KEYCOUNT" ) ) {
@@ -167,7 +283,6 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 				keyType = readString( readInt32() );
 			} else if( pcur.toUpperCase().equals( "VALUE" ) ) {
 				cconstant.values = readFloat32( 4 );
-				//System.out.println( position() + " " + ppstop );
 			} else {
 				System.out.println( "prop: " + propMap[pindex] );
 			}
@@ -189,10 +304,12 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			}
 		} else {
 			if( chunkMap[index].toUpperCase().equals( "KEYS" ) ) {
-				if( keyType.equals( "Rotation" ) ) {
-					System.out.println( "KEYS " + chunkStop + " " + (position() + keyCount * 4 * 4) );
+				if( cblock.type.equals( "Rotation" ) ) {
+					cblock.data = readFloat32( keyCount * 4 );
+				} else if( cblock.type.equals( "Time" ) ) {
+					cblock.data = readFloat32( keyCount );
 				} else {
-					System.out.println( "KEYS" + chunkStop + " " + (position() + keyCount * 4 * 3) );
+					cblock.data = readFloat32( keyCount * 3);
 				}
 			}
 		}
@@ -213,6 +330,29 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			readChunks();
 		
 		PSSGResource res = new PSSGResource( resource );
+		
+		getAnimation( "PC22_B_ATTACK_01" ).print();
+		
+		// create the actual animations
+		ActualAnimation cur;
+		for( Animation a : anims ) {
+			animMap.put( a.id, new ActualAnimation( a.id ) );
+			cur = animMap.get( a.id );
+			
+			for( ChannelRef cr : a.refs ) {
+				cur.getBone( cr.target ).addChannel( cr.channel );
+			}
+			
+			for( ConstantChannel con : a.constants ) {
+				cur.getBone( con.target ).constants.add( con.values );
+			}
+			
+			System.out.println( cur.boneMap.size() );
+		}
+		
+		PSSGFile model = new PSSGFile( Engine.MAINDIR + "packs/meruru/models/meruru/meruru.pssg" );
+		model.read();
+		model.PSSG.rootNode.print();
 		return res;
 	}
 
