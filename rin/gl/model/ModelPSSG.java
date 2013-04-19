@@ -3,6 +3,7 @@ package rin.gl.model;
 import java.util.ArrayList;
 
 import rin.engine.Engine;
+import rin.engine.util.ArrayUtils;
 import rin.gl.TextureManager;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
@@ -117,34 +118,36 @@ public class ModelPSSG implements Model {
 		
 		PSSGFile.PSSGData data = pssg.getData();
 		for( PSSGFile.PSSGDataSource ds : data.sources ) {
-			//if( ds.skindices.length != 0 ) {
-			ArrayList<Float> v = new ArrayList<Float>();
-			ArrayList<Float> t = new ArrayList<Float>();
-			
-			for( int i = 0; i < ds.indices.length; i++ ) {
-				v.add( ds.v[ ds.indices[i] * 3 ] );
-				v.add( ds.v[ ds.indices[i] * 3 + 1 ] );
-				v.add( ds.v[ ds.indices[i] * 3 + 2 ] );
+			if( ds.skindices.length != 0 ) {
+				System.out.println( ArrayUtils.asString( ds.weights ) );
+				System.out.println( ArrayUtils.asString( ds.skindices ) );
 				
-				t.add( ds.t[ ds.indices[i] * 3 ] );
-				t.add( ds.t[ ds.indices[i] * 3 + 1 ] );
+				float[] v = new float[ds.indices.length*3];
+				float[] t = new float[ds.indices.length*2];
+				float[] b = new float[ds.indices.length*4];
+				
+				//System.out.println( ds.skindices.length + " " + ds.indices.length + " " + ds.weights.length );
+				for( int i = 0; i < ds.indices.length; i++ ) {
+					v[i*3] = ds.v[ ds.indices[i] * 3 ];
+					v[i*3+1] = ds.v[ ds.indices[i] * 3 + 1 ];
+					v[i*3+2] = ds.v[ ds.indices[i] * 3 + 2 ];
+
+					//System.out.println( "bone: " + ds.skindices[ ds.indices[i] ] );
+					
+					t[i*2] = ds.t[ ds.indices[i] * 3 ];
+					t[i*2+1] = ds.t[ ds.indices[i] * 3 + 1 ];
+					
+					/*for( int j = 0; j < 3; j++ ) {
+						if( ds.weights[ ds.indices[ i*3+j ] ] != 0.0f ) {
+							System.out.println( data.skel.skel.getBone( ds.joints.get( ds.skindices[ ds.indices[ i*3+j ] ] ) ) );
+						}
+					}*/
+				}
+				
+				System.out.println( (v.length/3) + " " + (ds.skindices.length/4) );
+				String tex = path + "textures" + Engine.LS + ds.texture.id.substring( 0, ds.texture.id.lastIndexOf( "." ) ) + ".png";
+				mesh.addPoly( v, new float[0], t, tex );
 			}
-			
-			/*if( ds.texture != null ) {
-				int format = 0;
-				
-				if( ds.texture.format.toUpperCase().equals("DXT3") )
-					format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-				
-				else if( ds.texture.format.toUpperCase().equals("DXT1") )
-					format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-				
-				//ImportDDS.loadDDS( ds.texture.data, format, ds.texture.width, ds.texture.height, ds.texture.id, ds.texture.mipmaps );
-			}*/
-			
-			String tex = path + "textures" + Engine.LS + ds.texture.id.substring( 0, ds.texture.id.lastIndexOf( "." ) ) + ".png";
-			mesh.addPoly( Buffer.toArrayf( v ), new float[0], Buffer.toArrayf( t ), tex );
-			//}
 		}
 		
 		mesh.setPosition( 100.0f, 0.0f, 0.0f );
