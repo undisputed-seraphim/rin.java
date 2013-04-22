@@ -8,6 +8,18 @@ import rin.engine.resource.formats.pssg.PSSGDecoder;
 
 public class ResourceManager {
 
+	public static class ResourceNotFoundException extends Error {
+		private static final long serialVersionUID = 7L;
+		
+		public ResourceNotFoundException() {}
+	}
+	
+	public static class DecoderNotFoundException extends Error {
+		private static final long serialVersionUID = 7L;
+		
+		public DecoderNotFoundException() {}
+	}
+	
 	//TODO: add plugin support for model formats, etc
 	
 	protected static final String FS = Engine.LS;
@@ -30,7 +42,7 @@ public class ResourceManager {
 	public static <T extends ResourceDecoder> T getDecoder( Class<T> cls ) {
 		T decoder = cls.cast( ResourceManager.decoders.get( cls ) );
 		if( decoder == null )
-			System.err.println( "[ResourceManager] No decoder found for format " + cls );
+			throw new DecoderNotFoundException();
 		
 		return decoder;
 	}
@@ -38,7 +50,7 @@ public class ResourceManager {
 	public static URL getResourceURL( String path ) {
 		URL url = ResourceManager.class.getResource( path );
 		if( url == null )
-			System.err.println( "[ResourceManager] Resource '" + path + "' not found." );
+			throw new ResourceNotFoundException();
 		
 		return url;
 	}
@@ -46,7 +58,7 @@ public class ResourceManager {
 	public static ResourceIdentifier getResource( String path ) {
 		URL url = getResourceURL( path );
 		if( url == null )
-			return null;
+			throw new ResourceNotFoundException();
 		
 		return new ResourceIdentifier( url );
 	}
@@ -67,7 +79,7 @@ public class ResourceManager {
 	public static ResourceIdentifier getCustomResource( String folder, String ... resource ) {
 		URL url = getCustomResourceURL( folder, resource );
 		if( url == null )
-			return null;
+			throw new ResourceNotFoundException();
 		
 		return new ResourceIdentifier( url );
 	}

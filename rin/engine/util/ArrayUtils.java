@@ -8,6 +8,9 @@ public class ArrayUtils {
 
 	public static <T> String asString( T arr ) {
 		String res = "[ ";
+		if( arr == null )
+			return res + " ]";
+		
 		for( int i = 0; i < Array.getLength( arr ); i++ ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
@@ -19,6 +22,9 @@ public class ArrayUtils {
 	
 	public static <T> String asString( T[] arr ) {
 		String res = "[ ";
+		if( arr == null )
+			return res + " ]";
+		
 		for( T t : arr ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
@@ -30,6 +36,9 @@ public class ArrayUtils {
 	
 	public static <T> String asString( Collection<T> collection ) {
 		String res = "[ ";
+		if( collection == null )
+			return res + " ]";
+		
 		for( T t : collection ) {
 			if( !res.equals( "[ " ) )
 				res += ", ";
@@ -41,6 +50,9 @@ public class ArrayUtils {
 	
 	public static <T1, T2> String asString( Map<T1, T2> map ) {
 		String res = "{ ";
+		if( map == null )
+			return res + " ]";
+		
 		for( T1 t1 : map.keySet() ) {
 			if( !res.equals( "{ " ) )
 				res += ", ";
@@ -49,4 +61,26 @@ public class ArrayUtils {
 		
 		return res + " }";
 	}
+	
+	public static <T> T[] newInstance( T ... args ) { return args; }
+	
+	public static String[] toStringArray( String arr, String delimiter ) {
+		return arr.split( delimiter );
+	}
+	
+	public static float[] toFloatArray( String arr, String delimiter ) {
+		String[] tmp = toStringArray( arr, delimiter );
+		float[] res = new float[tmp.length];
+		for( int i = 0; i < res.length; i++ )
+			res[i] = Float.parseFloat( tmp[i] );
+		return res;
+	}
+	
+	public static <T> float[] toFloatArray( T[] arr ) {
+		float[] res = new float[arr.length];
+		for( int i = 0; i < res.length; i++ )
+			res[i] = Float.parseFloat( arr[i].toString() );
+		return res;
+	}
+	
 }

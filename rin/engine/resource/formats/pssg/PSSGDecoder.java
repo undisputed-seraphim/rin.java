@@ -27,7 +27,6 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	private String[] chunkMap;
 	
 	private ArrayList<Animation> anims = new ArrayList<Animation>();
-	private HashMap<String, ActualAnimation> animMap = new HashMap<String, ActualAnimation>();
 	private static HashMap<String, AnimationChannelDataBlock> blockMap = new HashMap<String, AnimationChannelDataBlock>();
 	private static HashMap<String, AnimationChannel> chanMap = new HashMap<String, AnimationChannel>();
 	private Animation canim;
@@ -64,13 +63,13 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	}
 	
 	public static class ChannelRef {
-		String target;
-		String channel;
+		public String target;
+		public String channel;
 	}
 	
 	public static class ConstantChannel {
-		float[] values;
-		String target;
+		public float[] values;
+		public String target;
 	}
 	
 	public static class Channel {
@@ -85,8 +84,8 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	public static class Bone {
 		public String id;
 		
-		ArrayList<Channel> channels = new ArrayList<Channel>();
-		ArrayList<float[]> constants = new ArrayList<float[]>();
+		public ArrayList<Channel> channels = new ArrayList<Channel>();
+		public ArrayList<float[]> constants = new ArrayList<float[]>();
 		
 		public Bone( String id ) {
 			this.id = id;
@@ -113,6 +112,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 					getChannel( "Time" ).data = time.data;
 				
 				time = blockMap.get( cur.value );
+				System.out.println( cur.time );
 				if( time != null ) {
 					getChannel( time.type ).data = time.data;
 				}
@@ -122,13 +122,16 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
 	public static class ActualAnimation {
 		public String id;
-		HashMap<String, Bone> boneMap = new HashMap<String, Bone>();
+		public HashMap<String, Bone> boneMap = new HashMap<String, Bone>();
 		
 		public ActualAnimation( String id ) {
 			this.id = id;
 		}
 		
 		public Bone getBone( String id ) {
+			//if( id.substring( 0, 1 ).equals( "#" ) )
+			//	id = id.substring( 1 );
+			
 			if( !boneMap.containsKey( id ) )
 				boneMap.put( id, new Bone( id ) );
 			
@@ -196,7 +199,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		
 		propMap = new String[propCount];
 		chunkMap = new String[chunkCount+1];
-		System.out.println( "header: " + magic + " " + fileSize + " " + propCount + " " + chunkCount );
+		//System.out.println( "header: " + magic + " " + fileSize + " " + propCount + " " + chunkCount );
 	}
 	
 	private void infoList() {
@@ -208,8 +211,8 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 				propMap[readInt32()] = readString( (int)readUInt32() );
 		}
 		
-		System.out.println( "chunks: " + ArrayUtils.asString( chunkMap ) );
-		System.out.println( "props: " + ArrayUtils.asString( propMap ) );
+		//System.out.println( "chunks: " + ArrayUtils.asString( chunkMap ) );
+		//System.out.println( "props: " + ArrayUtils.asString( propMap ) );
 	}
 	
 	private void readChunks() {		
@@ -242,6 +245,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			String pcur = propMap[pindex];
 			if( pcur.toUpperCase().equals( "TARGETNAME" ) && ccur.toUpperCase().equals( "CHANNELREF" ) ) {
 				cref.target = readString( readInt32() );
+				//System.out.println( "CHANNEL: " + cref.target );
 			} else if( pcur.toUpperCase().equals( "TARGETNAME" ) && ccur.toUpperCase().equals( "CONSTANTCHANNEL" ) ) {
 				cconstant.target = readString( readInt32() );
 				//System.out.println( "CONSTANT: " + cconstant.target );
@@ -250,8 +254,10 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			} else if( pcur.toUpperCase().equals( "CHANNEL" ) ) {
 				cref.channel = readString( readInt32() );
 				chanMap.put( cref.channel, new AnimationChannel( cref.channel ) );
+				//System.out.println( "CHANNEL: " + cref.channel );
 			} else if( pcur.toUpperCase().equals( "ANIMATIONCOUNT" ) ) {
-				System.out.println( "animationCount: " + readInt32() );
+				readInt32();
+				//System.out.println( "animationCount: " + readInt32() );
 			} else if( pcur.toUpperCase().equals( "ID" ) && ccur.toUpperCase().equals( "ANIMATIONCHANNEL" ) ) {
 				findAnimationChannel( readString( readInt32() ) ).setBlocks( ctime, cvalue );
 				blockMap.put( ctime, new AnimationChannelDataBlock( ctime ) );
@@ -275,7 +281,8 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			} else if( pcur.toUpperCase().equals( "VALUEBLOCK" ) ) {
 				cvalue = readString( readInt32() ).substring( 1 );
 			} else if( pcur.toUpperCase().equals( "ANIMATION" ) ) {
-				System.out.println( "animation: " + readString( readInt32() ) );
+				readString( readInt32() );
+				//System.out.println( "animation: " + readString( readInt32() ) );
 			} else if( pcur.toUpperCase().equals( "KEYCOUNT" ) ) {
 				//System.out.println( "keyCount: " + readInt32() );
 				keyCount = readInt32();
@@ -284,7 +291,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			} else if( pcur.toUpperCase().equals( "VALUE" ) ) {
 				cconstant.values = readFloat32( 4 );
 			} else {
-				System.out.println( "prop: " + propMap[pindex] );
+				//System.out.println( "prop: " + propMap[pindex] );
 			}
 			
 			position( ppstop );
@@ -306,10 +313,13 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			if( chunkMap[index].toUpperCase().equals( "KEYS" ) ) {
 				if( cblock.type.equals( "Rotation" ) ) {
 					cblock.data = readFloat32( keyCount * 4 );
-				} else if( cblock.type.equals( "Time" ) ) {
+				} else if( cblock.type.equals( "Time" ) || cblock.type.equals( "MorphTargetWeight1" ) ) {
 					cblock.data = readFloat32( keyCount );
-				} else {
+					//System.out.println( cblock.type + " " + chunkStop + " " + position() );
+				} else if( cblock.type.equals( "Scale" ) || cblock.type.equals( "Translation" ) ) {
 					cblock.data = readFloat32( keyCount * 3);
+				} else {
+					System.out.println( "unknown: " + cblock.type );
 				}
 			}
 		}
@@ -321,7 +331,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 	
 	@Override
 	public PSSGResource decode( ResourceIdentifier resource ) {
-		this.data = ByteBuffer.wrap( FileUtils.asByteArray( Engine.MAINDIR + "packs/meruru/models/meruru/PC22_MOTION1.pssg" ) );
+		this.data = ByteBuffer.wrap( resource.asByteArray() );
 		header();
 		
 		infoList();
@@ -331,13 +341,13 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 		
 		PSSGResource res = new PSSGResource( resource );
 		
-		getAnimation( "PC22_B_ATTACK_01" ).print();
+		//getAnimation( "PC22_B_ATTACK_01" ).print();
 		
 		// create the actual animations
 		ActualAnimation cur;
 		for( Animation a : anims ) {
-			animMap.put( a.id, new ActualAnimation( a.id ) );
-			cur = animMap.get( a.id );
+			res.getAnimationMap().put( a.id, new ActualAnimation( a.id ) );
+			cur = res.getAnimation( a.id );
 			
 			for( ChannelRef cr : a.refs ) {
 				cur.getBone( cr.target ).addChannel( cr.channel );
@@ -347,12 +357,12 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 				cur.getBone( con.target ).constants.add( con.values );
 			}
 			
-			System.out.println( cur.boneMap.size() );
+			//System.out.println( ArrayUtils.asString( cur.boneMap ) );
 		}
 		
-		PSSGFile model = new PSSGFile( Engine.MAINDIR + "packs/meruru/models/meruru/meruru.pssg" );
-		model.read();
-		model.PSSG.rootNode.print();
+		//PSSGFile model = new PSSGFile( Engine.MAINDIR + "packs/meruru/models/meruru/meruru.pssg" );
+		//model.read();
+		//model.PSSG.rootNode.print();
 		return res;
 	}
 

@@ -1,16 +1,16 @@
 package rin.engine.game.entity.animated;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import rin.engine.math.Matrix4x4;
 
 public class Skeleton {
 
-	private HashMap<Integer, Bone> bones = new HashMap<Integer, Bone>();
+	private TreeMap<Integer, Bone> bones = new TreeMap<Integer, Bone>();
 	
 	public Skeleton() {}
 	
-	public HashMap<Integer, Bone> getBoneMap() { return bones; }
+	public TreeMap<Integer, Bone> getBoneMap() { return bones; }
 	
 	public Bone getRootBone() {
 		return bones.get( 0 );
@@ -21,6 +21,13 @@ public class Skeleton {
 			if( bones.get( i ).getName().toUpperCase().equals( name.toUpperCase() ) )
 				return bones.get( i );
 		return null;
+	}
+	
+	public int indexOf( String name ) {
+		for( Integer i : bones.keySet() )
+			if( bones.get( i ).getName().toUpperCase().equals( name.toUpperCase() ) )
+				return i;
+		return -1;
 	}
 	
 	public void addBone( Bone bone ) {
@@ -37,7 +44,21 @@ public class Skeleton {
 		return bones.get( bones.size() - 1 );
 	}
 	
-	public void print() {
-		bones.get( 0 ).print( "" );
+	public Skeleton clone() {
+		Skeleton res = new Skeleton();
+		for( Integer i : bones.keySet() )
+			res.addBone( new Bone( bones.get( i ) ) );
+		
+		return res;
 	}
+	
+	public void print() {
+		System.out.println( toString() );
+	}
+	
+	@Override
+	public String toString() {
+		return bones.get( 0 ).toString();
+	}
+	
 }

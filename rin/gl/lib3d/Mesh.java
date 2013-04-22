@@ -19,12 +19,16 @@ public class Mesh extends Poly {
 	public Mesh( String name ) { super( name ); }
 	
 	public void addPoly( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
+		addPoly( vertices, normals, texcoords, textureFile, new float[0], new float[0] );
+	}
+	
+	public void addPoly( float[] vertices, float[] normals, float[] texcoords, String textureFile, float[] bones, float[] weights ) {
 		Poly poly = new Poly();
 		if( this.isPolyPicking() )
 			poly.setPicking( true );
 		else
 			poly.setUniqueColor( this.getUniqueColor() );
-		poly.build( vertices, normals, texcoords, new float[0] );
+		poly.build( vertices, normals, texcoords, new float[0], bones, weights );
 		poly.addTexture( textureFile );
 		poly.setApplyTransform( false );
 		this.polys.add( poly );

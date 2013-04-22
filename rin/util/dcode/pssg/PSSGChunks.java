@@ -166,6 +166,7 @@ public class PSSGChunks {
 				
 				case INVERSEBINDMATRIX:
 					chunk.data = read( type, (chunkStop - position() ) / type.sizeof() );
+					//System.out.println( chunk.parent.getProperty( "id" ) );
 					PSSG.skeleton.addMatrix( chunk.parent, chunk );
 					break;
 					

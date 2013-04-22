@@ -1,19 +1,27 @@
 package rin.engine.resource.formats.pssg;
 
+import java.util.HashMap;
+
 import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
+import rin.engine.resource.formats.pssg.PSSGDecoder.ActualAnimation;
 
 public class PSSGResource implements Resource {
 
 	private ResourceIdentifier id;
-	private PSSGData data;
+	private HashMap<String, ActualAnimation> animMap = new HashMap<String, ActualAnimation>();
 	
 	public PSSGResource( ResourceIdentifier id ) {
 		this.id = id;
 	}
 	
-	@Override
-	public PSSGData getData() { return this.data; }
+	public HashMap<String, ActualAnimation> getAnimationMap() {
+		return animMap;
+	}
+	
+	public ActualAnimation getAnimation( String name ) {
+		return animMap.get( name );
+	}
 	
 	@Override
 	public ResourceIdentifier getIdentifier() { return this.id; }

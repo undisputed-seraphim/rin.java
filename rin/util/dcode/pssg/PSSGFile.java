@@ -264,17 +264,17 @@ public class PSSGFile extends BIOFile {
 	}
 	
 	public static class RIStream {
-		int id;
-		String stream;
+		public int id;
+		public String stream;
 	}
 	
 	public static class RISource {
-		String source;
+		public String source;
 	}
 	
 	public static class RenderInstanceStream {
-		String sourceId = "";
-		String streamId = "";
+		public String sourceId = "";
+		public String streamId = "";
 	}
 	
 	public static class RenderStreamInstance {
@@ -290,7 +290,7 @@ public class PSSGFile extends BIOFile {
 	}
 	
 	public static class RenderNode extends Node {
-		RenderStreamInstance instance;
+		public RenderStreamInstance instance;
 		
 		public void print() {
 			if( this.instance != null ) {
@@ -309,8 +309,8 @@ public class PSSGFile extends BIOFile {
 	}
 	
 	public static class SkinNode extends RenderNode {
-		int jointCount;
-		String skeleton;
+		public int jointCount;
+		public String skeleton;
 		
 		public void print() {
 			System.out.println("SKINNODE");
@@ -366,6 +366,10 @@ public class PSSGFile extends BIOFile {
 				if( n instanceof RenderDataSource )
 					res.add( (RenderDataSource)n );
 			return res;
+		}
+		
+		public void addSkeleton( PSSGChunk<?> skel ) {
+			
 		}
 		
 		public void addToStream( PSSGChunk<?> rendernode, PSSGChunk<?> item ) {
@@ -501,6 +505,7 @@ public class PSSGFile extends BIOFile {
 					node.nickname = parent.getProperty( "nickname" ).data;
 					node.jointCount = Integer.parseInt( parent.getProperty( "jointCount" ).data );
 					node.skeleton = parent.getProperty( "skeleton" ).data;
+					//System.out.println( node.skeleton + " " + node.nickname + " " + node.jointCount );
 					this.rootNode.find( parent.parent.getProperty( "id" ).data ).children.add( node );
 				}
 			}
@@ -778,22 +783,6 @@ public class PSSGFile extends BIOFile {
 			}
 		}*/
 		
-		//System.out.println( PSSG.master.vnt.size() + " " + PSSG.master.skin.size() );
-		int count = 0;
-		for( PSSGChunk<?> c : this.getChunks( "SHADERPROGRAM" ) ) {
-			//c.info();
-			//System.out.println( c.children.size() );
-			/*for( PSSGChunk<?> cc : c.getChildren( "SHADERINPUT" ) ) {
-				if( cc.getProperty( "texture" ) != null )
-					count++;
-			}*/
-		}
-
-		for( PSSGChunk<?> c : this.getChunks( "MODIFIERNETWORKINSTANCE" ) ) {
-			//c.info();
-		}
-		//System.out.println( this.getChunks( "MODIFIERNETWORKINSTANCE" ).size() );
-		
 		this.data = new PSSGData();
 		ArrayList<PSSGChunk<?>> instances = this.getChunks("MODIFIERNETWORKINSTANCE");
 		this.data.sources = new PSSGDataSource[ instances.size() ];
@@ -805,9 +794,13 @@ public class PSSGFile extends BIOFile {
 			}
 			
 			PSSGChunk<?> skin = instances.get( i ).parent;
+			src.skeleton = skin.getProperty( "skeleton" ).data.substring( 1 );
+			int count = 0;
 			for( PSSGChunk<?> c : skin.children ) {
-				if( c.name.equals( "SKINJOINT" ) )
+				if( c.name.equals( "SKINJOINT" ) ) {
 					src.joints.add( c.getProperty( "joint" ).data.substring( 1 ) );
+					src.jmats.add( ArrayUtils.toFloatArray( PSSG.skeleton.nodes.get( src.skeleton ).get( count ).data ) );
+				}
 			}
 			
 			String indices = instances.get( i ).getProperty( "indices" ).data.substring( 1 );
@@ -861,7 +854,7 @@ public class PSSGFile extends BIOFile {
 			this.data.sources[i] = src;
 		}
 		this.data.skel = new ActualSkeleton();
-		this.data.skel.print();
+		//this.data.skel.print();
 		//this.getData().print();
 	}
 	
@@ -872,29 +865,32 @@ public class PSSGFile extends BIOFile {
 			skel = new rin.engine.game.entity.animated.Skeleton();
 			System.out.println( "ROOT: " + PSSG.rootNode.id );
 			addBone( null, PSSG.rootNode );
-			/*for( Node n : PSSG.rootNode.children ) {
-				if( !(n instanceof RenderNode ) )
-					if( !(n instanceof DataBlock ) )
-						if( !(n instanceof RenderDataSource ) )
-							if( !(n instanceof RenderIndexSource ) )
-								addBone( n );
-			}*/
 		}
 		
 		private void addBone( rin.engine.game.entity.animated.Bone bone, Node node ) {
 			if( bone == null ) {
-				bone = skel.addBone( node.id );
+				bone = skel.addBone( node.id, ArrayUtils.toFloatArray( node.transform.split( " " ) ) );
 			} else {
-				bone = bone.addBone( node.id );
+				bone = bone.addBone( node.id, ArrayUtils.toFloatArray( node.transform.split( " " ) ) );
 				skel.addBone( bone );
 			}
-			
-			for( Node n : node.children )
-				if( !(n instanceof RenderNode ) )
+
+			for( Node n : node.children ) {
+				if( !(n instanceof RenderNode ) ) {
 					if( !(n instanceof DataBlock ) )
 						if( !(n instanceof RenderDataSource ) )
 							if( !(n instanceof RenderIndexSource ) )
 								addBone( bone, n );
+				} else {
+					if( n.children.size() > 0 ) {
+						RenderNode r = (RenderNode)n;
+						//System.out.println( r.id + " appears to be valid...! " + r.instance.indices + " " + r.instance.shader );
+						//r.print();
+					} else {
+						//System.out.println( ((RenderNode)n).id );
+					}
+				}
+			}
 		}
 		
 		public void print() {
@@ -907,6 +903,7 @@ public class PSSGFile extends BIOFile {
 	
 	public static class PSSGDataSource {
 		public String name = "No Name";
+		public String skeleton = "";
 		
 		public int[] indices = new int[0];
 		public float[] v = new float[0];
@@ -917,6 +914,7 @@ public class PSSGFile extends BIOFile {
 		public short[] skindices = new short[0];
 		
 		public ArrayList<String> joints = new ArrayList<String>();
+		public ArrayList<float[]> jmats = new ArrayList<float[]>();
 		
 		public PSSGTexture texture = null;
 		

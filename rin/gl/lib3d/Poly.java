@@ -133,14 +133,23 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 		this.addTexture( textureFile );
 	}
 	
-	@Override public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {		
+	public void build( float[] vertices, float[] normals, float[] texcoords, String textureFile, float[] bones, float[] weights ) {
+		this.build( vertices, normals, texcoords, new float[0], bones, weights );
+		this.addTexture( textureFile );
+	}
+	
+	@Override public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {
+		this.build( vertices, normals, texcoords, colors, new float[0], new float[0] );
+	}
+	
+	public void build( float[] vertices, float[] normals, float[] texcoords, float[] colors, float[] bones, float[] weights ) {
 		this.ready = false;
 		
 		if( this.ibuf != null ) this.ibuf = this.ibuf.destroy();
 		if( this.abuf != null ) this.abuf = this.abuf.destroy();
 		
 		this.indexCount = vertices.length / 3;
-		float[] aba = new float[ this.indexCount * 4 * 4 ];
+		float[] aba = new float[ this.indexCount * 4 * 6 ];
 		int[] iba = new int[ this.indexCount ];
 		
 		float[] unique = this.getUniqueColor();
@@ -187,6 +196,18 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 				}
 				aba[a++] = unique[2];
 				
+				if( bones.length > 0 && bones.length == weights.length ) {
+					aba[a++] = bones[ i*4 ];
+					aba[a++] = bones[ i*4+1 ];
+					aba[a++] = bones[ i*4+2 ];
+					aba[a++] = bones[ i*4+3 ];
+					
+					aba[a++] = weights[ i*4 ];
+					aba[a++] = weights[ i*4+1 ];
+					aba[a++] = weights[ i*4+2 ];
+					aba[a++] = weights[ i*4+3 ];
+				}
+				
 				iba[i] = i;
 			}
 		} catch( ArrayIndexOutOfBoundsException e ) {
@@ -203,8 +224,14 @@ public class Poly extends Actor implements Renderable, Boundable, Pickable {
 				.addIndex( IndexType.VERTEX, 4, GL.getAttrib( "vertex" ) )
 				.addIndex( IndexType.COLOR, 4, GL.getAttrib( "color" ) )
 				.addIndex( IndexType.NORMAL, 4, GL.getAttrib( "normal" ) )
-				.addIndex( IndexType.TEXCOORD, 4, GL.getAttrib( "texture" ) )
-				.build();
+				.addIndex( IndexType.TEXCOORD, 4, GL.getAttrib( "texture" ) );
+		
+		if( bones.length > 0 ) {
+			this.abuf.addIndex( IndexType.BONE, 4, GL.getAttrib( "bone" ) );
+			this.abuf.addIndex( IndexType.WEIGHT, 4, GL.getAttrib( "weight" ) );
+		}
+		
+		this.abuf.build();
 
 		if( this.bound ) {
 			this.computeBounds( vertices );

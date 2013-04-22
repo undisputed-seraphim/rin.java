@@ -18,7 +18,9 @@ public class GLInterleavedBuffer {
 		VERTEX ( 0 ),
 		COLOR ( 1 ),
 		NORMAL ( 2 ),
-		TEXCOORD ( 3 );
+		TEXCOORD ( 3 ),
+		BONE ( 4 ),
+		WEIGHT ( 5 );
 		
 		protected int target;
 		IndexType( int target ) {

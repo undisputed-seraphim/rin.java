@@ -173,8 +173,8 @@ public class GL extends SingletonThread<GL> {
 		glBindAttribLocation( this.program, 1, "normal" );
 		glBindAttribLocation( this.program, 2, "texture" );
 		glBindAttribLocation( this.program, 3, "color" );
-		//glBindAttribLocation( this.program, 3, "bone" );
-		//glBindAttribLocation( this.program, 4, "weight" );
+		glBindAttribLocation( this.program, 4, "bone" );
+		glBindAttribLocation( this.program, 5, "weight" );
 		
 		/* link the program to the gl context */
 		glLinkProgram( this.program );
@@ -213,7 +213,7 @@ public class GL extends SingletonThread<GL> {
 		this.worker = new GLWorkerThread();
 		GL.cl = new CL( Display.getDrawable() );
 		
-		GLGUIFactory.init( GL.width, GL.height );
+		/*GLGUIFactory.init( GL.width, GL.height );
 		
 		GLGUIFactory.createPane( "root" )
 				.onShow( Transitions.SCALE_BURST_SHOW )
@@ -225,16 +225,16 @@ public class GL extends SingletonThread<GL> {
 					}
 					
 				})
-				.show();
+				.show();*/
 	}
 	
 	@Override public void main() {
 		if( !Display.isCloseRequested() ) {			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			/* draw the GLGUI object */
-			glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
+			/*glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
 			glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
-			GLGUIFactory.render( this.getDt() );
+			GLGUIFactory.render( this.getDt() );*/
 			
 			Input.process();
 			//System.out.println( Keyboard.isKeyDown( Keyboard.KEY_W ) );
