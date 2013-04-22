@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import rin.engine.util.ArrayUtils;
+import rin.engine.util.ImageUtils;
 import rin.util.RinUtils;
 import rin.util.bio.BIOBuffer;
 import rin.util.bio.BIOFile;
@@ -854,6 +855,22 @@ public class PSSGFile extends BIOFile {
 			this.data.sources[i] = src;
 		}
 		this.data.skel = new ActualSkeleton();
+		
+		/*ArrayList<PSSGChunk<?>> shaders = this.getChunks("TEXTUREIMAGEBLOCKDATA");
+		for( PSSGChunk<?> c : shaders ) {
+			if( c.hasData ) {
+				int size = Integer.parseInt( c.parent.getProperty( "size" ).data );
+				int w = Integer.parseInt( c.parent.parent.getProperty( "width" ).data );
+				int h = Integer.parseInt( c.parent.parent.getProperty( "height" ).data );
+				String format = c.parent.parent.getProperty( "texelFormat" ).data;
+				System.out.println( "width: " + w + " height: " + h + " estimate: " + (w*h*3) + " size: " + size  + " format: " + format );
+			}
+		}*/
+		
+		for( Texture t : PSSG.master.textures ) {
+			ImageUtils.decode( ImageUtils.PixelFormat.fromString( t.format ), t.width, t.height, t.data );
+		}
+		
 		//this.data.skel.print();
 		//this.getData().print();
 	}

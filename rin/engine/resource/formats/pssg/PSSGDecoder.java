@@ -112,7 +112,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 					getChannel( "Time" ).data = time.data;
 				
 				time = blockMap.get( cur.value );
-				System.out.println( cur.time );
+				//System.out.println( cur.time );
 				if( time != null ) {
 					getChannel( time.type ).data = time.data;
 				}

@@ -64,9 +64,9 @@ public class ResourceManager {
 	}
 	
 	private static String constructPath( String folder, String ... resource ) {
-		String path = FS + folder;
+		String path = "/" + folder;
 		for( String s : resource )
-			path += FS + s;
+			path = path + "/" + s;
 		
 		return path;
 	}
@@ -85,11 +85,11 @@ public class ResourceManager {
 	}
 	
 	public static URL getPackResourceURL( String pack, String ... resource ) {
-		return getCustomResourceURL( "packs" + FS + pack, resource );
+		return getCustomResourceURL( "packs" + "/" + pack, resource );
 	}
 	
 	public static ResourceIdentifier getPackResource( String pack, String ... resource ) {
-		return getCustomResource( "packs" + FS + pack, resource );
+		return getCustomResource( "packs" + "/" + pack, resource );
 	}
 	
 }

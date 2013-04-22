@@ -109,6 +109,23 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public byte[] readBits() {
+    	byte[] res = new byte[8];
+    	
+    	byte b = this.getBuffer().get();
+    	for( int i = 0; i < 8; i++ )
+    		res[i] = (b & i) == i ? (byte)1 : (byte)0;
+    	
+    	return res;
+    }
+    public byte[][] readBits( int amount ) {
+    	byte[][] res = new byte[amount][];
+    	for( int i = 0; i < amount; i++ )
+    		res[i] = readBits();
+    	
+    	return res;
+    }
+    
     public String readBit8() { return BIT8.getData( this.getBuffer() ); }
     public String[] readBit8( int amount ) {
     	String[] res = new String[amount];
@@ -286,6 +303,15 @@ public abstract class BinaryReader {
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readInt16();
         return res;
+    }
+    
+    public int readUInt16At( int pos ) {
+    	int start = this.position();
+    	this.position( pos );
+    	
+    	int res = this.readUInt16();
+    	this.position( start );
+    	return res;    
     }
     
     public BinaryReader printInt16() { return printInt16( 1 ); }
