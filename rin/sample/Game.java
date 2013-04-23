@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
 import rin.engine.resource.ResourceManager;
+import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
@@ -23,7 +24,7 @@ public class Game {
 		
 		//ResourceManager.getDecoder( PSSGDecoder.class ).decode( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//States.STATE_GAME.push();
-		
+		new ISM2Decoder( ResourceManager.getPackResource( "rin", "002.ism2" ) );
 		//trackInput();
 
 		/*createDesktop( "yup" )
@@ -49,7 +50,7 @@ public class Game {
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		init( 900, 600 );
+		//init( 900, 600 );
 		
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -57,14 +58,14 @@ public class Game {
 			}
 		});*/
 		
-		getScene().addModel( new ModelParams( ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
+		/*getScene().addModel( new ModelParams( ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
 				System.out.println( this.target.getName() );
 			}
-		});
+		});*/
 		//getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) );
 		
-		start();
+		//start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

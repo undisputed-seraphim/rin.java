@@ -154,6 +154,14 @@ public abstract class BinaryReader {
     	return res;
     }
     
+    public int readHex() { return Integer.parseInt( String.format( "%02x", this.getBuffer().get() ) ); }
+    public int[] readHex( int amount ) {
+    	int[] res = new int[amount];
+    	for( int i = 0; i < amount; i++ )
+    		res[i] = this.readHex();
+    	return res;
+    }
+    
     public String readHex8() { return String.format( "0x%02x", this.getBuffer().get() ); }
     public String[] readHex8( int amount ) {
     	String[] res = new String[amount];
