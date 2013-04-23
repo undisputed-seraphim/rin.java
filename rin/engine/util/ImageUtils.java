@@ -11,17 +11,18 @@ import rin.util.bio.BinaryBuffer;
 public class ImageUtils {
 
 	private static class ImagePanel extends JFrame {
+		private static final long serialVersionUID = 1L;
 		
-		private short[] data;
+		private ArrayList<short[][][]> data;
 		private int width;
 		private int height;
 		
 		public ImagePanel( ArrayList<short[][][]> data, int width, int height ) {
-			//this.data = data;
+			this.data = data;
 			this.height = height;
 			this.width = width;
 			
-			short[] real = new short[width*height*3];
+			/*short[] real = new short[width*height*3];
 			int w4 = width / 4;
 			int row = 0;
 			for( int i = 0; i < data.size(); i++ ) {
@@ -38,7 +39,7 @@ public class ImageUtils {
 					}
 				}
 			}
-			this.data = real;
+			this.data = real;*/
 			this.setSize( width, height );
 			this.setVisible( true );
 			this.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
@@ -46,13 +47,31 @@ public class ImageUtils {
 		
 		@Override
 		public void paint( Graphics g ) {
-			int count = 0;
-			for( int i = 0; i < width; i++ ) {
+			int row = 0;
+			int subcount = 0;
+			int w4 = width / 4;
+			for( int i = 0; i < data.size(); i++ ) {
+				if( i % w4 == 0 && i != 0 ) {
+					row++;
+					subcount = 0;
+				}
+				
+				short[][][] cur = data.get( i );
+				for( int j = 0; j < 4; j++ ) {
+					for( int k = 0; k < 4; k++ ) {
+						short[] col = cur[j][k];
+						g.setColor( new Color( col[0], col[1], col[2] ) );
+						g.drawRect( (subcount*4)+k, (row*4)+j, 1, 1 );
+					}
+				}
+				subcount++;
+			}
+			/*for( int i = 0; i < width; i++ ) {
 				for( int j = 0; j < height; j++ ) {
 					g.setColor( new Color( data[count++], data[count++], data[count++] ) );
 					g.drawRect( i, j, 1, 1 );
 				}
-			}
+			}*/
 			/*for( int i = 0; i < height / 4; i++ ) {
 				int subcount = 0;
 				for( int j = 0; j < 4; j++ ) {
@@ -107,6 +126,36 @@ public class ImageUtils {
 		return new short[] { (short)r, (short)g, (short)b };
 	}
 	
+	private static short[] dxt1_code2Greater( short[] color0, short[] color1 ) {
+		short[] res = new short[3];
+		
+		res[0] = (short)((2 * color0[0] + color1[0] ) / 3);
+		res[1] = (short)((2 * color0[1] + color1[1] ) / 3);
+		res[2] = (short)((2 * color0[2] + color1[2] ) / 3);
+		
+		return res;
+	}
+	
+	private static short[] dxt1_code2Less( short[] color0, short[] color1 ) {
+		short[] res = new short[3];
+		
+		res[0] = (short)((color0[0] + color1[0]) / 2);
+		res[1] = (short)((color0[1] + color1[1]) / 2);
+		res[2] = (short)((color0[2] + color1[2]) / 2);
+		
+		return res;
+	}
+	
+	private static short[] dxt1_code3Greater( short[] color0, short[] color1 ) {
+		short[] res = new short[3];
+		
+		res[0] = (short)((color0[0] + 2*color1[0]) / 3);
+		res[1] = (short)((color0[1] + 2*color1[1]) / 3);
+		res[2] = (short)((color0[2] + 2*color1[2]) / 3);
+		
+		return res;
+	}
+	
 	private static byte dxt1_getCode( byte a, byte b ) {
 		if( a == 1 && b == 1 )
 			return 3;
@@ -130,18 +179,14 @@ public class ImageUtils {
 		
 		ArrayList<short[][][]> blocks = new ArrayList<short[][][]>();
 		BinaryBuffer buf = new BinaryBuffer( data );
-		//short[] img = new short[width*height*3];
 		int stop = height * width * 3 / 6;
 		buf.setLittleEndian();
 		
-		int count = 0;
 		while( buf.position() < stop ) {
 			int[] colors = buf.readUInt16( 2 );
 			
 			short[] color0 = dxt1_RGB565ToRGB888( colors[0] );
 			short[] color1 = dxt1_RGB565ToRGB888( colors[1] );
-			
-			//byte[][] codes = buf.readBits( 4 );
 			
 			byte[][] codes = new byte[][] {
 					dxt1_getCodes( buf.readBits() ),
@@ -149,44 +194,42 @@ public class ImageUtils {
 					dxt1_getCodes( buf.readBits() ),
 					dxt1_getCodes( buf.readBits() )
 			};
-			
-			int subcount = 0;
+
 			short[][][] block = new short[4][4][3];
 			for( int i = 3; i >= 0; i-- ) {
 				for( int j = 0; j < codes[i].length; j++ ) {
 					switch( codes[i][j] ) {
 					
 					case 0:
-						//img[(count*16) + (subcount*j)] = color0[0];
-						//img[(count*16) + (subcount*j)+1] = color0[1];
-						//img[(count*16) + (subcount*j)+2] = color0[2];
-						block[i][3-j][0] = color0[0];
-						block[i][3-j][1] = color0[1];
-						block[i][3-j][2] = color0[2];
+						block[i][3-j] = color0;
 						break;
 						
 					case 1:
-						//img[(count*16) + (subcount*j)] = color1[0];
-						//img[(count*16) + (subcount*j)+1] = color1[1];
-						//img[(count*16) + (subcount*j)+2] = color1[2];
-						block[i][3-j][0] = color1[0];
-						block[i][3-j][1] = color1[1];
-						block[i][3-j][2] = color1[2];
+						block[i][3-j] = color1;
 						break;
 						
 					case 2:
+						if( colors[0] > colors[1] )
+							block[i][3-j] = dxt1_code2Greater( color0, color1 );
+						else
+							block[i][3-j] = dxt1_code2Less( color0, color1 );
 						break;
 						
 					case 3:
+						if( colors[0] > colors[1] )
+							block[i][3-j] = dxt1_code3Greater( color0, color1 );
+						else
+							block[i][3-j] = new short[] { 0, 0, 0 };
 						break;
-						//524288+131072+32768
-						//688128
+						
+					default:
+						System.err.println( "DXT1 ERROR" );
+						break;
+						
 					}
 				}
-				subcount++;
 			}
 			blocks.add( block );
-			count++;
 			//System.out.println( "codes 0: " + codes0[0] + " " + codes0[1] + " " + codes0[2] + " " + codes0[3] );
 		}
 		new ImagePanel( blocks, width, height );
