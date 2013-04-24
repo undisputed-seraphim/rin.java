@@ -18,6 +18,17 @@ public class Mesh extends Poly {
 	public Mesh() {}
 	public Mesh( String name ) { super( name ); }
 	
+	public void addPoly( float[] vertices, float[] normals, float[] texcoords, float[] colors ) {
+		Poly poly = new Poly();
+		if( this.isPolyPicking() )
+			poly.setPicking( true );
+		else
+			poly.setUniqueColor( this.getUniqueColor() );
+		poly.build( vertices, normals, texcoords, colors );
+		poly.setApplyTransform( false );
+		this.polys.add( poly );
+	}
+	
 	public void addPoly( float[] vertices, float[] normals, float[] texcoords, String textureFile ) {
 		addPoly( vertices, normals, texcoords, textureFile, new float[0], new float[0] );
 	}

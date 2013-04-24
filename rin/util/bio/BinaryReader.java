@@ -7,6 +7,8 @@ import static rin.util.bio.BinaryTypes.*;
 
 public abstract class BinaryReader {
 
+	private final ByteBuffer tmp = ByteBuffer.allocate( 8 );
+	
 	public abstract ByteBuffer getBuffer();
 	
     public int position() { return this.getBuffer().position(); }
@@ -198,7 +200,6 @@ public abstract class BinaryReader {
     }
     
     public String readHex16() { return String.format( "0x%04x", this.getBuffer().getShort() ); }
-    public String readHex32() { return String.format( "0x%06x", this.getBuffer().getInt() ); }
     
     public byte readInt8() { return this.getBuffer().get(); }
     public byte[] readInt8( int amount ) {
@@ -437,6 +438,20 @@ public abstract class BinaryReader {
     	for( int i = 0; i < amount; i++ )
     		System.out.println( readInt64() );
     	return this;
+    }
+    
+    //TODO: for the love of god tidy this code up
+    public float readFloat16() {
+    	short s = this.getBuffer().getShort();
+    	int exponent = (s & 0x7C00) >> 10;
+    	int fraction = (s & 0x03FF);
+    	return (float)(( (s >> 15 != 0) ? -1 : 1) * ( exponent != 0 ?
+    			(
+    					exponent == 0x1F ?
+    							fraction != 0 ?
+    									Float.NaN : Float.POSITIVE_INFINITY :
+    										Math.pow( 2, exponent - 15) * (1 + fraction / 0x400)
+    			) : 0x0400 * (fraction / 0x400) ));
     }
     
     public float readFloat32() { return this.getBuffer().getFloat(); }

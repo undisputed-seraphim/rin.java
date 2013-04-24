@@ -24,7 +24,7 @@ public class Game {
 		
 		//ResourceManager.getDecoder( PSSGDecoder.class ).decode( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//States.STATE_GAME.push();
-		new ISM2Decoder( ResourceManager.getPackResource( "rin", "002.ism2" ) );
+		//new ModelISM2( .getURL().getPath() );
 		//trackInput();
 
 		/*createDesktop( "yup" )
@@ -50,7 +50,7 @@ public class Game {
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		//init( 900, 600 );
+		init( 900, 600 );
 		
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -63,9 +63,9 @@ public class Game {
 				System.out.println( this.target.getName() );
 			}
 		});*/
-		//getScene().addModel( new ModelParams( ModelFormat.DAE, "noire_v" ) );
+		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "003.ism2" ) );
 		
-		//start();
+		start();
 		
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

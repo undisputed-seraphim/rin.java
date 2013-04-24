@@ -2,6 +2,7 @@ package rin.gl;
 
 import java.util.ArrayList;
 
+import rin.engine.resource.ResourceIdentifier;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import static rin.engine.Engine.*;
@@ -33,6 +34,9 @@ public class GLScene extends SingletonThread<GLScene> {
 	}
 	
 	public Loader<Actor> addModel( ModelParams p ) { return GL.addModel( p ); }
+	public Loader<Actor> addModel( ModelFormat format, ResourceIdentifier resource ) {
+		return GL.addModel( format, resource );
+	}
 	public Loader<Actor> addShape( ShapeParams p ) { return GL.addShape( p ); }
 	
 	@Override public void main() {
