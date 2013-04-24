@@ -50,22 +50,26 @@ public class ISM2Spec {
 		public float[] v;
 		public float[] n;
 		public float[] t;
+		public float[] w;
 	}
 	
-	public static class ISM2IndexData {
-		public int[] i;
+	public static class ISM2SubMesh {
+		public float[] v = new float[0];
+		public float[] n = new float[0];
+		public float[] t = new float[0];
 	}
 	
 	public static class ISM2Mesh {
-		ArrayList<ISM2VertexData> vdata = new ArrayList<ISM2VertexData>();
-		ArrayList<ISM2IndexData> idata = new ArrayList<ISM2IndexData>();
+		public ISM2VertexData data = new ISM2VertexData();
+		public boolean hasNormals = false;
+		public boolean hasWeights = false;
+		public boolean hasTexcoords = false;
+		
+		public ArrayList<ISM2SubMesh> children = new ArrayList<ISM2SubMesh>();
 	}
 	
 	public static class ISM2Data {
 		protected int meshCount = 0;
 		public ISM2Mesh[] meshList;
-		public float[] v;
-		public float[] n;
-		public float[] t;
 	}
 }

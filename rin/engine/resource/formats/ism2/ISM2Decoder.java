@@ -103,15 +103,14 @@ public class ISM2Decoder extends BinaryReader {
 		long vertexSize = readUInt32();
 		System.out.println( "vertices 1: " + readInt32() );
 		
-		ISM2VertexData tmp = new ISM2VertexData();
 		VertexType[] types = new VertexType[count];
-		boolean normaled = false;
 		long start = 0L;
 		
 		long[] offsets = getOffsets( count );
 		for( int i = 0; i < offsets.length; i++ ) {
 			types[i] = getVertexType( offsets[i] );
-			if( types[i].type == T_VERT_VERTICES_NORMAL ) normaled = true;
+			if( types[i].type == T_VERT_VERTICES_NORMAL ) cmesh.hasNormals = true;
+			if( type == T_VERT_TEXCOORDS ) cmesh.hasTexcoords = true;
 			start = types[i].offset;
 		}
 
@@ -120,9 +119,9 @@ public class ISM2Decoder extends BinaryReader {
 		
 		case T_VERT_VERTICES:
 			System.out.println( "vertices: " + position() + " " + vertexCount + " " + vertexSize );
-			tmp.v = new float[vertexCount*3];
-			if( normaled )
-				tmp.n = new float[vertexCount*3];
+			cmesh.data.v = new float[vertexCount*3];
+			if( cmesh.hasNormals )
+				cmesh.data.n = new float[vertexCount*3];
 			
 			for( int i = 0; i < vertexCount; i++ ) {
 				for( int j = 0; j < types.length; j++ ) {
@@ -130,15 +129,15 @@ public class ISM2Decoder extends BinaryReader {
 					switch( types[j].type ) {
 					
 					case T_VERT_VERTICES_VERTEX:
-						tmp.v[i*3] = readFloat32();
-						tmp.v[i*3+1] = readFloat32();
-						tmp.v[i*3+2] = readFloat32();
+						cmesh.data.v[i*3] = readFloat32();
+						cmesh.data.v[i*3+1] = readFloat32();
+						cmesh.data.v[i*3+2] = readFloat32();
 						break;
 						
 					case T_VERT_VERTICES_NORMAL:
-						tmp.n[i*3] = readFloat16();
-						tmp.n[i*3+1] = readFloat16();
-						tmp.n[i*3+2] = readFloat16();
+						cmesh.data.n[i*3] = readFloat16();
+						cmesh.data.n[i*3+1] = readFloat16();
+						cmesh.data.n[i*3+2] = readFloat16();
 						break;
 						
 					default:
@@ -151,14 +150,13 @@ public class ISM2Decoder extends BinaryReader {
 			
 		case T_VERT_TEXCOORDS:
 			System.out.println( "texcoords: " + position() + " " + vertexCount + " " + vertexSize );
-			tmp.t = new float[vertexCount*2];
+			cmesh.data.t = new float[vertexCount*2];
 			
 			for( int i = 0; i < vertexCount; i++ ) {
 				for( int j = 0; j < types.length; j++ ) {
 					position( (int)start + (int)(i*vertexSize+types[j].voffset) );
-					tmp.t[i*2] = readFloat16();
-					tmp.t[i*2+1] = readFloat16();
-					//System.out.println( "Uv: " + readFloat16() + " " + readFloat16() );
+					cmesh.data.t[i*2] = readFloat16();
+					cmesh.data.t[i*2+1] = readFloat16();
 				}
 			}
 			break;
@@ -167,8 +165,6 @@ public class ISM2Decoder extends BinaryReader {
 			System.out.println( "unknown vertex type: " + type );
 			break;
 		}
-		
-		cmesh.vdata.add( tmp );
 	}
 	
 	private void getTriangles() {
@@ -189,25 +185,24 @@ public class ISM2Decoder extends BinaryReader {
 		int count = readInt32();
 		int dataType = readInt32();
 		System.out.println( "indices 1: " + readInt32() );
-		
 		int triangleCount = count / 3;
-		ISM2IndexData tmp = new ISM2IndexData();
-		tmp.i = new int[triangleCount*3];
+		
+		int[] in = new int[triangleCount * 3];
 		switch( dataType ) {
 		
 		case T_INDEX_INT16:
 			for( int i = 0; i < triangleCount; i++ ) {
-				tmp.i[i*3] = readUInt16();
-				tmp.i[i*3+1] = readUInt16();
-				tmp.i[i*3+2] = readUInt16();
+				in[i*3] = readUInt16();
+				in[i*3+1] = readUInt16();
+				in[i*3+2] = readUInt16();
 			}
 			break;
 			
 		case T_INDEX_INT32:
 			for( int i = 0; i < triangleCount; i++ ) {
-				tmp.i[i*3] = readInt32();
-				tmp.i[i*3+1] = readInt32();
-				tmp.i[i*3+2] = readInt32();
+				in[i*3] = readInt32();
+				in[i*3+1] = readInt32();
+				in[i*3+2] = readInt32();
 			}
 			break;
 			
@@ -216,7 +211,28 @@ public class ISM2Decoder extends BinaryReader {
 			break;
 		}
 		
-		cmesh.idata.add( tmp );
+		ISM2SubMesh mesh = new ISM2SubMesh();
+		mesh.v = new float[triangleCount * 3 * 3];
+		if( cmesh.hasNormals ) mesh.n = new float[triangleCount * 3 * 3];
+		if( cmesh.hasTexcoords ) mesh.t = new float[triangleCount * 3 * 2];
+		int tv = 0, tn = 0, tt = 0;
+		for( int i = 0; i < in.length; i++ ) {
+			mesh.v[tv++] = cmesh.data.v[in[i]*3];
+			mesh.v[tv++] = cmesh.data.v[in[i]*3+1];
+			mesh.v[tv++] = cmesh.data.v[in[i]*3+2];
+			
+			if( cmesh.hasNormals ) {
+				mesh.n[tn++] = cmesh.data.n[in[i]*3];
+				mesh.n[tn++] = cmesh.data.n[in[i]*3+1];
+				mesh.n[tn++] = cmesh.data.n[in[i]*3+2];
+			}
+			
+			if( cmesh.hasTexcoords ) {
+				mesh.t[tt++] = cmesh.data.t[in[i]*2];
+				mesh.t[tt++] = cmesh.data.t[in[i]*2+1];
+			}
+		}
+		cmesh.children.add( mesh );
 	}
 	
 	private void processNode( long offset ) {
@@ -312,23 +328,6 @@ public class ISM2Decoder extends BinaryReader {
 		// process chunks
 		for( Long l : chunkMap.keySet() )
 			processChunk( l );
-		
-		// create data object for file
-		for( ISM2Mesh m : data.meshList ) {
-			int tv = 0;
-			for( int i = 0; i < m.idata.size(); i++ ) {
-				int[] index = m.idata.get( i ).i;
-				float[] v = new float[index.length];
-				for( int j = 0; j < index.length; j++ ) {
-					if( index[j] > m.vdata.get( i ).v.length )
-						System.err.println( "fail" );
-					/*v[tv++] = m.vdata.get( i ).v[index[j]];
-					v[tv++] = m.vdata.get( i ).v[index[j]+1];
-					v[tv++] = m.vdata.get( i ).v[index[j]+2];*/
-				}
-				data.v = v;
-			}
-		}
 	}
 	
 	private long[] getOffsets( int amount ) {
