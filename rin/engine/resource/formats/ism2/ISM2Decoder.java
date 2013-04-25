@@ -3,6 +3,7 @@ package rin.engine.resource.formats.ism2;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
 
+import rin.engine.resource.Directory;
 import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.formats.ism2.ISM2Spec.ISM2Mesh;
 import rin.engine.util.ArrayUtils;
@@ -239,10 +240,11 @@ public class ISM2Decoder extends BinaryReader {
 		long size = readUInt32();
 		int count = readInt32();
 		System.out.println( "Animatin at " + (position()-8) + ": " + propMap[readInt32()] );
-		System.out.println( "Animatin 1: " + readInt32() );
+		/*System.out.println( "Animatin 1: " + readInt32() );
 		System.out.println( "Animatin 2: " + readInt32() );
 		System.out.println( "Animatin 3: " + readInt32() );
-		System.out.println( "Animatin 4: " + readInt32() );
+		System.out.println( "Animatin 4: " + readInt32() );*/
+		advance( 4 * 4 );
 		
 		long[] offsets = getOffsets( count );
 		for( int i = 0; i < offsets.length; i++ )
@@ -254,27 +256,41 @@ public class ISM2Decoder extends BinaryReader {
 		System.out.println( "bone at: " + (position() - 4) + " " + size );
 		System.out.println( "bone 1: " + readInt32() );
 		System.out.println( "bone: " + propMap[readInt32()] );
-		System.out.println( "bone 2: " + readInt32() );
-		System.out.println( "bone 3: " + readInt32() );
-		System.out.println( "bone 4: " + readInt32() );
-		System.out.println( "bone 5: " + readInt32() );
+		//System.out.println( "bone 2: " + readInt32() );
+		//System.out.println( "bone 3: " + readInt32() );
+		//System.out.println( "bone 4: " + readInt32() );
+		//System.out.println( "bone 5: " + readInt32() );
+		advance( 4 * 4 );
 		System.out.println( "bone 6: " + readInt32() );
-		System.out.println( "bone 7: " + readInt32() );
+		advance( 4 );
+		//System.out.println( "bone 7: " + readInt32() );
 		System.out.println( "bone: " + propMap[readInt32()] );
 		System.out.println( "DATA COUNT: " + readInt32() );
 		System.out.println( "DATA OFFSET/INDEX?: " + readInt32() );
-		System.out.println( "bone 8: " + readInt32() );
-		System.out.println( "bone 9: " + readInt32() );
-		System.out.println( "bone 10: " + readInt32() );
-		System.out.println( "bone 11: " + readInt32() );
+		//System.out.println( "bone 8: " + readInt32() );
+		//System.out.println( "bone 9: " + readInt32() );
+		//System.out.println( "bone 10: " + readInt32() );
+		advance( 4 * 3 );
+		//System.out.println( "bone 11: " + readInt32() );
+		advance( 4 );
 		System.out.println( "bone 12: " + readInt32() );
 		System.out.println( "bone 13: " + readInt32() );
-		System.out.println( "bone 14: " + readInt32() );
-		System.out.println( "bone 15: " + readInt32() );
+		//System.out.println( "bone 14: " + readInt32() );
+		//System.out.println( "bone 15: " + readInt32() );
+		advance( 4 * 2 );
 		System.out.println( "DATA TYPE: " + readInt32() );
-		System.out.println( "bone 16: " + readInt32() );
-		System.out.println( "bone 17: " + readInt32() );
+		//System.out.println( "bone 16: " + readInt32() );
+		//System.out.println( "bone 17: " + readInt32() );
+		advance( 4 * 2 );
 		System.out.println( position() );
+		//processNode( position() );
+	}
+	
+	private void getSubBone() {
+		long size = readUInt32();
+		System.out.println( "subBone at " + (position() - 4) + " " + size + " " + (position() + size) );
+		position( (int)(position() - 8 + size) );
+		printInt32( 10 );
 	}
 	
 	private void processNode( long offset ) {
@@ -290,6 +306,7 @@ public class ISM2Decoder extends BinaryReader {
 		case N_INDICES: getIndices(); return;
 		case N_ANIMATION: getAnimation(); return;
 		case N_MOTION_BONE: getBone(); return;
+		case 0x20: getSubBone(); return;
 			
 		default:
 			System.out.println( "unknown node: " + node + " [" + String.format( "0x%02x", node ) + "] at " + offset );
@@ -337,11 +354,12 @@ public class ISM2Decoder extends BinaryReader {
 		long size = readUInt32();
 		int count = readInt32();
 		System.out.println( count );
-		System.out.println( "Animations 1: " + readInt32() );
+		/*System.out.println( "Animations 1: " + readInt32() );
 		System.out.println( "Animations 2: " + readFloat32() );
 		System.out.println( "Animations 3: " + readFloat32() );
 		System.out.println( "Animations 4: " + readFloat32() );
-		System.out.println( "Animations 5: " + readInt32() );
+		System.out.println( "Animations 5: " + readInt32() );*/
+		advance( 5 * 4 );
 		long[] offsets = getOffsets( count );
 		for( int i = 0; i < offsets.length; i++ )
 			processNode( offsets[i] );
@@ -372,6 +390,14 @@ public class ISM2Decoder extends BinaryReader {
 	public ISM2Decoder( ResourceIdentifier resource ) {
 		buffer = ByteBuffer.wrap( resource.asByteArray() );
 		init();
+	}
+	
+	public void addAnimationFile( ResourceIdentifier resource ) {
+		
+	}
+	
+	public void addAnimationFiles( Directory directory ) {
+		
 	}
 	
 	private void init() {
