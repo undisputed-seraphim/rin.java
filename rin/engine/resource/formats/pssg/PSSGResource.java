@@ -6,7 +6,7 @@ import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.formats.pssg.PSSGDecoder.ActualAnimation;
 
-public class PSSGResource implements Resource {
+public class PSSGResource {
 
 	private ResourceIdentifier id;
 	private HashMap<String, ActualAnimation> animMap = new HashMap<String, ActualAnimation>();
@@ -23,7 +23,7 @@ public class PSSGResource implements Resource {
 		return animMap.get( name );
 	}
 	
-	@Override
+	//@Override
 	public ResourceIdentifier getIdentifier() { return this.id; }
 	
 }

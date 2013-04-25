@@ -12,7 +12,7 @@ import rin.engine.util.FileUtils;
 import rin.util.bio.BinaryReader;
 import rin.util.dcode.pssg.PSSGFile;
 
-public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
+public class PSSGDecoder extends BinaryReader {
 	
 	private ByteBuffer data;
 	private String magic;
@@ -329,7 +329,7 @@ public class PSSGDecoder extends BinaryReader implements ResourceDecoder {
 			//System.exit( 0 );
 	}
 	
-	@Override
+	//@Override
 	public PSSGResource decode( ResourceIdentifier resource ) {
 		this.data = ByteBuffer.wrap( resource.asByteArray() );
 		header();

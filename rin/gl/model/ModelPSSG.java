@@ -38,7 +38,7 @@ public class ModelPSSG implements Model {
 			try {
 				ResourceIdentifier tmp = ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim" + i + ".pssg" );
 				//System.out.println( "got anim " + i );
-				anims.add( ResourceManager.getDecoder( PSSGDecoder.class ).decode( tmp ) );
+				//anims.add( ResourceManager.getDecoder( PSSGDecoder.class ).decode( tmp ) );
 				//for( String s : res.getAnimationMap().keySet() ) {
 					//ActualAnimation a = res.getAnimation( "PC22_F_WAIT" );
 					//System.out.println( "FIRST: " + s  + " ("+a.boneMap.size() + " bones)" );

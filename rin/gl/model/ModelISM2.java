@@ -19,9 +19,9 @@ public class ModelISM2 implements Model {
 	public Actor fromFile( String file ) {
 		Mesh mesh = new Mesh();
 		ISM2Decoder decoder = new ISM2Decoder( file );
-		for( ISM2Mesh m : decoder.getData().meshList )
+		/*for( ISM2Mesh m : decoder.getData().meshList )
 			for( ISM2SubMesh s : m.children )
-				mesh.addPoly( s.v, s.n, s.t, new float[0] );
+				mesh.addPoly( s.v, s.n, s.t, new float[0] );*/
 		
 		return mesh;		
 	}

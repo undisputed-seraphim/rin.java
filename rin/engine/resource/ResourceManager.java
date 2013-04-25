@@ -1,10 +1,12 @@
 package rin.engine.resource;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 
 import rin.engine.Engine;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
+import rin.engine.util.FileUtils;
 
 public class ResourceManager {
 
@@ -26,15 +28,15 @@ public class ResourceManager {
 	
 	private static final HashMap<Class<?>, ResourceDecoder> decoders = new HashMap<Class<?>, ResourceDecoder>();
 	static {
-		addDecoder( PSSGDecoder.class );
+		//addDecoder( PSSGDecoder.class );
 	}
 	
 	public static <T extends ResourceDecoder> void addDecoder(Class<T> cls ) {
 		try {
 			ResourceManager.decoders.put( cls, cls.newInstance() );
-		} catch (InstantiationException e) {
+		} catch( InstantiationException ex ) {
 			System.err.println( "[ResourceManager] Could not add format ("+cls.getName()+")" );
-		} catch (IllegalAccessException e) {
+		} catch( IllegalAccessException ex ) {
 			System.err.println( "[ResourceManager] Could not add format ("+cls.getName()+")" );
 		}
 	}
@@ -92,4 +94,19 @@ public class ResourceManager {
 		return getCustomResource( "packs" + "/" + pack, resource );
 	}
 	
+	public static Directory getDirectory( URL path, String directory ) {
+		return new Directory( getResourceURL( path.getPath() + directory ) );
+	}
+	
+	public static Directory getPackDirectory( String pack, String ... directory ) {
+		return new Directory( getCustomResourceURL( "packs" + "/" + pack, directory ) );
+	}
+	
+	public static File createPackResource( String pack, String ... resource ) {
+		return FileUtils.createFile( getCustomResourceURL( "packs" + FS + pack, resource ).getPath() );
+	}
+	
+	public static Directory createPackDirectory( String pack, String ... directory ) {
+		return null;
+	}
 }

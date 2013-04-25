@@ -1,7 +1,12 @@
 package rin.engine.resource;
 
-public interface Resource {
-	
-	public ResourceIdentifier getIdentifier();
+import java.io.File;
+
+public class Resource extends File {
+	private static final long serialVersionUID = 7L;
+
+	protected Resource( String file ) {
+		super( file );
+	}
 
 }

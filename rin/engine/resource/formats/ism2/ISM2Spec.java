@@ -8,6 +8,7 @@ public class ISM2Spec {
 	public static final int C_PROPERTIES = 0x21;
 	public static final int C_TEXTURES = 0x2E;
 	public static final int C_VERTEXDATA = 0x0B;
+	public static final int C_ANIMATIONS = 0x34;
 	
 	// nodes
 	public static final int N_TEXTURE = 0x2D;
@@ -15,6 +16,8 @@ public class ISM2Spec {
 	public static final int N_VERTICES = 0x59;
 	public static final int N_TRIANGLES = 0x46;
 	public static final int N_INDICES = 0x45;
+	public static final int N_ANIMATION = 0x50;
+	public static final int N_MOTION_BONE = 0x0F;
 	
 	// key identifiers
 	public static final int T_VERT_VERTICES = 1;
@@ -25,6 +28,9 @@ public class ISM2Spec {
 	
 	public static final int T_INDEX_INT16 = 5;
 	public static final int T_INDEX_INT32 = 7;
+	
+	public static final int T_MOTION_FLOAT3 = 13;
+	public static final int T_MOTION_ANGLE = 5;
 	
 	public static class VertexType {
 		int type;

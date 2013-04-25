@@ -235,6 +235,48 @@ public class ISM2Decoder extends BinaryReader {
 		cmesh.children.add( mesh );
 	}
 	
+	private void getAnimation() {
+		long size = readUInt32();
+		int count = readInt32();
+		System.out.println( "Animatin at " + (position()-8) + ": " + propMap[readInt32()] );
+		System.out.println( "Animatin 1: " + readInt32() );
+		System.out.println( "Animatin 2: " + readInt32() );
+		System.out.println( "Animatin 3: " + readInt32() );
+		System.out.println( "Animatin 4: " + readInt32() );
+		
+		long[] offsets = getOffsets( count );
+		for( int i = 0; i < offsets.length; i++ )
+			processNode( offsets[i] );
+	}
+	
+	private void getBone() {
+		long size = readUInt32();
+		System.out.println( "bone at: " + (position() - 4) + " " + size );
+		System.out.println( "bone 1: " + readInt32() );
+		System.out.println( "bone: " + propMap[readInt32()] );
+		System.out.println( "bone 2: " + readInt32() );
+		System.out.println( "bone 3: " + readInt32() );
+		System.out.println( "bone 4: " + readInt32() );
+		System.out.println( "bone 5: " + readInt32() );
+		System.out.println( "bone 6: " + readInt32() );
+		System.out.println( "bone 7: " + readInt32() );
+		System.out.println( "bone: " + propMap[readInt32()] );
+		System.out.println( "DATA COUNT: " + readInt32() );
+		System.out.println( "DATA OFFSET/INDEX?: " + readInt32() );
+		System.out.println( "bone 8: " + readInt32() );
+		System.out.println( "bone 9: " + readInt32() );
+		System.out.println( "bone 10: " + readInt32() );
+		System.out.println( "bone 11: " + readInt32() );
+		System.out.println( "bone 12: " + readInt32() );
+		System.out.println( "bone 13: " + readInt32() );
+		System.out.println( "bone 14: " + readInt32() );
+		System.out.println( "bone 15: " + readInt32() );
+		System.out.println( "DATA TYPE: " + readInt32() );
+		System.out.println( "bone 16: " + readInt32() );
+		System.out.println( "bone 17: " + readInt32() );
+		System.out.println( position() );
+	}
+	
 	private void processNode( long offset ) {
 		position( (int)offset );
 		int node = readInt32();
@@ -246,6 +288,8 @@ public class ISM2Decoder extends BinaryReader {
 		case N_VERTICES: getVertices(); return;
 		case N_TRIANGLES: getTriangles(); return;
 		case N_INDICES: getIndices(); return;
+		case N_ANIMATION: getAnimation(); return;
+		case N_MOTION_BONE: getBone(); return;
 			
 		default:
 			System.out.println( "unknown node: " + node + " [" + String.format( "0x%02x", node ) + "] at " + offset );
@@ -269,7 +313,7 @@ public class ISM2Decoder extends BinaryReader {
 			propMap[i] = prop;
 		}
 		
-		if( DEBUG ) System.out.println( ArrayUtils.asString( propMap ) );
+		if( DEBUG ) System.out.println( propMap.length + " " + ArrayUtils.asString( propMap ) );
 	}
 	
 	private void getTextures() {
@@ -289,6 +333,20 @@ public class ISM2Decoder extends BinaryReader {
 			processNode( offsets[i] );
 	}
 	
+	private void getAnimations() {
+		long size = readUInt32();
+		int count = readInt32();
+		System.out.println( count );
+		System.out.println( "Animations 1: " + readInt32() );
+		System.out.println( "Animations 2: " + readFloat32() );
+		System.out.println( "Animations 3: " + readFloat32() );
+		System.out.println( "Animations 4: " + readFloat32() );
+		System.out.println( "Animations 5: " + readInt32() );
+		long[] offsets = getOffsets( count );
+		for( int i = 0; i < offsets.length; i++ )
+			processNode( offsets[i] );
+	}
+	
 	private void processChunk( long offset ) {
 		position( (int)offset );
 		int chunk = readInt32();
@@ -298,6 +356,7 @@ public class ISM2Decoder extends BinaryReader {
 		case C_PROPERTIES: getProperties(); return;
 		case C_TEXTURES: getTextures(); return;
 		case C_VERTEXDATA: getVertexData(); return;
+		case C_ANIMATIONS: getAnimations(); return;
 		
 		default:
 			System.out.println( "unknown chunk: " + chunk + " [" + String.format( "0x%02x", chunk ) + "] at " + offset );

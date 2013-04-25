@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
 import rin.engine.resource.ResourceManager;
+import rin.engine.resource.formats.cl3.CL3Decoder;
 import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.view.gui.GUIManager;
@@ -50,7 +51,7 @@ public class Game {
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		init( 900, 600 );
+		//init( 900, 600 );
 		
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
@@ -63,10 +64,11 @@ public class Game {
 				System.out.println( this.target.getName() );
 			}
 		});*/
-		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "003.ism2" ) );
 		
+		init( 900, 600 );
+		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "001.ism2" ) );
 		start();
-		
+		//new CL3Decoder( ResourceManager.getPackResource( "rin", "001.cl3" ) );
 		//Engine.init( 900, 600 );
 		/*ActorList.init();
 		GLRenderThread.init( 900, 600 );
