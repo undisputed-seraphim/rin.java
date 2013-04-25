@@ -163,4 +163,8 @@ public class Directory extends ResourcePointer {
 		fe.run( getResources() );
 	}
 	
+	public void forEachResource( String pattern, ForEach<Resource> fe ) {
+		fe.run( getResources( getResourceNameFilter( pattern, true ) ) );
+	}
+	
 }
