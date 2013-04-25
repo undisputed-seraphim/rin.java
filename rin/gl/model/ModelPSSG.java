@@ -7,6 +7,7 @@ import rin.engine.game.entity.animated.Skeleton;
 import rin.engine.math.Matrix4x4;
 import rin.engine.math.Quaternion;
 import rin.engine.math.Vector3;
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.ResourceManager;
 import rin.engine.resource.ResourceManager.ResourceNotFoundException;
@@ -20,13 +21,13 @@ import rin.util.dcode.pssg.PSSGFile;
 
 public class ModelPSSG implements Model {
 
-	@Override public Actor fromFile( String file ) {
-		System.out.println( file );
-		String path = file.substring( 0, file.lastIndexOf( Engine.LS ) + 1 );
-		String name = file.substring( file.lastIndexOf( Engine.LS ) + 1 );
+	@Override public Actor fromResource( Resource resource ) {
+		//System.out.println( file );
+		String path = resource.getDirectory().getPath();
+		String name = resource.getName();
 		
 		SkinnedMesh mesh = new SkinnedMesh();
-		PSSGFile pssg = new PSSGFile( file );
+		PSSGFile pssg = new PSSGFile( resource.getPath() );
 		pssg.read();
 		
 		PSSGFile.PSSGData data = pssg.getData();
@@ -36,7 +37,7 @@ public class ModelPSSG implements Model {
 		ArrayList<PSSGResource> anims = new ArrayList<PSSGResource>();
 		for( int i = 1; ; i++ ) {
 			try {
-				ResourceIdentifier tmp = ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim" + i + ".pssg" );
+				//ResourceIdentifier tmp = ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim" + i + ".pssg" );
 				//System.out.println( "got anim " + i );
 				//anims.add( ResourceManager.getDecoder( PSSGDecoder.class ).decode( tmp ) );
 				//for( String s : res.getAnimationMap().keySet() ) {

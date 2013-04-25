@@ -23,6 +23,6 @@ public class BMPDecoder extends BinaryReader {
 	}
 	
 	public static void main( String[] args ) {
-		new BMPDecoder( ResourceManager.getPackResource( "rin", "test.bmp" ) );
+		//new BMPDecoder( ResourceManager.getPackResource( "rin", "test.bmp" ) );
 	}
 }

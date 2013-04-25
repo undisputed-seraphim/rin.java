@@ -4,17 +4,18 @@ import java.util.ArrayList;
 
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
+import rin.engine.resource.Resource;
 import rin.gl.lib3d.Mesh;
 import rin.util.Buffer;
 import rin.util.IO;
 import rin.util.XML;
 
 public class ModelDAE implements Model {
-	@Override public Actor fromFile( String file ) {
+	@Override public Actor fromResource( Resource resource ) {
 		ArrayList<Polylist> polylists = new ArrayList<Polylist>();
 		
 		/* create an XML object using file contents */
-		XML xml = new XML( IO.file.asString( file ) );
+		XML xml = new XML( IO.file.asString( resource.getTarget().getPath() ) );
 		//xml.printTree();
 		
 		/* initialize sources and add any vertices as additional sources */
@@ -27,11 +28,11 @@ public class ModelDAE implements Model {
 		
 		//TODO: everything below this line needs tidying up... badly
 		/* DAE models will utilize the mesh class */
-		Mesh mesh = new Mesh( file.substring( file.lastIndexOf( Engine.LS ) + 1, file.lastIndexOf( "." ) ) );
+		Mesh mesh = new Mesh( resource.getBaseName() );
 		mesh.setPicking( true );
 		//mesh.setInterleaved( false );
 		float[] V_SRC, N_SRC, T_SRC;
-		String path = file.substring( 0, file.lastIndexOf( Engine.LS ) + 1 );
+		String path = resource.getDirectory().getPath();
 		ArrayList<Float> v = new ArrayList<Float>();
 		ArrayList<Float> n = new ArrayList<Float>();
 		ArrayList<Float> t = new ArrayList<Float>();

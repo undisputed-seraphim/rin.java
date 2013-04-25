@@ -3,6 +3,7 @@ package rin.gl.model;
 import java.util.ArrayList;
 
 import rin.engine.Engine;
+import rin.engine.resource.Resource;
 import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.ism2.ISM2Spec.ISM2Mesh;
 import rin.engine.resource.formats.ism2.ISM2Spec.ISM2SubMesh;
@@ -16,9 +17,9 @@ import rin.util.Buffer;
 public class ModelISM2 implements Model {
 
 	@Override
-	public Actor fromFile( String file ) {
+	public Actor fromResource( Resource resource ) {
 		Mesh mesh = new Mesh();
-		ISM2Decoder decoder = new ISM2Decoder( file );
+		ISM2Decoder decoder = new ISM2Decoder( resource );
 		/*for( ISM2Mesh m : decoder.getData().meshList )
 			for( ISM2SubMesh s : m.children )
 				mesh.addPoly( s.v, s.n, s.t, new float[0] );*/

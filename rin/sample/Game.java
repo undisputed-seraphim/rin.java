@@ -6,6 +6,7 @@ import static rin.engine.Engine.*;
 import rin.engine.Engine;
 import rin.engine.resource.ResourceManager;
 import rin.engine.resource.formats.cl3.CL3Decoder;
+import rin.engine.resource.formats.cl3.CL3Extractor;
 import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.view.gui.GUIManager;
@@ -64,11 +65,11 @@ public class Game {
 				System.out.println( this.target.getName() );
 			}
 		});*/
-		
-		//init( 900, 600 );
-		//getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "001.ism2" ) );
-		//start();
-		System.out.println( ResourceManager.getPackResource( "rin", "003.ism2" ).getDirectory().getResource( "003.ism2" ).getPath() );
+		//new CL3Extractor( ResourceManager.getPackDirectory( "rin" ) );
+		init( 900, 600 );
+		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "001.ism2" ) );
+		start();
+		//System.out.println( ResourceManager.getPackResource( "rin", "003.ism2" ).getDirectory().getResource( "003.ism2" ).getPath() );
 		//new CL3Decoder( ResourceManager.getPackResource( "rin", "001.cl3" ) );
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

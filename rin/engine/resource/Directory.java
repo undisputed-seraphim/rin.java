@@ -2,6 +2,7 @@ package rin.engine.resource;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 
 public class Directory extends ResourcePointer {
 	
@@ -83,6 +84,10 @@ public class Directory extends ResourcePointer {
 		return getDirectories( getDirectoryNameFilter( pattern, true ) );
 	}
 	
+	public void forEachDirectory( ForEach<Directory> fe ) {
+		fe.run( getDirectories() );
+	}
+	
 	public boolean containsResource( String name ) {
 		if( name == null )
 			return target.listFiles( ONLY_FILES ).length == 0;
@@ -128,6 +133,34 @@ public class Directory extends ResourcePointer {
 	
 	public Resource[] getResources( String pattern ) {
 		return getResources( getResourceNameFilter( pattern, true ) );
+	}
+	
+	public Resource createResource( String name ) {
+		return createResource( name, false );
+	}
+	
+	public Resource createResource( String name, boolean overwrite ) {
+		if( containsResource( name ) ) {
+			if( !overwrite )
+				throw new IllegalArgumentException();
+			
+			return getResource( name );
+		} else {
+			File res = new File( target.getPath() + File.separator + name );
+			try {
+				if( res.createNewFile() ) {
+					return new Resource( res );
+				}
+			} catch( IOException ex ) {
+				// TODO Auto-generated catch block
+			}
+		}
+		
+		throw new IllegalArgumentException();
+	}
+	
+	public void forEachResource( ForEach<Resource> fe ) {
+		fe.run( getResources() );
 	}
 	
 }

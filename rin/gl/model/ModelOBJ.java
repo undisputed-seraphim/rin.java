@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
+import rin.engine.resource.Resource;
 import rin.gl.lib3d.Mesh;
 import rin.util.Buffer;
 import rin.util.IO;
@@ -27,9 +28,9 @@ public class ModelOBJ implements Model {
 		}
 	}
 	
-	@Override public Actor fromFile( String file ) {
-		String[] data = IO.file.asArray( file );
-		String path = file.substring( 0, file.lastIndexOf( Engine.LS ) + 1 );
+	@Override public Actor fromResource( Resource resource ) {
+		String[] data = IO.file.asArray( resource.getPath() );
+		String path = resource.getDirectory().getPath();
 		ArrayList<OBJMesh> overall = new ArrayList<OBJMesh>();
 		ArrayList<float[]> v = new ArrayList<float[]>();
 		ArrayList<float[]> n = new ArrayList<float[]>();

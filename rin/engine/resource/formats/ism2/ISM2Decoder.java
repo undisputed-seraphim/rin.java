@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.TreeMap;
 
 import rin.engine.resource.Directory;
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.formats.ism2.ISM2Spec.ISM2Mesh;
 import rin.engine.util.ArrayUtils;
@@ -387,7 +388,7 @@ public class ISM2Decoder extends BinaryReader {
 		init();
 	}
 	
-	public ISM2Decoder( ResourceIdentifier resource ) {
+	public ISM2Decoder( Resource resource ) {
 		buffer = ByteBuffer.wrap( resource.asByteArray() );
 		init();
 	}

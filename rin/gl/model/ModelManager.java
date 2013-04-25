@@ -2,6 +2,7 @@ package rin.gl.model;
 
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
 
 /**
@@ -13,18 +14,18 @@ import rin.engine.resource.ResourceIdentifier;
  */
 public class ModelManager {
 
-	public static Actor create( Engine.ModelFormat format, String name, String pack ) {
+	/*public static Actor create( Engine.ModelFormat format, String name, String pack ) {
 		String model = Engine.PACK_DIR + pack + Engine.LS + name + Engine.LS + name + "." + format.toString();
 		return format.manager.fromFile( model );
+	}*/
+	
+	public static Actor create( Engine.ModelFormat format, Resource resource ) {
+		return format.manager.fromResource( resource );
 	}
 	
-	public static Actor create( Engine.ModelFormat format, ResourceIdentifier resource ) {
-		return format.manager.fromFile( resource.getURL().getPath() );
-	}
-	
-	public static Actor create( Engine.ModelFormat format, String name ) {
+	/*public static Actor create( Engine.ModelFormat format, String name ) {
 		String model = Engine.MODEL_DIR + name + Engine.LS + name + "." + format.toString();
 		return format.manager.fromFile( model );
-	}
+	}*/
 	
 }

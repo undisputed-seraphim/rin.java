@@ -124,6 +124,13 @@ public class Engine {
 		ModelFormat( Model manager ) {
 			this.manager = manager;
 		}
+		
+		public static ModelFormat fromString( String format ) {
+			for( ModelFormat mf : ModelFormat.values() )
+				if( mf.toString().equalsIgnoreCase( format ) )
+					return mf;
+			return null;
+		}
 	}
 	
 	public static class ModelParams {

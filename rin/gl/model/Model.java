@@ -1,5 +1,6 @@
 package rin.gl.model;
 
+import rin.engine.resource.Resource;
 import rin.gl.lib3d.Actor;
 
 /**
@@ -17,5 +18,5 @@ public interface Model {
 	 * @param file	String filename of the model file to be loaded
 	 * @return		{@link Actor} representing the model in {@param file}
 	 */
-	public Actor fromFile( String file );
+	public Actor fromResource( Resource resource );
 }

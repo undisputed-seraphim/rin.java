@@ -3,6 +3,7 @@ package rin.engine.resource.formats.cl3;
 import java.io.File;
 import java.nio.ByteBuffer;
 
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.ResourceManager;
 import rin.engine.util.FileUtils;
@@ -10,6 +11,7 @@ import rin.util.bio.BinaryReader;
 
 public class CL3Decoder extends BinaryReader {
 
+	private byte[] data;
 	private ByteBuffer buffer;
 	long size;
 	int offset = 0;
@@ -19,8 +21,12 @@ public class CL3Decoder extends BinaryReader {
 		return buffer;
 	}
 	
+	public byte[] getData() {
+		return data;
+	}
+	
 	private void header() {
-		System.out.println( "CL3 file, size: " + length() );
+		//System.out.println( "CL3 file, size: " + length() );
 		char[] c;
 		
 		while( offset == 0 )
@@ -32,17 +38,17 @@ public class CL3Decoder extends BinaryReader {
 		
 		// get ISM files filesize
 		position( offset );
-		printChar( 4 );
+		readChar( 4 );
 		advance( 12 );
 		size = readUInt32();
-		System.out.println( "ISM starts at: " + offset + " and is size " + size );
+		//System.out.println( "ISM starts at: " + offset + " and is size " + size );
 	}
 	
-	public CL3Decoder( ResourceIdentifier resource ) {
+	public CL3Decoder( Resource resource ) {
 		buffer = ByteBuffer.wrap( resource.asByteArray() );
-		File res = FileUtils.createFile( resource.getPath(), resource.getBaseName() + ".ism2" );
+		//File res = FileUtils.createFile( resource.getPath(), resource.getBaseName() + ".ism2" );
 		header();
 		position( offset );
-		FileUtils.writeBytes( res, readInt8( (int)size ) );
+		data = readInt8( (int)size );
 	}
 }

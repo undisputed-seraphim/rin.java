@@ -2,6 +2,8 @@ package rin.engine.resource;
 
 import java.io.File;
 
+import rin.engine.util.FileUtils;
+
 public class Resource extends ResourcePointer {
 
 	private Directory parent;
@@ -25,4 +27,13 @@ public class Resource extends ResourcePointer {
 		
 		return parent;
 	}
+	
+	public byte[] asByteArray() {
+		return FileUtils.asByteArray( target.getPath() );
+	}
+	
+	public void writeBytes( byte[] bytes ) {
+		FileUtils.writeBytes( target, bytes );
+	}
+	
 }
