@@ -1,6 +1,7 @@
 package rin.engine.resource;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -8,12 +9,21 @@ import rin.engine.Engine;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.util.FileUtils;
 
-public class ResourceManager {
+public final class ResourceManager {
 
+	private static final File ROOT_FILE = new File( ResourceManager.class.getResource( "/" ).getPath() );
+	private static final Directory ROOT_DIR = new Directory( ROOT_FILE );
+	private static final Directory PACK_DIR = ROOT_DIR.getDirectory( "packs" );
+	//private static final URL PACK_DIR = ResourceManager.class.getResource( "/packs" );
+	
 	public static class ResourceNotFoundException extends Error {
 		private static final long serialVersionUID = 7L;
 		
 		public ResourceNotFoundException() {}
+	}
+	
+	public static class DirectoryNotFoundException extends Error {
+		private static final long serialVersionUID = 7L;
 	}
 	
 	public static class DecoderNotFoundException extends Error {
@@ -47,6 +57,17 @@ public class ResourceManager {
 			throw new DecoderNotFoundException();
 		
 		return decoder;
+	}
+	
+	public static void p() {
+		System.out.println( ResourceManager.class.getResource( "/" ).getPath() );
+	}
+	
+	private File getFile( String path ) {
+		File res = new File( path );
+		if( !res.exists() ) throw new ResourceNotFoundException();
+
+		return res;
 	}
 	
 	public static URL getResourceURL( String path ) {
@@ -90,17 +111,9 @@ public class ResourceManager {
 		return getCustomResourceURL( "packs" + "/" + pack, resource );
 	}
 	
-	public static ResourceIdentifier getPackResource( String pack, String ... resource ) {
+	/*public static ResourceIdentifier getPackResource( String pack, String ... resource ) {
 		return getCustomResource( "packs" + "/" + pack, resource );
-	}
-	
-	public static Directory getDirectory( URL path, String directory ) {
-		return new Directory( getResourceURL( path.getPath() + directory ) );
-	}
-	
-	public static Directory getPackDirectory( String pack, String ... directory ) {
-		return new Directory( getCustomResourceURL( "packs" + "/" + pack, directory ) );
-	}
+	}*/
 	
 	public static File createPackResource( String pack, String ... resource ) {
 		return FileUtils.createFile( getCustomResourceURL( "packs" + FS + pack, resource ).getPath() );
@@ -108,5 +121,22 @@ public class ResourceManager {
 	
 	public static Directory createPackDirectory( String pack, String ... directory ) {
 		return null;
+	}
+	
+	/* ---------- new and improved logic -------- */
+	
+	public static Resource getPackResource( String pack, String ... resource ) {
+		if( resource.length == 0 )
+			throw new IllegalArgumentException( "ResourceManager#getPackResource() requires a resource string." );
+		
+		return PACK_DIR.getDirectory( pack ).findResource( resource );
+	}
+	
+	public static Directory getPackDirectory( String pack, String ... directory ) {
+		Directory res = PACK_DIR.getDirectory( pack );
+		for( int i = 0; i < directory.length; i++ )
+			res = res.getDirectory( directory[i] );
+		
+		return res;
 	}
 }

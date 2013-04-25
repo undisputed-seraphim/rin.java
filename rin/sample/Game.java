@@ -65,9 +65,10 @@ public class Game {
 			}
 		});*/
 		
-		init( 900, 600 );
-		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "001.ism2" ) );
-		start();
+		//init( 900, 600 );
+		//getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "001.ism2" ) );
+		//start();
+		System.out.println( ResourceManager.getPackResource( "rin", "003.ism2" ).getDirectory().getResource( "003.ism2" ).getPath() );
 		//new CL3Decoder( ResourceManager.getPackResource( "rin", "001.cl3" ) );
 		//Engine.init( 900, 600 );
 		/*ActorList.init();

@@ -27,6 +27,8 @@ import rin.world.WorldController;
 
 public class Engine {
 	
+	public static boolean isJar() { return false; }
+	
 	private volatile static View view = null;
 	public static View getView() {
 		if( Engine.view == null )
