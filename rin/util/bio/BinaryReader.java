@@ -28,7 +28,7 @@ public abstract class BinaryReader {
     
     public void setBigEndian() { this.getBuffer().order( ByteOrder.BIG_ENDIAN ); }
     public void setLittleEndian() { this.getBuffer().order( ByteOrder.LITTLE_ENDIAN ); }
-    
+
     private void ensureSize( int bytes, int amount, String type ) {
     	if( this.position() + bytes * amount > this.length() )
     		System.out.println( "BinaryBufferCapacityException" );
@@ -503,5 +503,10 @@ public abstract class BinaryReader {
     		System.out.println( readFloat64() );
     	return this;
     }
-
+    
+    protected void exitWithError( String error ) {
+		System.err.println( error );
+		System.exit( 0 );
+	}
+	
 }

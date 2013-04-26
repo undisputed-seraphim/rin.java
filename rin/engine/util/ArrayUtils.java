@@ -83,4 +83,21 @@ public class ArrayUtils {
 		return res;
 	}
 	
+	@SuppressWarnings( "unchecked" )
+	public static <T> T merge( T ... arr ) {
+		int len = 0;
+		for( T t : arr )
+			len += Array.getLength( t );
+		
+		Class<?> componentType = arr.getClass().getComponentType();
+		T res = (T)Array.newInstance( componentType, len );
+		
+		len = 0;
+		for( T t : arr )
+			for( int i = 0; i < Array.getLength( t ); i++ )
+				Array.set( res, len++, componentType.cast( Array.get( t, i ) ) );
+		
+		return res;
+	}
+	
 }

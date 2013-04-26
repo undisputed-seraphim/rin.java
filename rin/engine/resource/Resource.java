@@ -1,12 +1,16 @@
 package rin.engine.resource;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
+import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
 
 public class Resource extends ResourcePointer {
 
 	private Directory parent;
+	private FileOutputStream fos;
 	
 	public Resource( File file ) {
 		super( file );
@@ -28,8 +32,36 @@ public class Resource extends ResourcePointer {
 		return parent;
 	}
 	
+	public boolean isOpen() {
+		return fos != null;
+	}
+	
+	public void openDynamicStream() {
+		if( fos == null )
+			fos = FileUtils.getOutputStream( target );
+	}
+	
+	public void closeDynamicStream() {
+		if( fos != null ) {
+			try {
+				fos.flush();
+				fos.close();
+			} catch( IOException ex ) {
+				System.out.println( "IOEXCEPTION" );
+			}
+		}
+	}
+	
 	public byte[] asByteArray() {
 		return FileUtils.asByteArray( target.getPath() );
+	}
+	
+	public void writeDynamicBytes( byte[] bytes ) {
+		FileUtils.writeBytes( fos, bytes );
+	}
+	
+	public void writeDynamicString( String str ) {
+		FileUtils.writeBytes( fos, str.getBytes(), System.getProperty( "line.separator" ).getBytes() );
 	}
 	
 	public void writeBytes( byte[] bytes ) {

@@ -34,7 +34,7 @@ public class FileUtils {
 			res = new byte[in.available()];
 			in.read( res );
 			return res;
-		} catch( IOException e1 ) {
+		} catch( IOException ex ) {
 			System.out.println( "IOException raised in asByteArray. [" + file + "]" );
 		}
 		
@@ -57,21 +57,43 @@ public class FileUtils {
 	}
 	
 	public static boolean writeBytes( File file, byte[] bytes ) {
-		FileOutputStream fos;
+		FileOutputStream fos = getOutputStream( file );
 		try {
-			fos = new FileOutputStream( file );
-			try {
-				fos.write( bytes );
-				fos.close();
-			} catch( IOException ex ) {
-				System.out.println( "IOEXCEPTION" );
-				// TODO Auto-generated catch block
-			}
+			writeBytes( fos, bytes );
+			fos.close();
 			return true;
-		} catch( FileNotFoundException ex ) {
-			// TODO add exception
+		} catch( IOException ex ) {
+			System.out.println( "IOEXCEPTION" );
+			// TODO Auto-generated catch block
 		}
 		
 		return false;
 	}
+	
+	public static boolean writeBytes( FileOutputStream fos, byte[] ... bytes ) {
+		try {
+			for( int i = 0; i < bytes.length; i++ )
+				fos.write( bytes[i] );
+			fos.flush();
+			return true;
+		} catch( IOException ex ) {
+			System.out.println( "IOEXCEPTION" );
+		}
+		
+		return false;
+	}
+	
+	public static FileOutputStream getOutputStream( File file ) {
+		FileOutputStream fos;
+		try {
+			fos = new FileOutputStream( file );
+			return fos;
+		} catch( FileNotFoundException ex ) {
+			System.out.println( "FILENOTFOUND" );
+			// TODO Auto-generated catch block
+		}
+		
+		return null;
+	}
+	
 }
