@@ -45,6 +45,17 @@ public abstract class BinaryReader {
     	return amount;
     }
     
+    private int createMask( int length ) {
+    	String res = "";
+    	for( int i = 0; i < length; i++ )
+    		res += "1";
+    	return Integer.parseInt( res, 2 );
+    }
+    
+    public <T> int getBits( int value, int bits, int index ) {
+    	return ( value & ( createMask( bits ) << index ) ) >> index;
+    }
+    
     public <T> T read( BinaryType<T> type ) { return this.read( type, false ); }
     private <T> T read( BinaryType<T> type, boolean preview ) {
         int start = this.position();
@@ -120,6 +131,24 @@ public abstract class BinaryReader {
     	
     	return res;
     }
+    
+    public int getBitSet( byte value, int bit ) {
+    	return ( value & ( 1 << bit ) );
+    } 
+    
+    public byte[] readBits32() {
+    	byte[] res = new byte[8*4];
+    	//[ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0 ]
+    	//[ 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
+
+    	byte[] bytes = ByteBuffer.allocate( 4 ).putInt( readInt32() ).array();
+    	int k = 0;
+    	for( int i = 0; i < bytes.length; i++ )
+    		for( int j = 0; j < 8; j++ )
+    			res[k++] = ((bytes[i] >> j) & 1) == 1 ? (byte)1 : (byte)0;
+    	return res;
+    }
+    
     public byte[][] readBits( int amount ) {
     	byte[][] res = new byte[amount][];
     	for( int i = 0; i < amount; i++ )
@@ -156,7 +185,7 @@ public abstract class BinaryReader {
     	return res;
     }
     
-    public int readHex() { return Integer.parseInt( String.format( "%02x", this.getBuffer().get() ) ); }
+    public int readHex() { return Integer.parseInt( String.format( "%02x", this.getBuffer().get() ), 16 ); }
     public int[] readHex( int amount ) {
     	int[] res = new int[amount];
     	for( int i = 0; i < amount; i++ )
@@ -452,6 +481,20 @@ public abstract class BinaryReader {
     									Float.NaN : Float.POSITIVE_INFINITY :
     										Math.pow( 2, exponent - 15) * (1 + fraction / 0x400)
     			) : 0x0400 * (fraction / 0x400) ));
+    }
+    
+    public float[] readFloat16( int amount ) {
+    	float[] res = new float[amount];
+    	for( int i = 0; i < amount; i++ )
+    		res[i] = readFloat16();
+    	return res;
+    }
+    
+    public BinaryReader printFloat16() { return printFloat16( 1 ); }
+    public BinaryReader printFloat16( int amount ) {
+    	for( int i = 0; i < amount; i++ )
+    		System.out.println( readFloat16() );
+    	return this;
     }
     
     public float readFloat32() { return this.getBuffer().getFloat(); }

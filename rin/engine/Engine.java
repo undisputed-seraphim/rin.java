@@ -16,6 +16,7 @@ import rin.gl.event.GLEventThread;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.model.Model;
 import rin.gl.model.ModelDAE;
+import rin.gl.model.ModelGMO;
 import rin.gl.model.ModelISM2;
 import rin.gl.model.ModelManager;
 import rin.gl.model.ModelOBJ;
@@ -117,7 +118,8 @@ public class Engine {
 		DAE		( new ModelDAE() ),
 		OBJ		( new ModelOBJ() ),
 		PSSG	( new ModelPSSG() ),
-		ISM2	( new ModelISM2() );
+		ISM2	( new ModelISM2() ),
+		GMO		( new ModelGMO() );
 		
 		public Model manager;
 		

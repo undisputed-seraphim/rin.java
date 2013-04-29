@@ -83,19 +83,21 @@ public class ArrayUtils {
 		return res;
 	}
 	
+	public static <T> T flatten( T[] arr, T res ) {
+		int k = 0;
+		for( int i = 0; i < arr.length; i++ )
+			for( int j = 0; j < Array.getLength( arr[i] ); j++ ) {
+				Array.set( res, k++, Array.get( arr[i], j ) );
+			}
+		return res;
+	}
+	
 	@SuppressWarnings( "unchecked" )
-	public static <T> T merge( T ... arr ) {
-		int len = 0;
-		for( T t : arr )
-			len += Array.getLength( t );
-		
-		Class<?> componentType = arr.getClass().getComponentType();
-		T res = (T)Array.newInstance( componentType, len );
-		
-		len = 0;
+	public static <T> T merge( T res, T ... arr ) {
+		int k = 0;
 		for( T t : arr )
 			for( int i = 0; i < Array.getLength( t ); i++ )
-				Array.set( res, len++, componentType.cast( Array.get( t, i ) ) );
+				Array.set( res, k++, Array.get( t, i ) );
 		
 		return res;
 	}

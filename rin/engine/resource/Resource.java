@@ -9,6 +9,8 @@ import rin.engine.util.FileUtils;
 
 public class Resource extends ResourcePointer {
 
+	private static final String LS = System.getProperty( "line.separator" );
+	
 	private Directory parent;
 	private FileOutputStream fos;
 	
@@ -56,12 +58,30 @@ public class Resource extends ResourcePointer {
 		return FileUtils.asByteArray( target.getPath() );
 	}
 	
+	public Resource write( Object ... o ) {
+		for( int i = 0 ; i < o.length; i++ )
+			FileUtils.writeBytes( fos, o[i].toString().getBytes() );
+		return this;
+	}
+	
+	public Resource writeLine( Object ... o ) {
+		for( int i = 0 ; i < o.length; i++ )
+			FileUtils.writeBytes( fos, o[i].toString().getBytes() );
+		FileUtils.writeBytes( fos, LS.getBytes() );
+		return this;
+	}
+	
+	public Resource endl() {
+		FileUtils.writeBytes( fos, LS.getBytes() );
+		return this;
+	}
+	
 	public void writeDynamicBytes( byte[] bytes ) {
 		FileUtils.writeBytes( fos, bytes );
 	}
 	
 	public void writeDynamicString( String str ) {
-		FileUtils.writeBytes( fos, str.getBytes(), System.getProperty( "line.separator" ).getBytes() );
+		FileUtils.writeBytes( fos, str.getBytes(), LS.getBytes() );
 	}
 	
 	public void writeBytes( byte[] bytes ) {
