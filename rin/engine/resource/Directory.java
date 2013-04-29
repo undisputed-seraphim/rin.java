@@ -84,6 +84,17 @@ public class Directory extends ResourcePointer {
 		return getDirectories( getDirectoryNameFilter( pattern, true ) );
 	}
 	
+	public Directory createDirectory( String name ) {
+		if( containsDirectory( name ) )
+			return getDirectory( name );
+		
+		File res = new File( target.getPath() + File.separator + name );
+		if( res.mkdir() )
+			return new Directory( res );
+		
+		throw new IllegalArgumentException();
+	}
+	
 	public void forEachDirectory( ForEach<Directory> fe ) {
 		fe.run( getDirectories() );
 	}
@@ -142,7 +153,7 @@ public class Directory extends ResourcePointer {
 	public Resource createResource( String name, boolean overwrite ) {
 		if( containsResource( name ) ) {
 			if( !overwrite )
-				throw new IllegalArgumentException();
+				throw new ResourceManager.ResourceExistsException();
 			
 			return getResource( name );
 		} else {

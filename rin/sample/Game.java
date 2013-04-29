@@ -55,21 +55,17 @@ public class Game {
 		//getWindow( "yup" ).destroy();
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		//new GMODecoder( ResourceManager.getPackResource( "rin", "test.gmo" ) );
+		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
 		init( 900, 600 );
 		getScene().addModel( ResourceManager.getPackResource( "rin", "test.gmo" ) );
 		start();
+		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
 				System.out.println( this.target + "yes" );
 			}
 		});*/
 		
-		/*getScene().addModel( new ModelParams( ModelFormat.PSSG, "meruru", "meruru/models" ) ).onLoad( new LoaderEvent<Actor>() {
-			public void handle() {
-				System.out.println( this.target.getName() );
-			}
-		});*/
 		//new CL3Extractor( ResourceManager.getPackDirectory( "rin" ) );
 		
 		//new BRRESDecoder( ResourceManager.getPackResource( "rin", "test.brres" ) );

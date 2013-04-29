@@ -2,6 +2,7 @@ package rin.engine.resource.formats.gmo;
 
 import static rin.engine.resource.formats.gmo.GMOSpec.*;
 import rin.engine.resource.Resource;
+import rin.util.Buffer;
 import rin.util.bio.BaseBinaryReader;
 
 public class GMODecoder extends BaseBinaryReader {
@@ -100,7 +101,7 @@ public class GMODecoder extends BaseBinaryReader {
 		//System.out.println( "bones at " + offset + " " + size + " " + ( (offset + hsize) - position() ) + " " + (16 * 4) );
 		advance( 8 );
 		cSkeleton.bones.add( new Bone( getName() ) );
-		
+
 		position( offset + hsize );
 		while( position() < (offset + size) )
 			processChunk( position() );
@@ -112,10 +113,11 @@ public class GMODecoder extends BaseBinaryReader {
 	}
 	
 	private void getBoneLinks( int offset, short hsize, int size ) {
-		//System.out.println( "bone references at " + offset + " " + size );
+		//System.out.println( "bone references at " + offset + " " + size + " " + hsize );
 		cSkeleton.refs = new int[ readInt32() ];
-		for( int i = 0; i < cSkeleton.refs.length; i++ )
+		for( int i = 0; i < cSkeleton.refs.length; i++ ) {
 			cSkeleton.refs[i] = readHex(); readInt8( 3 );
+		}
 	}
 	
 	private void getBoneMatrices( int offset, short hsize, int size ) {
@@ -200,8 +202,10 @@ public class GMODecoder extends BaseBinaryReader {
 	private void getMeshWeights( int offset, short hsize, int size ) {
 		//System.out.println( "mesh weights at " + offset + " " + size + " " + hsize );
 		cMesh.weighted = new int[readInt32()];
-		for( int i = 0; i < cMesh.weighted.length; i++ )
+		for( int i = 0; i < cMesh.weighted.length; i++ ) {
 			cMesh.weighted[i] = readInt32();
+			//System.out.println( "bone " + cSkeleton.bones.get( cMesh.weighted[i] ).name + " has weights." );
+		}
 	}
 	
 	private void getMeshIndices( int offset, short hsize, int size ) {
@@ -224,8 +228,7 @@ public class GMODecoder extends BaseBinaryReader {
 			//TODO: word describing first index, not sure what to do after
 			break;
 		}
-		
-		//System.out.println( "Mesh indices finished at " + position() + " " + cMesh.stride + " (" + (offset+size) +")" );
+		//System.out.println( "Mesh indices finished at " + position() );
 	}
 	
 	private void getMeshWat( int offset, short hsize, int size ) {
@@ -275,9 +278,9 @@ public class GMODecoder extends BaseBinaryReader {
 			cVertices.v[tv++] = readInt16() / 65535.0f;
 			cVertices.v[tv++] = readInt16() / 65535.0f;
 			
-			for( int i = 0; i < cVertices.weightCount; i++ ) {
+			/*for( int i = 0; i < cVertices.weightCount; i++ ) {
 				System.out.println( " weight: " + readUInt16() );
-			}
+			}*/
 		}
 	}
 	
@@ -324,8 +327,94 @@ public class GMODecoder extends BaseBinaryReader {
 	}
 	
 	private void getTextureData( int offset, short hsize, int size ) {
-		//System.out.println( "texture data at " + offset + " " + size + " " + hsize );
-		cTexture.data = readInt8( readInt32() );
+		//System.out.println( "texture data at " + offset + " " + size + " " + hsize + " " + cTexture.file );
+		int texSize = readInt32();
+		//cTexture.data = readInt8( texSize );
+		
+		if( readChar() == 'M' && readChar() == 'I' && readChar() == 'G' && readChar() == '.' ) {
+			char[] version = readChar( 4 );
+			char[] format = readChar( 4 );
+			advance( 4 );
+			
+			int w = 0, h = 0;
+			
+			int imgOffset = 0;
+			int imgFormat = 0;
+			int imgPixel = 0;
+			int imgDepth = 0;
+			short[] imgData8 = new short[0];
+			
+			int palOffset = 0;
+			int palFormat = 0;
+			int palColors = 0;
+			short[] palData8 = new short[0];
+			
+			while( position() < (offset+size) ) {
+				int begin = position();
+				int section = readInt16(); advance( 6 );
+				int secSize = readInt32(); advance( 4 );
+				
+				switch( section ) {
+				
+				case T_TEXTURE_GIM_IMG:
+					imgOffset = position() + readInt16(); advance( 2 );
+					imgFormat = readInt16();
+					imgPixel = readInt16();
+					w = readInt16();
+					h = readInt16();
+					imgDepth = readInt16();
+					
+					switch( imgFormat ) {
+					
+					case 0x05:
+						position( imgOffset ); advance( 16 );
+						imgData8 = readUInt8( (begin+secSize) - position() );
+						break;
+						
+					default:
+						System.err.println( "unimplemented gim image format!" );
+						break;
+					}
+					break;
+					
+				case T_TEXTURE_GIM_PAL:
+					palOffset = position() + readInt16(); advance( 2 );
+					palFormat = readInt16(); advance( 2 );
+					palColors = readInt16();
+					
+					switch( palFormat ) {
+					
+					case T_GIM_PAL_RGBA8888:
+						position( palOffset ); advance( 16 );
+						palData8 = readUInt8( (begin+secSize) - position() );
+						break;
+						
+					default:
+						System.err.println( "unimplemented gim pallete format!" );
+						break;
+					}
+					break;
+					
+				default:
+					//System.out.println( "unkown section: " + section );
+					break;
+				}
+				position( begin + secSize );
+			}
+			
+			//construct actual image data from palData and imgData
+			cTexture.width = w;
+			cTexture.height = h;
+			cTexture.rawData = new short[ w * h * 4 ];
+			for( int i = 0; i < w * h; i++ ) {
+				cTexture.rawData[ i*4 ] = palData8[ imgData8[i] * 4 ];
+				cTexture.rawData[ i*4+1 ] = palData8[ imgData8[i] * 4 + 1 ];
+				cTexture.rawData[ i*4+2 ] = palData8[ imgData8[i] * 4 + 2 ];
+				cTexture.rawData[ i*4+3 ] = palData8[ imgData8[i] * 4 + 3 ];
+			}
+		} else System.err.println( "[ERROR] UKNOWN TEXTURE DATA FORMAT" );
+		
+		position( offset + size );
 	}
 	
 	private void getAnimation( int offset, short hsize, int size ) {
@@ -458,7 +547,7 @@ public class GMODecoder extends BaseBinaryReader {
 					System.out.println("YES");
 				}
 			} else {
-				//System.out.println( "("+String.format( "0x%04x", type)+") ended: " + position() + " expexcted: " + (offset + size) + " " + (position()%4==0));
+				System.out.println( "("+String.format( "0x%04x", type)+") ended: " + position() + " expexcted: " + (offset + size) + " " + (position()%4==0));
 			}
 		}
 		position( offset + size );
@@ -493,6 +582,21 @@ public class GMODecoder extends BaseBinaryReader {
 		debug.openDynamicStream();
 		processChunk( position() );
 		debug.closeDynamicStream();
+		
+		//create meshgroups based on texture
+		for( SubFile file : gmo.files ) {
+			for( Surface s : file.surfaces ) {
+				for( Mesh m : s.meshes ) {
+					if( m.weighted.length > 0 ) {
+						System.out.println( m.name + " should  have weights..." + s.vertices.get( m.vertices ).weightCount + " " + m.weighted.length );
+					}
+					MeshGroup mg = s.getGroup( file.materials.get( m.material ).texture );
+					mg.v.addAll( Buffer.toArrayList( m.v ) );
+					mg.t.addAll( Buffer.toArrayList( m.t ) );
+				}
+			}
+		}
+		
 		System.out.println( "done." );
 	}
 	

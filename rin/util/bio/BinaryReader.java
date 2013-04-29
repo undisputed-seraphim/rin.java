@@ -3,6 +3,8 @@ package rin.util.bio;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import rin.engine.util.ArrayUtils;
+
 import static rin.util.bio.BinaryTypes.*;
 
 public abstract class BinaryReader {
@@ -127,9 +129,8 @@ public abstract class BinaryReader {
     	
     	byte b = this.getBuffer().get();
     	for( int i = 0; i < 8; i++ )
-    		res[i] = (b & i) == i ? (byte)1 : (byte)0;
-    	
-    	return res;
+    		res[i] = ((b >> i) & 1) == 1 ? (byte)1 : (byte)0;
+    	return ArrayUtils.flip( res );
     }
     
     public int getBitSet( byte value, int bit ) {
@@ -146,7 +147,7 @@ public abstract class BinaryReader {
     	for( int i = 0; i < bytes.length; i++ )
     		for( int j = 0; j < 8; j++ )
     			res[k++] = ((bytes[i] >> j) & 1) == 1 ? (byte)1 : (byte)0;
-    	return res;
+    	return ArrayUtils.flip( res );
     }
     
     public byte[][] readBits( int amount ) {

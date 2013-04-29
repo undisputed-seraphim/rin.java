@@ -14,12 +14,17 @@ public final class ResourceManager {
 	private static final File ROOT_FILE = new File( ResourceManager.class.getResource( "/" ).getPath() );
 	private static final Directory ROOT_DIR = new Directory( ROOT_FILE );
 	private static final Directory PACK_DIR = ROOT_DIR.getDirectory( "packs" );
-	//private static final URL PACK_DIR = ResourceManager.class.getResource( "/packs" );
 	
 	public static class ResourceNotFoundException extends Error {
 		private static final long serialVersionUID = 7L;
 		
 		public ResourceNotFoundException() {}
+	}
+	
+	public static class ResourceExistsException extends Error {
+		private static final long serialVersionUID = 7L;
+		
+		public ResourceExistsException() {}
 	}
 	
 	public static class DirectoryNotFoundException extends Error {

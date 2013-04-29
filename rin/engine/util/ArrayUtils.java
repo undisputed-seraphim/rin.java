@@ -83,6 +83,14 @@ public class ArrayUtils {
 		return res;
 	}
 	
+	public static byte[] flip( byte[] arr ) {
+		byte[] res = new byte[arr.length];
+		for( int i = 0; i < arr.length; i++ )
+			res[arr.length-1-i] = arr[i];
+		arr = res;
+		return res;
+	}
+	
 	public static <T> T flatten( T[] arr, T res ) {
 		int k = 0;
 		for( int i = 0; i < arr.length; i++ )

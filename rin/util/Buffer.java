@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 public class Buffer {
@@ -122,6 +123,25 @@ public class Buffer {
 				res.add( arr[ ind[ i ] * count + k ] );
 		return res;
 	}
+	
+	public static ByteBuffer toByteBuffer( short[] arr ) {
+		ByteBuffer bb = ByteBuffer.allocateDirect( arr.length );
+		for( int i = 0; i < arr.length; i++ )
+			bb.put( (byte)arr[i] );
+		bb.flip();
+		return bb;
+	}
+	public static ShortBuffer toBuffer( short[] arr ) { return Buffer.toBuffer( arr, false ); }
+	public static ShortBuffer toBuffer( short[] arr, boolean endian ) {
+		ByteBuffer bb = ByteBuffer.allocateDirect( arr.length * 2 );
+		bb.order( endian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN );
+		ShortBuffer sb = bb.asShortBuffer();
+		for( short s : arr )
+			sb.put( s );
+		sb.flip();
+		return sb;
+	}
+	
 	public static FloatBuffer toBuffer( float[] arr ) { return Buffer.toBuffer( arr, false ); }
 	public static FloatBuffer toBuffer( float[] arr, boolean endian ) {
 		ByteBuffer bb = ByteBuffer.allocateDirect( arr.length * 4 );

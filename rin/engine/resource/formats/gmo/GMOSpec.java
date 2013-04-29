@@ -78,6 +78,9 @@ public class GMOSpec {
 	public static final int C_TEXTURE = 0x000A;
 		public static final int C_TEXTURE_FILE = 0x8012;
 		public static final int C_TEXTURE_DATA = 0x8013;
+			public static final int T_TEXTURE_GIM_IMG = 0x04;
+			public static final int T_TEXTURE_GIM_PAL = 0x05;
+				public static final int T_GIM_PAL_RGBA8888 = 0x03;
 	
 	public static final int C_ANIMATION = 0x000B;
 		public static final int C_ANIMATION_TIMES = 0x80B1;
@@ -132,11 +135,11 @@ public class GMOSpec {
 		public int stride;
 		public int count;
 		
-		public int[] weighted;
+		public int[] weighted = new int[0];
 		
-		public float[] v;
-		public float[] n;
-		public float[] t;
+		public float[] v = new float[0];
+		public float[] n = new float[0];
+		public float[] t = new float[0];
 		
 		public Mesh( String n ) {
 			name = n;
@@ -183,10 +186,30 @@ public class GMOSpec {
 		}
 	}
 	
+	public static class MeshGroup {
+		public int texture;
+		public ArrayList<Float> v = new ArrayList<Float>();
+		public ArrayList<Float> t = new ArrayList<Float>();
+		
+		public MeshGroup( int tex ) {
+			texture = tex;
+		}
+	}
+	
 	public static class Surface {
 		public String name;
 		public ArrayList<Mesh> meshes = new ArrayList<Mesh>();
+		public ArrayList<MeshGroup> groups = new ArrayList<MeshGroup>();
 		public ArrayList<Vertices> vertices = new ArrayList<Vertices>();
+		
+		public MeshGroup getGroup( int texture ) {
+			for( MeshGroup mg : groups )
+				if( mg.texture == texture )
+					return mg;
+			
+			groups.add( new MeshGroup( texture ) );
+			return groups.get( groups.size() - 1 );
+		}
 		
 		public Surface( String n ) {
 			name = n;
@@ -195,7 +218,7 @@ public class GMOSpec {
 	
 	public static class Material {
 		public String name;
-		public int texture;
+		public int texture = -1;
 		
 		public Material( String n ) {
 			name = n;
@@ -205,7 +228,9 @@ public class GMOSpec {
 	public static class Texture {
 		public String name;
 		public String file;
-		public byte[] data;
+		public int width = 0;
+		public int height = 0;
+		public short[] rawData;
 		
 		public Texture( String n ) {
 			name = n;

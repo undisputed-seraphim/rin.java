@@ -3,6 +3,7 @@ package rin.gl;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -59,6 +60,33 @@ public class TextureManager {
 		TextureManager.ids.add( gl );
 		TextureManager.uses.add( 0 );
 		return gl;
+	}
+	
+	public static int load( String file, int width, int height, short[] rawData ) {
+		if( TextureManager.names.indexOf( file ) != -1 ) {
+			int pos = TextureManager.names.indexOf( file );
+			TextureManager.notify( "[NOTIFY] Texture [" + file + "] already loaded at " + TextureManager.ids.get( pos ) + "." );
+			TextureManager.uses.set( pos, TextureManager.uses.get( pos ) + 1 );
+			return TextureManager.ids.get( pos );
+		}
+		
+		int texture = glGenTextures();
+		glBindTexture( GL_TEXTURE_2D, texture );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+		glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Buffer.toByteBuffer( rawData ) );
+		
+		if( texture != -1 ) {
+			System.out.println( "[LOADED] Texture [" + file + "] loaded at " + texture + "." );
+			TextureManager.names.add( file );
+			TextureManager.ids.add( texture );
+			TextureManager.uses.add( 1 );
+		}
+		
+		return texture;
 	}
 	
 	/** Create an opengl Texture resource.

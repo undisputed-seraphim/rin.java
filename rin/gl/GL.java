@@ -247,7 +247,7 @@ public class GL extends SingletonThread<GL> {
 		this.camera.init();
 		
 		this.worker = new GLWorkerThread();
-		GL.cl = new CL( Display.getDrawable() );
+		//GL.cl = new CL( Display.getDrawable() );
 		
 		/*GLGUIFactory.init( GL.width, GL.height );
 		
