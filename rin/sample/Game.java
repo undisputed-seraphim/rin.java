@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
+import rin.engine.resource.FormatManager;
 import rin.engine.resource.ResourceManager;
 import rin.engine.resource.formats.acb.ACBDecoder;
 import rin.engine.resource.formats.brres.BRRESDecoder;
@@ -57,8 +58,10 @@ public class Game {
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
 		init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "rin", "test.gmo" ) );
+		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "test.gmo" ) );
 		start();
+		
+		//FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "test.brres" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {

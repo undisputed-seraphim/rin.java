@@ -100,7 +100,22 @@ public class ArrayUtils {
 		return res;
 	}
 	
-	@SuppressWarnings( "unchecked" )
+	public static float min( float[] arr ) {
+		float min = arr[0];
+		for( float f : arr )
+			if( f < min )
+				min = f;
+		return min;
+	}
+	
+	public static float max( float[] arr ) {
+		float max = arr[0];
+		for( float f : arr )
+			if( f > max )
+				max = f;
+		return max;
+	}
+	
 	public static <T> T merge( T res, T ... arr ) {
 		int k = 0;
 		for( T t : arr )

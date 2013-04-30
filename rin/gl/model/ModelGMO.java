@@ -21,6 +21,7 @@ public class ModelGMO implements Model {
 		GMODecoder gmo = new GMODecoder( resource );
 		
 		Mesh mesh = new Mesh();
+		int count = 0;
 		ArrayList<Float> v = new ArrayList<Float>();
 		for( SubFile file : gmo.getData().files ) {
 			String[] tex = new String[ file.textures.size() ];
@@ -33,10 +34,12 @@ public class ModelGMO implements Model {
 			
 			for( Surface s : file.surfaces ) {
 				for( MeshGroup mg : s.groups ) {
+					count++;
 					mesh.addPoly( Buffer.toArrayf( mg.v ), new float[0], Buffer.toArrayf( mg.t ), tex[mg.texture] );
 				}
 			}
 		}
+		System.out.println( "COUNT: " + count );
 		//mesh.addPoly( Buffer.toArrayf( v ), new float[0], new float[0], new float[0] );
 		
 		//gmo.destroy();

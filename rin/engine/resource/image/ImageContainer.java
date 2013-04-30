@@ -1,4 +1,4 @@
-package rin.engine.resource.format;
+package rin.engine.resource.image;
 
 import rin.engine.resource.ResourceContainer;
 

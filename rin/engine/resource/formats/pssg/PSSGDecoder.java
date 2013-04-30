@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import rin.engine.Engine;
-import rin.engine.resource.ResourceDecoder;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
 import rin.util.bio.BinaryReader;

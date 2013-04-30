@@ -1,12 +1,17 @@
-package rin.engine.resource.formats.gmo;
+package rin.engine.resource.model.gmo;
 
-import static rin.engine.resource.formats.gmo.GMOSpec.*;
+import static rin.engine.resource.model.gmo.GmoSpec.*;
+
+import java.nio.ByteBuffer;
+
 import rin.engine.resource.Resource;
-import rin.engine.util.ArrayUtils;
+import rin.engine.resource.model.ModelContainer;
+import rin.engine.resource.model.ModelDecoder;
+import rin.engine.resource.model.ModelOptions;
 import rin.util.Buffer;
-import rin.util.bio.BaseBinaryReader;
+import rin.util.bio.BinaryReader;
 
-public class GMODecoder extends BaseBinaryReader {
+public class GmoDecoder extends BinaryReader implements ModelDecoder {
 	
 	private GMO gmo;
 	private SubFile cSubFile;
@@ -157,170 +162,26 @@ public class GMODecoder extends BaseBinaryReader {
 		for( Mesh m : cSurface.meshes ) {
 			Vertices tmp = cSurface.vertices.get( m.vertices );
 			int tv = 0, tt = 0;
-			switch( m.type ) {
-			
-			case T_MESH_TRI:
-				m.v = new float[ m.i.length * 3 * m.stride ];
-				m.t = new float[ m.i.length * 2 * m.stride ];
-				for( int i = 0; i < m.i.length; i += m.stride ) {
-					for( int j = 0; j < m.stride; j++ ) {
-						m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 ];
-						m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 1 ];
-						m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 2 ];
-					
-						m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2 ];
-						m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2 + 1 ];
-					}
-				}
-				break;
+			m.v = new float[ m.i.length * 3 ];
+			m.t = new float[ m.i.length * 2 ];
+			for( int i = 0; i < m.i.length; i++ ) {
+				switch( m.type ) {
 				
-			case T_MESH_QUAD:
-				m.v = new float[ (m.stride + 1) * 3 * 3 ];
-				m.t = new float[ (m.stride + 1) * 3 * 2 ];
-				float[][] prev = new float[4][3];
-				for( int i = 0; i < 3; i++ ) {
-					prev[i][0] = tmp.v[ m.i[i] * 3];
-					prev[i][1] = tmp.v[ m.i[i] * 3 + 1];
-					prev[i][2] = tmp.v[ m.i[i] * 3 + 2];
-					
-					m.v[ tv++ ] = prev[i][0];
-					m.v[ tv++ ] = prev[i][1];
-					m.v[ tv++ ] = prev[i][2];
-				}
-				for( int i = 3; i < m.stride + 3; i++ ) {
-					m.v[ tv++ ] = prev[1][0];
-					m.v[ tv++ ] = prev[1][1];
-					m.v[ tv++ ] = prev[1][2];
-					
-					m.v[ tv++ ] = prev[0][0];
-					m.v[ tv++ ] = prev[0][1];
-					m.v[ tv++ ] = prev[0][2];
-					
-					m.v[ tv++ ] = tmp.v[ m.i[i] * 3];
-					m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 1];
-					m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 2];
-					
-					//prev[0][0] = prev[1][0];
-					//prev[0][1] = prev[1][1];
-					//prev[0][2] = prev[1][2];
-					
-					prev[1][0] = prev[2][0];
-					prev[1][1] = prev[2][1];
-					prev[1][2] = prev[2][2];
-					
-					prev[0][0] = tmp.v[ m.i[i] * 3];
-					prev[0][1] = tmp.v[ m.i[i] * 3 + 1];
-					prev[0][2] = tmp.v[ m.i[i] * 3 + 2];
-				}
-				
-				switch( m.stride ) {
-				case 8: case 2: case 4: case 1:
-					System.out.println( ArrayUtils.asString( m.i ) );
+				case T_MESH_TRI:
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 ], cVertexBias.sx, cVertexBias.bx );
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 + 1 ], cVertexBias.sy, cVertexBias.by );
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 + 2 ], cVertexBias.sz, cVertexBias.bz );
 					break;
 					
-				default:
-					System.out.println( m.stride + " " + m.type + " " + m.i.length + " " + tmp.v.length );
+				case T_MESH_QUAD:
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 ], cVertexBias.sx, cVertexBias.bx );
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 + 1 ], cVertexBias.sy, cVertexBias.by );
+					m.v[ tv++ ] = applyBias( tmp.v[ m.i[i] * 3 + 2 ], cVertexBias.sz, cVertexBias.bz );
 					break;
 				}
 				
-				/*case 2:
-					m.v = new float[ (m.i.length - 2) * 3 * 3 ];
-					m.t = new float[ (m.i.length - 2) * 3 * 2 ];
-					float[][] vprev = new float[2][3];
-					float[][] tprev = new float[2][2];
-					vprev[0][0] = tmp.v[ m.i[0] * 3];
-					vprev[0][1] = tmp.v[ m.i[0] * 3 + 1];
-					vprev[0][2] = tmp.v[ m.i[0] * 3 + 2];
-					
-					tprev[0][0] = tmp.t[ m.i[0] * 2];
-					tprev[0][1] = tmp.t[ m.i[0] * 2 + 1];
-					
-					vprev[1][0] = tmp.v[ m.i[1] * 3];
-					vprev[1][1] = tmp.v[ m.i[1] * 3 + 1];
-					vprev[1][2] = tmp.v[ m.i[1] * 3 + 2];
-					
-					tprev[1][0] = tmp.t[ m.i[1] * 2];
-					tprev[1][1] = tmp.t[ m.i[1] * 2 + 1];
-					for( int i = 2; i < m.i.length; i ++ ) {
-						// construct triangle with previous two and the current new point
-						m.v[ tv++ ] = vprev[0][0];
-						m.v[ tv++ ] = vprev[0][1];
-						m.v[ tv++ ] = vprev[0][2];
-						
-						m.t[ tt++ ] = tprev[0][0];
-						m.t[ tt++ ] = tprev[0][1];
-						
-						m.v[ tv++ ] = vprev[1][0];
-						m.v[ tv++ ] = vprev[1][1];
-						m.v[ tv++ ] = vprev[1][2];
-						
-						m.t[ tt++ ] = tprev[1][0];
-						m.t[ tt++ ] = tprev[1][1];
-
-						m.v[ tv++ ] = tmp.v[ m.i[i] * 3];
-						m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 1];
-						m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 2];
-						
-						m.t[ tt++ ] = tmp.t[ m.i[i] * 2];
-						m.t[ tt++ ] = tmp.t[ m.i[i] * 2 + 1];
-						
-						// update previous two points
-						vprev[0][0] = vprev[1][0];
-						vprev[0][1] = vprev[1][1];
-						vprev[0][2] = vprev[1][2];
-						
-						vprev[1][0] = tmp.v[ m.i[i] * 3];
-						vprev[1][1] = tmp.v[ m.i[i] * 3 + 1];
-						vprev[1][2] = tmp.v[ m.i[i] * 3 + 2];
-						
-						tprev[0][0] = tprev[1][0];
-						tprev[0][1] = tprev[1][1];
-						
-						tprev[1][0] = tmp.t[ m.i[i] * 2];
-						tprev[1][1] = tmp.t[ m.i[i] * 2 + 1];
-					}
-					break;
-				
-				case 8:
-					m.v = new float[ (m.i.length / 4) * 2 * 3 * 3 ];
-					m.t = new float[ (m.i.length / 4) * 2 * 3 * 2 ];
-					float[][] prev = new float[4][3];
-					for( int i = 0; i < 4; i++ ) {
-						prev[i][0] = tmp.v[ m.i[i] * 3];
-						prev[i][1] = tmp.v[ m.i[i] * 3 + 1];
-						prev[i][2] = tmp.v[ m.i[i] * 3 + 2];
-					}
-					for( int i = 0; i < m.i.length; i += 4 ) {
-						for( int j = 3; j > 0; j-- ) {
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3];
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 1];
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 2];
-							
-							m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2];
-							m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2 + 1];
-						}
-						for( int j = 1; j >= 0; j-- ) {
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3];
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 1];
-							m.v[ tv++ ] = tmp.v[ m.i[i+j] * 3 + 2];
-							
-							m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2];
-							m.t[ tt++ ] = tmp.t[ m.i[i+j] * 2 + 1];
-						}
-						m.v[ tv++ ] = tmp.v[ m.i[i+3] * 3];
-						m.v[ tv++ ] = tmp.v[ m.i[i+3] * 3 + 1];
-						m.v[ tv++ ] = tmp.v[ m.i[i+3] * 3 + 2];
-						
-						m.t[ tt++ ] = tmp.t[ m.i[i+3] * 2];
-						m.t[ tt++ ] = tmp.t[ m.i[i+3] * 2 + 1];
-					}
-					break;
-					
-				default:
-					System.out.println( m.stride + " " + m.type + " " + m.i.length + " " + tmp.v.length );
-					break;
-				}*/
-				break;
+				m.t[ tt++ ] = applyBias( tmp.t[ m.i[i] * 2 ], cTextureBias.su, cTextureBias.bu );
+				m.t[ tt++ ] = applyBias( tmp.t[ m.i[i] * 2 + 1 ], cTextureBias.sv, cTextureBias.bv );
 			}
 		}
 		//System.out.println( "surface " + cSurface.name + " finished." );
@@ -370,7 +231,7 @@ public class GMODecoder extends BaseBinaryReader {
 			break;
 			
 		default:
-			exitWithError( "Undefined Index type" );
+			//TODO: word describing first index, not sure what to do after
 			break;
 		}
 		//System.out.println( "Mesh indices finished at " + position() );
@@ -414,14 +275,14 @@ public class GMODecoder extends BaseBinaryReader {
 		int tt = 0, tv = 0;
 		for( int j = 0; j < cVertices.count; j++ ) {
 			position( start + (j*stride) );
-			cVertices.t[tt++] = applyBias( readUInt16() / 65535.0f, cTextureBias.su, cTextureBias.bu );
-			cVertices.t[tt++] = applyBias( readUInt16() / 65535.0f, cTextureBias.sv, cTextureBias.bv );
+			cVertices.t[tt++] = readUInt16() / 65535.0f;
+			cVertices.t[tt++] = readUInt16() / 65535.0f;
 			
 			readInt16();
 			
-			cVertices.v[tv++] = applyBias( readInt16() / 65535.0f, cVertexBias.sx, cVertexBias.bx );
-			cVertices.v[tv++] = applyBias( readInt16() / 65535.0f, cVertexBias.sy, cVertexBias.by );
-			cVertices.v[tv++] = applyBias( readInt16() / 65535.0f, cVertexBias.sz, cVertexBias.bz );
+			cVertices.v[tv++] = readInt16() / 65535.0f;
+			cVertices.v[tv++] = readInt16() / 65535.0f;
+			cVertices.v[tv++] = readInt16() / 65535.0f;
 			
 			/*for( int i = 0; i < cVertices.weightCount; i++ ) {
 				System.out.println( " weight: " + readUInt16() );
@@ -716,9 +577,20 @@ public class GMODecoder extends BaseBinaryReader {
 			valid &= readHex8().equals( "0x00" );
 		return valid;
 	}
+
+	private ByteBuffer buffer;
 	
-	public GMODecoder( Resource resource ) {
-		super( resource );
+	@Override
+	public ByteBuffer getBuffer() {
+		return buffer;
+	}
+	
+	@Override
+	public String getExtensionName() { return "GMO"; }
+
+	@Override
+	public ModelContainer decode( Resource resource, ModelOptions opts ) {
+		buffer = ByteBuffer.wrap( resource.asByteArray() );
 		setLittleEndian();
 		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
 		
@@ -728,21 +600,26 @@ public class GMODecoder extends BaseBinaryReader {
 		processChunk( position() );
 		debug.closeDynamicStream();
 		
-		//create meshgroups based on texture
+		//create ModelContainer
+		ModelContainer mc = new ModelContainer();
+		
+		// create meshgroups grouped by texture for each surface
 		for( SubFile file : gmo.files ) {
 			for( Surface s : file.surfaces ) {
 				for( Mesh m : s.meshes ) {
-					/*if( m.weighted.length > 0 ) {
+					if( m.weighted.length > 0 ) {
 						System.out.println( m.name + " should  have weights..." + s.vertices.get( m.vertices ).weightCount + " " + m.weighted.length );
-					}*/
+					}
 					MeshGroup mg = s.getGroup( file.materials.get( m.material ).texture );
 					mg.v.addAll( Buffer.toArrayList( m.v ) );
 					mg.t.addAll( Buffer.toArrayList( m.t ) );
 				}
 			}
 		}
+		
 		System.out.println( gmo.files.size() );
 		System.out.println( "done." );
+		return mc;
 	}
 	
 }
