@@ -3,7 +3,6 @@ package rin.gl.model;
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
 
 /**
  * Class for creating any of the implemented model formats. Other formats can be added

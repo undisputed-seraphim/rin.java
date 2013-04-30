@@ -28,7 +28,6 @@ import rin.gl.model.ModelLoader;
 import rin.gl.model.ModelManager;
 import rin.engine.Engine.ModelParams;
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
 import rin.gui.GUIFactory;
 import rin.sample.States;
 import rin.system.adapters.LoaderAdapter;

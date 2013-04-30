@@ -1,7 +1,7 @@
 package rin.engine.resource;
 
 public interface ResourceDecoder {
-	
-	public Resource decode( ResourceIdentifier resource );
+
+	public abstract ResourceContainer decode( Resource resource, ResourceOptions opts );
 	
 }

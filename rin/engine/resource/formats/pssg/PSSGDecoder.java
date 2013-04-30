@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import rin.engine.Engine;
 import rin.engine.resource.ResourceDecoder;
-import rin.engine.resource.ResourceIdentifier;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
 import rin.util.bio.BinaryReader;
@@ -330,7 +329,7 @@ public class PSSGDecoder extends BinaryReader {
 	}
 	
 	//@Override
-	public PSSGResource decode( ResourceIdentifier resource ) {
+	/*public PSSGResource decode( ResourceIdentifier resource ) {
 		this.data = ByteBuffer.wrap( resource.asByteArray() );
 		header();
 		
@@ -338,8 +337,6 @@ public class PSSGDecoder extends BinaryReader {
 		
 		while( position() < fileSize )
 			readChunks();
-		
-		PSSGResource res = new PSSGResource( resource );
 		
 		//getAnimation( "PC22_B_ATTACK_01" ).print();
 		
@@ -364,7 +361,7 @@ public class PSSGDecoder extends BinaryReader {
 		//model.read();
 		//model.PSSG.rootNode.print();
 		return res;
-	}
+	}*/
 
 	@Override
 	public ByteBuffer getBuffer() {

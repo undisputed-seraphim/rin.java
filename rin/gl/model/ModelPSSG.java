@@ -8,12 +8,10 @@ import rin.engine.math.Matrix4x4;
 import rin.engine.math.Quaternion;
 import rin.engine.math.Vector3;
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.ResourceManager;
 import rin.engine.resource.ResourceManager.ResourceNotFoundException;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder.ActualAnimation;
-import rin.engine.resource.formats.pssg.PSSGResource;
 import rin.engine.util.ArrayUtils;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.SkinnedMesh;
@@ -34,7 +32,7 @@ public class ModelPSSG implements Model {
 		//mesh.setSkeleton( data.skel.skel );
 		//System.out.println( "Skeleton size: " + mesh.getSkeleton().getBoneMap().size() + " submeshes: " + data.sources.length );
 		
-		ArrayList<PSSGResource> anims = new ArrayList<PSSGResource>();
+		/*ArrayList<PSSGResource> anims = new ArrayList<PSSGResource>();
 		for( int i = 1; ; i++ ) {
 			try {
 				//ResourceIdentifier tmp = ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim" + i + ".pssg" );
@@ -47,17 +45,13 @@ public class ModelPSSG implements Model {
 					//	if( PSSGFile.PSSG.rootNode.find( ss ) == null ) {
 							//System.out.println( ss + " not found!!" );
 						//}
-						/*if( data.skel.skel.getBone( ss ) == null ) {
-							System.out.println( "bone " + ss + " does not exist?!" );
-							count++;
-						}*/
 					//}
 					//break;
 				//}
 			} catch( ResourceNotFoundException ex ) {
 				break;
 			}
-		}
+		}*/
 		
 		for( PSSGFile.PSSGDataSource ds : data.sources ) {
 			if( ds.skindices.length != 0 ) {
@@ -102,7 +96,7 @@ public class ModelPSSG implements Model {
 				}
 				mesh.addSkeleton( "DEFAULT", skel );
 				
-				for( PSSGResource res : anims ) {
+				/*for( PSSGResource res : anims ) {
 					for( String s : res.getAnimationMap().keySet() ) {
 						ActualAnimation a = res.getAnimation( s );
 						Skeleton tmp = skel.clone();
@@ -131,7 +125,7 @@ public class ModelPSSG implements Model {
 						}
 						mesh.addSkeleton( s , tmp );
 					}
-				}
+				}*/
 			}
 		}
 		

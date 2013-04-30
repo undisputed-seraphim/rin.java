@@ -3,7 +3,6 @@ package rin.gl;
 import java.util.ArrayList;
 
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Camera;
 import static rin.engine.Engine.*;

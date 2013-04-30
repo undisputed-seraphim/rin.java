@@ -4,9 +4,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
-import rin.engine.resource.ResourceManager;
-import rin.engine.util.FileUtils;
 import rin.util.bio.BinaryReader;
 
 public class CL3Decoder extends BinaryReader {

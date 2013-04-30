@@ -5,7 +5,6 @@ import java.util.TreeMap;
 
 import rin.engine.resource.Directory;
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceIdentifier;
 import rin.engine.resource.formats.ism2.ISM2Spec.ISM2Mesh;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
@@ -401,10 +400,6 @@ public class ISM2Decoder extends BinaryReader {
 		debug.openDynamicStream();
 		init();
 		debug.closeDynamicStream();
-	}
-	
-	public void addAnimationFile( ResourceIdentifier resource ) {
-		
 	}
 	
 	public void addAnimationFiles( Directory directory ) {
