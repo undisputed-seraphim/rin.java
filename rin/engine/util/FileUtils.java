@@ -11,24 +11,19 @@ public class FileUtils {
 	
 	public static final String FS = System.getProperty( "file.separator" );
 	
-	public static InputStream asInputStream( String file ) {
-		InputStream in = null;
+	public static FileInputStream getInputStream( File file ) {
+		FileInputStream res = null;
 		try {
-			in = new FileInputStream( file );
+			res = new FileInputStream( file );
 		} catch( FileNotFoundException ex ) {
-			System.out.println( "FileNotFoundException raised. file = " + file );
-			return null;
+			System.out.println( "FileNotFoundException raised. file = " + file.getPath() );
 		}
 		
-		return in;
+		return res;
 	}
 	
-	public static File asFile( String file ) {
-		return new File( file );
-	}
-	
-	public static byte[] asByteArray( String file ) {
-		InputStream in = asInputStream( file );
+	public static byte[] toByteArray( File file ) {
+		InputStream in = getInputStream( file );
 		byte[] res = null;
 		try {
 			res = new byte[in.available()];
@@ -41,7 +36,7 @@ public class FileUtils {
 		return res;
 	}
 	
-	public static File createFile( File path, String name ) {
+	/*public static File createFile( File path, String name ) {
 		return createFile( path.getPath() + FS + name );
 	}
 	
@@ -54,17 +49,17 @@ public class FileUtils {
 		}
 		
 		return res;
-	}
+	}*/
 	
 	public static boolean writeBytes( File file, byte[] bytes ) {
 		FileOutputStream fos = getOutputStream( file );
 		try {
 			writeBytes( fos, bytes );
+			fos.flush();
 			fos.close();
 			return true;
 		} catch( IOException ex ) {
 			System.out.println( "IOEXCEPTION" );
-			// TODO Auto-generated catch block
 		}
 		
 		return false;
@@ -90,7 +85,6 @@ public class FileUtils {
 			return fos;
 		} catch( FileNotFoundException ex ) {
 			System.out.println( "FILENOTFOUND" );
-			// TODO Auto-generated catch block
 		}
 		
 		return null;

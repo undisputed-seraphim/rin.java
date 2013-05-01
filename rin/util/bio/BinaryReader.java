@@ -141,7 +141,6 @@ public abstract class BinaryReader {
     	byte[] res = new byte[8*4];
     	//[ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0 ]
     	//[ 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
-
     	byte[] bytes = ByteBuffer.allocate( 4 ).putInt( readInt32() ).array();
     	int k = 0;
     	for( int i = 0; i < bytes.length; i++ )
@@ -280,7 +279,7 @@ public abstract class BinaryReader {
     	
     	short res = this.readUInt8();
     	this.position( start );
-    	return res;    	
+    	return res;
     }
 
     public short[] readUInt8At( int pos, int amount ) { return this.readUInt8Range( pos, pos + (amount * 1) ); }
@@ -468,6 +467,45 @@ public abstract class BinaryReader {
     	for( int i = 0; i < amount; i++ )
     		System.out.println( readInt64() );
     	return this;
+    }
+    
+    public float readFloat16e( int x ) {
+    	int sign = x < 0 ? 1 : 0;
+    	int absx = (x ^ -sign) + sign;
+    	int tmp = absx;
+    	int manbits = 0;
+    	int exp = 0;
+    	int truncated = 0;
+    	
+    	while( tmp != 0 ) {
+    		tmp >>= 1;
+    		manbits++;
+    	}
+    	
+    	if( manbits != 0 ) {
+    		exp = 10;
+    		while( manbits > 11 ) {
+    			truncated |= absx & 1;
+    			absx >>= 1;
+    			manbits--;
+    			exp++;
+    		}
+    		
+    		while( manbits < 11 ) {
+    			absx <<= 1;
+    			manbits++;
+    			exp--;
+    		}
+    	}
+    	
+    	if( exp + truncated > 15 ) {
+    		exp = 31;
+    		absx = 0;
+    	} else if( manbits != 0 ) {
+    		exp += 15;
+    	}
+    	
+    	return ( sign << 15 ) | ((exp & 0xFF) << 10) | (absx & ((1 << 10) - 1) );
     }
     
     //TODO: for the love of god tidy this code up

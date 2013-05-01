@@ -37,7 +37,7 @@ public class BrresDecoder extends BinaryReader implements ModelDecoder {
 	
 	@Override
 	public ModelContainer decode( Resource resource, ModelOptions opts ) {
-		buffer = ByteBuffer.wrap( resource.asByteArray() );
+		buffer = ByteBuffer.wrap( resource.toByteArray() );
 		
 		header();
 		

@@ -13,6 +13,7 @@ import rin.engine.resource.formats.cl3.CL3Extractor;
 import rin.engine.resource.formats.gmo.GMODecoder;
 import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
+import rin.engine.util.ArrayUtils;
 import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
@@ -58,10 +59,10 @@ public class Game {
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
 		/*init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "test.gmo" ) );
+		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "cecil", "cecil.gmo" ) );
 		start();*/
 		
-		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "test.brres" ) );
+		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "001.ism2" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {

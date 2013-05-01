@@ -27,7 +27,7 @@ public class ACBDecoder extends BinaryReader {
 	}
 	
 	public ACBDecoder( Resource resource ) {
-		buffer = ByteBuffer.wrap( resource.asByteArray() );
+		buffer = ByteBuffer.wrap( resource.toByteArray() );
 		
 		System.out.println( "ACB file: " + length() );
 		header();

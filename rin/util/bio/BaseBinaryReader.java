@@ -1,8 +1,10 @@
 package rin.util.bio;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import rin.engine.resource.Resource;
+import rin.engine.util.FileUtils;
 
 public class BaseBinaryReader extends BinaryReader {
 	
@@ -13,8 +15,12 @@ public class BaseBinaryReader extends BinaryReader {
 		return buffer;
 	}
 
-	public BaseBinaryReader( Resource resource ) {
-		buffer = ByteBuffer.wrap( resource.asByteArray() );
+	public void load( Resource resource ) {
+		buffer = ByteBuffer.wrap( resource.toByteArray() );
+	}
+	
+	public void load( File file ) {
+		load( new Resource( file ) );
 	}
 	
 }

@@ -12,7 +12,7 @@ public class BRRESDecoder extends BaseBinaryReader {
 	}
 	
 	public BRRESDecoder( Resource resource ) {
-		super( resource );
+		load( resource );
 		
 		header();
 	}

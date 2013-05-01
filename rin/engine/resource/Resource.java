@@ -38,12 +38,12 @@ public class Resource extends ResourcePointer {
 		return fos != null;
 	}
 	
-	public void openDynamicStream() {
+	public void openStream() {
 		if( fos == null )
 			fos = FileUtils.getOutputStream( target );
 	}
 	
-	public void closeDynamicStream() {
+	public void closeStream() {
 		if( fos != null ) {
 			try {
 				fos.flush();
@@ -54,8 +54,8 @@ public class Resource extends ResourcePointer {
 		}
 	}
 	
-	public byte[] asByteArray() {
-		return FileUtils.asByteArray( target.getPath() );
+	public byte[] toByteArray() {
+		return FileUtils.toByteArray( target );
 	}
 	
 	public Resource write( Object ... o ) {
@@ -69,19 +69,6 @@ public class Resource extends ResourcePointer {
 			FileUtils.writeBytes( fos, o[i].toString().getBytes() );
 		FileUtils.writeBytes( fos, LS.getBytes() );
 		return this;
-	}
-	
-	public Resource endl() {
-		FileUtils.writeBytes( fos, LS.getBytes() );
-		return this;
-	}
-	
-	public void writeDynamicBytes( byte[] bytes ) {
-		FileUtils.writeBytes( fos, bytes );
-	}
-	
-	public void writeDynamicString( String str ) {
-		FileUtils.writeBytes( fos, str.getBytes(), LS.getBytes() );
 	}
 	
 	public void writeBytes( byte[] bytes ) {

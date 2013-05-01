@@ -83,10 +83,12 @@ public class ArrayUtils {
 		return res;
 	}
 	
-	public static byte[] flip( byte[] arr ) {
-		byte[] res = new byte[arr.length];
-		for( int i = 0; i < arr.length; i++ )
-			res[arr.length-1-i] = arr[i];
+	@SuppressWarnings( "unchecked" )
+	public static <T> T flip( T arr ) {
+		int length = Array.getLength( arr );
+		T res = (T)Array.newInstance( arr.getClass().getComponentType(), length );
+		for( int i = 0; i < length; i++ )
+			Array.set( res, length-1-i, Array.get( arr, i ) );
 		arr = res;
 		return res;
 	}

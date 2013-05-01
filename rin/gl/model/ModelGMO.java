@@ -35,7 +35,9 @@ public class ModelGMO implements Model {
 			for( Surface s : file.surfaces ) {
 				for( MeshGroup mg : s.groups ) {
 					count++;
-					mesh.addPoly( Buffer.toArrayf( mg.v ), new float[0], Buffer.toArrayf( mg.t ), tex[mg.texture] );
+					if( mg.texture != -1 )
+						mesh.addPoly( Buffer.toArrayf( mg.v ), new float[0], Buffer.toArrayf( mg.t ), tex[mg.texture] );
+					else mesh.addPoly( Buffer.toArrayf( mg.v ), new float[0], Buffer.toArrayf( mg.t ), new float[0] );
 				}
 			}
 		}

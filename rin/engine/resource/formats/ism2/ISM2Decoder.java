@@ -42,7 +42,7 @@ public class ISM2Decoder extends BinaryReader {
 		advance( 8 );
 		
 		if( DEBUG ) {
-			debug.writeDynamicString( "ISM2 file, size: " + length() );
+			debug.writeLine( "ISM2 file, size: " + length() );
 		}
 		
 		// ensure ISM2 file
@@ -245,11 +245,11 @@ public class ISM2Decoder extends BinaryReader {
 	private void getAnimation() {
 		long size = readUInt32();
 		int count = readInt32();
-		debug.writeDynamicString( "Animatin at " + (position()-8) + ": " + propMap[readInt32()] + " " + count );
-		debug.writeDynamicString( "Animatin 1: " + readInt32() );
-		debug.writeDynamicString( "Animatin 2: " + readInt32() );
-		debug.writeDynamicString( "Animatin 3: " + readInt32() );
-		debug.writeDynamicString( "Animatin 4: " + readInt32() );
+		debug.writeLine( "Animatin at " + (position()-8) + ": " + propMap[readInt32()] + " " + count );
+		debug.writeLine( "Animatin 1: " + readInt32() );
+		debug.writeLine( "Animatin 2: " + readInt32() );
+		debug.writeLine( "Animatin 3: " + readInt32() );
+		debug.writeLine( "Animatin 4: " + readInt32() );
 		//advance( 4 * 4 );
 		
 		long[] offsets = getOffsets( count );
@@ -259,42 +259,42 @@ public class ISM2Decoder extends BinaryReader {
 	
 	private void getBone() {
 		long size = readUInt32();
-		debug.writeDynamicString( "bone at: " + (position() - 4) + " " + size );
-		debug.writeDynamicString( "bone 1: " + readInt32() );
-		debug.writeDynamicString( "bone: " + propMap[readInt32()] );
-		debug.writeDynamicString( "bone 2: " + readInt32() );
-		debug.writeDynamicString( "bone 3: " + readInt32() );
-		debug.writeDynamicString( "bone 4: " + readInt32() );
-		debug.writeDynamicString( "bone 5: " + readInt32() );
+		debug.writeLine( "bone at: " + (position() - 4) + " " + size );
+		debug.writeLine( "bone 1: " + readInt32() );
+		debug.writeLine( "bone: " + propMap[readInt32()] );
+		debug.writeLine( "bone 2: " + readInt32() );
+		debug.writeLine( "bone 3: " + readInt32() );
+		debug.writeLine( "bone 4: " + readInt32() );
+		debug.writeLine( "bone 5: " + readInt32() );
 		//advance( 4 * 4 );
-		debug.writeDynamicString( "bone 6: " + readInt32() );
+		debug.writeLine( "bone 6: " + readInt32() );
 		//advance( 4 );
-		debug.writeDynamicString( "bone 7: " + readInt32() );
-		debug.writeDynamicString( "bone: " + propMap[readInt32()] );
-		debug.writeDynamicString( "DATA COUNT: " + readInt32() );
-		debug.writeDynamicString( "DATA OFFSET/INDEX?: " + readInt32() );
-		debug.writeDynamicString( "bone 8: " + readInt32() );
-		debug.writeDynamicString( "bone 9: " + readInt32() );
-		debug.writeDynamicString( "bone 10: " + readInt32() );
+		debug.writeLine( "bone 7: " + readInt32() );
+		debug.writeLine( "bone: " + propMap[readInt32()] );
+		debug.writeLine( "DATA COUNT: " + readInt32() );
+		debug.writeLine( "DATA OFFSET/INDEX?: " + readInt32() );
+		debug.writeLine( "bone 8: " + readInt32() );
+		debug.writeLine( "bone 9: " + readInt32() );
+		debug.writeLine( "bone 10: " + readInt32() );
 		//advance( 4 * 3 );
-		debug.writeDynamicString( "bone 11: " + readInt32() );
+		debug.writeLine( "bone 11: " + readInt32() );
 		//advance( 4 );
-		debug.writeDynamicString( "bone 12: " + readInt32() );
+		debug.writeLine( "bone 12: " + readInt32() );
 		int count = readInt32();
-		debug.writeDynamicString( "bone 13: " + count );
-		debug.writeDynamicString( "bone 14: " + readInt32() );
-		debug.writeDynamicString( "bone 15: " + readInt32() );
+		debug.writeLine( "bone 13: " + count );
+		debug.writeLine( "bone 14: " + readInt32() );
+		debug.writeLine( "bone 15: " + readInt32() );
 		//advance( 4 * 2 );
-		debug.writeDynamicString( "DATA TYPE: " + readInt32() );
-		//debug.writeDynamicString( "bone 16: " + readInt32() );
-		//debug.writeDynamicString( "bone 17: " + readInt32() );
+		debug.writeLine( "DATA TYPE: " + readInt32() );
+		//debug.writeLine( "bone 16: " + readInt32() );
+		//debug.writeLine( "bone 17: " + readInt32() );
 		
 		//advance( 4 * 2 );
 		for( int i = 0; i < count ; i++ )
-			debug.writeDynamicString( ""+readFloat16() );
+			debug.writeLine( ""+readFloat16() );
 		
-		debug.writeDynamicString( "stopped at "+position() );
-		debug.writeDynamicString( "" );
+		debug.writeLine( "stopped at "+position() );
+		debug.writeLine( "" );
 		//processNode( position() );
 	}
 	
@@ -366,11 +366,11 @@ public class ISM2Decoder extends BinaryReader {
 		long size = readUInt32();
 		int count = readInt32();
 		System.out.println( count );
-		debug.writeDynamicString( "Animations 1: " + readInt32() );
-		debug.writeDynamicString( "Animations 2: " + readInt32() );
-		debug.writeDynamicString( "Animations 3: " + readInt32() );
-		debug.writeDynamicString( "Animations 4: " + readInt32() );
-		debug.writeDynamicString( "Animations 5: " + readInt32() );
+		debug.writeLine( "Animations 1: " + readInt32() );
+		debug.writeLine( "Animations 2: " + readInt32() );
+		debug.writeLine( "Animations 3: " + readInt32() );
+		debug.writeLine( "Animations 4: " + readInt32() );
+		debug.writeLine( "Animations 5: " + readInt32() );
 		//advance( 5 * 4 );
 		long[] offsets = getOffsets( count );
 		for( int i = 0; i < offsets.length; i++ )
@@ -395,11 +395,11 @@ public class ISM2Decoder extends BinaryReader {
 	}
 	
 	public ISM2Decoder( Resource resource ) {
-		buffer = ByteBuffer.wrap( resource.asByteArray() );
+		buffer = ByteBuffer.wrap( resource.toByteArray() );
 		debug = resource.getDirectory().createResource( resource.getName() + ".debug", true );
-		debug.openDynamicStream();
+		debug.openStream();
 		init();
-		debug.closeDynamicStream();
+		debug.closeStream();
 	}
 	
 	public void addAnimationFiles( Directory directory ) {

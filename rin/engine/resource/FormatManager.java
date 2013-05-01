@@ -9,6 +9,8 @@ import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelEncoder;
 import rin.engine.resource.model.ModelOptions;
 import rin.engine.resource.model.brres.BrresDecoder;
+import rin.engine.resource.model.gmo.GmoDecoder;
+import rin.engine.resource.model.ism2.Ism2Decoder;
 
 public class FormatManager {
 	
@@ -77,7 +79,12 @@ public class FormatManager {
 	private static HashMap<String, ModelEncoder> modelEncoders = new HashMap<String, ModelEncoder>();
 	
 	static {
-		addModelDecoder( BrresDecoder.class );
+		if( !addModelDecoder( BrresDecoder.class ) )
+			System.err.println( "Unable to load BRRES Format." );
+		if( !addModelDecoder( GmoDecoder.class ) )
+			System.err.println( "Unable to load GMO Format." );
+		if( !addModelDecoder( Ism2Decoder.class ) )
+			System.err.println( "Unable to load ISM2 Format." );
 	}
 	
 	public static <T extends ModelDecoder> boolean addModelDecoder( Class<T> decoderClass ) {
@@ -107,15 +114,17 @@ public class FormatManager {
 	}
 	
 	public static ModelContainer decodeModel( Resource resource ) {
-		return decodeModel( resource, null );
+		return decodeModel( resource, null, resource.getExtension() );
 	}
 	
-	public static ModelContainer decodeModel( Resource resource, ModelOptions opts ) {
-		ModelDecoder decoder = modelDecoders.get( resource.getExtension() );
-		if( decoder == null ) {
-			//TODO: decodernotfoundexception
+	public static ModelContainer decodeModel( Resource resource, String format ) {
+		return decodeModel( resource, null, format );
+	}
+	
+	public static ModelContainer decodeModel( Resource resource, ModelOptions opts, String format ) {
+		ModelDecoder decoder = getModelDecoder( format );
+		if( decoder == null )
 			return null;
-		}
 		
 		return decoder.decode( resource, opts );
 	}

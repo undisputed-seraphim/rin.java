@@ -42,7 +42,7 @@ public class CL3Decoder extends BinaryReader {
 	}
 	
 	public CL3Decoder( Resource resource ) {
-		buffer = ByteBuffer.wrap( resource.asByteArray() );
+		buffer = ByteBuffer.wrap( resource.toByteArray() );
 		//File res = FileUtils.createFile( resource.getPath(), resource.getBaseName() + ".ism2" );
 		header();
 		position( offset );

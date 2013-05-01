@@ -156,6 +156,10 @@ public class GMODecoder extends BaseBinaryReader {
 		// construct surface meshes
 		for( Mesh m : cSurface.meshes ) {
 			Vertices tmp = cSurface.vertices.get( m.vertices );
+			debug.writeLine( "Mesh: type " + m.type + ", stride " + m.stride + ", count " + m.count );
+			debug.writeLine( "Verts " + m.vertices + ": " + ArrayUtils.asString( tmp.v ) );
+			debug.writeLine( "Indices: " + ArrayUtils.asString( m.i ) );
+			debug.writeLine();
 			int tv = 0, tt = 0;
 			switch( m.type ) {
 			
@@ -175,42 +179,64 @@ public class GMODecoder extends BaseBinaryReader {
 				break;
 				
 			case T_MESH_QUAD:
-				m.v = new float[ (m.stride + 1) * 3 * 3 ];
-				m.t = new float[ (m.stride + 1) * 3 * 2 ];
-				float[][] prev = new float[4][3];
+				m.v = new float[ (m.stride + 3) * 3 * 3 ];
+				m.t = new float[ (m.stride + 3) * 3 * 2 ];
+				float[][] vprev = new float[3][3];
+				float[][] tprev = new float[3][2];
 				for( int i = 0; i < 3; i++ ) {
-					prev[i][0] = tmp.v[ m.i[i] * 3];
-					prev[i][1] = tmp.v[ m.i[i] * 3 + 1];
-					prev[i][2] = tmp.v[ m.i[i] * 3 + 2];
+					vprev[i][0] = tmp.v[ m.i[i] * 3];
+					vprev[i][1] = tmp.v[ m.i[i] * 3 + 1];
+					vprev[i][2] = tmp.v[ m.i[i] * 3 + 2];
 					
-					m.v[ tv++ ] = prev[i][0];
-					m.v[ tv++ ] = prev[i][1];
-					m.v[ tv++ ] = prev[i][2];
+					tprev[i][0] = tmp.t[ m.i[i] * 2];
+					tprev[i][1] = tmp.t[ m.i[i] * 2 + 1];
+					
+					m.v[ tv++ ] = vprev[i][0];
+					m.v[ tv++ ] = vprev[i][1];
+					m.v[ tv++ ] = vprev[i][2];
+					
+					m.t[ tt++ ] = tprev[i][0];
+					m.t[ tt++ ] = tprev[i][1];
 				}
 				for( int i = 3; i < m.stride + 3; i++ ) {
-					m.v[ tv++ ] = prev[1][0];
-					m.v[ tv++ ] = prev[1][1];
-					m.v[ tv++ ] = prev[1][2];
+					m.v[ tv++ ] = vprev[1][0];
+					m.v[ tv++ ] = vprev[1][1];
+					m.v[ tv++ ] = vprev[1][2];
 					
-					m.v[ tv++ ] = prev[0][0];
-					m.v[ tv++ ] = prev[0][1];
-					m.v[ tv++ ] = prev[0][2];
+					m.t[ tt++ ] = tprev[1][0];
+					m.t[ tt++ ] = tprev[1][1];
+					
+					m.v[ tv++ ] = vprev[2][0];
+					m.v[ tv++ ] = vprev[2][1];
+					m.v[ tv++ ] = vprev[2][2];
+					
+					m.t[ tt++ ] = tprev[2][0];
+					m.t[ tt++ ] = tprev[2][1];
 					
 					m.v[ tv++ ] = tmp.v[ m.i[i] * 3];
 					m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 1];
 					m.v[ tv++ ] = tmp.v[ m.i[i] * 3 + 2];
 					
+					m.t[ tt++ ] = tmp.t[ m.i[i] * 2];
+					m.t[ tt++ ] = tmp.t[ m.i[i] * 2 + 1];
+					
 					//prev[0][0] = prev[1][0];
 					//prev[0][1] = prev[1][1];
 					//prev[0][2] = prev[1][2];
 					
-					prev[1][0] = prev[2][0];
-					prev[1][1] = prev[2][1];
-					prev[1][2] = prev[2][2];
+					vprev[1][0] = vprev[2][0];
+					vprev[1][1] = vprev[2][1];
+					vprev[1][2] = vprev[2][2];
 					
-					prev[0][0] = tmp.v[ m.i[i] * 3];
-					prev[0][1] = tmp.v[ m.i[i] * 3 + 1];
-					prev[0][2] = tmp.v[ m.i[i] * 3 + 2];
+					tprev[1][0] = tprev[2][0];
+					tprev[1][1] = tprev[2][1];
+					
+					vprev[2][0] = tmp.v[ m.i[i] * 3];
+					vprev[2][1] = tmp.v[ m.i[i] * 3 + 1];
+					vprev[2][2] = tmp.v[ m.i[i] * 3 + 2];
+					
+					tprev[2][0] = tmp.t[ m.i[i] * 2];
+					tprev[2][1] = tmp.t[ m.i[i] * 2 + 1];
 				}
 				
 				switch( m.stride ) {
@@ -373,7 +399,7 @@ public class GMODecoder extends BaseBinaryReader {
 			exitWithError( "Undefined Index type" );
 			break;
 		}
-		//System.out.println( "Mesh indices finished at " + position() );
+		//System.out.println( "Mesh indices finished at " + position() + " " + (offset+size) );
 	}
 	
 	private void getMeshWat( int offset, short hsize, int size ) {
@@ -405,6 +431,8 @@ public class GMODecoder extends BaseBinaryReader {
 		cVertices.count = readInt32();
 		advance( 8 );
 		
+		debug.write( cVertices.texelFormat + " " + cVertices.colorFormat + " " + cVertices.normalFormat + " " + cVertices.vertexFormat );
+		debug.writeLine( " " + cVertices.weightFormat + " " + cVertices.indexFormat + " " + cVertices.weightCount + " " + cVertices.morphCount );
 		int stride = cVertices.getStride();
 		int start = offset + hsize + 8 + stride - 4; //TODO: suspicious
 		if( cVertices.texelFormat != 0 )
@@ -718,15 +746,15 @@ public class GMODecoder extends BaseBinaryReader {
 	}
 	
 	public GMODecoder( Resource resource ) {
-		super( resource );
+		load( resource );
 		setLittleEndian();
 		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
 		
 		header();
 		
-		debug.openDynamicStream();
+		debug.openStream();
 		processChunk( position() );
-		debug.closeDynamicStream();
+		debug.closeStream();
 		
 		//create meshgroups based on texture
 		for( SubFile file : gmo.files ) {

@@ -1,5 +1,6 @@
 package rin.engine.util;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -42,7 +43,7 @@ public class PSSGExtractor extends BinaryReader {
 	public ByteBuffer getBuffer() { return this.data; }
 	
 	public PSSGExtractor( String file ) {
-		this.data = ByteBuffer.wrap( FileUtils.asByteArray( file ) );
+		this.data = ByteBuffer.wrap( FileUtils.toByteArray( new File( file ) ) );
 		this.decode();
 	}
 	
