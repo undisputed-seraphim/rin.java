@@ -868,7 +868,7 @@ public class PSSGFile extends BIOFile {
 		}*/
 		
 		for( Texture t : PSSG.master.textures ) {
-			ImageUtils.dxt1_decode( t.width, t.height, t.data );
+			//ImageUtils.dxt1_decode( t.width, t.height, t.data );
 		}
 		
 		//this.data.skel.print();

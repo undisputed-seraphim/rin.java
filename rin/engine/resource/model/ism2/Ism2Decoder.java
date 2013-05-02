@@ -8,7 +8,6 @@ import rin.engine.resource.Resource;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
-import rin.engine.util.ArrayUtils;
 import rin.util.bio.BaseBinaryReader;
 
 public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
@@ -19,6 +18,12 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	
 	private boolean isAnimation = false;
 	private String name;
+	
+	private Ism2Model cModel;
+	private Ism2VertexData cVertexData;
+	
+	private Ism2Texture cTexture;
+	
 	private Ism2Animation cAnimation;
 	private Ism2KeyFrame cFrame;
 	private Ism2TransformData cTransform;
@@ -34,7 +39,6 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		advance( 8 );
 		
 		if( !valid ) exitWithError( "Not a valid ISM2 file." );
-		//debug.writeLine( "ISM2 file: size " + length() + ", chunkCount " + chunkCount );
 	}
 	
 	private void chunkList() {
@@ -51,18 +55,266 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	
 	private void getStrings( int offset, int hsize ) {
 		//System.out.println( "strings at " + offset + " " + hsize );
-		int[] offsets = getOffsets( readInt32() );
 		
+		int[] offsets = getOffsets( readInt32() );		
 		stringMap = new String[offsets.length];
 		for( int i = 0; i < offsets.length; i++ ) {
 			position( offsets[i] );
 			stringMap[i] = readString();
 		}
+		
+		cModel = new Ism2Model();
 		//debug.writeLine( "Strings: " + ArrayUtils.asString( stringMap ) );
 	}
 	
 	private void getTextureList( int offset, int hsize ) {
-		System.out.println( "c80 at " + offset + " " + hsize );
+		System.out.println( "texture list at " + offset + " " + hsize );
+		
+		int[] offsets = getOffsets( readInt32() );
+		cModel.textures = new Ism2Texture[offsets.length];
+		for( int i = 0; i < offsets.length; i++ ) {
+			processChunk( offsets[i] );
+			cModel.textures[i] = cTexture;
+		}
+	}
+	
+	private void getTexture( int offset, int hsize ) {
+		System.out.println( "texture at " + offset + " " + hsize );
+		cTexture = new Ism2Texture();
+		cTexture.data[0] = stringMap[ hsize ];
+		for( int i = 1; i < 7; i++ )
+			cTexture.data[i] = stringMap[ readInt32() ];
+	}
+	
+	private void getC11( int offset, int hsize ) {
+		System.out.println( "c11 at " + offset + " " + hsize );
+		int count = readInt32();
+		
+		cModel.vdata = new Ism2VertexData[ count ];
+		int[] offsets = getOffsets( count );
+		for( int i = 0; i < offsets.length; i++ ) {
+			cModel.vdata[ i ] = new Ism2VertexData();
+			cVertexData = cModel.vdata[ i ];
+			processChunk( offsets[i] );
+		}
+	}
+	
+	private void getC10( int offset, int hsize ) {
+		System.out.println( "c10 at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( stringMap[ readInt32() ] );
+		System.out.println( stringMap[ readInt32() ] );
+		advance( 3 * 4 );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getTriangles( int offset, int hsize ) {
+		System.out.println( "triangles at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( "unknown: " + stringMap[ readInt32() ] );
+		readInt32( 2 ); //TODO: unknown
+		int triangles = readInt32();
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getIndices( int offset, int hsize ) {
+		System.out.println( "indices at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( "unknown: " + readInt32() );
+		readInt32(); //TODO: unknown
+	}
+	
+	private Ism2VertexInfo getVertexInfo( int offset ) {
+		position( offset );
+		Ism2VertexInfo res = new Ism2VertexInfo();
+		res.type = readInt32();
+		res.count = readInt32();
+		res.vtype = readInt32();
+		res.vsize = readInt32();
+		res.voffset = readInt32();
+		res.offset = readInt32();
+		
+		//if( DEBUG ) System.out.println( res );
+		return res;
+	}
+	
+	private void getVertices( int offset, int hsize ) {
+		System.out.println( "vertices at " + offset + " " + hsize );
+		int count = readInt32();
+		int vtype = readInt32();
+		int verts = readInt32(); //4
+		int bytes = readInt32();
+		
+		int[] offsets = getOffsets( count );
+		int start = 0;
+		Ism2VertexInfo[] types = new Ism2VertexInfo[count];
+		for( int i = 0; i < offsets.length; i++ ) {
+			types[i] = getVertexInfo( offsets[i] );
+			//if( types[i].type == T_VERTEX_NORMAL ) cVertexData.normaled = true;
+			start = types[i].offset;
+		}
+
+		position( start );
+		switch( vtype ) {
+		
+		case T_VERTICES_VERTEX:
+			cVertexData.v = new float[ verts * 3 ];
+			for( int i = 0; i < verts; i++ ) {
+				for( int j = 0; j < types.length; j++ ) {
+					System.out.println( start + " " + i + " " + types[j].vsize + " " + types[j].vsize );
+					position( start + i * types[j].vsize + types[j].voffset );
+					switch( types[j].type ) {
+					
+					case T_VERTEX_POSITION:
+						cVertexData.v[ i*3 ] = readFloat32();
+						cVertexData.v[ i+1 ] = readFloat32();
+						cVertexData.v[ i*3+2 ] = readFloat32();
+						break;
+						
+					case T_VERTEX_NORMAL:
+						debug.writeLine( "normal" );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine();
+						break;
+						
+					case T_VERTEX_3:
+						debug.writeLine( "vertex 3 " + types[j].count );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine();
+						break;
+						
+					case T_VERTEX_14:
+						debug.writeLine( "vertex 14 " + types[j].count );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine();
+						break;
+						
+					default:
+						debug.writeLine( "TYPE " + types[j].type + ": size " + types[j].vsize + " offset " + types[j].voffset + " count " + types[j].count + " " + types[j].vtype );
+						/*debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );*/
+						debug.writeLine();
+						//System.out.println( "Unknown v type " + types[j].type + " count " + types[j].count + " " + bytes );
+						break;
+					}
+				}
+			}
+			break;
+			
+		case T_VERTICES_TEXCOORD:
+			System.out.println( "texcoord... but for what? " + bytes + " " + types.length );
+			break;
+			
+		case T_VERTICES_WEIGHT:
+			for( int i = 0; i < verts; i++ ) {
+				for( int j = 0; j < types.length; j++ ) {
+					position( start + i * types[j].vsize + types[j].voffset );
+					switch( types[j].type ) {
+					
+					case T_WEIGHT_WEIGHT:
+						/*debug.writeLine( "type 1" + " " + types[j].count );
+						debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );
+						debug.writeLine( readFloat32() );
+						debug.writeLine();*/
+						break;
+						
+					case T_WEIGHT_BONE:
+						/*debug.writeLine( "type 7" + " " + types[j].count );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine();*/
+						break;
+						
+					default:
+						System.out.println( "Unknown w type " + types[j].type );
+						break;
+					}
+				}
+			}
+			break;
+			
+		default:
+			System.out.println( "UNKNOWN VERTEX TYPE: " + vtype );
+			break;
+		}
+	}
+	
+	private void getC3( int offset, int hsize ) {
+		System.out.println( "c3 at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( stringMap[ readInt32() ] );
+		System.out.println( stringMap[ readInt32() ] );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getC4( int offset, int hsize ) {
+		System.out.println( "c4 at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( stringMap[ readInt32() ] );
+		System.out.println( stringMap[ readInt32() ] );
+		advance( 4 * 11 );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getC50( int offset, int hsize ) {
+		System.out.println( "c50 at " + offset + " " + hsize );
+		int count = readInt32();
+		readInt32( 2 ); //TODO: unknown
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getC49( int offset, int hsize ) {
+		System.out.println( "c49 at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( stringMap[ readInt32() ] );
+		System.out.println( stringMap[ readInt32() ] );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getC48( int offset, int hsize ) {
+		System.out.println( "c48 at " + offset + " " + hsize );
+		int count = readInt32();
+		String n1 = stringMap[ readInt32() ];
+		String n2 = stringMap[ readInt32() ];
+		cTransform = new Ism2TransformData( n1, n2 );
+		for( int i = 0; i < 16; i++ )
+			System.out.println( readFloat32() );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
 	}
 	
 	private void getAnimation( int offset, int hsize ) {
@@ -116,13 +368,19 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int count = cTransform.count / cTransform.stride;
 		switch( cTransform.type ) {
 		
-		case 5:
+		case T_TRANSFORM_INDEX:
 			//debug.writeLine( "shorts [" + stride + "]: " + ArrayUtils.asString( readInt16( count ) ) );
-			readInt16( cTransform.count );
-			System.err.println( "WHAT DOES THIS EVEN DO?" );
+			for( int i = 0; i < count; i++ )
+				System.out.println( stringMap[ readInt16() ] );
 			break;
 			
-		case 18:
+		case T_TRANSFORM_MATRIX:
+			for( int i = 0; i < count; i++ )
+				readFloat32( cTransform.stride );
+			break;
+			
+		case T_TRANSFORM_FRAME:
+			System.out.println( "THIS SHOULD BE ANIMATION ONLY?" );
 			cTransform.time = new short[count];
 			cTransform.data = new float[count][cTransform.stride-1];
 			for( int i = 0; i < count; i++ ) {
@@ -151,6 +409,19 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		
 		case C_STRINGS: getStrings( offset, hsize ); break;
 		case C_TEXTURE_LIST: getTextureList( offset, hsize ); break;
+		case C_TEXTURE: getTexture( offset, hsize ); break;
+		
+		case C_11: getC11( offset, hsize ); break;
+		case C_10: getC10( offset, hsize ); break;
+		case C_TRIANGLES: getTriangles( offset, hsize ); break;
+		case C_INDICES: getIndices( offset, hsize ); break;
+		case C_VERTICES: getVertices( offset, hsize ); break;
+		
+		//case C_3: getC3( offset, hsize ); break;
+		//case C_4: getC4( offset, hsize ); break;
+		case C_50: getC50( offset, hsize ); break;
+		case C_49: getC49( offset, hsize ); break;
+		//case C_48: getC48( offset, hsize ); break;
 		case C_TRANSFORM_DATA: getTransformData( offset, hsize ); break;
 		
 		case C_ANIMATION: getAnimation( offset, hsize ); break;
@@ -163,33 +434,6 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	}
 	
 	private Resource debug;
-	
-	@Override
-	public String getExtensionName() { return "ism2"; }
-	
-	@Override
-	public ModelContainer decode( Resource resource, ModelOptions options ) {
-		load( resource );
-		name = resource.getBaseName();
-		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
-		debug.openStream();
-		
-		header();
-		chunkList();
-
-		// construct model container
-		ModelContainer mc = new ModelContainer();
-		
-		// check for animations
-		//TODO: add this check to the options object for ism2
-		if( !isAnimation ) {
-			System.out.println( "SEARCHING FOR ANIMATIONS" );
-			//TODO: add 'animation directory' to options
-		} else cAnimation.print();
-		
-		debug.closeStream();
-		return mc;
-	}
 	
 	private String readString() {
 		char c;
@@ -204,6 +448,42 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		for( int i = 0; i < amount; i++ )
 			res[i] = readInt32();
 		return res;
+	}
+	
+	@Override
+	public String getExtensionName() { return "ism2"; }
+	
+	@Override
+	public ModelContainer decode( Resource resource, ModelOptions options ) {
+		load( resource );
+		//Ism2Options opts = (Ism2Options)options;
+		name = resource.getBaseName();
+		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
+		debug.openStream();
+		
+		header();
+		chunkList();
+
+		//TODO: check for texture files
+		
+		// construct model container
+		ModelContainer mc = new ModelContainer();
+		
+		// check for animations
+		//TODO: add this check to the options object for ism2
+		if( !isAnimation ) {
+			System.out.println( "SEARCHING FOR ANIMATIONS" );
+			
+			//TODO: add 'animation directory' to options
+		} else System.out.println( cAnimation.frames.size() );
+		
+		debug.closeStream();
+		return mc;
+	}
+	
+	@Override
+	public void clear() {
+		//TODO: clear all data used
 	}
 
 }

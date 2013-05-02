@@ -9,11 +9,13 @@ public class CL3Extractor {
 	public CL3Extractor( final Directory dir ) {
 		dir.forEachResource( ".cl3", new ForEach<Resource>() {
 			@Override public void each( Resource res ) {
-				CL3Decoder tmp = new CL3Decoder( res );
-				if( tmp.getData() != null ) {
-					Resource rtmp = dir.createResource( res.getBaseName() + ".ism2", true );
-					if( rtmp != null ) {
-						rtmp.writeBytes( tmp.getData() );
+				if( !dir.containsResource( res.getBaseName() + "ism2" ) ) {
+					CL3Decoder tmp = new CL3Decoder( res );
+					if( tmp.getData() != null ) {
+						Resource rtmp = dir.createResource( res.getBaseName() + ".ism2" );
+						if( rtmp != null ) {
+							rtmp.writeBytes( tmp.getData() );
+						}
 					}
 				}
 			}

@@ -13,6 +13,7 @@ import rin.engine.resource.formats.cl3.CL3Extractor;
 import rin.engine.resource.formats.gmo.GMODecoder;
 import rin.engine.resource.formats.ism2.ISM2Decoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
+import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
 import rin.engine.view.gui.GUIManager;
 import rin.gl.event.Transition;
@@ -62,7 +63,8 @@ public class Game {
 		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "cecil", "cecil.gmo" ) );
 		start();*/
 		
-		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "001.ism2" ) );
+		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "002.ism2" ) );
+		//FormatManager.decodeImage( ResourceManager.getPackResource( "rin", "base_00.tid" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "rin", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {

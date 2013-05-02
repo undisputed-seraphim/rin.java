@@ -9,6 +9,13 @@ import static rin.util.bio.BinaryTypes.*;
 
 public abstract class BinaryReader {
 
+	public static class BinaryBufferPositionException extends Error {
+		public BinaryBufferPositionException( int length, int position ) {
+			System.err.println( length + " " + position );
+			this.printStackTrace();
+		}
+	}
+	
 	private final ByteBuffer tmp = ByteBuffer.allocate( 8 );
 	
 	public abstract ByteBuffer getBuffer();
@@ -16,8 +23,7 @@ public abstract class BinaryReader {
     public int position() { return this.getBuffer().position(); }
     public void position( int pos ) {
     	if( pos > this.getBuffer().capacity() ) {
-    		System.out.println( "BinaryBufferPositionException" );
-    		return;
+    		throw new BinaryBufferPositionException( length(), pos );
     	}
     	
     	this.getBuffer().position( pos );
@@ -586,9 +592,9 @@ public abstract class BinaryReader {
     	return this;
     }
     
-    protected void exitWithError( String error ) {
+    protected <T> T exitWithError( String error ) {
 		System.err.println( error );
-		System.exit( 0 );
+		return null;
 	}
 	
 }

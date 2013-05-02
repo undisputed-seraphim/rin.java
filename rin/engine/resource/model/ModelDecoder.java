@@ -6,5 +6,6 @@ public interface ModelDecoder {
 	
 	public String getExtensionName();
 	public ModelContainer decode( Resource resource, ModelOptions opts );
+	public void clear();
 
 }

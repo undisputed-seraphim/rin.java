@@ -2,8 +2,11 @@ package rin.engine.resource;
 
 import java.util.HashMap;
 
+import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.image.ImageDecoder;
 import rin.engine.resource.image.ImageEncoder;
+import rin.engine.resource.image.ImageOptions;
+import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelEncoder;
@@ -31,6 +34,11 @@ public class FormatManager {
 	private static HashMap<String, ImageDecoder> imageDecoders = new HashMap<String, ImageDecoder>();
 	private static HashMap<String, ImageEncoder> imageEncoders = new HashMap<String, ImageEncoder>();
 	
+	static {
+		if( !addImageDecoder( TidDecoder.class ) )
+			System.err.println( "Unable to load TID Image Decoder." );
+	}
+	
 	public static <T extends ImageDecoder> boolean addImageDecoder( Class<T> decoderClass ) {
 		// create instance
 		T decoder = createInstance( decoderClass );
@@ -49,7 +57,28 @@ public class FormatManager {
 	}
 	
 	public static ImageDecoder getImageDecoder( String extension ) {
+		if( imageDecoders.containsKey( extension.toUpperCase() ) )
+			return imageDecoders.get( extension.toUpperCase() );
+		
+		//TODO: decodernotfoundexception
 		return null;
+	}
+	
+	public static ImageContainer decodeImage( Resource resource ) {
+		return decodeImage( resource, null, resource.getExtension() );
+	}
+	
+	public static ImageContainer decodeImage( Resource resource, String format ) {
+		return decodeImage( resource, null, format );
+	}
+	
+	public static ImageContainer decodeImage( Resource resource, ImageOptions opts, String format ) {
+		ImageDecoder decoder = getImageDecoder( format );
+		if( decoder == null )
+			return null;
+		
+		decoder.clear();
+		return decoder.decode( resource, opts );
 	}
 	
 	public static <T extends ImageEncoder> boolean addImageEncoder( Class<T> encoderClass ) {
@@ -80,11 +109,11 @@ public class FormatManager {
 	
 	static {
 		if( !addModelDecoder( BrresDecoder.class ) )
-			System.err.println( "Unable to load BRRES Format." );
+			System.err.println( "Unable to load BRRES Model Decoder." );
 		if( !addModelDecoder( GmoDecoder.class ) )
-			System.err.println( "Unable to load GMO Format." );
+			System.err.println( "Unable to load GMO Model Decoder." );
 		if( !addModelDecoder( Ism2Decoder.class ) )
-			System.err.println( "Unable to load ISM2 Format." );
+			System.err.println( "Unable to load ISM2 Model Decoder." );
 	}
 	
 	public static <T extends ModelDecoder> boolean addModelDecoder( Class<T> decoderClass ) {
@@ -126,6 +155,7 @@ public class FormatManager {
 		if( decoder == null )
 			return null;
 		
+		decoder.clear();
 		return decoder.decode( resource, opts );
 	}
 	

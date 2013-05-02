@@ -1,15 +1,13 @@
 package rin.engine.resource.model.brres;
 
-import java.nio.ByteBuffer;
-
 import rin.engine.resource.Resource;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
 import static rin.engine.resource.model.brres.BrresSpec.*;
-import rin.util.bio.BinaryReader;
+import rin.util.bio.BaseBinaryReader;
 
-public class BrresDecoder extends BinaryReader implements ModelDecoder {
+public class BrresDecoder extends BaseBinaryReader implements ModelDecoder {
 
 	
 	private void header() {
@@ -24,24 +22,22 @@ public class BrresDecoder extends BinaryReader implements ModelDecoder {
 		case 0xFFFE: setLittleEndian(); break;
 		}
 	}
-	
-	private ByteBuffer buffer;
-	
-	@Override
-	public ByteBuffer getBuffer() {
-		return buffer;
-	}
-	
+
 	@Override
 	public String getExtensionName() { return "brres"; }
 	
 	@Override
 	public ModelContainer decode( Resource resource, ModelOptions opts ) {
-		buffer = ByteBuffer.wrap( resource.toByteArray() );
+		load( resource );
 		
 		header();
 		
 		return null;
 	}
 
+	@Override
+	public void clear() {
+		//TODO: clear all data used by this decoder
+	}
+	
 }

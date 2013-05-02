@@ -16,8 +16,14 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 	
 	@Override
 	public ModelContainer decode( Resource resource, ModelOptions opts ) {
-		// TODO Auto-generated method stub
-		return null;
+		load( resource );
+		
+		ModelContainer mc = new ModelContainer();
+		return mc;
 	}
 
+	@Override
+	public void clear() {
+		//TODO: clear all data used by this decoder
+	}
 }

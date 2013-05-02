@@ -622,4 +622,9 @@ public class GmoDecoder extends BinaryReader implements ModelDecoder {
 		return mc;
 	}
 	
+	@Override
+	public void clear() {
+		//TODO: clear all data used by this decoder
+	}
+	
 }
