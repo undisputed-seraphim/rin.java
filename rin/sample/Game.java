@@ -63,6 +63,7 @@ public class Game {
 		start();*/
 		
 		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "001.ism2" ) );
+		//new CL3Extractor( ResourceManager.getPackDirectory( "rin", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {

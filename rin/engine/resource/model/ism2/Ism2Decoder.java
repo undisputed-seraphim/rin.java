@@ -17,6 +17,12 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
 	private String[] stringMap;
 	
+	private boolean isAnimation = false;
+	private String name;
+	private Ism2Animation cAnimation;
+	private Ism2KeyFrame cFrame;
+	private Ism2TransformData cTransform;
+	
 	private void header() {
 		boolean valid = true;		
 		for( int i = 0; i < MAGIC.length; i++ )
@@ -28,7 +34,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		advance( 8 );
 		
 		if( !valid ) exitWithError( "Not a valid ISM2 file." );
-		debug.writeLine( "ISM2 file: size " + length() + ", chunkCount " + chunkCount );
+		//debug.writeLine( "ISM2 file: size " + length() + ", chunkCount " + chunkCount );
 	}
 	
 	private void chunkList() {
@@ -37,7 +43,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 			int offset = readInt32();
 			chunkOffsets.put( offset, id );
 		}
-		debug.writeLine( ArrayUtils.asString( chunkOffsets ) );
+		//debug.writeLine( ArrayUtils.asString( chunkOffsets ) );
 		
 		for( int i : chunkOffsets.keySet() )
 			processChunk( i );
@@ -52,79 +58,82 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 			position( offsets[i] );
 			stringMap[i] = readString();
 		}
-		debug.writeLine( "Strings: " + ArrayUtils.asString( stringMap ) );
+		//debug.writeLine( "Strings: " + ArrayUtils.asString( stringMap ) );
 	}
 	
 	private void getTextureList( int offset, int hsize ) {
 		System.out.println( "c80 at " + offset + " " + hsize );
 	}
 	
-	private void getC52( int offset, int hsize ) {
-		System.out.println( "c52 at " + offset + " " + hsize );
+	private void getAnimation( int offset, int hsize ) {
+		//System.out.println( "c52 at " + offset + " " + hsize );
+		isAnimation = true;
+		cAnimation = new Ism2Animation( name );
+		
 		int count = readInt32();
 		advance( 20 );
 		
 		int[] offsets = getOffsets( count );
-		debug.writeLine( offsets.length + " bones." );
-		debug.writeLine( "c52 offsets: " + ArrayUtils.asString( offsets ) );
 		for( int i : offsets )
 			processChunk( i );
 	}
 	
-	private void getC80( int offset, int hsize ) {
-		System.out.println( "c80 at " + offset + " " + hsize );
+	private void getAnimationFrame( int offset, int hsize ) {
+		//System.out.println( "c80 at " + offset + " " + hsize );
 		int count = readInt32();
-		debug.writeLine( stringMap[ readInt32() ] );
+		cFrame = cAnimation.addFrame( stringMap[readInt32()] );
 		readInt32( 4 ); //TODO: unknown
 		
 		int[] offsets = getOffsets( count );
-		debug.writeLine( "c80 offsets: " + ArrayUtils.asString( offsets ) );
+		//debug.writeLine( "c80 offsets: " + ArrayUtils.asString( offsets ) );
 		for( int i : offsets )
 			processChunk( i );
 	}
 	
-	private void getC15( int offset, int hsize ) {
-		System.out.println( "c80 at " + offset + " " + hsize );
+	private void getFrameTransform( int offset, int hsize ) {
+		//System.out.println( "c80 at " + offset + " " + hsize );
 		readInt32(); //TODO: unknown
-		debug.writeLine( "b1: " + stringMap[ readInt32() ] );
+		String name1 = stringMap[ readInt32() ];
 		readInt32( 6 ); //TODO: unknown
-		debug.writeLine( "b2: " + stringMap[ readInt32() ] );
+		String name2 = stringMap[ readInt32() ];
 		readInt32( 5 ); //TODO: unknown
+		cTransform = cFrame.addTransform( name1, name2 );
 		
 		position( offset + hsize );
 		processChunk( position() );
 		
-		System.out.println( position() + " " + length() );
+		//System.out.println( position() + " " + length() );
 	}
 	
-	private void getSkinning( int offset, int hsize ) {
-		System.out.println( "skinning at " + offset + " " + hsize );
-		int count = readInt32();
+	private void getTransformData( int offset, int hsize ) {
+		//System.out.println( "skinning at " + offset + " " + hsize );
+		cTransform.count = readInt32();
 		readInt32(); //TODO: unknown
-		int type = readInt32();
-		int stride = readInt32();
+		cTransform.type = readInt32();
+		cTransform.stride = readInt32();
 		readInt32(); //TODO: unknown
 		readInt32(); //TODO: unknown
-		debug.writeLine( "count: " + count + " " + (count % stride == 0 ) + " " + (count/stride) );
-		switch( type ) {
+		int count = cTransform.count / cTransform.stride;
+		switch( cTransform.type ) {
 		
 		case 5:
-			debug.writeLine( "shorts [" + stride + "]: " + ArrayUtils.asString( readInt16( count ) ) );
+			//debug.writeLine( "shorts [" + stride + "]: " + ArrayUtils.asString( readInt16( count ) ) );
+			readInt16( cTransform.count );
+			System.err.println( "WHAT DOES THIS EVEN DO?" );
 			break;
 			
 		case 18:
-			for( int i = 0; i < count; i += stride ) {
-				debug.writeLine( "time: " + (readInt16()) );
-				debug.write( "Values: " );
-				for( int j = 0; j < stride - 1; j++ )
-					debug.write( (readInt16() / 65535.0f) + " " );
-				debug.writeLine();
+			cTransform.time = new short[count];
+			cTransform.data = new float[count][cTransform.stride-1];
+			for( int i = 0; i < count; i++ ) {
+				cTransform.time[i] = readInt16();
+				for( int j = 0; j < cTransform.stride - 1; j++ )
+					cTransform.data[i][j] = (readInt16() / 65535.0f);
 			}
-			//debug.writeLine( "floats [" + stride + "]: " + ArrayUtils.asString( readFloat16( count ) ) );
 			break;
 			
 		default:
-			exitWithError( "UNKOWN SKINNING TYPE " + type );
+			exitWithError( "UNKOWN transform TYPE " + cTransform.type );
 			break;
 			
 		}
@@ -135,17 +144,18 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int type = readInt32();
 		int hsize = readInt32();
 		
-		if( !(chunkOffsets.containsKey( offset )) )
-			debug.writeLine( "Unexpected chunk type " + type + " at offset " + offset );
+		/*if( !(chunkOffsets.containsKey( offset )) )
+			debug.writeLine( "Unexpected chunk type " + type + " at offset " + offset );*/
 		
 		switch( type ) {
 		
 		case C_STRINGS: getStrings( offset, hsize ); break;
 		case C_TEXTURE_LIST: getTextureList( offset, hsize ); break;
-		case C_SKINNING: getSkinning( offset, hsize ); break;
-		case C_52: getC52( offset, hsize ); break;
-		case C_80: getC80( offset, hsize ); break;
-		case C_15: getC15( offset, hsize ); break;
+		case C_TRANSFORM_DATA: getTransformData( offset, hsize ); break;
+		
+		case C_ANIMATION: getAnimation( offset, hsize ); break;
+		case C_ANIMATION_FRAME: getAnimationFrame( offset, hsize ); break;
+		case C_FRAME_TRANSFORM: getFrameTransform( offset, hsize ); break;
 			
 		default:
 			System.out.println( "unknown chunk type: " + type + " [" + String.format( "0x%02x", type ) + "] at " + offset );
@@ -160,14 +170,22 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	@Override
 	public ModelContainer decode( Resource resource, ModelOptions options ) {
 		load( resource );
+		name = resource.getBaseName();
 		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
 		debug.openStream();
 		
 		header();
 		chunkList();
-		
+
 		// construct model container
 		ModelContainer mc = new ModelContainer();
+		
+		// check for animations
+		//TODO: add this check to the options object for ism2
+		if( !isAnimation ) {
+			System.out.println( "SEARCHING FOR ANIMATIONS" );
+			//TODO: add 'animation directory' to options
+		} else cAnimation.print();
 		
 		debug.closeStream();
 		return mc;
