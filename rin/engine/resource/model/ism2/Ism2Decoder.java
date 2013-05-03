@@ -24,6 +24,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	private String name;
 	
 	private Ism2Model cModel;
+	private Surface cSurface;
 	public Ism2Model getData() { return cModel; }
 	private Ism2VertexData cVertexData;
 	
@@ -119,7 +120,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	private void getTriangles( int offset, int hsize ) {
 		System.out.println( "triangles at " + offset + " " + hsize );
 		int count = readInt32();
-		System.out.println( "unknown: " + stringMap[ readInt32() ] );
+		cSurface = mc.addSurface( stringMap[ readInt32() ] );
 		readInt32( 2 ); //TODO: unknown
 		readInt32();
 		
@@ -133,7 +134,6 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int count = readInt32();
 		int type = readInt32();
 		System.out.println( "unknown: " + readInt32() );
-		Ism2Mesh mesh = new Ism2Mesh();
 		int[] in = new int[count];
 		
 		switch( type ) {
@@ -162,7 +162,6 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int tv = 0, tt = 0, tn = 0;
 		boolean hasN = cVertexData.normaled;
 		boolean hasT = cVertexData.t.length > 0;
-		Surface tmp = mc.addSurface( "tmp-" + mc.getSurfaces().size() );
 		float[] v = new float[count*3*3];
 		float[] n = new float[0];
 		float[] t = new float[0];
@@ -181,16 +180,16 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 				n[tn++] = cVertexData.n[in[i]*3+1];
 				n[tn++] = cVertexData.n[in[i]*3+2];
 			}
-			
+
 			if( hasT ) {
 				t[tt++] = cVertexData.t[in[i]*2];
 				t[tt++] = cVertexData.t[in[i]*2+1];
 			}
 		}
-		tmp.setVertices( v );
-		tmp.setNormals( n );
-		tmp.setTexcoords( t );
-		//cModel.meshes.add( mesh );
+		System.out.println( v.length + " " + count );
+		cSurface.setVertices( v );
+		cSurface.setNormals( n );
+		cSurface.setTexcoords( t );
 	}
 	
 	private Ism2VertexInfo getVertexInfo( int offset ) {
@@ -211,8 +210,8 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int count = readInt32();
 		int vtype = readInt32();
 		int verts = readInt32(); //4
-		readInt32();
-		readInt32(); //TODO: unknown
+		int bytes = readInt32();
+		int bytes2 = readInt32(); //TODO: unknown
 		
 		int[] offsets = getOffsets( count );
 		int start = 0;
@@ -232,7 +231,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 				cVertexData.n = new float[ verts * 3 ];
 			for( int i = 0; i < verts; i++ ) {
 				for( int j = 0; j < types.length; j++ ) {
-					position( start + i * types[j].vsize + types[j].voffset );
+					position( start + i * bytes + types[j].voffset );
 					switch( types[j].type ) {
 					
 					case T_VERTEX_POSITION:
@@ -248,24 +247,28 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 						break;
 						
 					case T_VERTEX_3:
-						/*debug.writeLine( "vertex 3 " + types[j].count );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine();*/
+						//debug.writeLine( "vertex 3 " + types[j].count );
+						//debug.writeLine( readFloat32() );
+						//debug.writeLine( readFloat32() );
+						//debug.writeLine( readInt16() );
+						//debug.writeLine( readInt16() );
+						//debug.writeLine();
 						break;
 						
 					case T_VERTEX_14:
 						/*debug.writeLine( "vertex 14 " + types[j].count );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
-						debug.writeLine( readInt16() / 65535.0f );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
 						debug.writeLine();*/
 						break;
 						
 					case T_VERTEX_15:
+						/*debug.writeLine( "vertex 15 " + types[j].count );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine( readInt16() );
+						debug.writeLine();*/
 						break;
 						
 					default:
@@ -284,12 +287,26 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 			
 		case T_VERTICES_TEXCOORD:
 			cVertexData.t = new float[ verts * 2 ];
+			System.out.println( "tex " + position() );
 			for( int i = 0; i < verts; i++ ) {
 				//for( int j = 0; j < types.length; j++ ) {
-					cVertexData.t[i*2] = readUInt16() / 65535.0f;
-					cVertexData.t[i*2+1] = readUInt16() / 65535.0f;
+				//	position( start + i * bytes + types[j].voffset );
+					//debug.writeLine( position() + " " + types[j].vsize + " " + types[j].voffset + " " + types[j].offset + " " + types[j].vtype );
+				//debug.writeLine( readUInt16() / 65535.0f );
+				//debug.writeLine( readUInt16() / 65535.0f );
+				cVertexData.t[i*2] = readUInt16() / 65535.0f;
+				cVertexData.t[i*2+1] = readUInt16() / 65535.0f;
+				cVertexData.t[i*2+1] = 1.0f - cVertexData.t[i*2+1];
+				//debug.writeLine( cVertexData.t[i*2] + " " + cVertexData.t[i*2+1] );
+				/*debug.writeLine( readUInt8() / 255.0f );
+				debug.writeLine( readUInt8() / 255.0f );
+				debug.writeLine();*/
+					//cVertexData.t[i*2] = readUInt16() / 65535.0f;
+					//cVertexData.t[i*2+1] = readUInt16() / 65535.0f;
 				//}
 			}
+			//debug.writeLine( "TEXEND" );
+			System.out.println( "tex ended at " + position() );
 			break;
 			
 		case T_VERTICES_WEIGHT:
@@ -357,6 +374,39 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i );
+	}
+	
+	private void getC79( int offset, int hsize ) {
+		System.out.println( "c79 at " + offset + " " + hsize );
+		int count = readInt32();
+		System.out.println( stringMap[ readInt32() ] );
+		System.out.println( "unknown: " + readInt32() );
+		System.out.println( stringMap[ readInt32() ] );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets )
+			processChunk( i );
+	}
+	
+	private void getC75( int offset, int hsize ) {
+		System.out.println( "c75 at " + offset + " " + hsize );
+		int count = readInt32();
+		cModel.textureMap.put( stringMap[readInt32()], stringMap[readInt32()] );
+		//System.out.println( stringMap[ readInt32() ] );
+		//System.out.println( stringMap[ readInt32() ] );
+		System.out.println( "unknown: " + readInt32() );
+		
+		int[] offsets = getOffsets( count );
+		for( int i : offsets ) {
+			position( i );
+			System.out.println( "unknown: " + readInt32() );
+			System.out.println( "unknown: " + readInt32() );
+			System.out.println( "unknown: " + readInt32() );
+			System.out.println( stringMap[ readInt32() ] );
+			System.out.println( stringMap[ readInt32() ] );
+			System.out.println( "unknown: " + readInt32() );
+			System.out.println( "unknown: " + readInt32() );
+		}
 	}
 	
 	private void getC50( int offset, int hsize ) {
@@ -495,8 +545,11 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		case C_VERTICES: getVertices( offset, hsize ); break;
 		case C_110: getC110( offset, hsize ); break;
 		
-		//case C_3: getC3( offset, hsize ); break;
-		//case C_4: getC4( offset, hsize ); break;
+		case C_3: getC3( offset, hsize ); break;
+		case C_4: getC4( offset, hsize ); break;
+		case C_79: getC79( offset, hsize ); break;
+		case C_75: getC75( offset, hsize ); break;
+		
 		case C_50: getC50( offset, hsize ); break;
 		case C_49: getC49( offset, hsize ); break;
 		//case C_48: getC48( offset, hsize ); break;
@@ -564,20 +617,24 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		} else System.out.println( cAnimation.frames.size() );
 		
 		//TODO: check for texture files
-		Directory textureDir = dir.getDirectory( opts.getTextureDirectory() );
-		if( textureDir != null ) {
-			for( Ism2Texture t : cModel.textures ) {
-				String tex = t.data[3];
-				if( tex.indexOf( "." ) != -1 )
-					tex = tex.substring( 0, tex.lastIndexOf( "." ) );
-				
-				if( textureDir.containsResource( tex + ".tid" ) ) {
-					ImageContainer ic = FormatManager.decodeImage( textureDir.getResource( tex + ".tid" ) );
-					if( ic != null ) {
-						ic.flipY();
-						if( tex.indexOf( "body" ) != -1 )
-							for( Surface s : mc.getSurfaces() )
-								s.setMaterial( ic );
+		if( dir.containsDirectory( opts.getTextureDirectory() ) ) {
+			Directory textureDir = dir.getDirectory( opts.getTextureDirectory() );
+			if( textureDir != null ) {
+				for( Ism2Texture t : cModel.textures ) {
+					String tex = t.data[3];
+					if( tex.indexOf( "." ) != -1 )
+						tex = tex.substring( 0, tex.lastIndexOf( "." ) );
+					
+					if( textureDir.containsResource( tex + ".tid" ) ) {
+						ImageContainer ic = FormatManager.decodeImage( textureDir.getResource( tex + ".tid" ) );
+						if( ic != null ) {
+							//ic.flipY();
+							for( Surface s : mc.getSurfaces() ) {
+								if( t.data[2].indexOf( cModel.textureMap.get( s.getName() ) ) != -1 ) {
+									s.setMaterial( ic );
+								}
+							}
+						}
 					}
 				}
 			}

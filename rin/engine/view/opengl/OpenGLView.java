@@ -1,5 +1,6 @@
 package rin.engine.view.opengl;
 
+import rin.engine.resource.image.ImageContainer;
 import rin.engine.view.Renderable;
 import rin.engine.view.View;
 import rin.engine.view.opengl.data.OpenGLRenderData;
@@ -11,6 +12,11 @@ public class OpenGLView implements View {
 
 	@Override
 	public void show( int width, int height ) {}
+	
+	@Override
+	public Integer loadTexture( ImageContainer image ) {
+		return null;
+	}
 	
 	@Override
 	public OpenGLRenderData createRenderData( Renderable entity ) {

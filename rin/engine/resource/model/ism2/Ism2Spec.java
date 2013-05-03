@@ -1,6 +1,7 @@
 package rin.engine.resource.model.ism2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Ism2Spec {
 
@@ -29,6 +30,9 @@ public class Ism2Spec {
 	
 	public static final int C_3 = 0x03;
 	public static final int C_4 = 0x04;
+	
+	public static final int C_79 = 0x4C;
+	public static final int C_75 = 0x4B;
 	
 	public static final int C_50 = 0x32;
 	public static final int C_49 = 0x31;
@@ -125,17 +129,24 @@ public class Ism2Spec {
 	}
 	
 	public static class Ism2Mesh {
+		public String name;
+		
 		public float[] v = new float[0];
 		public float[] n = new float[0];
 		public float[] t = new float[0];
 		
 		public float[] b = new float[0];
 		public float[] w = new float[0];
+		
+		public Ism2Mesh( String n ) {
+			name = n;
+		}
 	}
 	
 	public static class Ism2Model {
-		Ism2Texture[] textures;
-		Ism2VertexData[] vdata;
-		ArrayList<Ism2Mesh> meshes = new ArrayList<Ism2Mesh>();
+		public Ism2Texture[] textures;
+		public Ism2VertexData[] vdata;
+		public HashMap<String, String> textureMap = new HashMap<String, String>();
+		public ArrayList<Ism2Mesh> meshes = new ArrayList<Ism2Mesh>();
 	}
 }

@@ -60,10 +60,11 @@ public class Game {
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
 		init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "002.ism2" ) );
+		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "kefka", "kefka.gmo" ) );
 		start();
 		
-		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "002.ism2" ) );
+		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim1.pssg" ) );
+		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
 		//FormatManager.decodeImage( ResourceManager.getPackResource( "rin", "base_00.tid" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );

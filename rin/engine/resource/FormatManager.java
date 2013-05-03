@@ -14,6 +14,7 @@ import rin.engine.resource.model.ModelOptions;
 import rin.engine.resource.model.brres.BrresDecoder;
 import rin.engine.resource.model.gmo.GmoDecoder;
 import rin.engine.resource.model.ism2.Ism2Decoder;
+import rin.engine.resource.model.pssg.PssgDecoder;
 
 public class FormatManager {
 	
@@ -113,6 +114,8 @@ public class FormatManager {
 		if( !addModelDecoder( GmoDecoder.class ) )
 			System.err.println( "Unable to load GMO Model Decoder." );
 		if( !addModelDecoder( Ism2Decoder.class ) )
+			System.err.println( "Unable to load ISM2 Model Decoder." );
+		if( !addModelDecoder( PssgDecoder.class ) )
 			System.err.println( "Unable to load ISM2 Model Decoder." );
 	}
 	

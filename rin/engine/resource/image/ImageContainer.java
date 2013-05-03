@@ -70,7 +70,7 @@ public class ImageContainer extends ResourceContainer {
 	
 	public ImageContainer flipY() {
 		short[] flipped = new short[pixelData.length];
-		int rowLength = w * 3;
+		int rowLength = w * pixelFormat.getStride();
 		for( int i = 0, j = pixelData.length - rowLength; i < pixelData.length; i += rowLength, j -= rowLength ) {
 			for( int k = 0; k < rowLength; k++ ) {
 				flipped[i+k] = pixelData[j+k];

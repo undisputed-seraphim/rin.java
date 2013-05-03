@@ -71,7 +71,7 @@ public class DdsUtils {
 		BinaryBuffer buf = new BinaryBuffer( data );
 		buf.setLittleEndian();
 		
-		short[] pixels = new short[ width * height * 3 ];
+		short[] pixels = new short[ width * height * 4 ];
 		short[] color = new short[3];
 		
 		int w4 = (int)Math.ceil( width / 4.0 );
@@ -96,7 +96,7 @@ public class DdsUtils {
 			//short[][][] block = new short[4][4][3];
 			for( int i = 3; i >= 0; i-- ) {
 				for( int j = 0; j < codes[i].length; j++ ) {
-					int cur = (((row + i) * w4 * 4) + (col * 4 + 3 - j)) * 3;
+					int cur = (((row + i) * w4 * 4) + (col * 4 + 3 - j)) * 4;
 					switch( codes[i][j] ) {
 					
 					case 0:
@@ -141,6 +141,7 @@ public class DdsUtils {
 					pixels[cur] = color[0];
 					pixels[cur+1] = color[1];
 					pixels[cur+2] = color[2];
+					pixels[cur+3] = 255;
 				}
 			}
 			col++;
@@ -151,7 +152,7 @@ public class DdsUtils {
 			}
 			//blocks.add( block );
 		}
-		ImageContainer img = new ImageContainer( width, height, pixels, PixelFormat.RGB888 );
+		ImageContainer img = new ImageContainer( width, height, pixels, PixelFormat.RGBA8888 );
 		return img;
 	}
 	

@@ -86,7 +86,29 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 			
 		case TTYPE_5:
 			System.err.println( "type 5" );
-			break;
+			readInt32( 4 );
+			name = readString( 32 ).trim();
+			readInt32();
+			width = readInt32();
+			height = readInt32();
+			readInt32(); //unknown
+			readInt16(); //unknown
+			readInt16(); //unknown
+			readInt32(); //unknown
+			size = readInt32();
+			readInt32( 2 );
+			format = readInt32();
+			readInt32( 2 );
+			
+			position( offset );
+			switch( format ) {
+			
+			case DXT1: return DdsUtils.fromRawDXT1( width, height, readInt8( size ) );
+			case DXT5: return exitWithError( "DXT5 not yet implemented." );
+				
+			default:
+				return exitWithError( "Uknown compression format " + format );
+			}
 			
 		case TTYPE_6:
 			System.err.println( "type 6" );
