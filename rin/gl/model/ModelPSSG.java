@@ -12,6 +12,7 @@ import rin.engine.resource.ResourceManager;
 import rin.engine.resource.ResourceManager.ResourceNotFoundException;
 import rin.engine.resource.formats.pssg.PSSGDecoder;
 import rin.engine.resource.formats.pssg.PSSGDecoder.ActualAnimation;
+import rin.engine.resource.model.ModelContainer;
 import rin.engine.util.ArrayUtils;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.SkinnedMesh;
@@ -134,6 +135,12 @@ public class ModelPSSG implements Model {
 		mesh.setRotation( 90.0f, 0.0f, 0.0f );
 		
 		return mesh;
+	}
+
+	@Override
+	public Actor fromContainer(ModelContainer container) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

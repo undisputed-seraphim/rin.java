@@ -6,6 +6,7 @@ import java.util.Arrays;
 import rin.engine.resource.Directory;
 import rin.engine.resource.Resource;
 import rin.engine.resource.formats.gmo.GMODecoder;
+import rin.engine.resource.model.ModelContainer;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.ImageUtils;
 import static rin.engine.resource.formats.gmo.GMOSpec.*;
@@ -27,7 +28,7 @@ public class ModelGMO implements Model {
 			String[] tex = new String[ file.textures.size() ];
 			for( int i = 0; i < tex.length; i++ ) {
 				Texture t = file.textures.get( i );
-				if( TextureManager.load( t.file, t.width, t.height, t.rawData ) != -1 )
+				if( TextureManager.load( t.file, t.width, t.height, 4, t.rawData ) != -1 )
 					tex[i] = t.file;
 				//ImageUtils.test( t.width, t.height, 4, t.rawData );
 			}
@@ -46,6 +47,12 @@ public class ModelGMO implements Model {
 		
 		//gmo.destroy();
 		return mesh;
+	}
+
+	@Override
+	public Actor fromContainer(ModelContainer container) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

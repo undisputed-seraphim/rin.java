@@ -1,6 +1,7 @@
 package rin.gl.model;
 
 import rin.engine.resource.Resource;
+import rin.engine.resource.model.ModelContainer;
 import rin.gl.lib3d.Actor;
 
 /**
@@ -19,4 +20,5 @@ public interface Model {
 	 * @return		{@link Actor} representing the model in {@param file}
 	 */
 	public Actor fromResource( Resource resource );
+	public Actor fromContainer( ModelContainer container );
 }

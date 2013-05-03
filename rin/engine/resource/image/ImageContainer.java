@@ -67,4 +67,28 @@ public class ImageContainer extends ResourceContainer {
 	public void test() {
 		ImageUtils.test( w, h, pixelFormat.getStride(), pixelData );
 	}
+	
+	public ImageContainer flipY() {
+		short[] flipped = new short[pixelData.length];
+		int rowLength = w * 3;
+		for( int i = 0, j = pixelData.length - rowLength; i < pixelData.length; i += rowLength, j -= rowLength ) {
+			for( int k = 0; k < rowLength; k++ ) {
+				flipped[i+k] = pixelData[j+k];
+			}
+		}
+		pixelData = flipped;
+		return this;
+	}
+	
+	/*public ImageContainer flipX() {
+		short[] flipped = new short[pixelData.length];
+		int rowLength = w * 3;
+		for( int i = 0, j = rowLength - 3; i < w; i+=3, j-=3 ) {
+			for( int k = 0; k < h; k++ ) {
+				flipped[i+k*rowLength] = pixelData[j+k*rowLength];
+			}
+		}
+		pixelData = flipped;
+		return this;
+	}*/
 }

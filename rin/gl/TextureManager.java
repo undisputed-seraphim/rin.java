@@ -62,12 +62,18 @@ public class TextureManager {
 		return gl;
 	}
 	
-	public static int load( String file, int width, int height, short[] rawData ) {
+	public static int load( String file, int width, int height, int stride, short[] rawData ) {
 		if( TextureManager.names.indexOf( file ) != -1 ) {
 			int pos = TextureManager.names.indexOf( file );
 			TextureManager.notify( "[NOTIFY] Texture [" + file + "] already loaded at " + TextureManager.ids.get( pos ) + "." );
 			TextureManager.uses.set( pos, TextureManager.uses.get( pos ) + 1 );
 			return TextureManager.ids.get( pos );
+		}
+		
+		int st = 0;
+		switch( stride ) {
+		case 3: st = GL_RGB; break;
+		case 4: st = GL_RGBA; break;
 		}
 		
 		int texture = glGenTextures();
@@ -77,7 +83,7 @@ public class TextureManager {
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 		glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
-		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Buffer.toByteBuffer( rawData ) );
+		glTexImage2D( GL_TEXTURE_2D, 0, st, width, height, 0, st, GL_UNSIGNED_BYTE, Buffer.toByteBuffer( rawData ) );
 		
 		if( texture != -1 ) {
 			System.out.println( "[LOADED] Texture [" + file + "] loaded at " + texture + "." );

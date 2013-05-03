@@ -1,5 +1,7 @@
 package rin.engine.resource.model;
 
+import rin.engine.resource.image.ImageContainer;
+
 public class Surface {
 
 	private String surfaceName;
@@ -19,12 +21,39 @@ public class Surface {
 		return surfaceName;
 	}
 	
+	public Material setMaterial( ImageContainer image ) {
+		mat = new Material( image );
+		return mat;
+	}
+	
+	public Material getMaterial() {
+		return mat;
+	}
+	
 	public float[] getVertices() {
 		return v;
 	}
 	
 	public Surface setVertices( float[] vertices ) {
 		v = vertices;
+		return this;
+	}
+	
+	public float[] getNormals() {
+		return n;
+	}
+	
+	public Surface setNormals( float[] normals ) {
+		n = normals;
+		return this;
+	}
+	
+	public float[] getTexcoords() {
+		return t;
+	}
+	
+	public Surface setTexcoords( float[] texcoords ) {
+		t = texcoords;
 		return this;
 	}
 	

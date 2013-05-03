@@ -34,11 +34,13 @@ public class GLScene extends SingletonThread<GLScene> {
 	}
 	
 	public Loader<Actor> addModel( Resource resource ) {
-		return addModel( ModelFormat.fromString( resource.getExtension() ), resource );
+		return GL.addModel( resource );
 	}
+	
 	public Loader<Actor> addModel( ModelFormat format, Resource resource ) {
 		return GL.addModel( format, resource );
 	}
+	
 	/*public Loader<Actor> addModel( ModelParams p ) { return GL.addModel( p ); }
 	public Loader<Actor> addModel( ModelFormat format, ResourceIdentifier resource ) {
 		return GL.addModel( format, resource );

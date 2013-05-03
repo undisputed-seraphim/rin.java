@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
 import rin.engine.resource.Resource;
+import rin.engine.resource.model.ModelContainer;
 import rin.gl.lib3d.Mesh;
 import rin.util.Buffer;
 import rin.util.IO;
@@ -121,6 +122,12 @@ public class ModelOBJ implements Model {
 			this.t.clear();
 			return null;
 		}
+	}
+
+	@Override
+	public Actor fromContainer(ModelContainer container) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

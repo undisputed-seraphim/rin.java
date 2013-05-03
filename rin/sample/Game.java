@@ -59,13 +59,13 @@ public class Game {
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
-		/*init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "cecil", "cecil.gmo" ) );
-		start();*/
+		init( 900, 600 );
+		getScene().addModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "002.ism2" ) );
+		start();
 		
-		FormatManager.decodeModel( ResourceManager.getPackResource( "rin", "002.ism2" ) );
+		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "002.ism2" ) );
 		//FormatManager.decodeImage( ResourceManager.getPackResource( "rin", "base_00.tid" ) );
-		//new CL3Extractor( ResourceManager.getPackDirectory( "rin", "motion" ) );
+		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {

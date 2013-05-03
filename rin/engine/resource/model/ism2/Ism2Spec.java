@@ -25,6 +25,7 @@ public class Ism2Spec {
 		public static final int T_VERTICES_WEIGHT = 3;
 			public static final int T_WEIGHT_BONE = 7;
 			public static final int T_WEIGHT_WEIGHT = 1;
+	public static final int C_110 = 0x6E;
 	
 	public static final int C_3 = 0x03;
 	public static final int C_4 = 0x04;
@@ -123,8 +124,18 @@ public class Ism2Spec {
 		public boolean normaled = false;
 	}
 	
+	public static class Ism2Mesh {
+		public float[] v = new float[0];
+		public float[] n = new float[0];
+		public float[] t = new float[0];
+		
+		public float[] b = new float[0];
+		public float[] w = new float[0];
+	}
+	
 	public static class Ism2Model {
 		Ism2Texture[] textures;
 		Ism2VertexData[] vdata;
+		ArrayList<Ism2Mesh> meshes = new ArrayList<Ism2Mesh>();
 	}
 }

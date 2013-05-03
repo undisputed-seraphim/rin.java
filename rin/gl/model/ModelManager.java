@@ -3,6 +3,7 @@ package rin.gl.model;
 import rin.gl.lib3d.Actor;
 import rin.engine.Engine;
 import rin.engine.resource.Resource;
+import rin.engine.resource.model.ModelContainer;
 
 /**
  * Class for creating any of the implemented model formats. Other formats can be added
@@ -20,6 +21,10 @@ public class ModelManager {
 	
 	public static Actor create( Engine.ModelFormat format, Resource resource ) {
 		return format.manager.fromResource( resource );
+	}
+	
+	public static Actor create( Engine.ModelFormat format, ModelContainer model ) {
+		return format.manager.fromContainer( model );
 	}
 	
 	/*public static Actor create( Engine.ModelFormat format, String name ) {

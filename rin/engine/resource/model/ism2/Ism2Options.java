@@ -15,7 +15,7 @@ public class Ism2Options extends ModelOptions {
 		return hasAnimations;
 	}
 	
-	private String animationDir = "";
+	private String animationDir = "motion";
 	
 	public String getAnimationDirectory() {
 		return animationDir;
@@ -26,4 +26,14 @@ public class Ism2Options extends ModelOptions {
 		return this;
 	}
 	
+	private String textureDir = "textures";
+	
+	public String getTextureDirectory() {
+		return textureDir;
+	}
+	
+	public Ism2Options setTextureDirectory( String dir ) {
+		textureDir = dir;
+		return this;
+	}
 }

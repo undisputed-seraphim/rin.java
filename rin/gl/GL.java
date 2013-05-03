@@ -27,7 +27,9 @@ import rin.gl.lib3d.shape.Sphere;
 import rin.gl.model.ModelLoader;
 import rin.gl.model.ModelManager;
 import rin.engine.Engine.ModelParams;
+import rin.engine.resource.FormatManager;
 import rin.engine.resource.Resource;
+import rin.engine.resource.model.ModelContainer;
 import rin.gui.GUIFactory;
 import rin.sample.States;
 import rin.system.adapters.LoaderAdapter;
@@ -100,6 +102,24 @@ public class GL extends SingletonThread<GL> {
 			public void run() {
 				
 				Actor actor = ModelManager.create( format, resource );
+				
+				synchronized( GLScene.getActors() ) {
+					GLScene.getActors().add( actor );
+					System.out.println( "HERE IS WHEN ONLOAD SHOULD RUN" );
+					lr.setTarget( actor ).loaded();
+				}
+			}
+		});
+		return lr;
+	}
+	
+	public static Loader<Actor> addModel( final Resource resource ) {
+		final Loader<Actor> lr = new LoaderAdapter<Actor>();
+		GLWorkerThread.sources.add( new Runnable() {
+			public void run() {
+				
+				ModelContainer mc = FormatManager.decodeModel( resource );
+				Actor actor = ModelManager.create( ModelFormat.fromString( resource.getExtension() ), mc );
 				
 				synchronized( GLScene.getActors() ) {
 					GLScene.getActors().add( actor );
