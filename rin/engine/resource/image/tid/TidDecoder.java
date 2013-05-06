@@ -30,7 +30,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		valid |= magic == TTYPE_9;
 		if( !valid ) return exitWithError( "Invalid TID image format." );
 		
-		int filesize = readInt32();
+		readInt32(); //filesize
 		int offset = readInt32();
 		if( readInt32() != 1 ) return exitWithError( "Multiple Textures in TID file...?" );
 		

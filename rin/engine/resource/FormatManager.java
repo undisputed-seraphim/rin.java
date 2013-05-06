@@ -303,6 +303,7 @@ public class FormatManager {
 			return false;
 		
 		//extractor.clear();
+		if( opts == null ) opts = extractor.getDefaultOptions();
 		return extractor.extract( resource, opts );
 	}
 	
