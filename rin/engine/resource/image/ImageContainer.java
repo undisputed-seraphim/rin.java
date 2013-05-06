@@ -1,14 +1,18 @@
 package rin.engine.resource.image;
 
+import rin.engine.resource.FormatManager;
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceContainer;
 import rin.engine.util.ImageUtils;
 
 public class ImageContainer extends ResourceContainer {
 	
+	private String n = "";
+	
 	private int w = 0;
 	private int h = 0;
 	
-	private PixelFormat pixelFormat = PixelFormat.RGB888;
+	private PixelFormat pixelFormat = PixelFormat.RGB;
 	private short[] pixelData = new short[0];
 	
 	public ImageContainer() {}
@@ -26,6 +30,15 @@ public class ImageContainer extends ResourceContainer {
 	public ImageContainer( int width, int height, short[] data, PixelFormat format ) {
 		this( width, height, data );
 		pixelFormat = format;
+	}
+	
+	public String getName() {
+		return n;
+	}
+	
+	public ImageContainer setName( String name ) {
+		n = name;
+		return this;
 	}
 	
 	public int getWidth() {
@@ -62,6 +75,18 @@ public class ImageContainer extends ResourceContainer {
 	public ImageContainer setData( short[] data ) {
 		pixelData = data;
 		return this;
+	}
+	
+	public boolean hasAlpha() {
+		return pixelFormat.toString().toUpperCase().indexOf( "A" ) != -1;
+	}
+	
+	public boolean save( Resource resource ) {
+		return FormatManager.encodeImage( this, resource );
+	}
+	
+	public boolean save( Resource resource, String format ) {
+		return FormatManager.encodeImage( this, resource, format );
 	}
 	
 	public void test() {

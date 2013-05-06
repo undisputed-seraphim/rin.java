@@ -19,8 +19,8 @@ uniform vec3 trans[50];
 varying vec4 vTransformedNormal;
 
 void main( void ) {
-	vec4 pos = vec4( 0, 0, 0, 1 );
-	vec4 tmp;
+	vec4 pos = vec4( vertex.xyz, 1 );
+	/*vec4 tmp;
 	float yy, zz, xy, zw, xz, yw, xx, yz, xw;
 					if( bone.x != -1.0 ) {
 						tmp = quats[ int(bone.x) ];
@@ -97,8 +97,8 @@ void main( void ) {
 							vec4(0,0,0,1) );
 						pos += weight.w * mtmp * vec4( vertex.xyz, 1.0 );
 						pos += weight.w * vec4(trans[int(bone.w)].x, trans[int(bone.w)].y, trans[int(bone.w)].z,0);
-					}
-	gl_Position = vMatrix * mMatrix * vec4( pos.xyz, 1.0 );
+					}*/
+	gl_Position = vMatrix * mMatrix * vec4( vertex.xyz, 1.0 );
 	vVertex = vertex;
 	vColor = color;
 	vNormal = normal;

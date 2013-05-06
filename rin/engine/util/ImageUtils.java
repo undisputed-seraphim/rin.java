@@ -2,11 +2,10 @@ package rin.engine.util;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
-import rin.util.bio.BinaryBuffer;
+import rin.engine.resource.image.PixelFormat;
 
 public class ImageUtils {
 
@@ -53,4 +52,41 @@ public class ImageUtils {
 	public static void test( int width, int height, int stride, short[] rawData ) {
 		new ImagePanel( rawData, width, height, stride );
 	}
+	
+	public static short[] convert( PixelFormat src, PixelFormat dest, short[] data ) {
+		System.out.println( "converting pixels from " + src.toString() + " to " + dest.toString() );
+		if( src == dest )
+			return data;
+		
+		//TODO: ensure the length matches up with src format, throw exceptions, etc
+		
+		int srcStride = src.getStride();
+		int destStride = dest.getStride();
+		short[] res = new short[data.length / srcStride * destStride];
+		
+		for( int i = 0; i < data.length / srcStride; i++ ) {
+			res[i*destStride+dest.r()] = data[i*srcStride+src.r()];
+			
+			if( dest.g() != -1 ) {
+				if( src.g() != -1 ) {
+					res[i*destStride+dest.g()] = data[i*srcStride+src.g()];
+				} else res[i*destStride+dest.g()] = data[i*srcStride+src.r()];
+			}
+			
+			if( dest.b() != -1 ) {
+				if( src.b() != -1 ) {
+					res[i*destStride+dest.b()] = data[i*srcStride+src.b()];
+				} else res[i*destStride+dest.b()] = data[i*srcStride+src.r()];
+			}
+			
+			if( dest.a() != -1 ) {
+				if( src.a() != -1 ) {
+					res[i*destStride+dest.a()] = data[i*srcStride+src.a()];
+				} else res[i*destStride+dest.a()] = 255;
+			}
+		}
+		
+		return res;
+	}
+
 }

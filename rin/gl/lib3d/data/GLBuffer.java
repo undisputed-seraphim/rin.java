@@ -1,12 +1,10 @@
 package rin.gl.lib3d.data;
 
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL31.*;
 
 import java.nio.IntBuffer;
 
@@ -91,6 +89,12 @@ public class GLBuffer {
 			glDisableVertexAttribArray( this.attribute );
 		
 		return false;
+	}
+	
+	public void render() {
+		if( buffer() ) {
+			glDrawElements( GL_TRIANGLES, this.count, GL_UNSIGNED_INT, 0 );
+		}
 	}
 	
 	public GLBuffer destroy() {

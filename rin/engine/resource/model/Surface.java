@@ -21,12 +21,12 @@ public class Surface {
 		return surfaceName;
 	}
 	
-	public Material setMaterial( ImageContainer image ) {
-		mat = new Material( image );
+	public Material getMaterial() {
 		return mat;
 	}
 	
-	public Material getMaterial() {
+	public Material setMaterial( ImageContainer image ) {
+		mat = new Material( image );
 		return mat;
 	}
 	
@@ -54,6 +54,15 @@ public class Surface {
 	
 	public Surface setTexcoords( float[] texcoords ) {
 		t = texcoords;
+		return this;
+	}
+	
+	public int[] getIndices() {
+		return i;
+	}
+	
+	public Surface setIndices( int[] indices ) {
+		i = indices;
 		return this;
 	}
 	

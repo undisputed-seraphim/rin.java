@@ -5,14 +5,10 @@ import java.util.ArrayList;
 import static rin.engine.Engine.*;
 import rin.engine.Engine;
 import rin.engine.resource.FormatManager;
+import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceManager;
-import rin.engine.resource.formats.acb.ACBDecoder;
-import rin.engine.resource.formats.brres.BRRESDecoder;
-import rin.engine.resource.formats.cl3.CL3Decoder;
-import rin.engine.resource.formats.cl3.CL3Extractor;
-import rin.engine.resource.formats.gmo.GMODecoder;
-import rin.engine.resource.formats.ism2.ISM2Decoder;
-import rin.engine.resource.formats.pssg.PSSGDecoder;
+import rin.engine.resource.audio.acb.AcbDecoder;
+import rin.engine.resource.image.ImageOptions;
 import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
 import rin.engine.view.gui.GUIManager;
@@ -59,9 +55,14 @@ public class Game {
 		//GUIManager.print();
 		//System.out.println( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//new GMODecoder( ResourceManager.getPackResource( "dissidia", "models", "test", "test.gmo" ) );
-		init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "dissidia", "models", "kefka", "kefka.gmo" ) );
-		start();
+		/*init( 900, 600 );
+		getScene().addModel( ResourceManager.getPackResource( "neptunia_mk2", "test.ism2" ) );
+		start();*/
+		//new AcbDecoder( ResourceManager.getPackResource( "neptunia_v", "models", "001", "sounds", "sound001.acb" ) );
+		//FormatManager.extractAll( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "sfx" ), "acb" );
+		for( Resource r : ResourceManager.getPackDirectory( "neptunia_mk2", "special" ).getResourcesByExtension( ".tid" ) ) {
+			FormatManager.decodeImage( r, new ImageOptions().saveAs( "png" ).setDeleteOnSave( true ) );
+		}
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim1.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );

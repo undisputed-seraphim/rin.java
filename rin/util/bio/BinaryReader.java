@@ -10,13 +10,13 @@ import static rin.util.bio.BinaryTypes.*;
 public abstract class BinaryReader {
 
 	public static class BinaryBufferPositionException extends Error {
+		private static final long serialVersionUID = 7L;
+
 		public BinaryBufferPositionException( int length, int position ) {
 			System.err.println( length + " " + position );
 			this.printStackTrace();
 		}
 	}
-	
-	private final ByteBuffer tmp = ByteBuffer.allocate( 8 );
 	
 	public abstract ByteBuffer getBuffer();
 	
@@ -85,29 +85,6 @@ public abstract class BinaryReader {
         if( preview ) this.position( start );
         return res;
     }
-
-    public <T> T readAt( BinaryType<T> type, int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	T res = this.read( type );
-    	this.position( start );
-    	return res;
-    }
-    
-    public <T> T[] readAt( BinaryType<T> type, int pos, int amount ) {
-    	return this.readRange( type, pos, pos + (amount * type.sizeof()) );
-    }
-    
-    public <T> T[] readRange( BinaryType<T> type, int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( type.sizeof(), start, end, type.getClass().toString() );
-    	T[] res = this.read( type, amount );
-    	this.position( init );
-    	return res;
-    }
     
     public String readString( int length ) {
         String res = "";
@@ -119,15 +96,6 @@ public abstract class BinaryReader {
     public BinaryReader printString( int length ) {
     	System.out.println( readString( length ) );
     	return this;
-    }
-    
-    public String readStringAt( int pos, int length ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	String res = this.readString( length );
-    	this.position( start );
-    	return res;
     }
     
     public byte[] readBits() {
@@ -171,26 +139,6 @@ public abstract class BinaryReader {
     	return res;
     }
     
-    public String readBit8At( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	String res = this.readBit8();
-    	this.position( start );
-    	return res;
-    }
-    
-    public String[] readBit8At( int pos, int amount ) { return this.readBit8Range( pos, pos + (amount * 1) ); }
-    public String[] readBit8Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 1, start, end, "Bit8" );
-    	String[] res = this.readBit8( amount );
-    	this.position( init );
-    	return res;
-    }
-    
     public int readHex() { return Integer.parseInt( String.format( "%02x", this.getBuffer().get() ), 16 ); }
     public int[] readHex( int amount ) {
     	int[] res = new int[amount];
@@ -204,26 +152,6 @@ public abstract class BinaryReader {
     	String[] res = new String[amount];
     	for( int i = 0; i < amount; i++ )
     		res[i] = this.readHex8();
-    	return res;
-    }
-    
-    public String readHex8At( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	String res = this.readHex8();
-    	this.position( start );
-    	return res;
-    }
-    
-    public String[] readHex8At( int pos, int amount ) { return this.readHex8Range( pos, pos + (amount * 1) ); }
-    public String[] readHex8Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 1, start, end, "Hex8" );
-    	String[] res = this.readHex8( amount );
-    	this.position( init );
     	return res;
     }
     
@@ -243,26 +171,6 @@ public abstract class BinaryReader {
             res[i] = this.readInt8();
         return res;
     }
-
-    public byte readInt8At( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	byte res = this.readInt8();
-    	this.position( start );
-    	return res;    	
-    }
-
-    public byte[] readInt8At( int pos, int amount ) { return this.readInt8Range( pos, pos + (amount * 1) ); }
-    public byte[] readInt8Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 1, start, end, "Int8" );
-    	byte[] res = this.readInt8( amount );
-    	this.position( init );
-    	return res;
-    }
     
     public short readUInt8() { return (short)(this.getBuffer().get() & 0xFF); }
     public short[] readUInt8( int amount ) {
@@ -277,26 +185,6 @@ public abstract class BinaryReader {
     	for( int i = 0; i < amount; i++ )
     		System.out.println( readInt8() );
     	return this;
-    }
-
-    public short readUInt8At( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	short res = this.readUInt8();
-    	this.position( start );
-    	return res;
-    }
-
-    public short[] readUInt8At( int pos, int amount ) { return this.readUInt8Range( pos, pos + (amount * 1) ); }
-    public short[] readUInt8Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 1, start, end, "UInt8" );
-    	short[] res = this.readUInt8( amount );
-    	this.position( init );
-    	return res;
     }
     
     public BinaryReader printUInt8() { return printUInt8( 1 ); }
@@ -314,31 +202,11 @@ public abstract class BinaryReader {
         return res;
     }
 
-    public char readCharAt( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	char res = this.readChar();
-    	this.position( start );
-    	return res;    
-    }
-
     public BinaryReader printChar() { return printChar( 1 ); }
     public BinaryReader printChar( int amount ) {
     	for( int i = 0; i < amount; i++ )
     		System.out.println( readChar() );
     	return this;
-    }
-    
-    public char[] readCharAt( int pos, int amount ) { return this.readCharRange( pos, pos + (amount * 1) ); }
-    public char[] readCharRange( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 1, start, end, "Char" );
-    	char[] res = this.readChar( amount );
-    	this.position( init );
-    	return res;
     }
     
     public short readInt16() { return this.getBuffer().getShort(); }
@@ -349,30 +217,11 @@ public abstract class BinaryReader {
         return res;
     }
     
-    public int readUInt16At( int pos ) {
-    	int start = this.position();
-    	this.position( pos );
-    	
-    	int res = this.readUInt16();
-    	this.position( start );
-    	return res;    
-    }
-    
     public BinaryReader printInt16() { return printInt16( 1 ); }
     public BinaryReader printInt16( int amount ) {
     	for( int i = 0; i < amount; i++ )
     		System.out.println( readInt16() );
     	return this;
-    }
-
-    public short[] readInt16Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 2, start, end, "Int16" );
-    	short[] res = this.readInt16( amount );
-    	this.position( init );
-    	return res;
     }
     
     public int readUInt16() { return this.getBuffer().getShort() & 0xFFFF; }
@@ -381,16 +230,6 @@ public abstract class BinaryReader {
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readUInt16();
         return res;
-    }
-
-    public int[] readUInt16Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 2, start, end, "UInt16" );
-    	int[] res = this.readUInt16( amount );
-    	this.position( init );
-    	return res;
     }
     
     public BinaryReader printUInt16() { return printUInt16( 1 ); }
@@ -407,16 +246,6 @@ public abstract class BinaryReader {
             res[i] = this.readInt32();
         return res;
     }
-
-    public int[] readInt32Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 4, start, end, "Int32" );
-    	int[] res =  this.readInt32( amount );
-    	this.position( init );
-    	return res;
-    }
     
     public BinaryReader printInt32() { return printInt32( 1 ); }
     public BinaryReader printInt32( int amount ) {
@@ -432,16 +261,6 @@ public abstract class BinaryReader {
             res[i] = this.readUInt32();
         return res;
     }
-    
-    public long[] readUInt32Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 4, start, end, "UInt32" );
-    	long[] res = this.readUInt32( amount );
-    	this.position( init );
-    	return res;
-    }
 
     public BinaryReader printUInt32() { return printUInt32( 1 ); }
     public BinaryReader printUInt32( int amount ) {
@@ -456,16 +275,6 @@ public abstract class BinaryReader {
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readInt64();
         return res;
-    }
-    
-    public long[] readInt64Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 8, start, end, "Int64" );
-    	long[] res = this.readInt64( amount );
-    	this.position( init );
-    	return res;
     }
 
     public BinaryReader printInt64() { return printInt64( 1 ); }
@@ -549,16 +358,6 @@ public abstract class BinaryReader {
             res[i] = this.readFloat32();
         return res;
     }
-
-    public float[] readFloat32Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 4, start, end, "Float32" );
-    	float[] res = this.readFloat32( amount );
-    	this.position( init );
-    	return res;
-    }
     
     public BinaryReader printFloat32() { return printFloat32( 1 ); }
     public BinaryReader printFloat32( int amount ) {
@@ -573,16 +372,6 @@ public abstract class BinaryReader {
         for( int i = 0; i < res.length; i++ )
             res[i] = this.readFloat64();
         return res;
-    }
-    
-    public double[] readFloat64Range( int start, int end ) {
-    	int init = this.position();
-    	this.position( start );
-    	
-    	int amount = this.ensureRange( 8, start, end, "Float64" );
-    	double[] res = this.readFloat64( amount );
-    	this.position( init );
-    	return res;
     }
     
     public BinaryReader printFloat64() { return printFloat64( 1 ); }

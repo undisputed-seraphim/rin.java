@@ -1,13 +1,12 @@
 package rin.engine.resource.formats.cl3;
 
 import rin.engine.resource.Directory;
-import rin.engine.resource.ForEach;
 import rin.engine.resource.Resource;
 
 public class CL3Extractor {
 
 	public CL3Extractor( final Directory dir ) {
-		dir.forEachResource( ".cl3", new ForEach<Resource>() {
+		/*dir.forEachResource( ".cl3", new ForEach<Resource>() {
 			@Override public void each( Resource res ) {
 				if( !dir.containsResource( res.getBaseName() + "ism2" ) ) {
 					CL3Decoder tmp = new CL3Decoder( res );
@@ -19,7 +18,7 @@ public class CL3Extractor {
 					}
 				}
 			}
-		});
+		});*/
 	}
 	
 }

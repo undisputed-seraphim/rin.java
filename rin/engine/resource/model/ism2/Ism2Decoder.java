@@ -102,6 +102,10 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 			cModel.vdata[ i ] = new Ism2VertexData();
 			cVertexData = cModel.vdata[ i ];
 			processChunk( offsets[i] );
+			System.out.println( cVertexData.v.length );
+			mc.setVertices( cVertexData.v );
+			mc.setNormals( cVertexData.n );
+			mc.setTexcoords( cVertexData.t );
 		}
 	}
 	
@@ -140,11 +144,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		
 		case 5:
 			System.out.println( "index type 5" );
-			for( int i = 0; i < count / 3; i++ ) {
-				in[i*3] = readUInt16();
-				in[i*3+1] = readUInt16();
-				in[i*3+2] = readUInt16();
-			}
+			cSurface.setIndices( readUInt16( count ) );
 			break;
 			
 		case 7:
@@ -159,7 +159,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 			break;
 		}
 		
-		int tv = 0, tt = 0, tn = 0;
+		/*int tv = 0, tt = 0, tn = 0;
 		boolean hasN = cVertexData.normaled;
 		boolean hasT = cVertexData.t.length > 0;
 		float[] v = new float[count*3*3];
@@ -189,7 +189,7 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 		System.out.println( v.length + " " + count );
 		cSurface.setVertices( v );
 		cSurface.setNormals( n );
-		cSurface.setTexcoords( t );
+		cSurface.setTexcoords( t );*/
 	}
 	
 	private Ism2VertexInfo getVertexInfo( int offset ) {
@@ -256,11 +256,11 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 						break;
 						
 					case T_VERTEX_14:
-						/*debug.writeLine( "vertex 14 " + types[j].count );
-						debug.writeLine( readInt16() );
-						debug.writeLine( readInt16() );
-						debug.writeLine( readInt16() );
-						debug.writeLine();*/
+						debug.writeLine( "vertex 14 " + types[j].count );
+						debug.writeLine( readUInt16() / 65535.0f );
+						debug.writeLine( readUInt16() / 65535.0f );
+						debug.writeLine( readUInt16() / 65535.0f );
+						debug.writeLine();
 						break;
 						
 					case T_VERTEX_15:
@@ -294,6 +294,8 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 					//debug.writeLine( position() + " " + types[j].vsize + " " + types[j].voffset + " " + types[j].offset + " " + types[j].vtype );
 				//debug.writeLine( readUInt16() / 65535.0f );
 				//debug.writeLine( readUInt16() / 65535.0f );
+				//cVertexData.t[i*2] = readUInt16() / 65535.0f;
+				//cVertexData.t[i*2+1] = readUInt16() / 65535.0f;
 				cVertexData.t[i*2] = readUInt16() / 65535.0f;
 				cVertexData.t[i*2+1] = readUInt16() / 65535.0f;
 				cVertexData.t[i*2+1] = 1.0f - cVertexData.t[i*2+1];
@@ -306,7 +308,6 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 				//}
 			}
 			//debug.writeLine( "TEXEND" );
-			System.out.println( "tex ended at " + position() );
 			break;
 			
 		case T_VERTICES_WEIGHT:
@@ -589,10 +590,9 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 	public ModelContainer decode( Resource resource, ModelOptions options ) {
 		load( resource );
 		
-		Ism2Options opts = null;
-		if( options == null )
-			opts = new Ism2Options();
-		else opts = (Ism2Options)options;
+		Ism2Options opts = new Ism2Options();
+		if( options != null )
+			opts = (Ism2Options)options;
 		
 		mc = new ModelContainer();
 		name = resource.getBaseName();
@@ -626,9 +626,14 @@ public class Ism2Decoder extends BaseBinaryReader implements ModelDecoder {
 						tex = tex.substring( 0, tex.lastIndexOf( "." ) );
 					
 					if( textureDir.containsResource( tex + ".tid" ) ) {
-						ImageContainer ic = FormatManager.decodeImage( textureDir.getResource( tex + ".tid" ) );
+						Resource texture = textureDir.getResource( tex + ".tid" );
+						ImageContainer ic = FormatManager.decodeImage( texture );
 						if( ic != null ) {
-							//ic.flipY();
+							/*Resource res = textureDir.createResource( texture.getBaseName() + ".png", true );
+							if( ic.save( res ) ) {
+								System.out.println( "ISM2 Texture exported as PNG." );
+								ic.setName( res.getPath() );
+							}*/
 							for( Surface s : mc.getSurfaces() ) {
 								if( t.data[2].indexOf( cModel.textureMap.get( s.getName() ) ) != -1 ) {
 									s.setMaterial( ic );

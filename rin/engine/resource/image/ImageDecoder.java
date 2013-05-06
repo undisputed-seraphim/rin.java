@@ -11,6 +11,12 @@ public interface ImageDecoder {
 	public String getExtensionName();
 	
 	/**
+	 * Return the default options for decoding this image format.
+	 * @return ImageOptions depicting default options
+	 */
+	public ImageOptions getDefaultOptions();
+	
+	/**
 	 * Decode an image, returning an universal ImageContainer object.
 	 * @param resource Resource pointer to an image file
 	 * @param opts ImageOptions for the specified image format

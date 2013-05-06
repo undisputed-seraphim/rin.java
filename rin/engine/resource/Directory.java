@@ -29,6 +29,14 @@ public class Directory extends ResourcePointer {
 		};
 	}
 	
+	private FileFilter getResourceExtensionFilter( final String ext ) {
+		return new FileFilter() {
+			@Override public boolean accept( File file ) {
+				return file.getName().toLowerCase().endsWith( ext.toLowerCase() ) && !file.isDirectory();
+			}
+		};
+	}
+	
 	private FileFilter getResourceNameFilter( final String name, final boolean partial ) {
 		return new FileFilter() {
 			@Override public boolean accept( File file ) {
@@ -95,10 +103,6 @@ public class Directory extends ResourcePointer {
 		throw new IllegalArgumentException();
 	}
 	
-	public void forEachDirectory( ForEach<Directory> fe ) {
-		fe.run( getDirectories() );
-	}
-	
 	public boolean containsResource( String name ) {
 		if( name == null )
 			return target.listFiles( ONLY_FILES ).length == 0;
@@ -146,6 +150,11 @@ public class Directory extends ResourcePointer {
 		return getResources( getResourceNameFilter( pattern, true ) );
 	}
 	
+	public Resource[] getResourcesByExtension( String ext ) {
+		if( ext.indexOf( "." ) != 0 ) ext = "."+ext;
+		return getResources( getResourceExtensionFilter( ext ) );
+	}
+	
 	public Resource createResource( String name ) {
 		return createResource( name, false );
 	}
@@ -168,14 +177,6 @@ public class Directory extends ResourcePointer {
 		}
 		
 		throw new IllegalArgumentException();
-	}
-	
-	public void forEachResource( ForEach<Resource> fe ) {
-		fe.run( getResources() );
-	}
-	
-	public void forEachResource( String pattern, ForEach<Resource> fe ) {
-		fe.run( getResources( getResourceNameFilter( pattern, true ) ) );
 	}
 	
 }

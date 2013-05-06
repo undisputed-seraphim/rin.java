@@ -152,7 +152,7 @@ public class DdsUtils {
 			}
 			//blocks.add( block );
 		}
-		ImageContainer img = new ImageContainer( width, height, pixels, PixelFormat.RGBA8888 );
+		ImageContainer img = new ImageContainer( width, height, pixels, PixelFormat.RGBA );
 		return img;
 	}
 	

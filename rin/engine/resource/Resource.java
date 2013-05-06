@@ -3,8 +3,10 @@ package rin.engine.resource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
-import rin.engine.util.ArrayUtils;
 import rin.engine.util.FileUtils;
 
 public class Resource extends ResourcePointer {
@@ -38,6 +40,10 @@ public class Resource extends ResourcePointer {
 		return fos != null;
 	}
 	
+	public boolean delete() {
+		return target.delete();
+	}
+	
 	public void openStream() {
 		if( fos == null )
 			fos = FileUtils.getOutputStream( target );
@@ -59,20 +65,43 @@ public class Resource extends ResourcePointer {
 	}
 	
 	public Resource write( Object ... o ) {
+		if( fos == null )
+			openStream();
+		
 		for( int i = 0 ; i < o.length; i++ )
 			FileUtils.writeBytes( fos, o[i].toString().getBytes() );
 		return this;
 	}
 	
 	public Resource writeLine( Object ... o ) {
+		if( fos == null )
+			openStream();
+		
 		for( int i = 0 ; i < o.length; i++ )
 			FileUtils.writeBytes( fos, o[i].toString().getBytes() );
 		FileUtils.writeBytes( fos, LS.getBytes() );
 		return this;
 	}
 	
-	public void writeBytes( byte[] bytes ) {
+	public boolean writeBytes( byte[] bytes ) {
 		FileUtils.writeBytes( target, bytes );
+		return true;
+	}
+	
+	public boolean writeBuffer( ByteBuffer buffer ) {
+		FileOutputStream fos = FileUtils.getOutputStream( target );
+		WritableByteChannel bc = Channels.newChannel( fos );
+		
+		try {
+			bc.write( buffer );
+			fos.flush();
+			fos.close();
+			return true;
+		} catch( IOException ex ) {
+			System.out.println( "Resource#writeBuffer(ByteBuffer): failed to write buffer or close file." );
+		}
+		
+		return false;
 	}
 	
 }

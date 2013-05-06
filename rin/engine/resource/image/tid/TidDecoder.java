@@ -6,6 +6,7 @@ import rin.engine.resource.Resource;
 import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.image.ImageDecoder;
 import rin.engine.resource.image.ImageOptions;
+import rin.engine.resource.image.PixelFormat;
 import rin.engine.resource.image.dds.DdsUtils;
 import rin.util.bio.BaseBinaryReader;
 
@@ -42,7 +43,19 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		
 		case TTYPE_0:
 			System.out.println( "type 0" );
-			break;
+			name = readString( 32 ).trim();
+			readInt32();
+			width = readInt32();
+			height = readInt32();
+			readInt32();
+			readInt16();
+			readInt16();
+			readInt32();
+			size = readInt32();
+			readInt32();
+			
+			position( offset );
+			return new ImageContainer( width, height, readUInt8( size ), PixelFormat.ARGB );
 			
 		case TTYPE_1:
 			//System.out.println( "type 1" );
@@ -73,8 +86,21 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 			}
 			
 		case TTYPE_2:
-			System.err.println( "type 2" );
-			break;
+			//System.err.println( "type 2" );
+			readInt32( 4 );
+			name = readString( 32 ).trim();
+			readInt32(); //unknown
+			width = readInt32();
+			height = readInt32();
+			readInt32(); //unknown
+			readInt16(); //unknown
+			readInt16(); //unknown
+			readInt32(); //unknown
+			size = readInt32();
+			readInt32(); //unknown
+			
+			position( offset );
+			return new ImageContainer( width, height, readUInt8( size ), PixelFormat.ARGB );
 			
 		case TTYPE_3:
 			System.err.println( "type 3" );
@@ -85,7 +111,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 			break;
 			
 		case TTYPE_5:
-			System.err.println( "type 5" );
+			//System.err.println( "type 5" );
 			readInt32( 4 );
 			name = readString( 32 ).trim();
 			readInt32();
@@ -111,8 +137,21 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 			}
 			
 		case TTYPE_6:
-			System.err.println( "type 6" );
-			break;
+			//System.err.println( "type 6" );
+			readInt32( 4 );
+			name = readString( 32 ).trim();
+			readInt32();
+			width = readInt32();
+			height = readInt32();
+			readInt32();
+			readInt16();
+			readInt16();
+			readInt32();
+			size = readInt32();
+			readInt32();
+			
+			position( offset );
+			return new ImageContainer( width, height, readUInt8( size ), PixelFormat.ARGB );
 			
 		case TTYPE_7:
 			System.err.println( "type 7" );
@@ -146,6 +185,10 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_9:
 			System.err.println( "type 9" );
 			break;
+			
+		default:
+			System.err.println( "unkonwn ttype " + magic );
+			break;
 		}
 		
 		return null;
@@ -155,11 +198,25 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 	public String getExtensionName() { return "tid"; }
 
 	@Override
+	public TidOptions getDefaultOptions() { return new TidOptions(); }
+	
+	@Override
 	public ImageContainer decode( Resource resource, ImageOptions opts ) {
 		load( resource );
 		
 		ImageContainer ic = header();
-		//ic.test();
+		if( ic == null ) return null;
+		
+		// if the user wants to save this image once decoded
+		if( opts.getSaveOnDecode() && !opts.getSaveFormat().equals( "" ) ) {
+			Resource tid = resource.getDirectory().createResource( resource.getBaseName() + "." + opts.getSaveFormat(), true );
+			if( tid != null ) {
+				if( ic.save( tid ) ) {
+					if( opts.getDeleteOnSave() ) resource.delete();
+				}
+			}
+		}
+		
 		return ic;
 	}
 	
