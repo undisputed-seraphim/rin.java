@@ -60,13 +60,13 @@ public class Game {
 		start();*/
 		//new AcbDecoder( ResourceManager.getPackResource( "neptunia_v", "models", "001", "sounds", "sound001.acb" ) );
 		//FormatManager.extractAll( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "sfx" ), "acb" );
-		for( Resource r : ResourceManager.getPackDirectory( "neptunia_mk2", "special" ).getResourcesByExtension( ".tid" ) ) {
+		/*for( Resource r : ResourceManager.getPackDirectory( "neptunia_mk2", "special" ).getResourcesByExtension( ".tid" ) ) {
 			FormatManager.decodeImage( r, new ImageOptions().saveAs( "png" ).setDeleteOnSave( true ) );
-		}
+		}*/
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim1.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
-		//FormatManager.decodeImage( ResourceManager.getPackResource( "rin", "base_00.tid" ) );
+		FormatManager.decodeImage( ResourceManager.getPackResource( "neptunia_mk2", "special", "2001.tid" ), new ImageOptions().saveAs( "png" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {

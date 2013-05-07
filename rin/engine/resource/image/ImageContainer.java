@@ -93,27 +93,77 @@ public class ImageContainer extends ResourceContainer {
 		ImageUtils.test( w, h, pixelFormat.getStride(), pixelData );
 	}
 	
-	public ImageContainer flipY() {
+	public ImageContainer flipVertical() {
 		short[] flipped = new short[pixelData.length];
 		int rowLength = w * pixelFormat.getStride();
-		for( int i = 0, j = pixelData.length - rowLength; i < pixelData.length; i += rowLength, j -= rowLength ) {
-			for( int k = 0; k < rowLength; k++ ) {
+		
+		for( int i = 0, j = pixelData.length - rowLength; i < pixelData.length; i += rowLength, j -= rowLength )
+			for( int k = 0; k < rowLength; k++ )
 				flipped[i+k] = pixelData[j+k];
-			}
-		}
+				
 		pixelData = flipped;
 		return this;
 	}
 	
-	/*public ImageContainer flipX() {
+	public ImageContainer flipHorizontal() {
 		short[] flipped = new short[pixelData.length];
-		int rowLength = w * 3;
-		for( int i = 0, j = rowLength - 3; i < w; i+=3, j-=3 ) {
-			for( int k = 0; k < h; k++ ) {
-				flipped[i+k*rowLength] = pixelData[j+k*rowLength];
-			}
-		}
+		int stride = pixelFormat.getStride();
+		int rowLength = w * stride;
+		int left = 0;
+		int right = rowLength - stride;
+
+		for( int k = 0; k < w; k++, right -= stride, left += stride )
+			for( int i = 0; i < h; i++ )
+				for( int j = 0; j < stride; j++ )
+					flipped[left+i*rowLength+j] = pixelData[right+i*rowLength+j];
+		
 		pixelData = flipped;
 		return this;
-	}*/
+	}
+	
+	public ImageContainer rotateClockwise() {
+		return rotateClockwise( 1 );
+	}
+	
+	public ImageContainer rotateClockwise( int times ) {
+		for( ; times > 0; times-- ) {
+			short[] rotated = new short[pixelData.length];
+			int stride = pixelFormat.getStride();
+			int rowLength = w * stride;
+			int newRowLength = h * stride;
+			
+			for( int i = 0, j = newRowLength - stride; i < pixelData.length; i += rowLength, j -= stride )
+				for( int k = 0; k < rowLength; k += stride )
+					for( int l = 0; l < stride; l++ )
+						rotated[j+newRowLength*(k/stride)+l] = pixelData[i+k+l];
+			
+			h = w;
+			w = newRowLength / stride;
+			pixelData = rotated;
+		}
+		return this;
+	}
+	
+	public ImageContainer rotateCounterClockwise() {
+		return rotateCounterClockwise( 1 );
+	}
+	
+	public ImageContainer rotateCounterClockwise( int times ) {
+		for( ; times > 0; times-- ) {
+			short[] rotated = new short[pixelData.length];
+			int stride = pixelFormat.getStride();
+			int rowLength = w * stride;
+			int newRowLength = h * stride;
+			
+			for( int i = 0, j = pixelData.length - newRowLength; i < pixelData.length; i += rowLength, j += stride )
+				for( int k = 0; k < rowLength; k += stride )
+					for( int l = 0; l < stride; l++ )
+						rotated[j-newRowLength*(k/stride)+l] = pixelData[i+k+l];
+			
+			h = w;
+			w = newRowLength / stride;
+			pixelData = rotated;
+		}
+		return this;
+	}
 }

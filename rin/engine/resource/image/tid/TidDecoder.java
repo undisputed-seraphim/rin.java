@@ -34,7 +34,6 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		int offset = readInt32();
 		if( readInt32() != 1 ) return exitWithError( "Multiple Textures in TID file...?" );
 		
-		String name = "";
 		int width = 0;
 		int height = 0;
 		int size = 0;
@@ -42,8 +41,8 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		switch( magic ) {
 		
 		case TTYPE_0:
-			System.out.println( "type 0" );
-			name = readString( 32 ).trim();
+			//System.out.println( "type 0" );
+			readString( 32 ).trim(); //name
 			readInt32();
 			width = readInt32();
 			height = readInt32();
@@ -60,7 +59,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_1:
 			//System.out.println( "type 1" );
 			readInt32( 4 );
-			name = readString( 32 ).trim();
+			readString( 32 ).trim(); //name
 			readInt32(); //unknown
 			width = readInt32();
 			height = readInt32();
@@ -88,7 +87,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_2:
 			//System.err.println( "type 2" );
 			readInt32( 4 );
-			name = readString( 32 ).trim();
+			readString( 32 ).trim(); //name
 			readInt32(); //unknown
 			width = readInt32();
 			height = readInt32();
@@ -113,7 +112,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_5:
 			//System.err.println( "type 5" );
 			readInt32( 4 );
-			name = readString( 32 ).trim();
+			readString( 32 ).trim(); //name
 			readInt32();
 			width = readInt32();
 			height = readInt32();
@@ -139,7 +138,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_6:
 			//System.err.println( "type 6" );
 			readInt32( 4 );
-			name = readString( 32 ).trim();
+			readString( 32 ).trim(); //name
 			readInt32();
 			width = readInt32();
 			height = readInt32();
@@ -160,7 +159,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		case TTYPE_8:
 			//System.err.println( "type 8" );
 			readInt32( 4 );
-			name = readString( 32 ).trim();
+			readString( 32 ).trim(); //name
 			readInt32();
 			width = readInt32();
 			height = readInt32();
@@ -211,6 +210,7 @@ public class TidDecoder extends BaseBinaryReader implements ImageDecoder {
 		if( opts.getSaveOnDecode() && !opts.getSaveFormat().equals( "" ) ) {
 			Resource tid = resource.getDirectory().createResource( resource.getBaseName() + "." + opts.getSaveFormat(), true );
 			if( tid != null ) {
+				ic.rotateClockwise();
 				if( ic.save( tid ) ) {
 					if( opts.getDeleteOnSave() ) resource.delete();
 				}
