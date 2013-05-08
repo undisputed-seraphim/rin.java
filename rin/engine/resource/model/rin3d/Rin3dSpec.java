@@ -9,10 +9,14 @@ public class Rin3dSpec {
 	
 	public static final char[] SIGNATURE = new char[] { 'R', 'i', '3' ,'D' };
 	
-	public static final int C_HEAD = 0xC1;
-	public static final int C_LIST = 0xC2;
-	public static final int C_FILE = 0xC3;
-	public static final int C_MODL = 0xC4;
-	public static final int C_TEXR = 0xC5;
+	public static final int C_HEAD = 0x01;
+	public static final int C_LIST = 0x02;
+	public static final int C_FILE = 0x03;
+	public static final int C_MODL = 0x04;
+	public static final int C_TXTR = 0x05;
+	
+	
+	
+	
 	
 }
