@@ -1,9 +1,13 @@
 package rin.engine.resource.model;
 
+import static rin.engine.util.binary.BinaryConstants.*;
+
 import rin.engine.resource.image.ImageContainer;
 
 public class Surface {
-
+	public static final byte POSITION_BIT = b00000001;
+	
+	private int flags = 0;
 	private String surfaceName;
 	private Material mat;
 	
@@ -30,11 +34,16 @@ public class Surface {
 		return mat;
 	}
 	
+	public boolean hasVertices() {
+		return (flags & POSITION_BIT) == POSITION_BIT;
+	}
+	
 	public float[] getVertices() {
 		return v;
 	}
 	
 	public Surface setVertices( float[] vertices ) {
+		flags |= POSITION_BIT;
 		v = vertices;
 		return this;
 	}
@@ -65,5 +74,4 @@ public class Surface {
 		i = indices;
 		return this;
 	}
-	
 }
