@@ -11,7 +11,7 @@ import rin.engine.resource.audio.acb.AcbDecoder;
 import rin.engine.resource.image.ImageOptions;
 import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
-import rin.engine.view.gui.GUIManager;
+import rin.engine.lib.gui.GUIManager;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
@@ -21,10 +21,11 @@ import rin.gl.model.ModelManager;
 import rin.system.LoaderEvent;
 import rin.util.RinUtils;
 import static rin.system.RInput.*;
-import static rin.engine.view.gui.GUIFactory.*;
+import static rin.engine.lib.gui.GUIFactory.*;
 
 public class Game {
-	public static void main( String args[] ) {
+	public static void main( String[] args ) {
+		getView().init();
 		
 		//ResourceManager.getDecoder( PSSGDecoder.class ).decode( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//States.STATE_GAME.push();
@@ -66,7 +67,7 @@ public class Game {
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim1.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
-		FormatManager.decodeImage( ResourceManager.getPackResource( "neptunia_mk2", "special", "2001.tid" ), new ImageOptions().saveAs( "png" ) );
+		//FormatManager.decodeImage( ResourceManager.getPackResource( "neptunia_mk2", "special", "2001.tid" ), new ImageOptions().saveAs( "png" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {

@@ -876,7 +876,7 @@ public class PSSGFile extends BIOFile {
 	}
 	
 	public static class ActualSkeleton {
-		public rin.engine.game.entity.animated.Skeleton skel;
+		/*public rin.engine.game.entity.animated.Skeleton skel;
 		
 		public ActualSkeleton() {
 			skel = new rin.engine.game.entity.animated.Skeleton();
@@ -912,7 +912,7 @@ public class PSSGFile extends BIOFile {
 		
 		public void print() {
 			skel.print();
-		}
+		}*/
 	}
 	
 	private PSSGData data = null;

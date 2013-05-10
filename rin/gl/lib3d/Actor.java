@@ -43,7 +43,7 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	
 	public Poly asPoly() { return (Poly)this; }
 	public Mesh asMesh() { return (Mesh)this; }
-	public SkinnedMesh asSkinnedMesh() { return (SkinnedMesh)this; }
+	//public SkinnedMesh asSkinnedMesh() { return (SkinnedMesh)this; }
 	
 	/* -------------- positionable implementation ------------------ */
 	private volatile Position position = new Position();

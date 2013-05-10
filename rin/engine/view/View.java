@@ -1,7 +1,5 @@
 package rin.engine.view;
 
-import rin.engine.resource.image.ImageContainer;
-
 public interface View {
 
 	/**
@@ -11,14 +9,37 @@ public interface View {
 	public void init();
 	
 	/**
-	 * Display the graphical representation of this view.
+	 * Set the title of the current view. Differs by implementation, but
+	 * should commonly set the title of the title bar. 
+	 * @param title desired view title
+	 */
+	public void setTitle( String title );
+	
+	/**
+	 * Set the size of this view.
 	 * @param width width of graphical display
 	 * @param height height of graphical display
 	 */
-	public void show( int width, int height );
+	public void setSize( int width, int height );
 	
-	public Object loadTexture( ImageContainer image );
-	public RenderData createRenderData( Renderable entity );
-	public void render( Renderable entity );
+	/**
+	 * Display the graphical representation of this view.
+	 */
+	public void show();
 	
+	/**
+	 * Update a view to show the most current scene data.
+	 */
+	public void update();
+	
+	/**
+	 * Check if the view was closed.
+	 * @return true if view has been closed
+	 */
+	public boolean isClosed();
+	
+	/**
+	 * Destroy all resources belonging to this view.
+	 */
+	public void destroy();
 }

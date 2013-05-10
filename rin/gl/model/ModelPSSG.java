@@ -3,7 +3,6 @@ package rin.gl.model;
 import java.util.ArrayList;
 
 import rin.engine.Engine;
-import rin.engine.game.entity.animated.Skeleton;
 import rin.engine.math.Matrix4x4;
 import rin.engine.math.Quaternion;
 import rin.engine.math.Vector3;
@@ -15,7 +14,7 @@ import rin.engine.resource.formats.pssg.PSSGDecoder.ActualAnimation;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.util.ArrayUtils;
 import rin.gl.lib3d.Actor;
-import rin.gl.lib3d.SkinnedMesh;
+import rin.gl.lib3d.Mesh;
 import rin.util.dcode.pssg.PSSGFile;
 
 public class ModelPSSG implements Model {
@@ -25,7 +24,7 @@ public class ModelPSSG implements Model {
 		String path = resource.getDirectory().getPath();
 		String name = resource.getName();
 		
-		SkinnedMesh mesh = new SkinnedMesh();
+		Mesh mesh = new Mesh();
 		PSSGFile pssg = new PSSGFile( resource.getPath() );
 		pssg.read();
 		
@@ -91,11 +90,11 @@ public class ModelPSSG implements Model {
 				String tex = path + "textures" + Engine.LS + ds.texture.id.substring( 0, ds.texture.id.lastIndexOf( "." ) ) + ".png";
 				mesh.addPoly( v, new float[0], t, tex, b, w );
 				
-				Skeleton skel = new Skeleton();
+				/*Skeleton skel = new Skeleton();
 				for( int i = 0; i < ds.joints.size(); i++ ) {
 					skel.addBone( ds.joints.get( i ), ds.jmats.get( i ) );
 				}
-				mesh.addSkeleton( "DEFAULT", skel );
+				mesh.addSkeleton( "DEFAULT", skel );*/
 				
 				/*for( PSSGResource res : anims ) {
 					for( String s : res.getAnimationMap().keySet() ) {

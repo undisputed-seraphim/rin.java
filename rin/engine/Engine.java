@@ -5,11 +5,10 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import rin.engine.game.Game;
-import rin.engine.game.scene.Scene;
 import rin.engine.system.Processor;
 import rin.engine.view.View;
-import rin.engine.view.gui.GUIManager;
-import rin.engine.view.opengl.OpenGLView;
+import rin.engine.lib.gui.GUIManager;
+import rin.engine.lib.gl.GLView;
 import rin.gl.GL;
 import rin.gl.GLScene;
 import rin.gl.event.GLEventThread;
@@ -28,12 +27,21 @@ import rin.world.WorldController;
 
 public class Engine {
 	
+	public static boolean isApplet() { return false; }
 	public static boolean isJar() { return false; }
+	
+	public static void run( Game<?> game ) {
+		game.run();
+	}
+	
+	public static void execute( Game<?> game ) {
+		new Thread( game ).start();
+	}
 	
 	private volatile static View view = null;
 	public static View getView() {
 		if( Engine.view == null )
-			Engine.view = new OpenGLView();
+			Engine.view = new GLView();
 		
 		return Engine.view;
 	}
@@ -47,7 +55,6 @@ public class Engine {
 		return GUIManager.get();
 	}
 	
-	private static Scene scene = null;
 	/*public static Scene getScene() {
 		if( Engine.scene == null )
 			Engine.scene = new Scene();

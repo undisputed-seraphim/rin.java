@@ -1,7 +1,6 @@
 package rin.engine.math;
 
 public class Matrix4x4 {
-
 	private float[] m = new float[]
 			{ 1.0f, 0.0f, 0.0f, 0.0f,
 			  0.0f, 1.0f, 0.0f, 0.0f,
@@ -17,7 +16,7 @@ public class Matrix4x4 {
 			m[0] = mat[i];
 	}
 	
-	public Matrix4x4( Matrix4x4 mat ) {		
+	public Matrix4x4( Matrix4x4 mat ) {
 		for( int i = 0; i < 16; i++ )
 			m[i] = mat.get( i );
 	}
@@ -76,7 +75,9 @@ public class Matrix4x4 {
 		return new Vector3( m[3], m[7], m[11] );
 	}
 	
-	public Quaternion toQuaternion() {
+	public Quaternion toQuaternion() { return toQuaternion( m ); }
+	
+	public static Quaternion toQuaternion( float[] m ) {
 		float t = m[0] + m[5] + m[10];
 		float s = 0.0f;
 		float x = 0.0f;
@@ -114,5 +115,4 @@ public class Matrix4x4 {
 		
 		return new Quaternion( x, y, z, w );
 	}
-	
 }
