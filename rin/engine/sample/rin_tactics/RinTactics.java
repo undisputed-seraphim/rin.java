@@ -2,20 +2,15 @@ package rin.engine.sample.rin_tactics;
 
 import rin.engine.Engine;
 import rin.engine.game.Game;
-import rin.engine.lib.gl.GLView;
+import rin.engine.resource.ResourceManager;
 
-public class RinTactics extends Game<GLView> {
-	
-	@Override
-	public String getName() { return "Rin Tactics"; }
-
-	@Override
-	public GLView getViewInstance() { return new GLView(); }
-	
+public class RinTactics extends Game {
 	@Override
 	public void init() {
 		System.out.println( "initializing stuffs." );
 		getView().setSize( 900, 600 );
+		getView().setTitle( "Rin Tactics" );
+		getScene().addModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "002.ism2" ) );
 	}
 	
 	@Override
@@ -23,6 +18,7 @@ public class RinTactics extends Game<GLView> {
 		System.out.println( "starting game." );
 		while( !getView().isClosed() ) {
 			getView().update();
+			getScene().update();
 		}
 	}
 

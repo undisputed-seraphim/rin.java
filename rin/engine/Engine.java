@@ -8,7 +8,6 @@ import rin.engine.game.Game;
 import rin.engine.system.Processor;
 import rin.engine.view.View;
 import rin.engine.lib.gui.GUIManager;
-import rin.engine.lib.gl.GLView;
 import rin.gl.GL;
 import rin.gl.GLScene;
 import rin.gl.event.GLEventThread;
@@ -30,18 +29,18 @@ public class Engine {
 	public static boolean isApplet() { return false; }
 	public static boolean isJar() { return false; }
 	
-	public static void run( Game<?> game ) {
+	public static void run( Game game ) {
 		game.run();
 	}
 	
-	public static void execute( Game<?> game ) {
+	public static void execute( Game game ) {
 		new Thread( game ).start();
 	}
 	
 	private volatile static View view = null;
 	public static View getView() {
 		if( Engine.view == null )
-			Engine.view = new GLView();
+			Engine.view = new View();
 		
 		return Engine.view;
 	}

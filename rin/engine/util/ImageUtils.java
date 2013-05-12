@@ -1,9 +1,11 @@
 package rin.engine.util;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import rin.engine.resource.image.PixelFormat;
 
@@ -12,49 +14,31 @@ public class ImageUtils {
 	private static class ImagePanel extends JFrame {
 		private static final long serialVersionUID = 1L;
 		
-		short[] data;
-		private int width;
-		private int height;
-		private int stride;
-		
-		public ImagePanel( short[] d, int w, int h, int s ) {
-			data = d;
-			width = w;
-			height = h;
-			stride = s;
+		public ImagePanel( int w, int h, PixelFormat pf, short[] d ) {
+			d = convert( pf, PixelFormat.RGBA, d );
+			
+			BufferedImage bi = new BufferedImage( w, h, BufferedImage.TYPE_INT_ARGB );
+			WritableRaster wr = (WritableRaster)bi.getData();
+			
+			int[] pixels = new int[d.length];
+			for( int i = 0; i < d.length; i++ ) pixels[i] = d[i];
+			
+			wr.setPixels( 0, 0, w, h, pixels );
+			bi.setData( wr );
 
-			setSize( width + 40, height + 65 );
+			getContentPane().add( new JLabel( new ImageIcon( bi ) ) );
 			setVisible( true );
+			pack();
 			setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-		}
-		
-		@Override
-		public void paint( Graphics g ) {
-			int col = 19;
-			int row = 45;
-			for( int i = 0; i < data.length; i+=stride ) {
-				if( (i / stride) % width == 0 && i != 0 ) {
-					col = 19;
-					row++;
-				}
-				
-				short[] c = new short[] {0,0,0,255};
-				for( int j = 0; j < stride; j++ ) {
-					c[j] = data[i+j];
-				}
-				
-				g.setColor( new Color( c[0], c[1], c[2], c[3] ) );
-				g.drawRect( col++, row, 1, 1 );
-			}
 		}
 	}
 	
-	public static void test( int width, int height, int stride, short[] rawData ) {
-		new ImagePanel( rawData, width, height, stride );
+	public static void test( int width, int height, PixelFormat pf, short[] rawData ) {
+		new ImagePanel( width, height, pf, rawData );
 	}
 	
 	public static short[] convert( PixelFormat src, PixelFormat dest, short[] data ) {
-		System.out.println( "converting pixels from " + src.toString() + " to " + dest.toString() );
+		//System.out.println( "converting pixels from " + src.toString() + " to " + dest.toString() );
 		if( src == dest )
 			return data;
 		
@@ -66,7 +50,6 @@ public class ImageUtils {
 		
 		for( int i = 0; i < data.length / srcStride; i++ ) {
 			res[i*destStride+dest.r()] = data[i*srcStride+src.r()];
-			
 			if( dest.g() != -1 ) {
 				if( src.g() != -1 ) {
 					res[i*destStride+dest.g()] = data[i*srcStride+src.g()];
@@ -85,7 +68,6 @@ public class ImageUtils {
 				} else res[i*destStride+dest.a()] = 255;
 			}
 		}
-		
 		return res;
 	}
 

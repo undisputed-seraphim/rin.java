@@ -90,7 +90,7 @@ public class ImageContainer extends ResourceContainer {
 	}
 	
 	public void test() {
-		ImageUtils.test( w, h, pixelFormat.getStride(), pixelData );
+		ImageUtils.test( w, h, pixelFormat, pixelData );
 	}
 	
 	public ImageContainer flipVertical() {

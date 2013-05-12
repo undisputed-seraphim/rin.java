@@ -1,45 +1,46 @@
 package rin.engine.view;
 
-public interface View {
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
-	/**
-	 * Initialize anything having to deal with this view. After this call,
-	 * the view should be ready for {@link #show(int, int)}.
-	 */
-	public void init();
+public class View {
+	public void init() {
+		startGL();
+	}
+
+	public void startGL() {
+		try {
+			Display.setDisplayMode( new DisplayMode( 900, 600 ) );
+			Display.setVSyncEnabled( true );
+			Display.create();
+		} catch( LWJGLException ex ) {
+			System.err.println( "GLCanvas#startGL(): LWJGLException raised." );
+			ex.printStackTrace();
+		}
+	}
 	
-	/**
-	 * Set the title of the current view. Differs by implementation, but
-	 * should commonly set the title of the title bar. 
-	 * @param title desired view title
-	 */
-	public void setTitle( String title );
+	public void stopGL() {
+		Display.destroy();
+	}
 	
-	/**
-	 * Set the size of this view.
-	 * @param width width of graphical display
-	 * @param height height of graphical display
-	 */
-	public void setSize( int width, int height );
+	public void setSize( int width, int height ) {
+		try {
+			Display.setDisplayMode( new DisplayMode( width, height ) );
+		} catch( LWJGLException ex ) {
+			System.err.println( "GLCanvas#resize(int,int): LWJGLException raised." );
+			ex.printStackTrace();
+		}
+	}
 	
-	/**
-	 * Display the graphical representation of this view.
-	 */
-	public void show();
+	public void update() {
+		Display.sync( 60 );
+		Display.update();
+	}
 	
-	/**
-	 * Update a view to show the most current scene data.
-	 */
-	public void update();
+	public boolean isClosed() { return Display.isCloseRequested(); }
 	
-	/**
-	 * Check if the view was closed.
-	 * @return true if view has been closed
-	 */
-	public boolean isClosed();
-	
-	/**
-	 * Destroy all resources belonging to this view.
-	 */
-	public void destroy();
+	public void setTitle( String title ) { Display.setTitle( title ); }
+
+	public void destroy() { stopGL(); }
 }

@@ -3,9 +3,22 @@ package rin.engine.resource.model;
 import java.util.ArrayList;
 
 import rin.engine.resource.ResourceContainer;
+import rin.gl.lib3d.ModelScene;
+import rin.gl.lib3d.Node;
 
 public class ModelContainer extends ResourceContainer {
 
+	private ModelScene scene;
+	
+	public ModelScene getScene() {
+		return scene;
+	}
+	
+	public ModelScene startScene( Node root ) {
+		scene = new ModelScene( root );
+		return scene;
+	}
+	
 	private ArrayList<Surface> surfaces = new ArrayList<Surface>();
 	
 	private float[] v = new float[0];

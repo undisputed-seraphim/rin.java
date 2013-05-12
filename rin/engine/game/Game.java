@@ -1,26 +1,29 @@
 package rin.engine.game;
 
 import rin.engine.view.View;
+import rin.engine.view.scene.Scene;
 
-public abstract class Game<T extends View> implements Runnable {
-	private T view;
+public abstract class Game implements Runnable {
+	private View view;
+	private Scene scene;
 	
-	public void setView( T v ) { view = v; }
-	public T getView() { return view; }
+	public void setView( View v ) { view = v; }
+	public View getView() { return view; }
 	
-	public abstract String getName();
-	public abstract T getViewInstance();
+	public void setScene( Scene s ) { scene = s; }
+	public Scene getScene() { return scene; }
+	
 	public abstract void init();
 	public abstract void start();
 	
 	@Override
 	public final void run() {
-		setView( getViewInstance() );
+		setView( new View() );
+		setScene( new Scene( getView() ) );
 		view.init();
 		init();
-		view.show();
-		view.setTitle( getName() );
 		start();
+		view.destroy();
 		destroy();
 	}
 	

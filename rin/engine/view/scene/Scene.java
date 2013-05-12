@@ -1,9 +1,22 @@
 package rin.engine.view.scene;
 
+import rin.engine.resource.Resource;
+import rin.engine.view.View;
+
 public class Scene {
+	private View view;
 	private SceneGraph graph;
 	private Camera cam;
 	private long start;
+	
+	public Scene( View v ) {
+		view = v;
+		graph = new SceneGraph( this );
+	}
+	
+	public View getView() {
+		return view;
+	}
 	
 	public Camera getCamera() {
 		return cam;
@@ -20,11 +33,14 @@ public class Scene {
 		return dt;
 	}
 	
-	public void render() {
+	public void update() {
 		long dt = getDt();
-		for( Node n : graph ) {
-			//n.update( dt );
-		}
+		for( Node n : graph )
+			n.update( dt );
+	}
+	
+	public void addModel( Resource resource ) {
+		
 	}
 	
 }

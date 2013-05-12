@@ -29,9 +29,19 @@ public class PngSpec {
 		public static final byte T_INTERLACE_NONE = 0;
 		public static final byte T_INTERLACE_ADAM7 = 1;
 	
-	public static byte[] filterAllAndCompress( byte filter, PixelFormat pformat, int w, int h, short[] data ) {
-		data = ImageUtils.convert( pformat, PixelFormat.RGBA, data );
-		int stride = PixelFormat.RGBA.getStride();
+	public static byte[] filterAllAndCompress( byte filter, PixelFormat pformat, int colorFormat, int w, int h, short[] data ) {
+		PixelFormat format = PixelFormat.RGBA;
+		switch( colorFormat ) {
+		case T_COLOR_TRUECOLOR:
+			data = ImageUtils.convert( pformat, PixelFormat.RGB, data );
+			format = PixelFormat.RGB;
+			break;
+		case T_COLOR_TRUECOLOR_ALPHA:
+			data = ImageUtils.convert( pformat, PixelFormat.RGBA, data );
+			format = PixelFormat.RGBA;
+			break;
+		}
+		int stride = format.getStride();
 		byte[] res = new byte[ (w+1) * h * stride ];
 		
 		switch( filter ) {

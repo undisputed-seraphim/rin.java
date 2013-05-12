@@ -24,7 +24,7 @@ public class PngEncoder extends BinaryWriter implements ImageEncoder {
 	public boolean encode( ImageContainer from, Resource to, ImageOptions options ) {
 		load( to );
 		CRC32 crc = new CRC32();
-		
+
 		PngOptions opts = (PngOptions)options;
 		
 		// write the png magic
@@ -51,7 +51,7 @@ public class PngEncoder extends BinaryWriter implements ImageEncoder {
 			break;
 		default: System.err.println( "PixelFormat " + from.getFormat() + " not yet implemented." ); break;
 		}
-		
+		System.out.println( from.getFormat() + " " + colorFormat );
 		if( opts.isIndexed() ) colorFormat = T_COLOR_INDEXED;
 		byte interlaceFormat = T_INTERLACE_NONE;
 		if( opts.isInterlaced() ) interlaceFormat = T_INTERLACE_ADAM7;
@@ -83,7 +83,7 @@ public class PngEncoder extends BinaryWriter implements ImageEncoder {
 		}
 		
 		// filter and compress the image data
-		byte[] idata = filterAllAndCompress( T_FILTER_NONE, from.getFormat(), w, h, from.getData() );
+		byte[] idata = filterAllAndCompress( T_FILTER_NONE, from.getFormat(), colorFormat, w, h, from.getData() );
 
 		//IDAT
 		crc.reset();

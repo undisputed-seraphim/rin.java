@@ -2,8 +2,12 @@ package rin.engine.util;
 
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class ArrayUtils {
 
@@ -84,6 +88,14 @@ public class ArrayUtils {
 		return res;
 	}
 	
+	public static <T> List<T> flip( List<T> list ) {
+		System.out.println( "flipping a list!" );
+		List<T> res = new ArrayList<T>();
+		for( int i = list.size(); i > 0; i-- )
+			res.add( list.get( i - 1 ) );
+		return res;
+	}
+	
 	@SuppressWarnings( "unchecked" )
 	public static <T> T flip( T arr ) {
 		int length = Array.getLength( arr );
@@ -91,6 +103,14 @@ public class ArrayUtils {
 		for( int i = 0; i < length; i++ )
 			Array.set( res, length-1-i, Array.get( arr, i ) );
 		arr = res;
+		return res;
+	}
+	
+	public static <T> Stack<T> flip( Stack<T> stack ) {
+		Stack<T> res = new Stack<T>();
+		int size = stack.size();
+		for( T t : flip( stack.subList( 0, size ) ) )
+			res.push( t );
 		return res;
 	}
 	

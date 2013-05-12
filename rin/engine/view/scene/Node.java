@@ -12,4 +12,20 @@ public class Node {
 	public Node( Actor a ) {
 		target = a;
 	}
+	
+	public void add( Node n ) {
+		n.parent = this;
+		children.add( n );
+	}
+	
+	public void remove( Node n ) {
+		children.remove( n );
+	}
+	
+	public void update( long dt ) {
+		target.update( dt );
+		
+		for( Node n : children )
+			n.update( dt );
+	}
 }

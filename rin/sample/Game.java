@@ -25,7 +25,7 @@ import static rin.engine.lib.gui.GUIFactory.*;
 
 public class Game {
 	public static void main( String[] args ) {
-		getView().init();
+		//getView().init();
 		
 		//ResourceManager.getDecoder( PSSGDecoder.class ).decode( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//States.STATE_GAME.push();
@@ -65,7 +65,10 @@ public class Game {
 			FormatManager.decodeImage( r, new ImageOptions().saveAs( "png" ).setDeleteOnSave( true ) );
 		}*/
 		
-		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru_anim1.pssg" ) );
+		init( 900, 600 );
+		getScene().addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
+		start();
+		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
 		//FormatManager.decodeImage( ResourceManager.getPackResource( "neptunia_mk2", "special", "2001.tid" ), new ImageOptions().saveAs( "png" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );

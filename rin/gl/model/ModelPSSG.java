@@ -15,6 +15,7 @@ import rin.engine.resource.model.ModelContainer;
 import rin.engine.util.ArrayUtils;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Mesh;
+import rin.gl.lib3d.ModelScene;
 import rin.util.dcode.pssg.PSSGFile;
 
 public class ModelPSSG implements Model {
@@ -137,9 +138,10 @@ public class ModelPSSG implements Model {
 	}
 
 	@Override
-	public Actor fromContainer(ModelContainer container) {
-		// TODO Auto-generated method stub
-		return null;
+	public Actor fromContainer( ModelContainer container ) {
+		ModelScene pssg = container.getScene();
+		
+		return pssg;
 	}
 
 }
