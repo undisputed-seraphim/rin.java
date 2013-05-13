@@ -8,12 +8,26 @@ public class ModelScene extends Poly implements Iterable<Node> {
 
 	private Node root;
 	protected boolean ready = false;
-	private long dt = 0L;
+	private double dt = 0;
+	private long start;
 	private List<Node> stack = new ArrayList<Node>();
+	private List<Animation> animations = new ArrayList<Animation>();
+	private Animation currentAnimation;
 	
 	public ModelScene( Node r ) {
 		r.scene = this;
 		root = r;
+	}
+	
+	public Animation getCurrentAnimation() {
+		return currentAnimation;
+	}
+	
+	public Animation addAnimation( String name ) {
+		animations.add( new Animation( name ) );
+		if( currentAnimation == null )
+			currentAnimation = animations.get( animations.size() - 1 );
+		return animations.get( animations.size() - 1 );
 	}
 	
 	public Node getRoot() {
@@ -22,7 +36,7 @@ public class ModelScene extends Poly implements Iterable<Node> {
 	
 	public void ready() {
 		ready = true;
-		dt = System.nanoTime();
+		start = System.currentTimeMillis();
 		update();
 	}
 	
@@ -32,6 +46,7 @@ public class ModelScene extends Poly implements Iterable<Node> {
 	}
 	
 	public Node find( String name ) {
+		if( !ready ) getNodeList();
 		for( Node n : this )
 			if( n.getName().equalsIgnoreCase( name ) )
 				return n;
@@ -76,13 +91,19 @@ public class ModelScene extends Poly implements Iterable<Node> {
 	}
 	
 	private void updateDt() {
-		dt = System.nanoTime() - dt;
+		long ms = System.currentTimeMillis();
+		dt = (ms - start) * 0.001;
+		start = ms;
 	}
 	
 	@Override
 	public void render( boolean unique ) {
 		updateDt();
+		if( currentAnimation != null )
+			currentAnimation.update( dt );
+		
 		for( Node n : this )
 			n.update( dt );
+		root.render();
 	}
 }

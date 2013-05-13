@@ -137,7 +137,19 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
         this.setRotation( (float)rx, (float)ry, this.getRotation().z );
 	}
 	
-	public void applyMatrix( Mat4 m ) {
+	public void applyTranslation( float x, float y, float z ) {
+		position.x += z;
+		position.y += y;
+		position.z += z;
+		updatePosition();
+	}
+	
+	public void applyRotation( float x, float y, float z, float w ) {
+		rotate = new Quat4( x, y, z, w ).toMat4();
+	}
+	
+	public void applyScale( float x, float y, float z ) {
+		Mat4.scale( new Mat4(), new Vec3( x, y, z ) );
 	}
 	
 	@Override public void transform() {

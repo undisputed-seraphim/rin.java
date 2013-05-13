@@ -6,41 +6,30 @@ import java.util.HashMap;
 
 import rin.engine.resource.Directory;
 import rin.engine.resource.Resource;
-import rin.engine.resource.ResourceManager;
+import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.image.dds.DdsUtils;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
-import rin.gl.lib3d.ModelScene;
+import rin.engine.util.binary.ProfiledBinaryReader;
+import rin.gl.TextureManager;
+import rin.gl.lib3d.Animation;
+import rin.gl.lib3d.FrameSet;
+import rin.gl.lib3d.JointNode;
 import rin.gl.lib3d.Node;
-import rin.gl.lib3d.RenderNode;
 import rin.gl.lib3d.SkinNode;
-import rin.util.bio.BaseBinaryReader;
 
-public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
+public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 
+	private boolean DEBUG = false;
+	
 	private HashMap<Integer, ChunkType> chunkMap = new HashMap<Integer, ChunkType>();
 	String[] cStrings;
-	//private HashMap<Integer, PropertyType> propMap = new HashMap<Integer, PropertyType>();
 	String[] pStrings;
 	
+	private ModelContainer mc;
 	private Pssg cPssg;
-	private Pssg cAnimPssg;
-	
-	/*private Pssg cPssg = new Pssg();
-	private PssgNode cNode;
-	private PssgDataBlock cDataBlock;
-	
-	private PssgAnimation cAnimation;
-	private PssgAnimationDataBlock cAnimationDataBlock;
-	private PssgAnimationChannel cAnimationChannel;
-	private PssgChannelRef cChannelRef;
-	private PssgConstantChannel cConstantChannel;
-	
-	private int jointNodes = 0;
-	private int skinJoints = 0;
-	private int renderNodes = 0;
-	private int skinNodes = 0;*/
+	private Node cNode;
 	
 	private void header() {
 		boolean valid = true;
@@ -50,7 +39,7 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		
 		readInt32(); // size, but for some reason does not match...
 		
-		pStrings = new String[readInt32()]; //propcount - not needed since all chunks specify their own properties
+		pStrings = new String[readInt32()];
 		cStrings = new String[readInt32()+1];
 	}
 	
@@ -64,368 +53,16 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		
 		for( int i = 0; i < cStrings.length; i++ )
 			chunkMap.put( i, ChunkType.find( cStrings[i] ) );
-		/*for( int i = 0; i < pStrings.length; i++ )
-			propMap.put( i, PropertyType.find( pStrings[i] ) );*/
 	}
-	
-	/*private void processProperty( String chunk, int offset, String tab ) {
-		//System.out.println( "property at " + offset );
-		position( offset );
-		int type = readInt32();
-		int size = readInt32();
-		int stop = position() + size;
-		
-		//debug.write( tab + ":"+size+": " + String.format( "%30s", pStrings[type] ) + " " );
-		
-		switch( propMap.get( type ) ) {
-		
-		case ELEMENTCOUNT: cDataBlock.count = readInt32(); break;
-		case DATATYPE: cDataBlock.dataType = readString(); break;
-		case RENDERTYPE: cDataBlock.renderType = readString(); break;
-		case JOINT: cNode.id = readString().substring( 1 ); break;
-		//case SOURCE:
-			//if( cNode instanceof PssgSkinNode ) ((PssgSkinNode)cNode).source = readString().substring( 1 );
-			//if( cNode instanceof PssgRenderNode ) ((PssgRenderNode)cNode).source = readString().substring( 1 );
-			//break;
-		case INDICES:
-			if( cNode instanceof PssgSkinNode ) ((PssgSkinNode)cNode).indices = readString().substring( 1 );
-			if( cNode instanceof PssgRenderNode ) ((PssgRenderNode)cNode).indices = readString().substring( 1 );
-			break;
-		case SHADER:
-			if( cNode instanceof PssgSkinNode ) ((PssgSkinNode)cNode).shader = readString().substring( 1 );
-			if( cNode instanceof PssgRenderNode ) ((PssgRenderNode)cNode).shader = readString().substring( 1 );
-			break;
-		case OFFSET:
-			if( chunk.equals( "DATABLOCKSTREAM" ) ) cDataBlock.offset = readInt32();
-			break;
-		case STRIDE:
-			if( chunk.equals( "DATABLOCKSTREAM" ) ) cDataBlock.stride = readInt32();
-			break;
-			
-		case CONSTANTCHANNELSTARTTIME: cAnimation.startTime = readFloat32(); break;
-		case CONSTANTCHANNELENDTIME: cAnimation.endTime = readFloat32(); break;
-		case CHANNEL:
-			if( chunk.equals( "CHANNELREF" ) ) cChannelRef.channel = readString().substring( 1 );
-			break;
-		case CHANNELCOUNT: cAnimation.channelCount = readInt32(); break;
-		case CONSTANTCHANNELCOUNT: cAnimation.constantChannelCount = readInt32(); break;
-		case TARGETNAME:
-			String target = readString();
-			if( chunk.equals( "CHANNELREF" ) ) cChannelRef.targetName = target;
-			if( chunk.equals( "CONSTANTCHANNEL" ) ) cConstantChannel.targetName = target;
-			break;
-		
-		case ANIMATION:
-		case TYPE:
-			readString();//debug.write( readString() );
-			break;
-		
-		case VALUE:
-			if( chunk.equals( "CONSTANTCHANNEL" ) ) cConstantChannel.value = readFloat32( 3 );
-			break;
-		case KEYTYPE:
-			if( chunk.equals( "ANIMATIONCHANNELDATABLOCK" ) ) cAnimationDataBlock.type = readString();
-			if( chunk.equals( "CONSTANTCHANNEL" ) ) cConstantChannel.keyType = readString();
-			break;
-		case KEYCOUNT: cAnimationDataBlock.keyCount = readInt32(); break;
-		case TIMEBLOCK: cAnimationChannel.timeBlock = readString().substring( 1 ); break;
-		case VALUEBLOCK: cAnimationChannel.valueBlock = readString().substring( 1 ); break;
-		case ID:
-			if( chunk.equals( "ANIMATIONCHANNELDATABLOCK" ) ) cAnimationDataBlock.id = readString();
-			if( chunk.equals( "ANIMATIONCHANNEL" ) ) cAnimationChannel.id = readString();
-			if( chunk.equals( "ANIMATION" ) ) cAnimation.id = readString();
-			if( chunk.equals( "ROOTNODE" ) || chunk.equals( "NODE" ) ) cNode.id = readString();
-			if( chunk.equals( "JOINTNODE" ) || chunk.equals( "SKINNODE" ) ) cNode.id = readString();
-			if( chunk.equals( "RENDERNODE" ) ) cNode.id = readString();
-			if( chunk.equals( "DATABLOCK" ) ) cDataBlock.id = readString();
-			break;
-		
-		default:
-			System.out.println( "unimplemented property type: " + type + " ["+ pStrings[type] + "] " + size + " " + stop );
-			break;
-		}
-		
-		//debug.writeLine();
-		position( stop );
-	}
-	
-	private void getProperties( String name, int stop, String tab ) {
-		while( position() < stop )
-			processProperty( name, position(), tab );
-	}
-	
-	private void getPssgDatabase( int offset, int size, int psize, String tab ) {
-		//System.out.println( "pssgdatabase at " + offset + ", " + size + " " + psize );		
-		getChunkData( "PSSGDATABASE", position() + psize, position() + size - 4, tab );
-		
-		System.out.println( "pssgdatabase ended at " + position() + " " + length() );
-	}
-	
-	private void getLibrary( int offset, int size, int psize, String tab ) {
-		//System.out.println( "library at " + offset + ", " + size + " " + psize );
-		getChunkData( "LIBRARY", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getRootNode( int offset, int size, int psize, String tab ) {
-		//System.out.println( "root node at " + offset + ", " + size + " " + psize );
-		cPssg.root = new PssgRootNode();
-		cNode = cPssg.root;
-		
-		getChunkData( "ROOTNODE", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getTransform( int offset, int size, int psize, String tab ) {
-		cNode.transform = readFloat32( 16 );
-	}
-	
-	private void getBoundingBox( int offset, int size, int psize, String tab ) {
-		cNode.bbox = readFloat32( 6 );
-	}
-	
-	private void getNode( int offset, int size, int psize, String tab ) {
-		//System.out.println( "node at " + offset + ", " + size + " " + psize );
-		cNode.children.add( new PssgNode() );
-		PssgNode tmp = cNode;
-		cNode = cNode.children.get( cNode.children.size() - 1);
-		
-		getChunkData( "NODE", position() + psize, position() + size - 4, tab );
-		cNode = tmp;
-	}
-	
-	private void getJointNode( int offset, int size, int psize, String tab ) {
-		jointNodes++;
-		//System.out.println( "joint node at " + offset + ", " + size + " " + psize );
-		cNode.children.add( new PssgJointNode() );
-		PssgNode tmp = cNode;
-		cNode = cNode.children.get( cNode.children.size() - 1);
-		
-		getChunkData( "JOINTNODE", position() + psize, position() + size - 4, tab );
-		cNode = tmp;
-	}
-	
-	private void getSkinNode( int offset, int size, int psize, String tab ) {
-		skinNodes++;
-		//System.out.println( "skin node at " + offset + ", " + size + " " + psize );
-		cNode.children.add( new PssgSkinNode() );
-		PssgNode tmp = cNode;
-		cNode = cNode.children.get( cNode.children.size() - 1);
-		
-		getChunkData( "SKINNODE", position() + psize, position() + size - 4, tab );
-		cNode = tmp;
-	}
-	
-	private void getModifierNetworkInstance( int offset, int size, int psize, String tab ) {
-		System.out.println( "modifier network instance at " + offset + ", " + size + " " + psize );
-		
-		getChunkData( "MODIFIERNETWORKINSTANCE", position() + psize, position() + size - 4, tab );
-	}
-	
-	//private void getRenderInstanceSource( int offset, int size, int psize, String tab ) {
-		//System.out.println( "render instance source at " + offset + ", " + size + " " + psize );
-		
-		//getChunkData( "RENDERINSTANCESOURCE", position() + psize, position() + size - 4, tab );
-	//}
-	
-	private void getRenderNode( int offset, int size, int psize, String tab ) {
-		renderNodes++;
-		//System.out.println( "render node at " + offset + ", " + size + " " + psize );
-		cNode.children.add( new PssgRenderNode() );
-		PssgNode tmp = cNode;
-		cNode = cNode.children.get( cNode.children.size() - 1);
-		
-		getChunkData( "RENDERNODE", position() + psize, position() + size - 4, tab );
-		cNode = tmp;
-	}
-	
-	private void getRenderStreamInstance( int offset, int size, int psize, String tab ) {
-		System.out.println( "render stream instance at " + offset + ", " + size + " " + psize );
-		
-		getChunkData( "RENDERSTREAMINSTANCE", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getSkinJoint( int offset, int size, int psize, String tab ) {
-		skinJoints++;
-		//System.out.println( "skin joint at " + offset + ", " + size + " " + psize );
-		cNode.children.add( new PssgSkinJoint() );
-		PssgNode tmp = cNode;
-		cNode = cNode.children.get( cNode.children.size() - 1);
-		
-		getChunkData( "SKINJOINT", position() + psize, position() + size - 4, tab );
-		cNode = tmp;
-	}
-	
-	private void getDataBlock( int offset, int size, int psize, String tab ) {
-		//System.out.println( "datablock at " + offset + ", " + size + " " + psize );
-		cPssg.dataBlocks.add( new PssgDataBlock() );
-		cDataBlock = cPssg.dataBlocks.get( cPssg.dataBlocks.size() - 1 );
-		
-		getChunkData( "DATABLOCK", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getDataBlockStream( int offset, int size, int psize, String tab ) {
-		//System.out.println( "datablock stream at " + offset + ", " + size + " " + psize );
-		
-		getChunkData( "DATABLOCKSTREAM", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getDataBlockData( int offset, int size, int psize, String tab ) {
-		if( cDataBlock.dataType.toLowerCase().equals( "float4" ) ) {
-			cDataBlock.fdata = readFloat32( cDataBlock.count * 4 );
-		} else if( cDataBlock.dataType.toLowerCase().equals( "uchar4" ) ) {
-			cDataBlock.sdata = readUInt8( cDataBlock.count * 4 );
-		} else if( cDataBlock.dataType.toLowerCase().equals( "float3" ) ) {
-			cDataBlock.fdata = readFloat32( cDataBlock.count * 3 );
-		} else System.err.println( "Unknown datablock datatype: " + cDataBlock.dataType );
-	}
-	
-	private void getModifierNetwork( int offset, int size, int psize, String tab ) {
-		System.out.println( "modifier network at " + offset + ", " + size + " " + psize );
-		
-		getChunkData( "DATABLOCKSTREAM", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getAnimation( int offset, int size, int psize, String tab ) {
-		//System.out.println( "animation at " + offset + ", " + size + " " + psize );
-		cPssg.animations.add( new PssgAnimation() );
-		cAnimation = cPssg.animations.get( cPssg.animations.size() - 1 );
-		
-		getChunkData( "ANIMATION", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getChannelRef( int offset, int size, int psize, String tab ) {
-		//System.out.println( "channel ref at " + offset + ", " + size + " " + psize );
-		cAnimation.channelRefs.add( new PssgChannelRef() );
-		cChannelRef = cAnimation.channelRefs.get( cAnimation.channelRefs.size() - 1 );
-		
-		getChunkData( "CHANNELREF", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getConstantChannel( int offset, int size, int psize, String tab ) {
-		//System.out.println( "constant channel at " + offset + ", " + size + " " + psize );
-		cAnimation.constantChannels.add( new PssgConstantChannel() );
-		cConstantChannel = cAnimation.constantChannels.get( cAnimation.constantChannels.size() - 1 );
-		
-		getChunkData( "CONSTANTCHANNEL", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getAnimationChannel( int offset, int size, int psize, String tab ) {
-		//System.out.println( "animation channel at " + offset + ", " + size + " " + psize );
-		cPssg.animationChannels.add( new PssgAnimationChannel() );
-		cAnimationChannel = cPssg.animationChannels.get( cPssg.animationChannels.size() - 1 );
-		
-		getChunkData( "ANIMATIONCHANNEL", position() + psize, position() + size - 4, tab );
-		//debug.writeLine( tab + "::" + cAnimationChannel.timeBlock );
-		//debug.writeLine( tab + "::" + cAnimationChannel.valueBlock );
-		//debug.writeLine( tab + "::" + cAnimationChannel.id );
-	}
-	
-	private void getAnimationChannelDataBlock( int offset, int size, int psize, String tab ) {
-		//System.out.println( "animation channel data block at " + offset + ", " + size + " " + psize );
-		cPssg.animationData.add( new PssgAnimationDataBlock() );
-		cAnimationDataBlock = cPssg.animationData.get( cPssg.animationData.size() - 1 );
-		
-		getChunkData( "ANIMATIONCHANNELDATABLOCK", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getKeys( int offset, int size, int psize, String tab ) {
-		//System.out.println( "keys at " + offset + ", " + size + " " + psize );
-		cAnimationDataBlock.data = readFloat32( ((position()+size-4)-position()) / 4 );
-		//debug.writeLine( tab + ":" + cAnimationDataBlock.type+": " + ArrayUtils.asString( cAnimationDataBlock.data ) );
-	}
-	
-	private void getAnimationSet( int offset, int size, int psize, String tab ) {
-		//System.out.println( "animation set at " + offset + ", " + size + " " + psize );
-		getChunkData( "ANIMATIONSET", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void getAnimationRef( int offset, int size, int psize, String tab ) {
-		//System.out.println( "animation ref at " + offset + ", " + size + " " + psize );
-		getChunkData( "ANIMATIONREF", position() + psize, position() + size - 4, tab );
-	}
-	
-	private void processChunk( int offset, String tab ) {
-		position( offset );
-		int type = readInt32();
-		int size = readInt32();
-		int psize = readInt32();
-		int stop = position() + size - 4;
-	
-		//debug.writeLine();
-		//debug.writeLine( tab + cStrings[type] + " [" + offset + "]" );
-		//debug.writeLine( tab + "::" );
-		
-		if( chunkMap.get( type ).isDataOnly() ) {
-			switch( chunkMap.get( type ) ) {
-			
-			case TRANSFORM: getTransform( offset, size, psize, tab ); break;
-			case BOUNDINGBOX: getBoundingBox( offset, size, psize, tab ); break;
-			case DATABLOCKDATA: getDataBlockData( offset, size, psize, tab ); break;
-			case KEYS: getKeys( offset, size, psize, tab ); break;
-			default:
-				System.out.println( "unimplemented data only chunk: " + type + " ["+ cStrings[type] + "] " + size + " " + psize );
-				break;
-			}
-			//System.out.println( "data only chunk " + chunkMap.get( type ) + " ended at " + position() + " of " + stop );
-			position( stop );
-			return;
-		}
-		
-		switch( chunkMap.get( type ) ) {
-		
-		case PSSGDATABASE: getPssgDatabase( offset, size, psize, tab ); break;
-		case LIBRARY: getLibrary( offset, size, psize, tab ); break;
-		
-		case ROOTNODE: getRootNode( offset, size, psize, tab ); break;
-		case NODE: getNode( offset, size, psize, tab ); break;
-		case JOINTNODE: getJointNode( offset, size, psize, tab ); break;
-		case SKINNODE: getSkinNode( offset, size, psize, tab ); break;
-		case MODIFIERNETWORKINSTANCE: getModifierNetworkInstance( offset, size, psize, tab ); break;
-		//case RENDERINSTANCESOURCE: getRenderInstanceSource( offset, size, psize, tab ); break;
-		case RENDERNODE: getRenderNode( offset, size, psize, tab ); break;
-		case RENDERSTREAMINSTANCE: getRenderStreamInstance( offset, size, psize, tab ); break;
-		case SKINJOINT: getSkinJoint( offset, size, psize, tab ); break;
-		
-		case DATABLOCK: getDataBlock( offset, size, psize, tab ); break;
-		case DATABLOCKSTREAM: getDataBlockStream( offset, size, psize, tab ); break;
-		
-		case MODIFIERNETWORK: getModifierNetwork( offset, size, psize, tab ); break;
-		
-		case ANIMATION: getAnimation( offset, size, psize, tab ); break;
-		case CHANNELREF: getChannelRef( offset, size, psize, tab ); break;
-		case CONSTANTCHANNEL: getConstantChannel( offset, size, psize, tab ); break;
-		case ANIMATIONCHANNEL: getAnimationChannel( offset, size, psize, tab ); break;
-		case ANIMATIONCHANNELDATABLOCK: getAnimationChannelDataBlock( offset, size, psize, tab ); break;
-		case ANIMATIONSET: getAnimationSet( offset, size, psize, tab ); break;
-		case ANIMATIONREF: getAnimationRef( offset, size, psize, tab ); break;
-		
-		default:
-			System.out.println( "unimplemented chunk type: " + type + " ["+ cStrings[type] + "] " + size + " " + psize );
-			break;
-		}
-		
-		position( stop );
-	}
-	
-	private void getChunks( int stop, String tab ) {
-		while( position() < stop )
-			processChunk( position(), tab + "  " );
-	}
-	
-	private void getChunkData( String name, int pstop, int stop, String tab ) {
-		getProperties( name, pstop, tab );
-		getChunks( stop, tab );
-	}*/
 
 	private void getPssgDatabase( int offset, int stop, int pstop, PssgDatabase chunk ) {
 		if( cPssg == null ) {
+			mc = new ModelContainer();
 			cPssg = new Pssg();
 			cPssg.database = chunk;
-		} else {
-			cAnimPssg = new Pssg();
-			cAnimPssg.database = chunk;
 		}
 		
-		getChildChunks( pstop, stop, chunk );
+		getChildChunks( pstop, stop, cPssg.database );
 	}
 	
 	private void getLibrary( int offset, int stop, int pstop, PssgLibrary chunk ) {
@@ -468,12 +105,13 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 	}
 	
 	private void getTextureImageBlockData( int offset, int stop, int pstop, PssgTexture chunk ) {
-		//Directory dir = ResourceManager.getPackDirectory( "rin", "images" );
 		chunk.data = readInt8( chunk.size );
-		if( chunk.texelFormat.toLowerCase().equals( "dxt1" ) )
+		
+		/*if( chunk.texelFormat.toUpperCase().equals( "DXT1" ) ) {
 			DdsUtils.fromRawDXT1( chunk.width, chunk.height, chunk.data ).test();
-		else if( chunk.texelFormat.toLowerCase().equals( "dxt3" ) )
+		} else if( chunk.texelFormat.toUpperCase().equals( "DXT3" ) ) {
 			DdsUtils.fromRawDXT3( chunk.width, chunk.height, chunk.data ).test();
+		}*/
 	}
 	
 	private void getDataBlock( int offset, int stop, int pstop, PssgDataBlock chunk ) {
@@ -503,6 +141,19 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		} else if( type.equals( "float3" ) ) {
 			chunk.fdata = readFloat32( chunk.count * 3 );
 		} else System.err.println( "unimplemented DataBlockData dataType: " + type );
+	}
+	
+	private void getShaderGroup( int offset, int stop, int pstop, PssgShaderGroup chunk ) {
+		readPInt32(); //parameterCount
+		readPInt32(); //parameterSavedCount
+		readPInt32(); //parameterStreamCount
+		readPInt32(); //instancesRequireSorting
+		readPInt32(); //defaultRenderSortPriority
+		readPInt32(); //passCount
+		chunk.id = readPString();
+		
+		getChildChunks( pstop, stop, chunk );
+		cPssg.cache( chunk );
 	}
 	
 	private void getShaderProgram( int offset, int stop, int pstop, PssgShaderProgram chunk ) {
@@ -540,10 +191,31 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		chunk.format = readPString();
 	}
 	
+	private void getShaderInput( int offset, int stop, int pstop, PssgShaderInput chunk ) {
+		readPInt32(); //parameterID
+		chunk.type = readPString();
+		if( chunk.type.equals( "texture" ) ) {
+			readPString();
+			chunk.texture = readPString().substring( 1 );
+		}
+		
+	}
+	
+	private void getShaderInstance( int offset, int stop, int pstop, PssgShaderInstance chunk ) {
+		chunk.shaderGroup = readPString().substring( 1 );
+		readPInt32(); //parameterCount
+		readPInt32(); //parameterSavedCount
+		readPInt32(); //renderSortPriority
+		chunk.id = readPString();
+		cPssg.cache( chunk );
+	}
+	
 	private void getRootNode( int offset, int stop, int pstop, PssgRootNode chunk ) {
 		readPInt32();
 		chunk.id = readPString();
 		
+		mc.startScene( new Node( chunk.id ) );
+		cNode = mc.getScene().getRoot();
 		getChildChunks( pstop, stop, chunk );
 		cPssg.cache( chunk );
 	}
@@ -552,8 +224,11 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		readPInt32();
 		readPString();
 		chunk.id = readPString();
+		Node tmp = cNode;
 		
+		cNode = cNode.add( new Node( chunk.id ) );
 		getChildChunks( pstop, stop, chunk );
+		cNode = tmp;
 		cPssg.cache( chunk );
 	}
 	
@@ -561,8 +236,11 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		readPInt32();
 		readPString();
 		chunk.id = readPString();
+		Node tmp = cNode;
 		
+		cNode = cNode.add( new JointNode( chunk.id ) );
 		getChildChunks( pstop, stop, chunk );
+		cNode = tmp;
 		cPssg.cache( chunk );
 	}
 	
@@ -581,13 +259,17 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		readPInt32();
 		readPString();
 		chunk.id = readPString();
+		Node tmp = cNode;
 		
+		cNode = cNode.add( new SkinNode( chunk.id ) );
 		getChildChunks( pstop, stop, chunk );
+		cNode = tmp;
 		cPssg.cache( chunk );
 	}
 	
 	private void getSkinJoint( int offset, int stop, int pstop, PssgSkinJoint chunk ) {
 		chunk.joint = readPString().substring( 1 );
+		((SkinNode)cNode).addJoint( (JointNode)mc.getScene().find( chunk.joint ) );
 	}
 	
 	private void getModifierNetworkInstance( int offset, int stop, int pstop, PssgModifierNetworkInstance chunk ) {
@@ -629,12 +311,109 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		getChildChunks( pstop, stop, chunk );
 	}
 	
+	private void getRenderDataSource( int offset, int stop, int pstop, PssgRenderData chunk ) {
+		readPInt32(); //streamCount
+		int ptype = readInt32();
+		readInt32();
+		if( pStrings[ptype].equalsIgnoreCase( "id" ) ) {
+			chunk.id = readString();
+		} else {
+			readString();
+			chunk.id = readPString();
+		}
+		
+		
+		getChildChunks( pstop, stop, chunk );
+		cPssg.cache( chunk );
+	}
+	
+	private void getRenderIndexSource( int offset, int stop, int pstop, PssgRenderData chunk ) {
+		chunk.primitive = readPString();
+		chunk.format = readPString();
+		chunk.count = readPInt32();
+		readPInt32(); //allocationStrategy
+		readPString(); //id, havnt found a use for this one
+		
+		getChildChunks( pstop, stop, chunk );
+	}
+	
+	private void getIndexSourceData( int offset, int stop, int pstop, PssgRenderData chunk ) {
+		if( chunk.format.equals( "uchar" ) ) {
+			chunk.data = readUInt8( stop - position() );
+		} else if( chunk.format.equals( "ushort" ) ) {
+			chunk.data = readInt16( (stop - position()) / 2 );
+		}
+	}
+	
+	private void getRenderStream( int offset, int stop, int pstop, PssgRenderStream chunk ) {
+		chunk.dataBlock = readPString().substring( 1 );
+		readPInt32(); //subStream
+		chunk.id = readPString();
+	}
+	
 	private void getTransform( int offset, int stop, int pstop, PssgSceneNode<?> chunk ) {
 		chunk.transform = readFloat32( 16 );
 	}
 	
 	private void getBoundingBox( int offset, int stop, int pstop, PssgSceneNode<?> chunk ) {
 		chunk.bbox = readFloat32( 6 );
+	}
+	
+	private void getSkeleton( int offset, int stop, int pstop, PssgSkeleton chunk ) {
+		readPInt32(); //matrixCount
+		chunk.id = readPString();
+		
+		getChildChunks( pstop, stop, chunk );
+		cPssg.cache( chunk );
+	}
+	
+	private void getInverseBindMatrix( int offset, int stop, int pstop, PssgInverseBindMatrix chunk ) {
+		chunk.matrix = readFloat32( 16 );
+	}
+	
+	private void getAnimation( int offset, int stop, int pstop, PssgAnimation chunk ) {
+		chunk.channelCount = readPInt32();
+		chunk.constantChannelCount = readPInt32();
+		chunk.start = readPFloat32();
+		chunk.end = readPFloat32();
+		chunk.id = readPString();
+		
+		getChildChunks( pstop, stop, chunk );
+		cPssg.cache( chunk );
+	}
+	
+	private void getChannelRef( int offset, int stop, int pstop, PssgChannelRef chunk ) {
+		chunk.channel = readPString().substring( 1 );
+		chunk.targetName = readPString();
+		//if( cPssg.getSceneNode( chunk.targetName ) == null )
+			//System.out.println( chunk.targetName + " target not found." );
+	}
+	
+	private void getConstantChannel( int offset, int stop, int pstop, PssgConstantChannel chunk ) {
+		chunk.value = readPFloat32s();
+		chunk.targetName = readPString();
+		chunk.keyType = readPString();
+	}
+	
+	private void getAnimationChannel( int offset, int stop, int pstop, PssgAnimationChannel chunk ) {
+		chunk.timeBlock = readPString().substring( 1 );
+		chunk.valueBlock = readPString().substring( 1 );
+		chunk.id = readPString();
+		
+		cPssg.cache( chunk );
+	}
+	
+	private void getAnimationDataBlock( int offset, int stop, int pstop, PssgAnimationDataBlock chunk ) {
+		chunk.keyCount = readPInt32();
+		chunk.keyType = readPString();
+		chunk.id = readPString();
+		
+		getChildChunks( pstop, stop, chunk );
+		cPssg.cache( chunk );
+	}
+	
+	private void getKeys( int offset, int stop, int pstop, PssgAnimationDataBlock chunk ) {
+		chunk.data = readFloat32( (stop - position()) / 4 );
 	}
 	
 	private void processChunk( int offset, PssgChunk<?> p ) {
@@ -663,6 +442,9 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		case SHADERPROGRAMCODEBLOCK: getShaderProgramCodeBlock( offset, stop, pstop, new PssgShaderProgramCodeBlock().set( ct, p ) ); break;
 		case CGSTREAM: getCgStream( offset, stop, pstop, new PssgCgStream().set( ct, p ) ); break;
 		case SHADERINPUTDEFINITION: getShaderInputDefinition( offset, stop, pstop, new PssgShaderInputDefinition().set( ct, p ) ); break;
+		case SHADERINSTANCE: getShaderInstance( offset, stop, pstop, new PssgShaderInstance().set( ct, p ) ); break;
+		case SHADERGROUP: getShaderGroup( offset, stop, pstop, new PssgShaderGroup().set( ct, p ) ); break;
+		case SHADERINPUT: getShaderInput( offset, stop, pstop, new PssgShaderInput().set( ct, p ) ); break;
 		
 		case ROOTNODE: getRootNode( offset, stop, pstop, new PssgRootNode().set( ct, p) ); break;
 		case NODE: getNode( offset, stop, pstop, new PssgNode().set( ct, p ) ); break;
@@ -676,14 +458,36 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		case TRANSFORM: getTransform( offset, stop, pstop, (PssgSceneNode<?>)p ); break;
 		case BOUNDINGBOX: getBoundingBox( offset, stop, pstop, (PssgSceneNode<?>)p ); break;
 		
+		case RENDERDATASOURCE: getRenderDataSource( offset, stop, pstop, new PssgRenderData().set( ct, p ) ); break;
+		case RENDERINDEXSOURCE: getRenderIndexSource( offset, stop, pstop, (PssgRenderData)p ); break;
+		case INDEXSOURCEDATA: getIndexSourceData( offset, stop, pstop, (PssgRenderData)p ); break;
+		case RENDERSTREAM: getRenderStream( offset, stop, pstop, new PssgRenderStream().set( ct, p ) ); break;
+		
+		case SKELETON: getSkeleton( offset, stop, pstop, new PssgSkeleton().set( ct, p ) ); break;
+		case INVERSEBINDMATRIX: getInverseBindMatrix( offset, stop, pstop, new PssgInverseBindMatrix().set( ct, p ) ); break;
+		
+		case ANIMATION: getAnimation( offset, stop, pstop, new PssgAnimation().set( ct, p ) ); break;
+		case CHANNELREF: getChannelRef( offset, stop, pstop, new PssgChannelRef().set( ct, p ) ); break;
+		case CONSTANTCHANNEL: getConstantChannel( offset, stop, pstop, new PssgConstantChannel().set( ct, p ) ); break;
+		case ANIMATIONCHANNEL: getAnimationChannel( offset, stop, pstop, new PssgAnimationChannel().set( ct, p ) ); break;
+		case ANIMATIONCHANNELDATABLOCK: getAnimationDataBlock( offset, stop, pstop, new PssgAnimationDataBlock().set( ct, p ) ); break;
+		case KEYS: getKeys( offset, stop, pstop, (PssgAnimationDataBlock)p ); break;
 		default:
-			System.out.println( cStrings[type] + " at " + offset + " not yet implemented." + size + " " + psize + " " + stop );
+			//if( DEBUG )
+				System.out.println( cStrings[type] + " at " + offset + " not yet implemented." + size + " " + psize + " " + stop );
 			break;
 		}
 		
-		if( position() != stop )
+		if( position() != stop && DEBUG )
 			System.out.println( "[WARNING] chunk " + cStrings[type] + " ended early. " + position() + " " + stop );
 		position( stop );
+	}
+	
+	private void printProperties( int pstop ) {
+		while( position() < pstop ) {
+			System.out.println( pStrings[readInt32()] );
+			advance( readInt32() );
+		}
 	}
 	
 	private void getChildChunks( int pstop, int stop, PssgChunk<?> chunk ) {
@@ -706,6 +510,26 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 		return readInt32();
 	}
 	
+	private float readPFloat32() {
+		readInt32();
+		if( readInt32() != 4 ) {
+			System.out.println( "Exiting due to incorrect value being read." );
+			System.exit( 0 );
+		}
+		return readFloat32();
+	}
+	
+	private float[] readPFloat32s() {
+		readInt32();
+		int amount = readInt32();
+		if( !(amount % 4 == 0) ) {
+			System.out.println( "PssgDecoder#readPFloat32s(): amount was not a multiple of four. wrote data type." );
+			System.exit( 0 );
+		}
+		return readFloat32( amount / 4 );
+
+	}
+	
 	@Override
 	public String getExtensionName() { return "pssg"; }
 	
@@ -713,18 +537,114 @@ public class PssgDecoder extends BaseBinaryReader implements ModelDecoder {
 	
 	@Override
 	public ModelContainer decode( Resource resource, ModelOptions opts ) {
+		startProfiler();
+		
 		load( resource );
-		debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
-		debug.openStream();
+		Directory dir = resource.getDirectory();
+		debug = dir.createResource( resource.getBaseName() + ".debug", true );
 		
 		header();
 		stringMap();
 		processChunk( position(), null );
 		
-		cPssg.print( debug );
+		/*if( dir.containsResource( resource.getBaseName() + "_anim1.pssg" ) ) {
+			Resource anim = dir.getResource( resource.getBaseName() + "_anim1.pssg" );
+			System.err.println( "SEX" );
+			load( anim );
+			header();
+			stringMap();
+			processChunk( position(), null );
+		}*/
+		
+		debug.openStream();
+		if( DEBUG )
+			cPssg.print( debug );
+		
+		for( PssgSceneNode<?> sn : cPssg.sceneNodeMap.values() ) {
+			if( sn instanceof PssgSkinNode ) {
+				System.out.println( "SKINNODE " + sn.id );
+				SkinNode node = (SkinNode)mc.getScene().find( sn.id );
+				for( PssgModifierNetworkInstance mni : sn.find( PssgModifierNetworkInstance.class ) ) {
+					PssgTexture tex = cPssg.getTextureFromShaderInstance( mni.shader );
+					if( tex != null ) {
+						if( TextureManager.find( tex.filename ) == -1 ) {
+							ImageContainer ic = null;
+							if( tex.texelFormat.toUpperCase().equals( "DXT1" ) ) {
+								ic = DdsUtils.fromRawDXT1( tex.width, tex.height, tex.data );
+							} else if( tex.texelFormat.toUpperCase().equals( "DXT3" ) ) {
+								ic = DdsUtils.fromRawDXT3( tex.width, tex.height, tex.data );
+							} else System.out.println( "UNKNOWN TEXTURE FORMAT " + tex.texelFormat );
+							if( ic != null ) {
+								ic.setName( tex.filename );
+								((SkinNode)mc.getScene().find( sn.id )).setTexture( ic );
+							}
+						} else {
+							node.setTexture( TextureManager.find( tex.filename ) );
+						}
+					}
+					for( PssgRenderInstanceSource ris : mni.find( PssgRenderInstanceSource.class ) ) {
+						PssgRenderData rd = cPssg.renderDataMap.get( ris.source );
+						System.out.println( "  Data source: " + rd.id );
+						System.out.println( "  data length: " + rd.data.length );
+						node.setIndices( rd.data );
+						for( PssgRenderStream rs : rd.find( PssgRenderStream.class ) ) {
+							PssgDataBlock db = cPssg.dataBlockMap.get( rs.dataBlock );
+							System.out.println( "    " + db.dataType + " " + db.renderType + " " + db.id );
+							if( db.renderType.equalsIgnoreCase( "skinnablevertex" ) ) {
+								node.setVertices( db.fdata );
+							} else if( db.renderType.equalsIgnoreCase( "st" ) ) {
+								node.setTexcoords( db.fdata );
+							}
+						}
+					}
+				}
+				node.build();
+				node.setScale( 0.01f, 0.01f, 0.01f );
+				node.setRotation( 90.0f, 0.0f, 0.0f );
+			}
+		}
+		mc.getScene().ready();
+		
+		/*for( PssgAnimation a : cPssg.animationMap.values() ) {
+			Animation current = mc.getScene().addAnimation( a.id );
+			current.setTimes( a.start, a.end );
+			for( PssgChunk<?> c : a.children ) {
+				if( c instanceof PssgChannelRef ) {
+					PssgChannelRef node = (PssgChannelRef)c;
+					if( mc.getScene().find( node.targetName ) != null ) {
+						FrameSet fs = current.getFrames( node.targetName );
+						PssgAnimationChannel ac = cPssg.channelMap.get( node.channel );
+						float[] times = cPssg.animationDataMap.get( ac.timeBlock ).data;
+						PssgAnimationDataBlock db = cPssg.animationDataMap.get( ac.valueBlock );
+						if( db.keyType.toLowerCase().equals( "rotation" ) ) {
+							fs.setRotationData( times, db.data );
+						} else if( db.keyType.toLowerCase().equals( "scale" ) ) {
+							fs.setScaleData( times, db.data );
+						} else if( db.keyType.toLowerCase().equals( "translation" ) ) {
+							fs.setTranslationData( times, db.data );
+						} else System.err.println( "unknown keytype: " + db.keyType );
+					}
+					//debug.writeLine( "  TIMES: " + ArrayUtils.asString( cPssg.animationDataMap.get( ac.timeBlock ).data ) );
+					//debug.writeLine( "  VALUES: " + ArrayUtils.asString( cPssg.animationDataMap.get( ac.valueBlock ).data ) );
+				} else if( c instanceof PssgConstantChannel ) {
+					PssgConstantChannel node = (PssgConstantChannel)c;
+					FrameSet fs = current.getFrames( node.targetName );
+					if( node.keyType.toLowerCase().equals( "rotation" ) ) {
+						fs.setRotationData( null, node.value );
+					} else if( node.keyType.toLowerCase().equals( "scale" ) ) {
+						fs.setScaleData( null, node.value );
+					} else if( node.keyType.toLowerCase().equals( "translation" ) ) {
+						fs.setTranslationData( null, node.value );
+					} else System.err.println( "unknown keytype: " + node.keyType );
+				}
+			}
+		}*/
 		debug.closeStream();
-		ModelContainer mc = new ModelContainer();
-		mc.startScene( new Node( "nope" ) );
+		//mc.startScene( new Node( "nope" ) );
+		
+		stopProfiler();
+		System.out.println( "Decoded in " + getProfileTimeS() + " seconds." );
+		cPssg = null;
 		return mc;
 	}
 		

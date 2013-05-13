@@ -27,6 +27,9 @@ public class PssgSpec {
 		SHADERPROGRAMCODEBLOCK			( false ),
 		CGSTREAM						( false ),
 		SHADERINPUTDEFINITION			( false ),
+		SHADERINSTANCE					( false ),
+		SHADERGROUP						( false ),
+		SHADERINPUT						( false ),
 		
 		ROOTNODE						( false ),
 		TRANSFORM						( true ),
@@ -40,7 +43,15 @@ public class PssgSpec {
 		RENDERSTREAMINSTANCE			( false ),
 		SKINJOINT						( false ),
 		
+		RENDERDATASOURCE				( false ),
+		RENDERINDEXSOURCE				( false ),
+		INDEXSOURCEDATA					( true ),
+		RENDERSTREAM					( false ),
+		
 		MODIFIERNETWORK					( false ),
+		
+		SKELETON						( false ),
+		INVERSEBINDMATRIX				( false ),
 		
 		ANIMATION						( false ),
 		CHANNELREF						( false ),
@@ -249,16 +260,40 @@ public class PssgSpec {
 		public PssgDatabase database;
 		public HashMap<String, PssgTexture> textureMap = new HashMap<String, PssgTexture>();
 		public HashMap<String, PssgDataBlock> dataBlockMap = new HashMap<String, PssgDataBlock>();
-		public HashMap<String, PssgShaderProgram> shaderMap = new HashMap<String, PssgShaderProgram>();
+		public HashMap<String, PssgShaderProgram> shaderProgramMap = new HashMap<String, PssgShaderProgram>();
+		public HashMap<String, PssgShaderInstance> shaderInstanceMap = new HashMap<String, PssgShaderInstance>();
+		public HashMap<String, PssgShaderGroup> shaderGroupMap = new HashMap<String, PssgShaderGroup>();
 		public HashMap<String, PssgSceneNode<?>> sceneNodeMap = new HashMap<String, PssgSceneNode<?>>();
+		public HashMap<String, PssgSkeleton> skeletonMap = new HashMap<String, PssgSkeleton>();
+		public HashMap<String, PssgRenderData> renderDataMap = new HashMap<String, PssgRenderData>();
+		public HashMap<String, PssgAnimation> animationMap = new HashMap<String, PssgAnimation>();
+		public HashMap<String, PssgAnimationChannel> channelMap = new HashMap<String, PssgAnimationChannel>();
+		public HashMap<String, PssgAnimationDataBlock> animationDataMap = new HashMap<String, PssgAnimationDataBlock>();
 		
 		public void cache( PssgTexture t ) { textureMap.put( t.filename, t ); }
 		public void cache( PssgDataBlock db ) { dataBlockMap.put( db.id, db ); }
-		public void cache( PssgShaderProgram sp ) { shaderMap.put( sp.id, sp ); }
+		public void cache( PssgShaderProgram sp ) { shaderProgramMap.put( sp.id, sp ); }
+		public void cache( PssgShaderInstance si ) { shaderInstanceMap.put( si.id, si ); }
+		public void cache( PssgShaderGroup sg ) { shaderGroupMap.put( sg.id, sg ); }
 		public void cache( PssgSceneNode<?> sn ) { sceneNodeMap.put( sn.id, sn ); }
+		public void cache( PssgSkeleton s ) { skeletonMap.put( s.id, s ); }
+		public void cache( PssgRenderData rd ) { renderDataMap.put( rd.id, rd ); }
+		public void cache( PssgAnimation a ) { animationMap.put( a.id, a ); }
+		public void cache( PssgAnimationChannel ac ) { channelMap.put( ac.id, ac ); }
+		public void cache( PssgAnimationDataBlock adb ) { animationDataMap.put( adb.id, adb ); }
 		
+		public PssgTexture getTextureFromShaderInstance( String instance ) {
+			String tex = shaderGroupMap.get( shaderInstanceMap.get( instance ).shaderGroup ).findTexture();
+			if( tex != null )
+				return textureMap.get( tex );
+			return null;
+		}
 		public void print( Resource debug ) {
 			database.print( debug, "" );
+		}
+		
+		public PssgSceneNode<?> getSceneNode( String id ) {
+			return sceneNodeMap.get( id );
 		}
 	}
 	
@@ -273,6 +308,15 @@ public class PssgSpec {
 			parent = p;
 			if( p != null ) p.children.add( this );
 			return (T)this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public <T> ArrayList<T> find( Class<T> type ) {
+			ArrayList<T> res = new ArrayList<T>();
+			for( PssgChunk<?> c : children )
+				if( type.isInstance( c ) )
+					res.add( (T)c );
+			return res;
 		}
 		
 		public void print( Resource debug, String tab ) {
@@ -291,7 +335,7 @@ public class PssgSpec {
 	public static class PssgLibrary extends PssgChunk<PssgLibrary> {
 		public String type;
 		@Override public void print( Resource debug, String tab ) {
-			debug.writeLine( tab + name );
+			debug.writeLine( tab + name + "     [ " + type +" ]" );
 			super.print( debug, tab );
 		}
 	}
@@ -374,6 +418,41 @@ public class PssgSpec {
 		}
 	}
 	
+	public static class PssgShaderGroup extends PssgChunk<PssgShaderGroup> {
+		public String id;
+		
+		public String findTexture() {
+			for( PssgShaderInput si : find( PssgShaderInput.class ) )
+				if( si.texture != null )
+					return si.texture;
+			return null;
+		}
+		
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     [CACHED: " + id +"]" );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgShaderInput extends PssgChunk<PssgShaderInput> {
+		public String type;
+		public String texture;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgShaderInstance extends PssgChunk<PssgShaderInstance> {
+		public String id;
+		public String shaderGroup;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     [CACHED: " + id +"]" );
+			debug.writeLine( tab + "::shaderGroup: " + shaderGroup );
+			super.print( debug, tab );
+		}
+	}
+	
 	public static class PssgTexture extends PssgChunk<PssgTexture> {
 		public String filename;
 		public String texelFormat;
@@ -408,15 +487,11 @@ public class PssgSpec {
 	
 	public static class PssgRootNode extends PssgSceneNode<PssgRootNode> {}
 	
-	public static class PssgNode extends PssgSceneNode<PssgNode> {
-
-	}
+	public static class PssgNode extends PssgSceneNode<PssgNode> {}
 	
 	public static class PssgJointNode extends PssgSceneNode<PssgJointNode> {}
 
-	public static class PssgRenderNode extends PssgSceneNode<PssgRenderNode> {
-
-	}
+	public static class PssgRenderNode extends PssgSceneNode<PssgRenderNode> {}
 	
 	public static class PssgSkinNode extends PssgSceneNode<PssgSkinNode> {
 		public int jointCount = 0;
@@ -463,6 +538,112 @@ public class PssgSpec {
 		@Override public void print( Resource debug, String tab ) {
 			debug.writeLine( tab + name );
 			debug.writeLine( tab + "::source: " + source );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgRenderData extends PssgChunk<PssgRenderData> {
+		public String id;
+		public String primitive;
+		public String format;
+		public int count;
+		public short[] data = new short[0];
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     CACHED[" + id + "]" );
+			debug.writeLine( tab + "::primitive: " + primitive );
+			debug.writeLine( tab + "::format: " + format );
+			debug.writeLine( tab + "::count: " + count );
+			debug.writeLine( tab + "::data: " + data.length );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgRenderStream extends PssgChunk<PssgRenderStream> {
+		public String id;
+		public String dataBlock;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name );
+			debug.writeLine( tab + "::id: " + id );
+			debug.writeLine( tab + "::dataBlock: " + dataBlock );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgSkeleton extends PssgChunk<PssgSkeleton> {
+		public String id;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     CACHED[" + id + "]" );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgInverseBindMatrix extends PssgChunk<PssgInverseBindMatrix> {
+		public float[] matrix;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name );
+			debug.writeLine( tab + "::matrix: " + ArrayUtils.asString( matrix ) );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgAnimation extends PssgChunk<PssgAnimation> {
+		public String id;
+		public int channelCount;
+		public int constantChannelCount;
+		public float start;
+		public float end;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     CACHED[" + id + "]" );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgChannelRef extends PssgChunk<PssgChannelRef> {
+		public String channel;
+		public String targetName;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name );
+			debug.writeLine( tab + "::channel: " + channel );
+			debug.writeLine( tab + "::targetName: " + targetName );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgConstantChannel extends PssgChunk<PssgConstantChannel> {
+		public float[] value;
+		public String targetName;
+		public String keyType;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name );
+			debug.writeLine( tab + "::value: " + ArrayUtils.asString( value ) );
+			debug.writeLine( tab + "::targetName: " + targetName );
+			debug.writeLine( tab + "::keyType: " + keyType );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgAnimationChannel extends PssgChunk<PssgAnimationChannel> {
+		public String id;
+		public String timeBlock;
+		public String valueBlock;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     CACHED[" + id + "]" );
+			debug.writeLine( tab + "::timeBlock: " + timeBlock );
+			debug.writeLine( tab + "::valueBlock: " + valueBlock );
+			super.print( debug, tab );
+		}
+	}
+	
+	public static class PssgAnimationDataBlock extends PssgChunk<PssgAnimationDataBlock> {
+		public String id;
+		public int keyCount;
+		public String keyType;
+		public float[] data;
+		@Override public void print( Resource debug, String tab ) {
+			debug.writeLine( tab + name + "     CACHED[" + id + "]" );
+			debug.writeLine( tab + "::keyCount: " + keyCount );
+			debug.writeLine( tab + "::keyType: " + keyType );
+			debug.writeLine( tab + "::data: " + data.length );
 			super.print( debug, tab );
 		}
 	}

@@ -66,13 +66,15 @@ public class Game {
 		}*/
 		
 		init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
+		getScene().addModel( ResourceManager.getPackResource( "meruru", "models", "young_totori", "young_totori.pssg" ) );
 		start();
+		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
 		//FormatManager.decodeImage( ResourceManager.getPackResource( "neptunia_mk2", "special", "2001.tid" ), new ImageOptions().saveAs( "png" ) );
 		//new CL3Extractor( ResourceManager.getPackDirectory( "neptunia_v", "models", "001", "motion" ) );
 		//getScene().addModel( ModelFormat.PSSG, ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
+		//start();
 		/*getScene().addModel( new ModelParams( ModelFormat.OBJ, "hyrulefield" ) ).onLoad( new LoaderEvent<Actor>() {
 			public void handle() {
 				System.out.println( this.target + "yes" );
@@ -84,9 +86,6 @@ public class Game {
 		//new BRRESDecoder( ResourceManager.getPackResource( "rin", "test.brres" ) );
 		//new ACBDecoder( ResourceManager.getPackResource( "rin", "001.acb" ) );
 		//new ISM2Decoder( ResourceManager.getPackResource( "rin", "001.ism2" ) );
-		/*init( 900, 600 );
-		getScene().addModel( ModelFormat.ISM2, ResourceManager.getPackResource( "rin", "002.ism2" ) );
-		start();*/
 		
 		
 		//System.out.println( ResourceManager.getPackResource( "rin", "003.ism2" ).getDirectory().getResource( "003.ism2" ).getPath() );

@@ -140,7 +140,7 @@ public class ModelPSSG implements Model {
 	@Override
 	public Actor fromContainer( ModelContainer container ) {
 		ModelScene pssg = container.getScene();
-		
+		pssg.setScale( 0.01f, 0.01f, 0.01f );
 		return pssg;
 	}
 

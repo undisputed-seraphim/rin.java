@@ -50,7 +50,7 @@ public class ModelGMO implements Model {
 	}
 
 	@Override
-	public Actor fromContainer(ModelContainer container) {
+	public Actor fromContainer( ModelContainer container ) {
 		// TODO Auto-generated method stub
 		return null;
 	}
