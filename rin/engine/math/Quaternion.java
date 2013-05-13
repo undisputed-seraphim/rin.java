@@ -1,5 +1,7 @@
 package rin.engine.math;
 
+import rin.util.math.Quat4;
+
 public class Quaternion {
 
 	private float[] q = new float[]
@@ -35,6 +37,13 @@ public class Quaternion {
 	}
 	
 	
+	
+	public static Quaternion multiply( Quaternion q, Quaternion r ) {
+		return new Quaternion(q.w() * r.x() + q.x() * r.w() + q.y() * r.z() - q.z() * r.y(),
+							  q.w() * r.y() + q.y() * r.w() + q.z() * r.x() - q.x() * r.z(),
+							  q.w() * r.z() + q.z() * r.w() + q.x() * r.y() - q.y() * r.x(),
+							  q.w() * r.w() - q.x() * r.x() - q.y() * r.y() - q.z() * r.z() );
+	}
 	
 	public Matrix4x4 toRotationMatrix() {
 		float yy = y() * y();

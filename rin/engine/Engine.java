@@ -220,7 +220,7 @@ public class Engine {
 	public static void init( int width, int height ) {
 		Engine.wc = new WorldController();
 		GL.init( width, height );
-		GLScene.init();
+		//GLScene.init();
 	}
 	
 	public static void start() {

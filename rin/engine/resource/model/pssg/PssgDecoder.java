@@ -11,12 +11,14 @@ import rin.engine.resource.image.dds.DdsUtils;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
+import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
 import rin.gl.TextureManager;
 import rin.gl.lib3d.Animation;
 import rin.gl.lib3d.FrameSet;
 import rin.gl.lib3d.JointNode;
 import rin.gl.lib3d.Node;
+import rin.gl.lib3d.RenderNode;
 import rin.gl.lib3d.SkinNode;
 
 public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
@@ -216,6 +218,8 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 		
 		mc.startScene( new Node( chunk.id ) );
 		cNode = mc.getScene().getRoot();
+		cNode.setScale( 0.01f, 0.01f, 0.01f );
+		cNode.setRotation( 90, 0, 0 );
 		getChildChunks( pstop, stop, chunk );
 		cPssg.cache( chunk );
 	}
@@ -248,14 +252,17 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 		readPInt32();
 		readPString();
 		chunk.id = readPString();
+		Node tmp = cNode;
 		
+		cNode = cNode.add( new RenderNode( chunk.id ) );
 		getChildChunks( pstop, stop, chunk );
+		cNode = tmp;
 		cPssg.cache( chunk );
 	}
 	
 	private void getSkinNode( int offset, int stop, int pstop, PssgSkinNode chunk ) {
 		chunk.jointCount = readPInt32();
-		chunk.skeleton = readPString();
+		chunk.skeleton = readPString().substring( 1 );
 		readPInt32();
 		readPString();
 		chunk.id = readPString();
@@ -322,7 +329,6 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 			chunk.id = readPString();
 		}
 		
-		
 		getChildChunks( pstop, stop, chunk );
 		cPssg.cache( chunk );
 	}
@@ -353,6 +359,8 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private void getTransform( int offset, int stop, int pstop, PssgSceneNode<?> chunk ) {
 		chunk.transform = readFloat32( 16 );
+		
+		cNode.setBaseMatrix( chunk.transform );
 	}
 	
 	private void getBoundingBox( int offset, int stop, int pstop, PssgSceneNode<?> chunk ) {
@@ -547,23 +555,27 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 		stringMap();
 		processChunk( position(), null );
 		
-		/*if( dir.containsResource( resource.getBaseName() + "_anim1.pssg" ) ) {
+		if( dir.containsResource( resource.getBaseName() + "_anim1.pssg" ) ) {
 			Resource anim = dir.getResource( resource.getBaseName() + "_anim1.pssg" );
 			System.err.println( "SEX" );
 			load( anim );
 			header();
 			stringMap();
 			processChunk( position(), null );
-		}*/
+		}
 		
 		debug.openStream();
-		if( DEBUG )
-			cPssg.print( debug );
+		if( DEBUG ) cPssg.print( debug );
 		
 		for( PssgSceneNode<?> sn : cPssg.sceneNodeMap.values() ) {
 			if( sn instanceof PssgSkinNode ) {
 				System.out.println( "SKINNODE " + sn.id );
+				PssgSkinNode skinNode = (PssgSkinNode)sn;
 				SkinNode node = (SkinNode)mc.getScene().find( sn.id );
+				for( int i = 0; i < skinNode.jointCount; i++ ) {
+					PssgInverseBindMatrix ibm = (PssgInverseBindMatrix)cPssg.skeletonMap.get( skinNode.skeleton ).children.get( i );
+					node.getJoints().get( i ).setInverseBindMatrix( ibm.matrix );
+				}
 				for( PssgModifierNetworkInstance mni : sn.find( PssgModifierNetworkInstance.class ) ) {
 					PssgTexture tex = cPssg.getTextureFromShaderInstance( mni.shader );
 					if( tex != null ) {
@@ -594,18 +606,29 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 								node.setVertices( db.fdata );
 							} else if( db.renderType.equalsIgnoreCase( "st" ) ) {
 								node.setTexcoords( db.fdata );
+							} else if( db.renderType.equalsIgnoreCase( "skinindices" ) ) {
+								node.setBoneIndices( db.sdata );
+							} else if( db.renderType.equalsIgnoreCase( "skinweights" ) ) {
+								node.setBoneWeights( db.fdata );
 							}
 						}
 					}
 				}
 				node.build();
-				node.setScale( 0.01f, 0.01f, 0.01f );
-				node.setRotation( 90.0f, 0.0f, 0.0f );
+				//node.setScale( 0.01f, 0.01f, 0.01f );
+				//node.setRotation( 90.0f, 0.0f, 0.0f );
+			} else if( sn instanceof PssgRenderNode ) {
+				PssgRenderNode rn = (PssgRenderNode)sn;
+				for( PssgModifierNetworkInstance mni : rn.find( PssgModifierNetworkInstance.class ) ) {
+					
+				}
 			}
 		}
 		mc.getScene().ready();
+		mc.getScene().setScale( 0.01f, 0.01f, 0.01f );
+		mc.getScene().setRotation( 90.0f, 0.0f, 0.0f );
 		
-		/*for( PssgAnimation a : cPssg.animationMap.values() ) {
+		for( PssgAnimation a : cPssg.animationMap.values() ) {
 			Animation current = mc.getScene().addAnimation( a.id );
 			current.setTimes( a.start, a.end );
 			for( PssgChunk<?> c : a.children ) {
@@ -638,7 +661,7 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 					} else System.err.println( "unknown keytype: " + node.keyType );
 				}
 			}
-		}*/
+		}
 		debug.closeStream();
 		//mc.startScene( new Node( "nope" ) );
 		

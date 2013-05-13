@@ -28,4 +28,7 @@ public class Vector3 {
 		return v;
 	}
 	
+	public static Vector3 add( Vector3 v, Vector3 w ) {
+		return new Vector3( v.x() + w.x(), v.y() + w.y(), v.z() + w.z() );
+	}
 }

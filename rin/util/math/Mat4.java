@@ -388,6 +388,39 @@ yaxis = cross(zaxis, xaxis)
 		return new Mat4( res );
 	}
 	
+	public Quat4 toQuat4() {
+		float T = m[0] + m[5] + m[10], S = 0, X = 0, Y = 0, Z = 0, W = 0;
+		if ( T > 0.00000001 ) {
+	    	S = (float)(0.5f / Math.sqrt( T + 1 ));
+	    	X = ( m[9] - m[6] ) * S;
+		    Y = ( m[2] - m[8] ) * S;
+	    	Z = ( m[4] - m[1] ) * S;
+	    	W = 0.25f / S;
+		} else {
+			if ( m[0] > m[5] && m[0] > m[10] ) {
+	    		S = (float)(Math.sqrt( 1.0 + m[0] - m[5] - m[10] ) * 2);
+			    X = 0.25f * S;
+		    	Y = ( m[4] + m[1] ) / S;
+		    	Z = ( m[2] + m[8] ) / S;
+		    	W = ( m[9] - m[6] ) / S;
+			} else if ( m[5] > m[10] ) {
+		    	S = (float)(Math.sqrt( 1.0 + m[5] - m[0] - m[10] ) * 2);
+		    	X = ( m[4] + m[1] ) / S;
+    			Y = 0.25f * S;
+		    	Z = ( m[9] + m[6] ) / S;
+	    		W = ( m[2] - m[8] ) / S;
+			} else {
+			    S = (float)(Math.sqrt( 1.0 + m[10] - m[0] - m[5] ) * 2);
+		    	X = ( m[2] + m[8] ) / S;
+			    Y = ( m[9] + m[6] ) / S;
+			    Z = 0.25f * S;
+			    W = ( m[4] - m[1] ) / S;
+			}
+		}
+		
+		return new Quat4( X, Y, Z, W );
+	}
+	
 	/* returns a FloatBuffer representing the matrix */
 	public static FloatBuffer fb( Mat4 m ) {
 		return Buffer.toBuffer( m.m );

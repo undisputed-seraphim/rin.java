@@ -7,7 +7,7 @@ public class RenderNode extends Node {
 	}
 	
 	@Override
-	public void update( long dt ) {
-		
+	public void update( double dt ) {
+		super.update( dt );
 	}
 }

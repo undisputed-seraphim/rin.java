@@ -104,6 +104,8 @@ public class ModelScene extends Poly implements Iterable<Node> {
 		
 		for( Node n : this )
 			n.update( dt );
-		root.render();
+		
+		for( Node n : this )
+			n.render();
 	}
 }

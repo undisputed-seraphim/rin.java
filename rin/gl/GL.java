@@ -3,6 +3,7 @@ package rin.gl;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -44,6 +45,8 @@ public class GL extends SingletonThread<GL> {
 	
 	private static CL cl;
 	private GLWorkerThread worker;
+	private ArrayList<Actor> actors = new ArrayList<Actor>();
+	private ConcurrentLinkedQueue<Runnable> sources = new ConcurrentLinkedQueue<Runnable>();
 	
 	private static int width = 900, height = 600;
 	public int getWidth() { return GL.width; }
@@ -115,17 +118,15 @@ public class GL extends SingletonThread<GL> {
 	
 	public static Loader<Actor> addModel( final Resource resource ) {
 		final Loader<Actor> lr = new LoaderAdapter<Actor>();
-		GLWorkerThread.sources.add( new Runnable() {
+		get().sources.add( new Runnable() {
 			public void run() {
 				
 				ModelContainer mc = FormatManager.decodeModel( resource );
 				Actor actor = ModelManager.create( ModelFormat.fromString( resource.getExtension() ), mc );
 				
-				synchronized( GLScene.getActors() ) {
-					GLScene.getActors().add( actor );
-					System.out.println( "HERE IS WHEN ONLOAD SHOULD RUN" );
-					lr.setTarget( actor ).loaded();
-				}
+				get().actors.add( actor );
+				System.out.println( "HERE IS WHEN ONLOAD SHOULD RUN" );
+				lr.setTarget( actor ).loaded();
 			}
 		});
 		return lr;
@@ -265,7 +266,7 @@ public class GL extends SingletonThread<GL> {
 		this.camera = new Camera( 45, width / height, 0.1f, 15.0f );
 		this.camera.init();
 		
-		this.worker = new GLWorkerThread();
+		//this.worker = new GLWorkerThread();
 		//GL.cl = new CL( Display.getDrawable() );
 		
 		/*GLGUIFactory.init( GL.width, GL.height );
@@ -284,7 +285,11 @@ public class GL extends SingletonThread<GL> {
 	}
 	
 	@Override public void main() {
-		if( !Display.isCloseRequested() ) {			
+		if( !Display.isCloseRequested() ) {
+			Runnable tmp;
+			while( (tmp = sources.poll() ) != null )
+				tmp.run();
+			
 			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			/* draw the GLGUI object */
 			/*glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
@@ -295,7 +300,7 @@ public class GL extends SingletonThread<GL> {
 			//System.out.println( Keyboard.isKeyDown( Keyboard.KEY_W ) );
 			this.camera.update( this.getDt() );
 
-			for( Actor a : GLScene.getActors() ) {
+			for( Actor a : actors ) {
 				((Poly)a).render();
 			}
 			
@@ -314,10 +319,10 @@ public class GL extends SingletonThread<GL> {
 		
 		for( Actor a : GLScene.getActors() )
 			a = a.destroy();
-		GLScene.get().interrupt();
-		GLScene.get().requestDestroy();
-		this.worker.interrupt();
-		this.worker.requestDestroy();
+		//GLScene.get().interrupt();
+		//GLScene.get().requestDestroy();
+		//this.worker.interrupt();
+		//this.worker.requestDestroy();
 		
 		TextureManager.destroy();
 		Display.destroy();

@@ -20,9 +20,9 @@ varying vec4 vTransformedNormal;
 
 void main( void ) {
 	vec4 pos = vec4( vertex.xyz, 1 );
-	/*vec4 tmp;
+	vec4 tmp;
 	float yy, zz, xy, zw, xz, yw, xx, yz, xw;
-					if( bone.x != -1.0 ) {
+					if( weight.x != 0.0 ) {
 						tmp = quats[ int(bone.x) ];
 						yy = tmp.y*tmp.y;
 						zz = tmp.z*tmp.z;
@@ -41,7 +41,7 @@ void main( void ) {
 						pos += weight.x * mtmp * vec4( vertex.xyz, 1.0 );
 						pos += weight.x * vec4(trans[int(bone.x)].x, trans[int(bone.x)].y, trans[int(bone.x)].z,0);
 					}
-					if( bone.y != -1.0 ) {
+					if( weight.y != 0.0 ) {
 						tmp = quats[ int(bone.y) ];
 						yy = tmp.y*tmp.y;
 						zz = tmp.z*tmp.z;
@@ -60,7 +60,7 @@ void main( void ) {
 						pos += weight.y * mtmp * vec4( vertex.xyz, 1.0 );
 						pos += weight.y * vec4(trans[int(bone.y)].x, trans[int(bone.y)].y, trans[int(bone.y)].z,0);
 					}
-					if( bone.z != -1.0 ) {
+					if( weight.z != 0.0 ) {
 						tmp = quats[ int(bone.z) ];
 						yy = tmp.y*tmp.y;
 						zz = tmp.z*tmp.z;
@@ -79,7 +79,7 @@ void main( void ) {
 						pos += weight.z * mtmp * vec4( vertex.xyz, 1.0 );
 						pos += weight.z * vec4(trans[int(bone.z)].x, trans[int(bone.z)].y, trans[int(bone.z)].z,0);
 					}
-					if( bone.w != -1.0 ) {
+					if( weight.w != 0.0 ) {
 						tmp = quats[ int(bone.w) ];
 						yy = tmp.y*tmp.y;
 						zz = tmp.z*tmp.z;
@@ -97,8 +97,8 @@ void main( void ) {
 							vec4(0,0,0,1) );
 						pos += weight.w * mtmp * vec4( vertex.xyz, 1.0 );
 						pos += weight.w * vec4(trans[int(bone.w)].x, trans[int(bone.w)].y, trans[int(bone.w)].z,0);
-					}*/
-	gl_Position = vMatrix * mMatrix * vec4( vertex.xyz, 1.0 );
+					}
+	gl_Position = vMatrix * mMatrix * vec4( pos.xyz, 1.0 );
 	vVertex = vertex;
 	vColor = color;
 	vNormal = normal;

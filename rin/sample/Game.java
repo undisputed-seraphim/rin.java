@@ -12,6 +12,7 @@ import rin.engine.resource.image.ImageOptions;
 import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
 import rin.engine.lib.gui.GUIManager;
+import rin.gl.GL;
 import rin.gl.event.Transition;
 import rin.gl.lib3d.Actor;
 import rin.gl.lib3d.Poly;
@@ -66,7 +67,7 @@ public class Game {
 		}*/
 		
 		init( 900, 600 );
-		getScene().addModel( ResourceManager.getPackResource( "meruru", "models", "young_totori", "young_totori.pssg" ) );
+		GL.addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		start();
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
