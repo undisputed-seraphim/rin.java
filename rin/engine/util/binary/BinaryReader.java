@@ -47,6 +47,10 @@ public class BinaryReader {
     	return Integer.parseInt( res, 2 );
     }
     
+    public BinaryChunk getChunk( int bytes ) {
+    	return new BinaryChunk( readInt8( bytes ) );
+    }
+    
     public int getBits( int value, int bits, int index ) {
     	return ( value & ( createMask( bits ) << index ) ) >> index;
     }
@@ -69,22 +73,6 @@ public class BinaryReader {
     	byte b = buffer.get();
     	for( int i = 0; i < 8; i++ )
     		res[i] = ((b >> i) & 1) == 1 ? (byte)1 : (byte)0;
-    	return ArrayUtils.flip( res );
-    }
-    
-    public int getBitSet( byte value, int bit ) {
-    	return ( value & ( 1 << bit ) );
-    } 
-    
-    public byte[] readBits32() {
-    	byte[] res = new byte[8*4];
-    	//[ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0 ]
-    	//[ 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
-    	byte[] bytes = ByteBuffer.allocate( 4 ).putInt( readInt32() ).array();
-    	int k = 0;
-    	for( int i = 0; i < bytes.length; i++ )
-    		for( int j = 0; j < 8; j++ )
-    			res[k++] = ((bytes[i] >> j) & 1) == 1 ? (byte)1 : (byte)0;
     	return ArrayUtils.flip( res );
     }
     
@@ -241,57 +229,16 @@ public class BinaryReader {
     	return this;
     }
     
-    public float readFloat16e( int x ) {
-    	int sign = x < 0 ? 1 : 0;
-    	int absx = (x ^ -sign) + sign;
-    	int tmp = absx;
-    	int manbits = 0;
-    	int exp = 0;
-    	int truncated = 0;
-    	
-    	while( tmp != 0 ) {
-    		tmp >>= 1;
-    		manbits++;
-    	}
-    	
-    	if( manbits != 0 ) {
-    		exp = 10;
-    		while( manbits > 11 ) {
-    			truncated |= absx & 1;
-    			absx >>= 1;
-    			manbits--;
-    			exp++;
-    		}
-    		
-    		while( manbits < 11 ) {
-    			absx <<= 1;
-    			manbits++;
-    			exp--;
-    		}
-    	}
-    	
-    	if( exp + truncated > 15 ) {
-    		exp = 31;
-    		absx = 0;
-    	} else if( manbits != 0 ) {
-    		exp += 15;
-    	}
-    	
-    	return ( sign << 15 ) | ((exp & 0xFF) << 10) | (absx & ((1 << 10) - 1) );
-    }
-    
-    //TODO: for the love of god tidy this code up
     public float readFloat16() {
-    	short s = buffer.getShort();
-    	int exponent = (s & 0x7C00) >> 10;
-    	int fraction = (s & 0x03FF);
-    	return (float)(( (s >> 15 != 0) ? -1 : 1) * ( exponent != 0 ?
-    			(
-    					exponent == 0x1F ?
-    							fraction != 0 ?
-    									Float.NaN : Float.POSITIVE_INFINITY :
-    										Math.pow( 2, exponent - 15) * (1 + fraction / 0x400)
-    			) : 0x0400 * (fraction / 0x400) ));
+    	int v = readUInt16();
+    	int s = (v & 0x8000);
+    	int e = (v & 0x7C00) >> 10;
+    	int m = (v & 0x03FF);
+    	
+    	float sign = ( s != 0 ? -1.0f : 1.0f );
+    	if( e == 0 ) return sign * ( m == 0 ? 0.0f : (float)Math.pow(2.0f, -14.0f) * ((float)m/1024.0f));
+    	if( e < 32 ) return sign * (float)Math.pow( 2.0f, (float)e - 15.0f) * (1.0f + (float)m/1024.0f);
+    	return Float.NaN;
     }
     
     public float[] readFloat16( int amount ) {

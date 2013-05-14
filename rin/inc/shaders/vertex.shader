@@ -13,8 +13,8 @@ varying vec4 vColor;
 varying vec4 vNormal;
 varying vec4 vTexture;
 
-uniform vec4 quats[50];
-uniform vec3 trans[50];
+uniform vec4 quats[150];
+uniform vec3 trans[150];
 
 varying vec4 vTransformedNormal;
 

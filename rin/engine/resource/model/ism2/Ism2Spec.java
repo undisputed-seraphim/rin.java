@@ -5,14 +5,26 @@ import java.util.HashMap;
 
 public class Ism2Spec {
 
+	public static final int tmp = 0x15;
+	
 	public static final char[] MAGIC = new char[] { 'I', 'S', 'M', '2' };
 	
 	public static final int C_STRINGS = 0x21;
-	public static final int C_TEXTURE_LIST = 0x2E;
+	public static final int C_TEXTURELIST = 0x2E;
 	public static final int C_TEXTURE = 0x2D;
 	
-	public static final int C_11 = 0x0B;
-	public static final int C_10 = 0x0A;
+	public static final int C_SAMPLERLIST = 0x61;
+	public static final int C_SAMPLER = 0x0D;
+	public static final int C_SAMPLELIST = 0x6C;
+	public static final int C_SAMPLE = 0x6A;
+	public static final int C_SAMPLEPROPERTY = 0x6B;
+	
+	public static final int C_FXLIST = 0x62;
+	public static final int C_FX = 0x63;
+	public static final int C_FXPROPERTY = 0x65;
+	
+	public static final int C_MESHLIST = 0x0B;
+	public static final int C_MESH = 0x0A;
 	public static final int C_TRIANGLES = 0x46;
 	public static final int C_INDICES = 0x45;
 	public static final int C_VERTICES = 0x59;
@@ -26,39 +38,37 @@ public class Ism2Spec {
 		public static final int T_VERTICES_WEIGHT = 3;
 			public static final int T_WEIGHT_BONE = 7;
 			public static final int T_WEIGHT_WEIGHT = 1;
-	public static final int C_110 = 0x6E;
+	public static final int C_BOUNDINGBOX = 0x6E;
 	
 	public static final int C_3 = 0x03;
 	public static final int C_4 = 0x04;
+	public static final int C_91 = 0x5B;
+	public static final int C_MATERIALLIST = 0x4C;
+	public static final int C_MATERIAL = 0x4B;
 	
-	public static final int C_79 = 0x4C;
-	public static final int C_75 = 0x4B;
-	
-	public static final int C_50 = 0x32;
-	public static final int C_49 = 0x31;
-	public static final int C_48 = 0x30;
+	public static final int C_SKINLIST = 0x32;
+	public static final int C_SKIN = 0x31;
+	public static final int C_SKELETON = 0x30;
 	
 	public static final int C_ANIMATION = 0x34;
-	public static final int C_ANIMATION_FRAME = 0x50;
-	public static final int C_FRAME_TRANSFORM = 0x0F;
+	public static final int C_ANIMATIONFRAME = 0x50;
+	public static final int C_FRAMETRANSFORM = 0x0F;
 	
-	public static final int C_TRANSFORM_DATA = 0x44;
-		public static final int T_TRANSFORM_INDEX = 5;
+	public static final int C_TRANSFORMDATA = 0x44;
+		public static final int T_TRANSFORM_BONE = 5;
 		public static final int T_TRANSFORM_MATRIX = 12;
 		public static final int T_TRANSFORM_FRAME = 18;
 	
 	public static class Ism2TransformData {
-		public String name1;
-		public String name2;
+		public String mesh;
 		public int type;
 		public int count;
 		public int stride;
 		short[] time;
 		float[][] data;
 		
-		public Ism2TransformData( String n1, String n2 ) {
-			name1 = n1;
-			name2 = n2;
+		public Ism2TransformData( String m ) {
+			mesh = m;
 		}
 	}
 	
@@ -70,8 +80,8 @@ public class Ism2Spec {
 			name = n;
 		}
 		
-		public Ism2TransformData addTransform( String name1, String name2 ) {
-			Ism2TransformData transform = new Ism2TransformData( name1, name2 );
+		public Ism2TransformData addTransform( String mesh ) {
+			Ism2TransformData transform = new Ism2TransformData( mesh );
 			transforms.add( transform );
 			return transform;
 		}
@@ -96,7 +106,7 @@ public class Ism2Spec {
 			for( Ism2KeyFrame kf : frames ) {
 				System.out.println( "\tFrame: " + kf.name );
 				for( Ism2TransformData t : kf.transforms ) {
-					System.out.println( "\t\tTransform: " + t.name1 );
+					System.out.println( "\t\tTransform: " + t.mesh );
 					System.out.println( "\t\tTime: " + t.time.length );
 					System.out.println( "\t\tData: " + t.data.length );
 				}
@@ -115,6 +125,26 @@ public class Ism2Spec {
 		public int vsize;
 		public int voffset;
 		public int offset;
+		
+		@Override public String toString() {
+			String res = " type ["+type+"]: ";
+			switch( type ) {
+			case T_VERTEX_POSITION: res += "position, "; break;
+			case T_VERTEX_NORMAL: res += "normal, "; break;
+			case T_VERTEX_3: res += "v3, "; break;
+			case T_VERTEX_14: res += "v14, "; break;
+			case T_VERTEX_15: res += "v15, "; break;
+			case T_WEIGHT_BONE: res += "bone, "; break;
+			case T_WEIGHT_WEIGHT: res += "weight, "; break;
+			default: res += "Unknown!, "; break;
+			}
+			res += "count: " + count + ", ";
+			res += "vtype: " + vtype + ", ";
+			res += "vsize: " + vsize + ", ";
+			res += "voffset: " + voffset + ", ";
+			res += "offset: " + offset;
+			return res;
+		}
 	}
 	
 	public static class Ism2VertexData {
@@ -146,6 +176,8 @@ public class Ism2Spec {
 	public static class Ism2Model {
 		public Ism2Texture[] textures;
 		public Ism2VertexData[] vdata;
+		public HashMap<String, String> materialToSampler = new HashMap<String, String>();
+		public HashMap<String, String> samplerToTexture = new HashMap<String, String>();
 		public HashMap<String, String> textureMap = new HashMap<String, String>();
 		public ArrayList<Ism2Mesh> meshes = new ArrayList<Ism2Mesh>();
 	}
