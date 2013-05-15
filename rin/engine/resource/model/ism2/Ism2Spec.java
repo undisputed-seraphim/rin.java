@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class Ism2Spec {
 
-	public static final int tmp = 0x15;
+	public static final int tmp = 0x14;
 	
 	public static final char[] MAGIC = new char[] { 'I', 'S', 'M', '2' };
 	
@@ -42,7 +42,16 @@ public class Ism2Spec {
 	
 	public static final int C_3 = 0x03;
 	public static final int C_4 = 0x04;
+	public static final int C_5 = 0x05;
 	public static final int C_91 = 0x5B;
+	public static final int C_92 = 0x5C;
+	public static final int C_20 = 0x14;
+	public static final int C_114 = 0x72;
+	public static final int C_115 = 0x73;
+	public static final int C_116 = 0x74;
+	public static final int C_117 = 0x75;
+	public static final int C_118 = 0x76;
+	public static final int C_119 = 0x77;
 	public static final int C_MATERIALLIST = 0x4C;
 	public static final int C_MATERIAL = 0x4B;
 	
@@ -64,7 +73,7 @@ public class Ism2Spec {
 		public int type;
 		public int count;
 		public int stride;
-		short[] time;
+		float[] time;
 		float[][] data;
 		
 		public Ism2TransformData( String m ) {
@@ -152,8 +161,8 @@ public class Ism2Spec {
 		public float[] n = new float[0];
 		public float[] t = new float[0];
 		
-		public float[][] b = new float[0][0];
-		public float[][] w = new float[0][0];
+		public float[] b = new float[0];
+		public float[] w = new float[0];
 		
 		public boolean normaled = false;
 	}

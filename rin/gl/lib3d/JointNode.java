@@ -12,6 +12,8 @@ import rin.util.math.Vec3;
 
 public class JointNode extends Node {
 	
+	private String bone;
+	
 	public static interface ReturnFloat {
 		public float get();
 	}
@@ -22,6 +24,17 @@ public class JointNode extends Node {
 	protected Mat4 joint = new Mat4();
 	protected Mat4 inverse = new Mat4();
 	protected Mat4 skin = new Mat4();
+	
+	public JointNode( String id ) { super( id ); }
+	
+	@Override
+	protected JointNode actual() { return this; }
+	
+	public String getBoneId() { return bone; }
+	public JointNode setBoneId( String id ) {
+		bone = id;
+		return this;
+	}
 	
 	public void setJointMatrix( float[] m ) {
 		joint = new Mat4( m );
@@ -41,10 +54,6 @@ public class JointNode extends Node {
 	
 	public Vec3 getTrans() {
 		return new Vec3( t[0], t[1], t[2] );
-	}
-	
-	public JointNode( String name ) {
-		super( name );
 	}
 	
 	public void applyBone( int index, Mat4 skinTransform ) {

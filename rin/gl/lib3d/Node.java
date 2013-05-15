@@ -2,22 +2,25 @@ package rin.gl.lib3d;
 
 import java.util.ArrayList;
 
+import rin.engine.system.ident.AbstractNode;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
 
-public class Node {
+public class Node extends AbstractNode<Node> {
+	
 	protected ModelScene scene;
-	protected String name;
-
-	protected Node parent;
-	protected ArrayList<Node> children = new ArrayList<Node>();
 	
 	protected Mat4 wMat = new Mat4();
 	protected Mat4 base = new Mat4();
 	protected Mat4 transform = new Mat4();
 	protected Mat4 scale = new Mat4();
 	protected Mat4 rotate = new Mat4();
+	
+	public Node( String id ) { super( id ); }
+	
+	@Override
+	protected Node actual() { return this; }
 	
 	public void setBaseMatrix( float[] m ) {
 		base = new Mat4( m );
@@ -34,27 +37,15 @@ public class Node {
 		rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();
 	}
 	
-	public Node( String n ) { name = n; }
-	
-	public ArrayList<Node> getChildren() { return children; }
-	public String getName() { return name; }
-	
+	@Override
 	public Node add( Node n ) {
 		n.scene = scene;
-		n.parent = this;
-		children.add( n );
-		scene.update();
-		return children.get( children.size() - 1 );
-	}
-	
-	public void remove( Node n ) {
-		children.remove( n );
-		scene.update();
+		return super.add( n );
 	}
 	
 	public Node find( String name ) {
 		for( Node n : children )
-			if( n.getName().equalsIgnoreCase( name ) )
+			if( n.getId().equals( name ) )
 				return n;
 		return null;
 	}

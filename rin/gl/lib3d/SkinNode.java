@@ -40,9 +40,7 @@ public class SkinNode extends Node {
 	
 	private boolean ready;
 	
-	public SkinNode( String name ) {
-		super( name );
-	}
+	public SkinNode( String name ) { super( name ); }
 	
 	public void setVertices( float[] vertices ) {
 		v = vertices;

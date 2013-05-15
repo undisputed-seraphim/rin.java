@@ -24,7 +24,7 @@ public class ModelISM2 implements Model {
 
 	@Override
 	public Actor fromContainer( ModelContainer container ) {
-		XModel x = new XModel();
+		/*XModel x = new XModel();
 		x.build( container.getVertices(), container.getNormals(), container.getTexcoords() );
 		for( Surface s : container.getSurfaces() ) {
 			if( s.getMaterial() != null ) {
@@ -35,7 +35,8 @@ public class ModelISM2 implements Model {
 				x.addPoly( s.getIndices(), tex );
 			} else x.addPoly( s.getIndices(), -1 );
 		}
-		return x;
+		return x;*/
+		return container.getActor();
 		/*Mesh mesh = new Mesh();
 		//ImageContainer tmp = container.getSurfaces().get( 0 ).getMaterial().getTexture();
 		for( Surface s : container.getSurfaces() ) {

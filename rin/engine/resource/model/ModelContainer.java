@@ -3,16 +3,17 @@ package rin.engine.resource.model;
 import java.util.ArrayList;
 
 import rin.engine.resource.ResourceContainer;
+import rin.engine.view.lib3d.UniversalActor;
 import rin.gl.lib3d.ModelScene;
 import rin.gl.lib3d.Node;
 
 public class ModelContainer extends ResourceContainer {
 
 	private ModelScene scene;
+	private UniversalActor ua = new UniversalActor();
 	
-	public ModelScene getScene() {
-		return scene;
-	}
+	public ModelScene getScene() { return scene; }
+	public UniversalActor getActor() { return ua; }
 	
 	public ModelScene startScene( Node root ) {
 		scene = new ModelScene( root );

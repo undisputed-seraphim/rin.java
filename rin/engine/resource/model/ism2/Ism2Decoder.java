@@ -2,6 +2,8 @@ package rin.engine.resource.model.ism2;
 
 import static rin.engine.resource.model.ism2.Ism2Spec.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import rin.engine.resource.Directory;
@@ -14,6 +16,11 @@ import rin.engine.resource.model.ModelOptions;
 import rin.engine.resource.model.Surface;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
+import rin.engine.view.gl.GLRenderNode;
+import rin.engine.view.lib3d.RenderNode;
+import rin.engine.view.lib3d.SkinNode;
+import rin.engine.view.lib3d.UniversalActor;
+import rin.engine.view.lib3d.JointNode;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
@@ -21,11 +28,21 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private int chunkCount;
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
+	private HashMap<Integer, JointNode> jointMap = new HashMap<Integer, JointNode>();
+	private HashMap<String, JointNode> boneToJoint = new HashMap<String, JointNode>();
+	private ArrayList<String> boneMap = new ArrayList<String>();
+	private ArrayList<float[]> poseMap = new ArrayList<float[]>();
 	private String[] stringMap;
 	
 	private String name;
 	
 	private Ism2Model cModel;
+	private UniversalActor cActor;
+	
+	private JointNode cSkelRoot;
+	private RenderNode cMeshRoot;
+	private SkinNode cMeshSkin;
+	
 	private String cSampler;
 	private Surface cSurface;
 	public Ism2Model getData() { return cModel; }
@@ -76,8 +93,10 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			stringMap[i] = readString();
 		}
 		
-		if( cModel == null )
+		if( cModel == null ) {
 			cModel = new Ism2Model();
+			cActor = mc.getActor();
+		}
 		debug( tab + "::Strings: " + ArrayUtils.asString( stringMap ) );
 	}
 	
@@ -263,6 +282,11 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i, tab + " " );
+		
+		// after skeleton is read, give the joints their default bind pose matrices
+		for( int i = 0; i < boneMap.size(); i++ ) {
+			boneToJoint.get( boneMap.get( i ) ).setInverseBindMatrix( poseMap.get( i ) );
+		}
 	}
 	
 	private void getTransformData( int offset, int hsize, String tab ) {
@@ -275,26 +299,32 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		cTransform.stride = readInt32();
 		readInt32(); //TODO: unknown
 		readInt32(); //TODO: unknown
+		debug( tab + "::type: " + cTransform.type );
+		debug( tab + "::stride: " + cTransform.stride );
 		int count = cTransform.count / cTransform.stride;
 		switch( cTransform.type ) {
 		
 		case T_TRANSFORM_BONE:
 			for( int i = 0; i < count; i++ )
-				debug( tab + "::" + stringMap[ readInt16() ] );
+				//debug( tab + "::" + stringMap[ readInt16() ] );
+				boneMap.add( stringMap[ readInt16() ] );
 			break;
 			
 		case T_TRANSFORM_MATRIX:
 			for( int i = 0; i < count; i++ )
-				debug( tab + "::" + ArrayUtils.asString( readFloat32( cTransform.stride ) ) );
+				//debug( tab + "::" + ArrayUtils.asString( readFloat32( cTransform.stride ) ) );
+				poseMap.add( readFloat32( cTransform.stride ) );
 			break;
 			
 		case T_TRANSFORM_FRAME:
-			cTransform.time = new short[count];
+			cTransform.time = new float[count];
 			cTransform.data = new float[count][cTransform.stride-1];
 			for( int i = 0; i < count; i++ ) {
-				cTransform.time[i] = readInt16();
+				cTransform.time[i] = readFloat16();
+				//debug( tab + "::time: " + cTransform.time[i] );
 				for( int j = 0; j < cTransform.stride - 1; j++ )
 					cTransform.data[i][j] = readFloat16();
+				//debug( tab + "::data: " + ArrayUtils.asString( cTransform.data[i] ) );
 			}
 			break;
 			
@@ -326,13 +356,20 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		//System.out.println( "MESH at " + offset + " " + hsize );
 		debug( tab + "MESH" );
 		int count = readInt32();
-		debug( tab + "::id: " + stringMap[ readInt32() ] );
+		String id = stringMap[readInt32()];
+		debug( tab + "::id: " + id );
 		debug( tab + "::?: " + stringMap[ readInt32() ] );
 		advance( 3 * 4 ); //unknown
+		
+		// create the root render node for this mesh
+		cMeshRoot = new GLRenderNode( id );
+		cActor.getMesh().add( cMeshRoot );
 		
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i , tab + " " );
+		
+		// add obtained vertices to mesh root
 	}
 	
 	private Ism2VertexInfo getVertexInfo( int offset ) {
@@ -418,27 +455,25 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			}
 			break;
 		case T_VERTICES_WEIGHT:
+			cVertexData.b = new float[ verts * 4 ];
+			cVertexData.w = new float[ verts * 4 ];
 			for( int i = 0; i < verts; i++ ) {
 				for( int j = 0; j < types.length; j++ ) {
 					position( start + i * types[j].vsize + types[j].voffset );
 					switch( types[j].type ) {
 					
 					case T_WEIGHT_WEIGHT:
-						/*debug.writeLine( "type 1" + " " + types[j].count );
-						debug.writeLine( readFloat32() );
-						debug.writeLine( readFloat32() );
-						debug.writeLine( readFloat32() );
-						debug.writeLine( readFloat32() );
-						debug.writeLine();*/
+						cVertexData.w[ i*4 ] = readFloat32();
+						cVertexData.w[ i*4+1 ] = readFloat32();
+						cVertexData.w[ i*4+2 ] = readFloat32();
+						cVertexData.w[ i*4+3 ] = readFloat32();
 						break;
 						
 					case T_WEIGHT_BONE:
-						/*debug.writeLine( "type 7" + " " + types[j].count );
-						debug.writeLine( readInt16() );
-						debug.writeLine( readInt16() );
-						debug.writeLine( readInt16() );
-						debug.writeLine( readInt16() );
-						debug.writeLine();*/
+						cVertexData.b[ i*4 ] = readInt16();
+						cVertexData.b[ i*4+1 ] = readInt16();
+						cVertexData.b[ i*4+2 ] = readInt16();
+						cVertexData.b[ i*4+3 ] = readInt16();
 						break;
 						
 					default:
@@ -503,6 +538,18 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			System.out.println( "UNKNOWN INDEX TYPE: " + type );
 			break;
 		}
+		
+		int[] tmp = cSurface.getIndices();
+		ArrayList<String> tmp2 = new ArrayList<String>();
+		
+		for( int i = 0; i < tmp.length; i++ ) {
+			for( int j = 0; j < 4; j++ )
+				if( cVertexData.w[tmp[i]*4+j] != 0.0f ) {
+					if( !tmp2.contains( boneMap.get( (int)cVertexData.b[tmp[i]*4+j] ) ) )
+						tmp2.add( boneMap.get( (int)cVertexData.b[tmp[i]*4+j] ) );
+				}
+		}
+		debug( tab + "::" + tmp2.size() + " bones for this set of indices: " + ArrayUtils.asString( tmp2 ) );
 	}
 	
 	private void getBoundingBox( int offset, int hsize, String tab ) {
@@ -557,12 +604,94 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			processChunk( i, tab + " " );
 	}
 	
-	private void getC91( int offset, int hsize, String tab ) {
-		debug( tab + "C91 ["+toHex(91)+"]" );
-
-		int[] offsets = getOffsets( readInt32() );
+	private void getC5( int offset, int hsize, String tab ) {
+		debug( tab + "C5 ["+toHex(5)+"]" + " " + offset );
+		int count = readInt32();
+		String id = stringMap[ readInt32() ];
+		debug( tab + "::id: " + stringMap[ readInt32() ] );
+		String bone = stringMap[ readInt32() ];
+		debug( tab + "::?: " + readInt32() );
+		int poffset = readInt32();
+		debug( tab + "::parent bone offset: " + poffset );
+		debug( tab + "::child bones: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		
+		// start the model scene if it's the first joint, otherwise add to poffset joint
+		JointNode joint = new JointNode( id );
+		jointMap.put( offset, joint );
+		boneToJoint.put( bone, joint );
+		if( cSkelRoot == null ) cSkelRoot = cActor.getSkeleton().add( joint );
+		else jointMap.get( poffset ).add( joint );
+		
+		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i, tab + " " );
+		debug( tab + "C5-END " + position() );
+	}
+	
+	private void getC91( int offset, int hsize, String tab ) {
+		debug( tab + "C91 ["+toHex(91)+"]" + " " + offset );
+
+		int[] offsets = getOffsets( readInt32() );
+		for( int i : offsets ) {
+			/*position( i );
+			int type = readInt32();
+			String prop = stringMap[ readInt32() ];
+			
+			switch( type ) {
+			case 20:
+				debug( tab + "::translate: " + ArrayUtils.asString( readFloat32( 3 ) ) );
+				break;
+			default:
+				debug( tab + "::" + prop + ": " + "[UNIMPLEMENTED] " + type );
+				break;
+			}*/
+			processChunk( i, tab + " " );
+		}
+		debug( tab + "C91-END " + position() );
+	}
+	
+	private void getC92( int offset, int hsize, String tab ) {
+		debug( tab + "C92 ["+toHex(92)+"]" );
+		
+		int[] offsets = getOffsets( readInt32() );
+		//  for( int i : offsets )
+		//	processChunk( i, tab + " " );
+		debug( tab + "C92-END " + position() );
+	}
+	
+	private void getC20( int offset, int hsize, String tab ) {
+		debug( tab + "C20 ["+toHex(20)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC114( int offset, int hsize, String tab ) {
+		debug( tab + "C114 ["+toHex(114)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC115( int offset, int hsize, String tab ) {
+		debug( tab + "C115 ["+toHex(115)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC116( int offset, int hsize, String tab ) {
+		debug( tab + "C116 ["+toHex(116)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC117( int offset, int hsize, String tab ) {
+		debug( tab + "C117 ["+toHex(117)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC118( int offset, int hsize, String tab ) {
+		debug( tab + "C118 ["+toHex(118)+"]" + stringMap[ hsize ] + " " + offset );
+	}
+	
+	private void getC119( int offset, int hsize, String tab ) {
+		debug( tab + "C119 ["+toHex(119)+"]" + stringMap[ hsize ] + " " + offset );
 	}
 	
 	private void getMaterialList( int offset, int hsize, String tab ) {
@@ -685,7 +814,16 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		
 		case C_3: getC3( offset, hsize, tab ); break;
 		case C_4: getC4( offset, hsize, tab ); break;
+		case C_5: getC5( offset, hsize, tab ); break;
 		case C_91: getC91( offset, hsize, tab ); break;
+		case C_92: getC92( offset, hsize, tab ); break;
+		case C_20: getC20( offset, hsize, tab ); break;
+		case C_114: getC114( offset, hsize, tab ); break;
+		case C_115: getC115( offset, hsize, tab ); break;
+		case C_116: getC116( offset, hsize, tab ); break;
+		case C_117: getC117( offset, hsize, tab ); break;
+		case C_118: getC118( offset, hsize, tab ); break;
+		case C_119: getC119( offset, hsize, tab ); break;
 		case C_MATERIALLIST: getMaterialList( offset, hsize, tab ); break;
 		case C_MATERIAL: getMaterial( offset, hsize, tab ); break;
 		

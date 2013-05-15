@@ -1,22 +1,23 @@
 package rin.gl.lib3d;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class ModelScene extends Poly implements Iterable<Node> {
+import rin.engine.system.ident.NodeTree;
 
-	private Node root;
+public class ModelScene extends Poly {
+
 	protected boolean ready = false;
 	private double dt = 0;
 	private long start;
-	private List<Node> stack = new ArrayList<Node>();
 	private List<Animation> animations = new ArrayList<Animation>();
 	private Animation currentAnimation;
 	
+	private NodeTree<Node> tree;
+	
 	public ModelScene( Node r ) {
 		r.scene = this;
-		root = r;
+		tree = new NodeTree<Node>( r, true );
 	}
 	
 	public Animation getCurrentAnimation() {
@@ -31,64 +32,15 @@ public class ModelScene extends Poly implements Iterable<Node> {
 	}
 	
 	public Node getRoot() {
-		return root;
+		return tree.getRoot();
 	}
 	
 	public void ready() {
 		ready = true;
 		start = System.currentTimeMillis();
-		update();
 	}
 	
-	public void update() {
-		if( ready )
-			getNodeList();
-	}
-	
-	public Node find( String name ) {
-		if( !ready ) getNodeList();
-		for( Node n : this )
-			if( n.getName().equalsIgnoreCase( name ) )
-				return n;
-		return null;
-	}
-	
-	public void getNodeList() {
-		stack = new ArrayList<Node>();
-		stack.addAll( addToList( root ) );
-	}
-	
-	private List<Node> addToList( Node n ) {
-		stack.add( n );
-		
-		for( Node nc : n.children )
-			addToList( nc );
-		
-		return stack;
-	}
-	
-	@Override
-	public Iterator<Node> iterator() {
-		return new Iterator<Node>() {
-			private int count = 0;
-			private int size = stack.size();
-			
-			@Override
-			public boolean hasNext() {
-				return count < size;
-			}
-			
-			@Override
-			public Node next() {
-				return stack.get( count++ );
-			}
-
-			@Override
-			public void remove() {
-				/* nope */
-			}
-		};
-	}
+	public Node find( String name ) { return tree.find( name ); }
 	
 	private void updateDt() {
 		long ms = System.currentTimeMillis();
@@ -102,10 +54,10 @@ public class ModelScene extends Poly implements Iterable<Node> {
 		if( currentAnimation != null )
 			currentAnimation.update( dt );
 		
-		for( Node n : this )
+		for( Node n : tree )
 			n.update( dt );
 		
-		for( Node n : this )
+		for( Node n : tree )
 			n.render();
 	}
 }
