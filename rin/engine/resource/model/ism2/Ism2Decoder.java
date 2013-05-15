@@ -53,6 +53,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	private void chunkList() {
 		debug( "CHUNKLIST" );
 		chunkOffsets.clear();
+		
 		for( int i = 0; i < chunkCount; i++ ) {
 			int id = readInt32();
 			int offset = readInt32();
@@ -75,9 +76,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			stringMap[i] = readString();
 		}
 		
-		if( cModel == null ) {
+		if( cModel == null )
 			cModel = new Ism2Model();
-		}
 		debug( tab + "::Strings: " + ArrayUtils.asString( stringMap ) );
 	}
 	

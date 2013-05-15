@@ -1,3 +1,5 @@
+#version 120
+
 attribute vec4 vertex;
 attribute vec4 color;
 attribute vec4 normal;
@@ -13,8 +15,8 @@ varying vec4 vColor;
 varying vec4 vNormal;
 varying vec4 vTexture;
 
-uniform vec4 quats[150];
-uniform vec3 trans[150];
+uniform vec4 quats[200];
+uniform vec3 trans[200];
 
 varying vec4 vTransformedNormal;
 
