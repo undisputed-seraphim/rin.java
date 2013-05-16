@@ -17,10 +17,7 @@ public class SkinNode extends RenderNode {
 	public void addJoint( JointNode jn ) { joints.add( jn ); }
 	
 	@Override
-	public void update( double dt ) {
+	public void render() {
 		
 	}
-	
-	@Override
-	public void render() {}
 }

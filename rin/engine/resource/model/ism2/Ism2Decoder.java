@@ -16,9 +16,7 @@ import rin.engine.resource.model.ModelOptions;
 import rin.engine.resource.model.Surface;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
-import rin.engine.view.gl.GLRenderNode;
-import rin.engine.view.lib3d.RenderNode;
-import rin.engine.view.lib3d.SkinNode;
+import rin.engine.view.gl.GLSkinNode;
 import rin.engine.view.lib3d.UniversalActor;
 import rin.engine.view.lib3d.JointNode;
 
@@ -38,10 +36,11 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private Ism2Model cModel;
 	private UniversalActor cActor;
+	private JointNode cJoint;
 	
 	private JointNode cSkelRoot;
-	private RenderNode cMeshRoot;
-	private SkinNode cMeshSkin;
+	private GLSkinNode cMeshRoot;
+	private ArrayList<String> skinNodes = new ArrayList<String>();
 	
 	private String cSampler;
 	private Surface cSurface;
@@ -302,20 +301,16 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "::type: " + cTransform.type );
 		debug( tab + "::stride: " + cTransform.stride );
 		int count = cTransform.count / cTransform.stride;
-		switch( cTransform.type ) {
 		
+		switch( cTransform.type ) {
 		case T_TRANSFORM_BONE:
 			for( int i = 0; i < count; i++ )
-				//debug( tab + "::" + stringMap[ readInt16() ] );
 				boneMap.add( stringMap[ readInt16() ] );
 			break;
-			
 		case T_TRANSFORM_MATRIX:
 			for( int i = 0; i < count; i++ )
-				//debug( tab + "::" + ArrayUtils.asString( readFloat32( cTransform.stride ) ) );
 				poseMap.add( readFloat32( cTransform.stride ) );
 			break;
-			
 		case T_TRANSFORM_FRAME:
 			cTransform.time = new float[count];
 			cTransform.data = new float[count][cTransform.stride-1];
@@ -327,7 +322,6 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				//debug( tab + "::data: " + ArrayUtils.asString( cTransform.data[i] ) );
 			}
 			break;
-			
 		default:
 			exitWithError( "UNKOWN transform TYPE " + cTransform.type );
 			break;
@@ -335,8 +329,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	}
 	
 	private void getMeshList( int offset, int hsize, String tab ) {
+		//System.out.println( "MESHLIST at " + offset + " " + hsize );
 		debug( tab + "MESHLIST" );
-		System.out.println( "MESHLIST at " + offset + " " + hsize );
 		int count = readInt32();
 		
 		cModel.vdata = new Ism2VertexData[ count ];
@@ -362,7 +356,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		advance( 3 * 4 ); //unknown
 		
 		// create the root render node for this mesh
-		cMeshRoot = new GLRenderNode( id );
+		cMeshRoot = new GLSkinNode( id );
 		cActor.getMesh().add( cMeshRoot );
 		
 		int[] offsets = getOffsets( count );
@@ -370,6 +364,11 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			processChunk( i , tab + " " );
 		
 		// add obtained vertices to mesh root
+		cMeshRoot.setVertices( cVertexData.v );
+		cMeshRoot.setNormals( cVertexData.n );
+		cMeshRoot.setTexcoords( cVertexData.t );
+		cMeshRoot.setBoneIndices( cVertexData.b );
+		cMeshRoot.setBoneWeights( cVertexData.w );
 	}
 	
 	private Ism2VertexInfo getVertexInfo( int offset ) {
@@ -503,7 +502,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				texture = cModel.textureMap.get( tex );
 			} else texture = "";
 		} else texture = "";
-		cSurface = mc.addSurface( texture );
+		skinNodes.add( texture );
 		readInt32( 2 ); //TODO: unknown
 		readInt32();
 		debug( tab + "::texture: " + texture );
@@ -519,12 +518,13 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		int count = readInt32();
 		int type = readInt32();
 		debug( tab + "::?: " + readInt32() );
+		int[] in = new int[count];
 		
 		switch( type ) {
 		
 		case 5:
 			System.out.println( "index type 5" );
-			cSurface.setIndices( readUInt16( count ) );
+			in = readUInt16( count );
 			break;
 			
 		case 7:
@@ -539,7 +539,17 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			break;
 		}
 		
-		int[] tmp = cSurface.getIndices();
+		GLSkinNode skin = new GLSkinNode( skinNodes.get( skinNodes.size() - 1 ) );
+		skin.setIndices( in );
+		
+		// add the needed joints to the skin node
+		for( int i = 0; i < in.length; i++ )
+			for( int j = 0; j < 4; j++ )
+				if( cVertexData.w[in[i]*4+j] != 0.0f )
+					skin.addJoint( boneToJoint.get( boneMap.get( (int)cVertexData.b[in[i]*4+j] ) ), (int)cVertexData.b[in[i]*4+j] );
+		
+		cMeshRoot.add( skin );
+		/*int[] tmp = cSurface.getIndices();
 		ArrayList<String> tmp2 = new ArrayList<String>();
 		
 		for( int i = 0; i < tmp.length; i++ ) {
@@ -549,7 +559,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 						tmp2.add( boneMap.get( (int)cVertexData.b[tmp[i]*4+j] ) );
 				}
 		}
-		debug( tab + "::" + tmp2.size() + " bones for this set of indices: " + ArrayUtils.asString( tmp2 ) );
+		debug( tab + "::" + tmp2.size() + " bones for this set of indices: " + ArrayUtils.asString( tmp2 ) );*/
 	}
 	
 	private void getBoundingBox( int offset, int hsize, String tab ) {
@@ -628,11 +638,10 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		boneToJoint.put( bone, joint );
 		if( cSkelRoot == null ) cSkelRoot = cActor.getSkeleton().add( joint );
 		else jointMap.get( poffset ).add( joint );
-		
+		cJoint = joint;
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i, tab + " " );
-		debug( tab + "C5-END " + position() );
 	}
 	
 	private void getC91( int offset, int hsize, String tab ) {
@@ -668,6 +677,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private void getC20( int offset, int hsize, String tab ) {
 		debug( tab + "C20 ["+toHex(20)+"]" + stringMap[ hsize ] + " " + offset );
+		cJoint.setJointTranslation( readFloat32( 3 ) );
 	}
 	
 	private void getC114( int offset, int hsize, String tab ) {
@@ -738,7 +748,11 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		cAnimation = new Ism2Animation( name );
 		
 		int count = readInt32();
-		advance( 20 );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
+		debug( tab + "::?: " + readInt32() );
 		
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
@@ -908,13 +922,15 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		if( dir.containsDirectory( opts.getTextureDirectory() ) ) {
 			Directory textureDir = dir.getDirectory( opts.getTextureDirectory() );
 			if( textureDir != null ) {
-				for( Surface s : mc.getSurfaces() ) {
-					String tex = s.getName() + ".tid";
+				for( String s : skinNodes ) {
+					GLSkinNode sk = (GLSkinNode)cMeshRoot.find( s );
+					String tex = sk.getId() + ".tid";
 					if( textureDir.containsResource( tex ) ) {
 						Resource texture = textureDir.getResource( tex );
 						ImageContainer ic = FormatManager.decodeImage( texture );
+						ic.setName( texture.getPath() );
 						if( ic != null ) {
-							s.setMaterial( ic );
+							sk.setTexture( ic );
 						}
 					}
 				}

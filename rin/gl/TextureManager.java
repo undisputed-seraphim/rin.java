@@ -14,6 +14,7 @@ import static org.lwjgl.opengl.GL20.*;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
+import rin.engine.resource.image.ImageContainer;
 import rin.gl.GL;
 import rin.util.Buffer;
 import rin.util.IO;
@@ -60,6 +61,10 @@ public class TextureManager {
 		TextureManager.ids.add( gl );
 		TextureManager.uses.add( 0 );
 		return gl;
+	}
+	
+	public static int load( ImageContainer ic ) {
+		return load( ic.getName(), ic.getWidth(), ic.getHeight(), ic.getFormat().getStride(), ic.getData() );
 	}
 	
 	public static int load( String file, int width, int height, int stride, short[] rawData ) {
