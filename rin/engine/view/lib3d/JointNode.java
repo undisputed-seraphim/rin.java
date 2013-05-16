@@ -14,24 +14,68 @@ public class JointNode extends SceneNode<JointNode> {
 	protected Mat4 inverse = new Mat4();
 	protected Mat4 skin = new Mat4();
 	
+	protected float[] trans = new float[3];
+	protected float[] rotateX = new float[4];
+	protected float[] rotateY = new float[4];
+	protected float[] rotateZ = new float[4];
+	
+	protected Quat4 orient = new Quat4();
+	protected Quat4 rotate = new Quat4();
+	
 	public JointNode( String id ) { super( id ); }
 	@Override public JointNode actual() { return this; }
 	
 	public void setJointMatrix( float[] m ) { joint = new Mat4( m ); }
-	public void setJointTranslation( float[] t ) { joint = Mat4.multiply( Mat4.translate( new Mat4(), new Vec3( t[0], t[1], t[2] ) ), joint ); }
+	public void setJointTranslation( float[] t ) { trans = t; }
+	public void setJointRotateX( float[] r ) { rotateX = r; }
+	public void setJointRotateY( float[] r ) { rotateY = r; }
+	public void setJointRotateZ( float[] r ) { rotateZ = r; }
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
 	public void applyBone( int index ) {
-		skin = Mat4.multiply( world, inverse );
-		Quat4 q = skin.toQuat4();
-		Vec3 t = new Vec3( skin.m[3], skin.m[7], skin.m[11] );
+		//skin = Mat4.multiply( orient.toMat4(), inverse );
+		//skin = Mat4.multiply( skin, Mat4.translate( new Mat4(), new Vec3( trans[0], trans[1], trans[2] ) ) );
+		//Quat4 q = skin.toQuat4();
+		//Vec3 t = new Vec3( skin.m[3], skin.m[7], skin.m[11] );
+		//w = Mat4.multiply( w, inverse );
+
+		world = Mat4.multiply( joint, inverse );
+		Quat4 q = world.toQuat4();
 		glUniform4f( GL.getUniform( "quats["+index+"]" ), q.x, q.y, q.z, q.w );
-		glUniform3f( GL.getUniform( "trans["+index+"]" ), t.x, t.y, t.z );
+		glUniform3f( GL.getUniform( "trans["+index+"]" ), world.m[3], world.m[7], world.m[11] );
+		
+		
+		
+		/*Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
+		if( cAnimation != null ) {
+			Frame cFrame = cAnimation.getFrame( getId() );
+			if( cFrame != null ) {
+				cFrame.getCurrentTranslation();
+			}
+		}
+
+		Mat4 m = orient.toMat4();
+		glUniform4f( GL.getUniform( "quats["+index+"]" ), orient.x, orient.y, orient.z, orient.w );
+		glUniform3f( GL.getUniform( "trans["+index+"]" ), m.m[3], m.m[7], m.m[11] );*/
 	}
 	
-	public void update( double dt ) {
-		if( parent != tree.getRoot() && parent != null )
-			world = Mat4.multiply( parent.world, joint );
-		else world = joint;
+	public void finish() {
+		rotate = Quat4.multiply( Quat4.multiply( new Quat4( rotateX ), new Quat4( rotateY ) ), new Quat4( rotateZ ) );
+		joint = rotate.toMat4();
+		joint = Mat4.multiply( joint, Mat4.translate( new Mat4(), new Vec3( trans[0], trans[1], trans[2] ) ) );
+		//if( parent != null && parent != tree.getRoot() )
+		//	orient = Quat4.multiply( parent.orient, rotate );
+	}
+	
+	public void update( double dt ) {		
+		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
+		if( cAnimation != null ) {
+			Frame cFrame = cAnimation.getFrame( getId() );
+			if( cFrame != null ) {
+				//w = Mat4.multiply( new Mat4(), cFrame.getCurrentRotation().toMat4() );
+				//world = Mat4.multiply( world, Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ) );
+			}
+		}
+		//world = Mat4.multiply( world, inverse );
 	}
 }

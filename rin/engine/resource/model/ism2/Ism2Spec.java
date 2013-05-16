@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class Ism2Spec {
 
-	public static final int tmp = 0x14;
+	public static final int tmp = 0x70;
 	
 	public static final char[] MAGIC = new char[] { 'I', 'S', 'M', '2' };
 	
@@ -46,12 +46,20 @@ public class Ism2Spec {
 	public static final int C_91 = 0x5B;
 	public static final int C_92 = 0x5C;
 	public static final int C_20 = 0x14;
+	public static final int C_103 = 0x67;
+	public static final int C_104 = 0x68;
+	public static final int C_105 = 0x69;
 	public static final int C_114 = 0x72;
 	public static final int C_115 = 0x73;
 	public static final int C_116 = 0x74;
 	public static final int C_117 = 0x75;
 	public static final int C_118 = 0x76;
 	public static final int C_119 = 0x77;
+	public static final int C_122 = 0x7A;
+	public static final int C_123 = 0x7B;
+	public static final int C_124 = 0x7C;
+	public static final int C_125 = 0x7D;
+	public static final int C_126 = 0x7E;
 	public static final int C_MATERIALLIST = 0x4C;
 	public static final int C_MATERIAL = 0x4B;
 	
@@ -67,6 +75,11 @@ public class Ism2Spec {
 		public static final int T_TRANSFORM_BONE = 5;
 		public static final int T_TRANSFORM_MATRIX = 12;
 		public static final int T_TRANSFORM_FRAME = 18;
+			public static final int T_FRAME_TRANSLATE = 1;
+			public static final int T_FRAME_ROTATEX = 2;
+			public static final int T_FRAME_ROTATEY = 3;
+			public static final int T_FRAME_ROTATEZ = 4;
+			public static final int T_FRAME_SCALE = 5;
 	
 	public static class Ism2TransformData {
 		public String mesh;
@@ -180,6 +193,11 @@ public class Ism2Spec {
 		public Ism2Mesh( String n ) {
 			name = n;
 		}
+	}
+	
+	public static class Ism2Frame {
+		public String joint;
+		public int type;
 	}
 	
 	public static class Ism2Model {

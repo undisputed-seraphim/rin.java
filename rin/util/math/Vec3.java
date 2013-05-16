@@ -13,6 +13,12 @@ public class Vec3 {
 		this( 0.0f, 0.0f, 0.0f );
 	}
 	
+	public Vec3( float[] v ) {
+		x = v[0];
+		y = v[1];
+		z = v[2];
+	}
+	
 	/* constructor used by create methods */
 	public Vec3( float x, float y, float z ) {
 		this.x = x;
@@ -96,5 +102,9 @@ public class Vec3 {
 	/* returns a string representation of the vector */
 	public String toString() {
 		return "vec3[ " + x + " " + y + " " + z + " ]";
+	}
+	
+	public static Vec3 lerp( Vec3 v, Vec3 w, float dt ) {
+		return new Vec3( v.x*(1-dt) + w.x*dt, v.y*(1-dt) + w.y*dt, v.z*(1-dt) + w.z*dt );
 	}
 }

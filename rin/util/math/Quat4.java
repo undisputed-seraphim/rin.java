@@ -10,6 +10,13 @@ public class Quat4 {
 		this( 0.0f, 0.0f, 0.0f, 1.0f );
 	}
 	
+	public Quat4( float[] q ) {
+		x = q[0];
+		y = q[1];
+		z = q[2];
+		w = q[3];
+	}
+	
 	/* constructor used by create methods */
 	public Quat4( float x, float y, float z, float w ) {
 		this.x = x;
@@ -101,5 +108,32 @@ public class Quat4 {
 		String str = "quat4[ ";
 		str += this.x + " " + this.y + " " + this.z + " " + this.w;
 		return str + " ]";
+	}
+	
+	public static float dot( Quat4 q, Quat4 r ) {
+		return q.x*r.x + q.x*r.x + q.x*r.x + q.x*r.x;
+	}
+	
+	public static Quat4 slerp( Quat4 q, Quat4 r, float t ) {
+		Quat4 s = new Quat4( r.x, r.y, r.z, r.w );
+		float dot = dot( q, s );
+		if( dot < 0 ) {
+			s.x = -s.x;
+			s.y = -s.y;
+			s.z = -s.z;
+			dot = -dot;
+		}
+		
+		if( Math.abs( dot ) >= 1.0 )
+			return q;
+		
+		double halfTheta = Math.acos( dot );
+		double sinHalfTheta = Math.sqrt( 1.0 - dot * dot );
+		if( Math.abs( sinHalfTheta ) < 0 )
+			return new Quat4( (float)(q.x*0.5+s.x*0.5),(float)(q.y*0.5+s.y*0.5),(float)(q.z*0.5+s.z*0.5),(float)(q.w*0.5+s.w*0.5) );
+		double a = Math.sin( (1-t) * halfTheta ) / sinHalfTheta;
+		double b = Math.sin( t * halfTheta ) / sinHalfTheta;
+		return new Quat4( (float)(q.x*a+s.x*b), (float)(q.y*a+s.y*b), (float)(q.z*a+s.z*b), (float)(q.w*a+s.w*b) );
+		
 	}
 }

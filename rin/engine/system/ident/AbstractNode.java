@@ -39,6 +39,9 @@ public abstract class AbstractNode<T extends AbstractNode<T>> {
 	}
 	
 	public T find( String id ) {
+		if( name.equals( id ) )
+			return actual();
+		
 		for( T t : children )
 			if( t.getId().equals( id ) )
 				return t;

@@ -10,14 +10,9 @@ import rin.gl.lib3d.Poly;
 public class UniversalActor extends Poly {
 	private Skeleton skel = new Skeleton( new JointNode( "$r__skel$root" ), true );
 	private Mesh mesh = new Mesh( new RenderNode( "$r__mesh$root" ), true );
-	private ArrayList<Animation> animations = new ArrayList<Animation>();
 	
 	public Skeleton getSkeleton() { return skel; }	
 	public Mesh getMesh() { return mesh; }
-	public Animation addAnimation( String id ) {
-		animations.add( new Animation( id ) );
-		return animations.get( animations.size() - 1 );
-	}
 	
 	@Override
 	public void render() { render( false ); }
