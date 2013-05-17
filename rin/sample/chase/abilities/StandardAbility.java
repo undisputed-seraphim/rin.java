@@ -1,13 +1,13 @@
 package rin.sample.chase.abilities;
 
-import rin.engine.game.ability.Ability;
-import rin.engine.game.ability.AbilityEffect;
+import rin.engine.game.ability.AbstractAbility;
+import rin.engine.game.ability.AbstractAbilityEffect;
 import rin.engine.game.ability.AbilityTarget;
 
-public class StandardAbility implements Ability {
+public class StandardAbility extends AbstractAbility {
 
 	private AbilityTarget abilityTarget;
-	private AbilityEffect<?> abilityEffect;
+	private AbstractAbilityEffect abilityEffect;
 	
 	@Override
 	public StandardAbility setTarget( AbilityTarget target ) {
@@ -16,7 +16,7 @@ public class StandardAbility implements Ability {
 	}
 
 	@Override
-	public StandardAbility setEffect( AbilityEffect<?> effect ) {
+	public StandardAbility setEffect( AbstractAbilityEffect effect ) {
 		abilityEffect = effect;
 		return this;
 	}

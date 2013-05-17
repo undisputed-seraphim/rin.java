@@ -38,10 +38,10 @@ public class JointNode extends SceneNode<JointNode> {
 		//Quat4 q = skin.toQuat4();
 		//Vec3 t = new Vec3( skin.m[3], skin.m[7], skin.m[11] );
 		//w = Mat4.multiply( w, inverse );
-
-		world = Mat4.multiply( joint, inverse );
+		world = rotate.toMat4();
+		//world = Mat4.multiply( joint, world );
 		Quat4 q = world.toQuat4();
-		glUniform4f( GL.getUniform( "quats["+index+"]" ), q.x, q.y, q.z, q.w );
+		glUniform4f( GL.getUniform( "quats["+index+"]" ), rotate.x, rotate.y, rotate.z, rotate.w );
 		glUniform3f( GL.getUniform( "trans["+index+"]" ), world.m[3], world.m[7], world.m[11] );
 		
 		
@@ -60,18 +60,24 @@ public class JointNode extends SceneNode<JointNode> {
 	}
 	
 	public void finish() {
-		rotate = Quat4.multiply( Quat4.multiply( new Quat4( rotateX ), new Quat4( rotateY ) ), new Quat4( rotateZ ) );
-		joint = rotate.toMat4();
-		joint = Mat4.multiply( joint, Mat4.translate( new Mat4(), new Vec3( trans[0], trans[1], trans[2] ) ) );
-		//if( parent != null && parent != tree.getRoot() )
-		//	orient = Quat4.multiply( parent.orient, rotate );
+		orient = Quat4.multiply( Quat4.multiply( new Quat4( rotateX ), new Quat4( rotateY ) ), new Quat4( rotateZ ) );
+		//joint = rotate.toMat4();
+		joint = Mat4.translate( new Mat4(), new Vec3( trans[0], trans[1], trans[2] ) );
+		if( parent != null && parent != tree.getRoot() ) {
+			orient = Quat4.multiply( parent.orient, orient );
+			joint = Mat4.translate( new Mat4(), Vec3.add( new Vec3( trans[0], trans[1], trans[2] ) , new Vec3( parent.trans[0], parent.trans[1], parent.trans[2] ) ) );
+		}
 	}
 	
-	public void update( double dt ) {		
+	public void update( double dt ) {
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
 			if( cFrame != null ) {
+				rotate = Quat4.multiply( orient, cFrame.getCurrentRotation() );
+				if( parent != null && parent != tree.getRoot() ) {
+					rotate = Quat4.multiply( parent.rotate, rotate );
+				}
 				//w = Mat4.multiply( new Mat4(), cFrame.getCurrentRotation().toMat4() );
 				//world = Mat4.multiply( world, Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ) );
 			}

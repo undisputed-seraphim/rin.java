@@ -3,22 +3,25 @@ package rin.engine.game.ability;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class AbilityEffectList implements AbilityEffect<AbilityTarget>, Iterable<AbilityEffect<AbilityTarget>> {
+public class AbilityEffectList extends AbstractAbilityEffect implements Iterable<AbstractAbilityEffect> {
 
-	ArrayList<AbilityEffect<AbilityTarget>> effects = new ArrayList<AbilityEffect<AbilityTarget>>();
-	public AbilityEffectList add( AbilityEffect<AbilityTarget> effect ) {
+	ArrayList<AbstractAbilityEffect> effects = new ArrayList<AbstractAbilityEffect>();
+	public AbilityEffectList add( AbstractAbilityEffect effect ) {
 		effects.add( effect );
 		return this;
 	}
 	
 	@Override
-	public void process( AbilityTarget target ) {
-		for( AbilityEffect<AbilityTarget> eff : effects )
-			eff.process( target );
+	public AbilityTarget getTarget() { return target; }
+	
+	@Override
+	public void process() {
+		for( AbstractAbilityEffect eff : effects )
+			eff.setTarget( getTarget() ).process();
 	}
 
 	@Override
-	public Iterator<AbilityEffect<AbilityTarget>> iterator() {
+	public Iterator<AbstractAbilityEffect> iterator() {
 		return effects.iterator();
 	}
 	

@@ -1,9 +1,8 @@
 package rin.sample.chase.abilities.effects;
 
-import rin.engine.game.ability.AbilityEffect;
-import rin.sample.chase.abilities.StandardAbilityTarget;
+import rin.sample.chase.abilities.StandardAbilityEffect;
 
-public class StatusEffect implements AbilityEffect<StandardAbilityTarget> {
+public class StatusEffect extends StandardAbilityEffect {
 
 	public static final int HEALTHY = 0;
 	public static final int POISON = 1;
@@ -15,8 +14,8 @@ public class StatusEffect implements AbilityEffect<StandardAbilityTarget> {
 	public int getType() { return effect; }
 	
 	@Override
-	public void process( StandardAbilityTarget target ) {
-		target.status( this );
+	public void process() {
+		getTarget().status( this );
 	}
 
 }

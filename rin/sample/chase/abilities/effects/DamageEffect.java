@@ -1,16 +1,15 @@
 package rin.sample.chase.abilities.effects;
 
-import rin.engine.game.ability.AbilityEffect;
-import rin.sample.chase.abilities.StandardAbilityTarget;
+import rin.sample.chase.abilities.StandardAbilityEffect;
 
-public class DamageEffect implements AbilityEffect<StandardAbilityTarget> {
+public class DamageEffect extends StandardAbilityEffect {
 
 	private int magnitude;
 	public DamageEffect( int amount ) { magnitude = amount; }
-	
+
 	@Override
-	public void process( StandardAbilityTarget target ) {
-		target.damage( magnitude );
+	public void process() {
+		getTarget().damage( magnitude );
 	}
 
 }

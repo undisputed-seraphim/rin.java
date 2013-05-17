@@ -328,6 +328,9 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			}
 			switch( cFrameType ) {
 			case T_FRAME_TRANSLATE: cFrame.setTranslateData( time, data ); break;
+			case T_FRAME_ROTATEX: cFrame.setRotateXData( time, data ); break;
+			case T_FRAME_ROTATEY: cFrame.setRotateYData( time, data ); break;
+			case T_FRAME_ROTATEZ: cFrame.setRotateZData( time, data ); break;
 			default:
 				System.out.println( "UNKNOWN ANIMATION FRAME TYPE: " + cFrameType );
 				break;

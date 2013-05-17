@@ -12,9 +12,9 @@ public class AbilityTargetList implements AbilityTarget, Iterable<AbilityTarget>
 	}
 	
 	@Override
-	public void apply( AbilityEffect<?> effect ) {
+	public void apply( AbstractAbilityEffect effect ) {
 		for( AbilityTarget ab : targets )
-			ab.apply( effect );
+			ab.apply( effect.setTarget( ab ) );
 	}
 	
 	@Override
