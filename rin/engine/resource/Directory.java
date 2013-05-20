@@ -3,8 +3,30 @@ package rin.engine.resource;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class Directory extends ResourcePointer {
+	
+	private static final class DirectoryIterable implements Iterable<Directory> {
+		public Iterator<Directory> iterator;
+		public synchronized DirectoryIterable setIterator( Directory[] d ) {
+			iterator = Arrays.asList( d ).iterator();
+			return this;
+		}
+		@Override
+		public synchronized Iterator<Directory> iterator() { return iterator; }
+	} static final DirectoryIterable DIR_ITERABLE = new DirectoryIterable();
+	
+	private static final class ResourceIterable implements Iterable<Resource> {
+		public Iterator<Resource> iterator;
+		public synchronized ResourceIterable setIterator( Resource[] d ) {
+			iterator = Arrays.asList( d ).iterator();
+			return this;
+		}
+		@Override
+		public synchronized Iterator<Resource> iterator() { return iterator; }
+	} static final ResourceIterable RES_ITERABLE = new ResourceIterable();
 	
 	private static final FileFilter ONLY_DIRS = new FileFilter() {
 		@Override public boolean accept( File file ) {
@@ -48,7 +70,9 @@ public class Directory extends ResourcePointer {
 		};
 	}
 	
-	public Directory( File file ) {
+	public Directory() { super( null ); }
+	
+	protected Directory( File file ) {
 		super( file );
 	}
 	
@@ -103,6 +127,14 @@ public class Directory extends ResourcePointer {
 		throw new IllegalArgumentException();
 	}
 	
+	public Iterable<Directory> dirs() {
+		return DIR_ITERABLE.setIterator( getDirectories() );
+	}
+	
+	public Iterable<Directory> dirs( String pattern ) {
+		return DIR_ITERABLE.setIterator( getDirectories( pattern ) );
+	}
+	
 	public boolean containsResource( String name ) {
 		if( name == null )
 			return target.listFiles( ONLY_FILES ).length == 0;
@@ -153,6 +185,14 @@ public class Directory extends ResourcePointer {
 	public Resource[] getResourcesByExtension( String ext ) {
 		if( ext.indexOf( "." ) != 0 ) ext = "."+ext;
 		return getResources( getResourceExtensionFilter( ext ) );
+	}
+	
+	public Iterable<Resource> resources() {
+		return RES_ITERABLE.setIterator( getResources() );
+	}
+	
+	public Iterable<Resource> resources( String pattern ) {
+		return RES_ITERABLE.setIterator( getResources( pattern ) );
 	}
 	
 	public Resource createResource( String name ) {

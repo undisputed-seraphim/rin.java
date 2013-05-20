@@ -57,7 +57,7 @@ public class JointNode extends Node {
 	}
 	
 	public void applyBone( int index, Mat4 skinTransform ) {
-		super.update();
+		//super.update();
 		//transform = Mat4.multiply( transform, joint );
 		//if( parent != null ) transform = Mat4.multiply( parent.transform, transform );
 		//skin = transform;
@@ -66,16 +66,17 @@ public class JointNode extends Node {
 		//skin = Mat4.multiply( skin, skinTransform );
 		//wMat = Mat4.multiply( parent.transform, transform );
 		//skin = Mat4.multiply( wMat, inverse );
-		skin = wMat;
-		Quat4 qu = skin.toQuat4();
+		//skin = wMat;
+		wMat = Mat4.multiply( skin, inverse );
+		Quat4 qu = wMat.toQuat4();
 		q[0] = qu.x;
 		q[1] = qu.y;
 		q[2] = qu.z;
 		q[3] = qu.w;
 		
-		t[0] = skin.m[ 3];
-		t[1] = skin.m[ 7];
-		t[2] = skin.m[11];
+		t[0] = wMat.m[ 3];
+		t[1] = wMat.m[ 7];
+		t[2] = wMat.m[11];
 		glUniform4f( GL.getUniform( "quats["+index+"]" ), q[0], q[1], q[2], q[3] );
 		glUniform3f( GL.getUniform( "trans["+index+"]" ), t[0], t[1], t[2] );
 	}
@@ -83,9 +84,9 @@ public class JointNode extends Node {
 	@Override
 	public void update( double dt ) {
 		super.update( dt );
+		skin = new Mat4( base );
 		if( parent instanceof JointNode )
-			wMat = Mat4.multiply( parent.wMat, base );
-		else wMat = base;
+			skin = Mat4.multiply( ((JointNode)parent).skin, skin );
 		
 		//wMat = Mat4.multiply( parent.base, base );
 		/* update bones world transform based on parents world transform */

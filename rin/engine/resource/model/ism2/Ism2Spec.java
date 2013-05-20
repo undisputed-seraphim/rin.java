@@ -46,6 +46,9 @@ public class Ism2Spec {
 	public static final int C_91 = 0x5B;
 	public static final int C_92 = 0x5C;
 	public static final int C_20 = 0x14;
+	public static final int C_93 = 0x5D;
+	public static final int C_94 = 0x5E;
+	public static final int C_95 = 0x5F;
 	public static final int C_103 = 0x67;
 	public static final int C_104 = 0x68;
 	public static final int C_105 = 0x69;

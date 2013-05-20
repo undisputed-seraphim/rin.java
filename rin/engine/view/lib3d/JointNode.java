@@ -2,7 +2,6 @@ package rin.engine.view.lib3d;
 
 import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniform4f;
-import rin.engine.lib.gui.RPauseDialog;
 import rin.gl.GL;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
@@ -35,6 +34,10 @@ public class JointNode extends SceneNode<JointNode> {
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
 	public void applyBone( int index ) {
+		Mat4 inv = new Mat4( inverse );
+		if( parent != null && parent != tree.getRoot() ) {
+			//inv = Mat4.multiply( parent.inverse, inverse );
+		}
 		world = Mat4.multiply( skin, inverse );
 		Quat4 q = world.toQuat4();
 		glUniform4f( GL.getUniform( "quats["+index+"]" ), q.x, q.y, q.z, q.w );
@@ -51,17 +54,25 @@ public class JointNode extends SceneNode<JointNode> {
 		if( parent != null && parent != tree.getRoot() ) {
 			//skin = Mat4.multiply( parent.skin, skin );
 			joint = Mat4.multiply( parent.joint, joint );
+			//inverse = Mat4.multiply( parent.inverse, inverse );
 		}
 	}
 	
 	public void update( double dt ) {
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
 		
-		skin = new Mat4( joint );
+		skin = new Mat4( orient );
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
 			if( cFrame != null ) {
-				skin = cFrame.getCurrentTransform();
+				Vec3 tmp = Mat4.getPos( Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), orient ) );
+				skin.m[3] = tmp.x;
+				skin.m[7] = tmp.y;
+				skin.m[11] = tmp.z;
+				//skin = Mat4.multiply( skin, cFrame.getCurrentRotation() );
+				//skin = Mat4.multiply( skin, Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ) );
+				skin = Mat4.multiply( skin, cFrame.getCurrentRotation() );
+				
 				//Vec3 tmp = cFrame.getCurrentTranslation();
 				//skin.m[3] += tmp.x;
 				//skin.m[7] += tmp.y;
@@ -69,8 +80,6 @@ public class JointNode extends SceneNode<JointNode> {
 			}
 		}
 		
-		if( parent != null && parent != tree.getRoot() )
-			skin = Mat4.multiply( parent.skin, skin );
-		new RPauseDialog();
+		if( parent != null && parent != tree.getRoot() ) skin = Mat4.multiply( parent.skin, skin );
 	}
 }

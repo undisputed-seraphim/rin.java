@@ -26,6 +26,11 @@ public class Skeleton extends NodeTree<JointNode> {
 		return animations.get( id );
 	}
 	
+	public void finish() {
+		for( JointNode n : this )
+			n.finish();
+	}
+	
 	public void bufferAnimations() {
 		for( Animation a : animations.values() ) {
 			for( JointNode jn : this ) {

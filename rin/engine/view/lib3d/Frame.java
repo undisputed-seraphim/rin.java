@@ -85,7 +85,9 @@ public class Frame {
 				//Mat4 m1 = new Mat4( tData[tIndex][0],tData[tIndex][1],tData[tIndex][2],tData[tIndex][3],tData[tIndex][4],tData[tIndex][5],tData[tIndex][6],tData[tIndex][7],tData[tIndex][8],tData[tIndex][9],tData[tIndex][10],tData[tIndex][11],0,0,0,1 );
 				//Mat4 m2 = new Mat4( tData[tIndex+1][0],tData[tIndex+1][1],tData[tIndex+1][2],tData[tIndex+1][3],tData[tIndex+1][4],tData[tIndex+1][5],tData[tIndex+1][6],tData[tIndex+1][7],tData[tIndex+1][8],tData[tIndex+1][9],tData[tIndex+1][10],tData[tIndex+1][11],0,0,0,1 );
 				cTranslation = Vec3.lerp( new Vec3( tData[tIndex][0],tData[tIndex][4],tData[tIndex][8] ), new Vec3(tData[tIndex+1][0],tData[tIndex+1][4],tData[tIndex+1][8]), t );
+				//cTranslation = new Vec3( tData[0][0], tData[0][1], tData[0][2] );
 				//cTranslation = Mat4.lerp( m1, m2, t )
+				System.out.println( "translate: " + tIndex );
 			}
 		}
 		
@@ -106,7 +108,8 @@ public class Frame {
 				Quat4 q1 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
-				System.out.println( "rx time: " + rxTime[rxIndex] + " " + rxTime[rxIndex+1] + " " + dt + " " + rxTime.length + " " + t );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[0][0] * Quat4.PIOVER180 ).toMat4() );
+				System.out.println( "rx time: " + rxTime[rxIndex] + " " + rxTime[rxIndex+1] + " " + dt + " " + rxTime.length + " " + t + " " + rxIndex );
 			}
 		}
 		
@@ -124,7 +127,8 @@ public class Frame {
 				Quat4 q1 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
-				System.out.println( "ry time: " + ryTime[ryIndex] + " " + ryTime[ryIndex+1] + " " + dt + " " + ryTime.length + " " + t );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[0][0] * Quat4.PIOVER180 ).toMat4() );
+				System.out.println( "ry time: " + ryTime[ryIndex] + " " + ryTime[ryIndex+1] + " " + dt + " " + ryTime.length + " " + t + " " + ryIndex );
 			}
 		}
 		
@@ -142,7 +146,8 @@ public class Frame {
 				Quat4 q1 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
-				System.out.println( "rz time: " + rzTime[rzIndex] + " " + rzTime[rzIndex+1] + " " + dt + " " + rzTime.length + " " + t );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[0][0] * Quat4.PIOVER180 ).toMat4() );
+				System.out.println( "rz time: " + rzTime[rzIndex] + " " + rzTime[rzIndex+1] + " " + dt + " " + rzTime.length + " " + t + " " + rxIndex );
 			}
 		}
 		
