@@ -13,7 +13,6 @@ import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
-import rin.engine.resource.model.Surface;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
 import rin.engine.view.gl.GLSkinNode;
@@ -24,7 +23,8 @@ import rin.engine.view.lib3d.JointNode;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
-	private boolean DEBUG = true;
+	private boolean DEBUG = false;
+	private boolean TEMP = true;
 	
 	private int chunkCount;
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
@@ -48,12 +48,9 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	private int cFrameType;
 	
 	private String cSampler;
-	//private Surface cSurface;
-	//public Ism2Model getData() { return cModel; }
 	private Ism2VertexData cVertexData;
 	
 	private Ism2Texture cTexture;
-	//private Ism2KeyFrame cFrame;
 	private Ism2TransformData cTransform;
 	
 	private void header() {
@@ -293,6 +290,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private void getTransformData( int offset, int hsize, String tab ) {
 		//System.out.println( "skinning at " + offset + " " + hsize );
+		debug.writeLine( "STARTED: " + offset );
 		debug( tab + "TRANSFORMDATA" );
 		
 		cTransform.count = readInt32();
@@ -324,17 +322,19 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				//debug( tab + "::time: " + cTransform.time[i] );
 				for( int j = 0; j < cTransform.stride - 1; j++ )
 					data[i][j] = readFloat16();
-				//debug( tab + "::data: " + ArrayUtils.asString( cTransform.data[i] ) );
+				debug.writeLine( tab + "time: " + time[i] + ", data: "+ ArrayUtils.asString( data[i] ) );
 			}
 			switch( cFrameType ) {
-			case T_FRAME_TRANSLATE: cFrame.setTranslateData( time, data ); break;
-			case T_FRAME_ROTATEX: cFrame.setRotateXData( time, data ); break;
-			case T_FRAME_ROTATEY: cFrame.setRotateYData( time, data ); break;
-			case T_FRAME_ROTATEZ: cFrame.setRotateZData( time, data ); break;
+			case T_FRAME_TRANSLATE: debug.writeLine( tab + "translate" ); cFrame.setTranslateData( time, data ); break;
+			case T_FRAME_ROTATEX: debug.writeLine( tab + "rotateX" ); cFrame.setRotateXData( time, data ); break;
+			case T_FRAME_ROTATEY: debug.writeLine( tab + "rotateY" ); cFrame.setRotateYData( time, data ); break;
+			case T_FRAME_ROTATEZ: debug.writeLine( tab + "rotateZ" ); cFrame.setRotateZData( time, data ); break;
+			case T_FRAME_SCALE: debug.writeLine( tab + "scale" ); break;
 			default:
 				System.out.println( "UNKNOWN ANIMATION FRAME TYPE: " + cFrameType );
 				break;
 			}
+			debug.writeLine( "ENDED: " + position() );
 			break;
 		default:
 			exitWithError( "UNKOWN transform TYPE " + cTransform.type );
@@ -632,6 +632,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "C5 ["+toHex(5)+"]" + " " + offset );
 		int count = readInt32();
 		String id = stringMap[ readInt32() ];
+		debug.writeLine( tab + "joint: " + id );
 		debug( tab + "::id: " + stringMap[ readInt32() ] );
 		String bone = stringMap[ readInt32() ];
 		debug( tab + "::?: " + readInt32() );
@@ -695,25 +696,33 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	// translate
 	private void getC20( int offset, int hsize, String tab ) {
 		debug( tab + "C20 ["+toHex(20)+"]" + stringMap[ hsize ] + " " + offset );
-		cJoint.setJointTranslation( readFloat32( 3 ) );
+		float[] tmp = readFloat32( 3 );
+		cJoint.setJointTranslation( tmp );
+		debug.writeLine( tab + stringMap[ hsize ] + ": " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientX
 	private void getC103( int offset, int hsize, String tab ) {
 		debug( tab + "C103 ["+toHex(103)+"]" + stringMap[ hsize ] + " " + offset );
-		cJoint.setJointRotateX( readFloat32( 4 ) );
+		float[] tmp = readFloat32( 4 );
+		cJoint.setJointRotateX( tmp );
+		debug.writeLine( tab + stringMap[hsize] + ": " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientY
 	private void getC104( int offset, int hsize, String tab ) {
 		debug( tab + "C104 ["+toHex(104)+"]" + stringMap[ hsize ] + " " + offset );
-		cJoint.setJointRotateY( readFloat32( 4 ) );
+		float[] tmp = readFloat32( 4 );
+		cJoint.setJointRotateY( tmp );
+		debug.writeLine( tab + stringMap[ hsize ] + ": " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientZ
 	private void getC105( int offset, int hsize, String tab ) {
 		debug( tab + "C105 ["+toHex(105)+"]" + stringMap[ hsize ] + " " + offset );
-		cJoint.setJointRotateZ( readFloat32( 4 ) );
+		float[] tmp = readFloat32( 4 );
+		debug.writeLine( tab + stringMap[hsize] + ": " + ArrayUtils.asString( tmp ) );
+		cJoint.setJointRotateZ( tmp );
 	}
 	
 	private void getC114( int offset, int hsize, String tab ) {
@@ -757,7 +766,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	}
 	
 	private void getC126( int offset, int hsize, String tab ) {
-		debug( tab + "C126 ["+toHex(126)+"]" + stringMap[ hsize ] + " " + offset );
+		debug.writeLine( tab + "C126 ["+toHex(126)+"]" + stringMap[ hsize ] + " " + offset );
 	}
 	
 	private void getMaterialList( int offset, int hsize, String tab ) {
@@ -809,6 +818,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "::?: " + readInt32() );
 		debug( tab + "::?: " + readInt32() );
 		debug( tab + "::?: " + readInt32() );
+		debug.writeLine( tab + "Animation " + cAnimationName );
 		
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
@@ -825,8 +835,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "::?: " + readInt32() );
 		debug( tab + "::?: " + readInt32() );
 		//cFrame = cAnimation.addFrame( frame );
-		System.out.println( frame );
 		cFrame = cAnimation.addFrame( cActor.getSkeleton().find( frame ) );
+		debug.writeLine( tab + "joint: " + frame );
 		
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
@@ -961,7 +971,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		
 		mc = new ModelContainer();
 		
-		if( DEBUG ) {
+		if( DEBUG || TEMP ) {
 			debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
 			debug.openStream();
 		}
@@ -979,12 +989,13 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			if( dir.containsDirectory( opts.getAnimationDirectory() ) ) {
 				Directory animDir = dir.getDirectory( opts.getAnimationDirectory() );
 				if( animDir.containsResource( "001.ism2" ) ) {
-					Resource anim = animDir.getResource( "001.ism2" );
+					Resource anim = animDir.getResource( "005.ism2" );
 					cAnimationName = anim.getBaseName();
 					load( anim );
 					
 					header();
 					chunkList();
+					cActor.getSkeleton().bufferAnimations();
 				}
 			}
 		//}

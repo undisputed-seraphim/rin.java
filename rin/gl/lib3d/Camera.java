@@ -137,10 +137,10 @@ public class Camera extends Actor {
 		case Keyboard.KEY_D: pChanged = true; side -= 0.05f; break;
 		
 		//camera look and turn
-		case Keyboard.KEY_UP: rChanged = true; rotx -= 0.001; break;
-		case Keyboard.KEY_DOWN: rChanged = true; rotx += 0.001; break;
-		case Keyboard.KEY_LEFT: rChanged = true; roty -= 0.001; break;
-		case Keyboard.KEY_RIGHT: rChanged = true; roty += 0.001; break;
+		case Keyboard.KEY_UP: rChanged = true; rotx -= 0.03; break;
+		case Keyboard.KEY_DOWN: rChanged = true; rotx += 0.03; break;
+		case Keyboard.KEY_LEFT: rChanged = true; roty -= 0.03; break;
+		case Keyboard.KEY_RIGHT: rChanged = true; roty += 0.03; break;
 		
 		//camera ascend/descend
 		case Keyboard.KEY_LSHIFT: pChanged = true; rise += 0.05f; break;

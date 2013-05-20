@@ -1,5 +1,7 @@
 package rin.engine.view.lib3d;
 
+import java.util.HashMap;
+
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
@@ -11,6 +13,9 @@ public class Frame {
 	
 	protected float[] tTime;
 	protected float[][] tData;
+	protected HashMap<Float, float[]> btData = new HashMap<Float, float[]>();
+	private int btIndex = 0;
+	private int btNext = 0;
 	
 	protected float[] sTime;
 	protected float[][] sData;
@@ -24,13 +29,15 @@ public class Frame {
 	protected float[] rzTime;
 	protected float[][] rzData;
 	
-	public Quat4 cRotation = new Quat4();
-	public Vec3 cTranslation = new Vec3();
+	public Mat4 cRotation = new Mat4();
+	public Vec3 cTranslation = new Vec3( 0, 0, 0 );
+	private Mat4 cTransform = new Mat4();
 	
 	public Frame( JointNode jn ) { target = jn; }
 	
-	public Quat4 getCurrentRotation() { return cRotation; }
+	public Mat4 getCurrentRotation() { return cRotation; }
 	public Vec3 getCurrentTranslation() { return cTranslation; }
+	public Mat4 getCurrentTransform() { return cTransform; }
 	
 	public void setTranslateData( float[] time, float[][] data ) {
 		tTime = time;
@@ -61,8 +68,9 @@ public class Frame {
 	private int ryIndex = -1;
 	private int rzIndex = -1;
 	private void updateIndices( double dt ) {
-		System.out.println( "START " + parent.start );
-		System.out.println( "END " + parent.end );
+		//System.out.println( "START " + parent.start );
+		//System.out.println( "END " + parent.end );
+		Vec3 trans = new Vec3( 0, 0, 0 );
 		if( tTime != null ) {
 			tIndex = 0;
 			for( int i = 0; i < tTime.length; i++ ) {
@@ -70,19 +78,18 @@ public class Frame {
 					break;
 				} else tIndex = i;
 			}
-			System.out.println( "TIME: " + tTime[tIndex] + " " + tIndex + " " + dt + " " + tTime.length );
+			//System.out.println( "TIME: " + tTime[tIndex] + " " + tIndex + " " + dt + " " + tTime.length );
 			if( tTime.length > tIndex+1 ) {
 				float t = tTime[tIndex+1] - tTime[tIndex];
 				t = (float)dt / t;
-				Mat4 m1 = new Mat4( tData[tIndex][0],tData[tIndex][1],tData[tIndex][2],tData[tIndex][3],tData[tIndex][4],tData[tIndex][5],tData[tIndex][6],tData[tIndex][7],tData[tIndex][8],tData[tIndex][9],tData[tIndex][10],tData[tIndex][11],0,0,0,1 );
-				Mat4 m2 = new Mat4( tData[tIndex+1][0],tData[tIndex+1][1],tData[tIndex+1][2],tData[tIndex+1][3],tData[tIndex+1][4],tData[tIndex+1][5],tData[tIndex+1][6],tData[tIndex+1][7],tData[tIndex+1][8],tData[tIndex+1][9],tData[tIndex+1][10],tData[tIndex+1][11],0,0,0,1 );
-				Vec3 v1 = new Vec3( m1.m[3], m1.m[7], m1.m[11] );
-				Vec3 v2 = new Vec3( m2.m[3], m2.m[7], m2.m[11] );
-				cTranslation = Vec3.lerp( v1, v2, t );
+				//Mat4 m1 = new Mat4( tData[tIndex][0],tData[tIndex][1],tData[tIndex][2],tData[tIndex][3],tData[tIndex][4],tData[tIndex][5],tData[tIndex][6],tData[tIndex][7],tData[tIndex][8],tData[tIndex][9],tData[tIndex][10],tData[tIndex][11],0,0,0,1 );
+				//Mat4 m2 = new Mat4( tData[tIndex+1][0],tData[tIndex+1][1],tData[tIndex+1][2],tData[tIndex+1][3],tData[tIndex+1][4],tData[tIndex+1][5],tData[tIndex+1][6],tData[tIndex+1][7],tData[tIndex+1][8],tData[tIndex+1][9],tData[tIndex+1][10],tData[tIndex+1][11],0,0,0,1 );
+				cTranslation = Vec3.lerp( new Vec3( tData[tIndex][0],tData[tIndex][4],tData[tIndex][8] ), new Vec3(tData[tIndex+1][0],tData[tIndex+1][4],tData[tIndex+1][8]), t );
+				//cTranslation = Mat4.lerp( m1, m2, t )
 			}
 		}
 		
-		cRotation = new Quat4();
+		cRotation = new Mat4();
 		if( rxTime != null ) {
 			rxIndex = 0;
 			for( int i = 0; i < rxTime.length; i++ ) {
@@ -90,13 +97,16 @@ public class Frame {
 					break;
 				} else rxIndex = i;
 			}
-			System.out.println( "ROTATEX: " + rxTime[rxIndex] + " " + rxIndex + " " + dt + " " + rxTime.length );
+			//System.out.println( "ROTATEX: " + rxTime[rxIndex] + " " + rxIndex + " " + dt + " " + rxTime.length );
 			if( rxTime.length > rxIndex+1 ) {
 				float t = rxTime[rxIndex+1] - rxTime[rxIndex];
-				t = (float)dt / t;
-				Quat4 q1 = new Quat4( rxData[rxIndex][0], rxData[rxIndex][1], rxData[rxIndex][2], rxData[rxIndex][3] );
-				Quat4 q2 = new Quat4( rxData[rxIndex+1][0], rxData[rxIndex+1][1], rxData[rxIndex+1][2], rxData[rxIndex+1][3] );
-				cRotation = Quat4.multiply( cRotation, Quat4.slerp( q1, q2, t ) );
+				t = ((float)dt - rxTime[rxIndex]) / t;
+				//Quat4 q1 = new Quat4( rxData[rxIndex][0], rxData[rxIndex][1], rxData[rxIndex][2], rxData[rxIndex][3] );
+				//Quat4 q2 = new Quat4( rxData[rxIndex+1][0], rxData[rxIndex+1][1], rxData[rxIndex+1][2], rxData[rxIndex+1][3] );
+				Quat4 q1 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0] * Quat4.PIOVER180 );
+				Quat4 q2 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex+1][0] * Quat4.PIOVER180 );
+				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
+				System.out.println( "rx time: " + rxTime[rxIndex] + " " + rxTime[rxIndex+1] + " " + dt + " " + rxTime.length + " " + t );
 			}
 		}
 		
@@ -107,13 +117,14 @@ public class Frame {
 					break;
 				} else ryIndex = i;
 			}
-			System.out.println( "ROTATEY: " + ryTime[ryIndex] + " " + ryIndex + " " + dt + " " + ryTime.length );
+			//System.out.println( "ROTATEY: " + ryTime[ryIndex] + " " + ryIndex + " " + dt + " " + ryTime.length );
 			if( ryTime.length > ryIndex+1 ) {
 				float t = ryTime[ryIndex+1] - ryTime[ryIndex];
-				t = (float)dt / t;
-				Quat4 q1 = new Quat4( ryData[ryIndex][0], ryData[ryIndex][1], ryData[ryIndex][2], ryData[ryIndex][3] );
-				Quat4 q2 = new Quat4( ryData[ryIndex+1][0], ryData[ryIndex+1][1], ryData[ryIndex+1][2], ryData[ryIndex+1][3] );
-				cRotation = Quat4.multiply( cRotation, Quat4.slerp( q1, q2, t ) );
+				t = ((float)dt - ryTime[ryIndex]) / t;
+				Quat4 q1 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][0] * Quat4.PIOVER180 );
+				Quat4 q2 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex+1][0] * Quat4.PIOVER180 );
+				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
+				System.out.println( "ry time: " + ryTime[ryIndex] + " " + ryTime[ryIndex+1] + " " + dt + " " + ryTime.length + " " + t );
 			}
 		}
 		
@@ -124,15 +135,21 @@ public class Frame {
 					break;
 				} else rzIndex = i;
 			}
-			System.out.println( "ROTATEZ: " + rzTime[rzIndex] + " " + rzIndex + " " + dt + " " + rzTime.length );
+			//System.out.println( "ROTATEZ: " + rzTime[rzIndex] + " " + rzIndex + " " + dt + " " + rzTime.length );
 			if( rzTime.length > rzIndex+1 ) {
 				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
-				t = (float)dt / t;
-				Quat4 q1 = new Quat4( rzData[rzIndex][0], rzData[rzIndex][1], rzData[rzIndex][2], rzData[rzIndex][3] );
-				Quat4 q2 = new Quat4( rzData[rzIndex+1][0], rzData[rzIndex+1][1], rzData[rzIndex+1][2], rzData[rzIndex+1][3] );
-				cRotation = Quat4.multiply( cRotation, Quat4.slerp( q1, q2, t ) );
+				t = ((float)dt - rzTime[rzIndex]) / t;
+				Quat4 q1 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][0] * Quat4.PIOVER180 );
+				Quat4 q2 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex+1][0] * Quat4.PIOVER180 );
+				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );
+				System.out.println( "rz time: " + rzTime[rzIndex] + " " + rzTime[rzIndex+1] + " " + dt + " " + rzTime.length + " " + t );
 			}
 		}
+		
+		cTransform = Mat4.multiply( Mat4.translate( new Mat4(), cTranslation ), cRotation );
+		//cTransform.m[3] += trans.x;
+		//cTransform.m[7] += trans.y;
+		//cTransform.m[11] += trans.z;
 	}
 	
 	public void update( double dt ) {

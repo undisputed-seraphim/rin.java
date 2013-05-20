@@ -446,6 +446,22 @@ yaxis = cross(zaxis, xaxis)
 		return Mat4.fb( Mat4.flatten( this ) );
 	}
 	
+	/*lerp: function( m, n, dt ) {
+		return new Float32Array(
+			[ m[0]*(1-dt) + n[0]*(dt),m[1]*(1-dt) + n[1]*(dt),m[2]*(1-dt) + n[2]*(dt),m[3]*(1-dt) + n[3]*(dt),
+			  m[4]*(1-dt) + n[4]*(dt),m[5]*(1-dt) + n[5]*(dt),m[6]*(1-dt) + n[6]*(dt),m[7]*(1-dt) + n[7]*(dt),
+			  m[8]*(1-dt) + n[8]*(dt),m[9]*(1-dt) + n[9]*(dt),m[10]*(1-dt) + n[10]*(dt),m[11]*(1-dt) + n[11]*(dt),
+			  m[12]*(1-dt) + n[12]*(dt),m[13]*(1-dt) + n[13]*(dt),m[14]*(1-dt) + n[14]*(dt),m[15]*(1-dt) + n[15]*(dt)] );
+	}*/
+	
+	public static Mat4 lerp( Mat4 m, Mat4 n, float dt ) {
+		return new Mat4(
+				m.m[0]*(1-dt) + n.m[0]*(dt),m.m[1]*(1-dt) + n.m[1]*(dt),m.m[2]*(1-dt) + n.m[2]*(dt),m.m[3]*(1-dt) + n.m[3]*(dt),
+				  m.m[4]*(1-dt) + n.m[4]*(dt),m.m[5]*(1-dt) + n.m[5]*(dt),m.m[6]*(1-dt) + n.m[6]*(dt),m.m[7]*(1-dt) + n.m[7]*(dt),
+				  m.m[8]*(1-dt) + n.m[8]*(dt),m.m[9]*(1-dt) + n.m[9]*(dt),m.m[10]*(1-dt) + n.m[10]*(dt),m.m[11]*(1-dt) + n.m[11]*(dt),
+				  m.m[12]*(1-dt) + n.m[12]*(dt),m.m[13]*(1-dt) + n.m[13]*(dt),m.m[14]*(1-dt) + n.m[14]*(dt),m.m[15]*(1-dt) + n.m[15]*(dt) );
+	}
+	
 	/* return a string representation of this matrix */
 	public String toString() {
 		String str = "mat4[ ";

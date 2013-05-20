@@ -42,11 +42,44 @@ public class Quat4 {
 	
 	/* create a quaternion facing the specified direction */
 	public static Quat4 create( Vec3 v, float f ) {
-		float	y = f * 9.5f,
+		/*double result = sin( a / 2.0 );
+
+    // Calculate the x, y and z of the quaternion
+    double x = xx * result;
+    double y = yy * result;
+    double z = zz * result;
+
+    // Calcualte the w value by cos( theta / 2 )
+    double w = cos( a / 2.0 );
+  
+    return Quaternion(x, y, z, w).normalize();*/
+		float f2 = f * 0.5f;
+		
+		float result = (float)Math.sin( f2 );
+		float x = v.x * result;
+		float y = v.y * result;
+		float z = v.z * result;
+		float w = (float)Math.cos( f2 );
+		
+		return new Quat4( x, y, z, w ).normalize();
+		
+		
+		/*float	y = f * 9.5f,
 				s = (float)java.lang.Math.sin( y );
 		Vec3 w = Vec3.normalize( v );
 		
-		return new Quat4( w.x * s, w.y * s, w.z * s, (float)java.lang.Math.cos( y ) );
+		return new Quat4( w.x * s, w.y * s, w.z * s, (float)java.lang.Math.cos( y ) );*/
+	}
+
+	public Quat4 normalize() {
+		float mag = x * x + y * y + z * z + w * w;
+		if( Math.abs( mag ) > 0.00001f && Math.abs( mag - 1.0f ) > 0.00001f ) {
+			x /= mag;
+			y /= mag;
+			z /= mag;
+			w /= mag;
+		}
+		return this;
 	}
 	
 	/* return the product of two quaternions */
