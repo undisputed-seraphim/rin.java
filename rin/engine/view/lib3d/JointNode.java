@@ -1,7 +1,6 @@
 package rin.engine.view.lib3d;
 
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniform4f;
+import static org.lwjgl.opengl.GL20.*;
 import rin.gl.GL;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
@@ -20,58 +19,78 @@ public class JointNode extends SceneNode<JointNode> {
 	protected Quat4 orientZ = Quat4.create( new Vec3( 0.0f, 0.0f, 1.0f ), 0 );
 	
 	protected Mat4 translate = new Mat4();
-	protected Mat4 orient = new Mat4();
+	protected Quat4 orient = new Quat4( 0, 0, 0, 1 );
 	protected Mat4 rotate = new Mat4();
 	
 	public JointNode( String id ) { super( id ); }
 	@Override public JointNode actual() { return this; }
 	
 	public void setJointMatrix( float[] m ) { joint = new Mat4( m ); }
-	public void setJointTranslation( float[] t ) { trans = Vec3.add( trans, new Vec3( t[0], t[1], t[2] ) ); }
-	public void setJointRotateX( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
-	public void setJointRotateY( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
-	public void setJointRotateZ( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
+	public void setJointTranslation( float[] t ) { tLocal = Vec3.add( tLocal, new Vec3( t[0], t[1], t[2] ) ); }
+	//public void setJointRotateX( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
+	//public void setJointRotateY( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
+	//public void setJointRotateZ( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
+	public void setJointRotateX( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.X_AXIS , r[3] * Quat4.PIOVER180 ) ); }
+	public void setJointRotateY( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Y_AXIS , r[3] * Quat4.PIOVER180 ) ); }
+	public void setJointRotateZ( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Z_AXIS , r[3] * Quat4.PIOVER180 ) ); }
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
+	protected Quat4 rLocal = new Quat4( 0, 0, 0, 1 );
+	protected Quat4 rGlobal = new Quat4( 0, 0, 0, 1 );
+	protected Vec3 tLocal = new Vec3( 0, 0, 0 );
+	protected Vec3 tGlobal = new Vec3( 0, 0, 0 );
+	
+	protected Quat4 rBaseGlobal = new Quat4( 0, 0, 0, 1 );
+	protected Vec3 tBaseGlobal = new Vec3( 0, 0, 0 );
+	
 	public void applyBone( int index ) {
-		Mat4 inv = new Mat4( inverse );
+		/*Mat4 inv = new Mat4( inverse );
 		if( parent != null && parent != tree.getRoot() ) {
 			//inv = Mat4.multiply( parent.inverse, inverse );
 		}
 		world = Mat4.multiply( skin, inverse );
 		Quat4 q = world.toQuat4();
 		glUniform4f( GL.getUniform( "quats["+index+"]" ), q.x, q.y, q.z, q.w );
+		glUniform3f( GL.getUniform( "trans["+index+"]" ), world.m[3], world.m[7], world.m[11] );*/
+		world = Mat4.multiply( Mat4.translate( new Mat4(), tGlobal ), rGlobal.toMat4() );
+		world = Mat4.multiply( world, inverse );
+		Quat4 q = world.toQuat4();
+		glUniform4f( GL.getUniform( "quats["+index+"]" ), q.x, q.y, q.z, q.w );
 		glUniform3f( GL.getUniform( "trans["+index+"]" ), world.m[3], world.m[7], world.m[11] );
 	}
 	
 	public void finish() {
-		joint = Mat4.multiply( Mat4.translate( new Mat4(), trans ), orient );
-		//joint = Mat4.inverse( joint );
-		//joint.m[3] += trans.x;
-		//joint.m[7] += trans.y;
-		//joint.m[11] += trans.z;
-		//skin = new Mat4( joint );
 		if( parent != null && parent != tree.getRoot() ) {
-			//skin = Mat4.multiply( parent.skin, skin );
-			joint = Mat4.multiply( parent.joint, joint );
-			//inverse = Mat4.multiply( parent.inverse, inverse );
+			rBaseGlobal = Quat4.multiply( Quat4.multiply( parent.rBaseGlobal, orient ), rLocal );
+			tBaseGlobal = Vec3.add( parent.tBaseGlobal, tLocal );
+		} else {
+			rBaseGlobal = Quat4.multiply( orient, rLocal );
+			tBaseGlobal = new Vec3( tLocal );
 		}
+		/*joint = Mat4.multiply( Mat4.translate( new Mat4(), trans ), orient );
+		if( parent != null && parent != tree.getRoot() ) {
+			//joint = Mat4.multiply( parent.joint, joint );
+		}*/
+		//localTranslation = 
 	}
 	
 	public void update( double dt ) {
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
-		
-		skin = new Mat4( orient );
+		//skin = new Mat4( joint );
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
 			if( cFrame != null ) {
-				Vec3 tmp = Mat4.getPos( Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), orient ) );
+				rLocal = cFrame.getCurrentRotation().toQuat4();
+				tLocal = Vec3.rotate( cFrame.getCurrentTranslation(), rLocal );
+				//rLocal = cFrame.getCurrentRotation().toQuat4();
+				//skin = cFrame.getCurrentTransform();
+				/*Vec3 tmp = Mat4.getPos( Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), orient ) );
 				skin.m[3] = tmp.x;
 				skin.m[7] = tmp.y;
-				skin.m[11] = tmp.z;
+				skin.m[11] = tmp.z;*/
 				//skin = Mat4.multiply( skin, cFrame.getCurrentRotation() );
 				//skin = Mat4.multiply( skin, Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ) );
-				skin = Mat4.multiply( skin, cFrame.getCurrentRotation() );
+				//skin = Mat4.multiply( skin, cFrame.getCurrentRotation() );
 				
 				//Vec3 tmp = cFrame.getCurrentTranslation();
 				//skin.m[3] += tmp.x;
@@ -79,7 +98,14 @@ public class JointNode extends SceneNode<JointNode> {
 				//skin.m[11] += tmp.z;
 			}
 		}
-		
-		if( parent != null && parent != tree.getRoot() ) skin = Mat4.multiply( parent.skin, skin );
+		if( parent != null && parent != tree.getRoot() ) {
+			rGlobal = Quat4.multiply( Quat4.multiply( parent.rGlobal, orient ), rLocal );
+			tGlobal = Vec3.add( parent.tGlobal, Vec3.rotate( tLocal, parent.rGlobal ) );
+		} else {
+			rGlobal = Quat4.multiply( orient, rLocal );
+			tGlobal = new Vec3( tLocal );
+		}
+		//if( parent != null && parent != tree.getRoot() )
+			//skin = Mat4.multiply( parent.skin, skin );
 	}
 }

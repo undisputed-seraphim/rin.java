@@ -70,7 +70,7 @@ public class Directory extends ResourcePointer {
 		};
 	}
 	
-	public Directory() { super( null ); }
+	protected Directory() { super( null ); }
 	
 	protected Directory( File file ) {
 		super( file );

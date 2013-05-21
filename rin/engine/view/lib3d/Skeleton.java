@@ -59,7 +59,8 @@ public class Skeleton extends NodeTree<JointNode> {
 		// update this skeletons joints, traversing in the proper order by default
 		int k = 0;
 		for( JointNode jn : this ) {
-			jn.update( dt );
+			//if( !jn.getId().equals( "root" ) )
+				jn.update( dt );
 			//if( k++ == 5 ) break;
 		}
 	}

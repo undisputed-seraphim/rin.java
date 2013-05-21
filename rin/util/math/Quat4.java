@@ -136,6 +136,10 @@ public class Quat4 {
 		return this;
 	}
 	
+	public static Quat4 inverse( Quat4 q ) {
+		return new Quat4( -q.x, -q.y, -q.z, q.w );
+	}
+	
 	/* return a string representation of this matrix */
 	public String toString() {
 		String str = "quat4[ ";

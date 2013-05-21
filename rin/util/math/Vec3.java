@@ -31,6 +31,12 @@ public class Vec3 {
 		this( v.x, v.y, v.z );
 	}
 	
+	public float get( int index ) {
+		if( index == 0 ) return x;
+		if( index == 1 ) return y;
+		if( index == 2 ) return z;
+		return 0.0f;
+	}
 	/* returns the magnitude of the vector */
 	public static float magnitude( Vec3 v ) {
 		return ( v.x * v.x ) + ( v.y * v.y ) + ( v.z * v.z );
@@ -81,6 +87,22 @@ public class Vec3 {
 		return new Vec3( v.x * f, v.y * f, v.z * f );
 	}
 	
+	public static Vec3 multiply( Vec3 v, Mat4 m ) {
+		Vec3 res = new Vec3();
+		for( int i = 0; i < 4; i++ ) {
+			for( int j = 0; j < 4; j++ ) {
+				if( i == 0 ) {
+					res.x += m.m[i*4+j] * v.get( j );
+				} else if( i == 1 ) {
+					res.y += m.m[i*4+j] * v.get( j );
+				} else if( i == 2 ) {
+					res.z += m.m[i*4+j] * v.get( j );
+				}
+			}
+		}
+		return res;
+	}
+	
 	public static Vec3 inverse( Vec3 v ) { return new Vec3( -v.x, -v.y, -v.z ); }
 	
 	public static float distance( Vec3 v, Vec3 w ) {
@@ -106,5 +128,10 @@ public class Vec3 {
 	
 	public static Vec3 lerp( Vec3 v, Vec3 w, float dt ) {
 		return new Vec3( v.x*(1-dt) + w.x*dt, v.y*(1-dt) + w.y*dt, v.z*(1-dt) + w.z*dt );
+	}
+	
+	public static Vec3 rotate( Vec3 v, Quat4 q ) {
+		Quat4 res = Quat4.multiply( Quat4.multiply( q, new Quat4( v.x, v.y, v.z, 0 ) ), Quat4.inverse( q ) );
+		return new Vec3( res.x, res.y, res.z );
 	}
 }
