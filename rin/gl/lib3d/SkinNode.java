@@ -101,11 +101,11 @@ public class SkinNode extends Node {
 	@Override
 	public void update( double dt ) {
 		super.update( dt );
-		/* joints have already updated their positions, so render the joints */
 	}
 	
 	@Override
 	public void render() {
+		/* joints have already updated their positions, so render the joints */
 		for( int i = 0; i < joints.size(); i++ ) {
 			joints.get( i ).applyBone( i, transform );
 		}

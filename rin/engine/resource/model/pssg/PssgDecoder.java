@@ -626,7 +626,7 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 		}
 		mc.getScene().ready();
 		mc.getScene().setScale( 0.01f, 0.01f, 0.01f );
-		mc.getScene().setRotation( 90.0f, 0.0f, 0.0f );
+		mc.getScene().setRotation( -90.0f, 0.0f, 0.0f );
 		
 		for( PssgAnimation a : cPssg.animationMap.values() ) {
 			Animation current = mc.getScene().addAnimation( a.id );
@@ -654,11 +654,11 @@ public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 					FrameSet fs = current.getFrames( node.targetName );
 					if( node.keyType.toLowerCase().equals( "rotation" ) ) {
 						fs.setRotationData( null, node.value );
-						debug.writeLine( "rotation: " + ArrayUtils.asString( node.value ) );
+						//debug.writeLine( "rotation: " + ArrayUtils.asString( node.value ) );
 					} else if( node.keyType.toLowerCase().equals( "scale" ) ) {
 						fs.setScaleData( null, node.value );
 					} else if( node.keyType.toLowerCase().equals( "translation" ) ) {
-						debug.writeLine( "translation: " + ArrayUtils.asString( node.value ) );
+						//debug.writeLine( "translation: " + ArrayUtils.asString( node.value ) );
 						fs.setTranslationData( null, node.value );
 					} else System.err.println( "unknown keytype: " + node.keyType );
 				}

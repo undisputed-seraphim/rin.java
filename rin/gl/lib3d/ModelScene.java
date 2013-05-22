@@ -54,8 +54,9 @@ public class ModelScene extends Poly {
 		if( currentAnimation != null )
 			currentAnimation.update( dt );
 		
-		for( Node n : tree )
+		for( Node n : tree ) {
 			n.update( dt );
+		}
 		
 		for( Node n : tree )
 			n.render();

@@ -58,8 +58,8 @@ public class JointNode extends Node {
 	
 	public void applyBone( int index, Mat4 skinTransform ) {
 		//super.update();
-		//transform = Mat4.multiply( transform, joint );
-		//if( parent != null ) transform = Mat4.multiply( parent.transform, transform );
+		//transform = new Mat4( base );
+		//if( parent != null ) transform = Mat4.multiply( parent.base, transform );
 		//skin = transform;
 		//skin = Mat4.multiply( skin, transform );
 		//wMat = Mat4.multiply( parent.wMat, base );
@@ -67,7 +67,8 @@ public class JointNode extends Node {
 		//wMat = Mat4.multiply( parent.transform, transform );
 		//skin = Mat4.multiply( wMat, inverse );
 		//skin = wMat;
-		wMat = Mat4.multiply( skin, inverse );
+		wMat = Mat4.multiply( transform, inverse );
+		wMat = Mat4.multiply( scene.getMatrix(), wMat );
 		Quat4 qu = wMat.toQuat4();
 		q[0] = qu.x;
 		q[1] = qu.y;
@@ -84,9 +85,6 @@ public class JointNode extends Node {
 	@Override
 	public void update( double dt ) {
 		super.update( dt );
-		skin = new Mat4( base );
-		if( parent instanceof JointNode )
-			skin = Mat4.multiply( ((JointNode)parent).skin, skin );
 		
 		//wMat = Mat4.multiply( parent.base, base );
 		/* update bones world transform based on parents world transform */

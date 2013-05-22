@@ -51,8 +51,10 @@ public class Node extends AbstractNode<Node> {
 	}
 	
 	public void update() {
-		if( parent != null ) transform = Mat4.multiply( parent.base, base );
-		else transform = base;
+		transform = new Mat4( base );
+		if( parent != null ) transform = Mat4.multiply( parent.transform, transform );
+		
+		//transform = Mat4.multiply( scene.getMatrix(), transform );
 	}
 	
 	public void update( double dt ) {
