@@ -68,8 +68,8 @@ public class Game {
 		}*/
 		
 		init( 900, 600 );
-		//GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
-		GL.addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
+		GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
+		//GL.addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		start();
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
