@@ -71,7 +71,6 @@ public class JointNode extends SceneNode<JointNode> {
 			tBaseGlobal = new Vec3( tLocal );
 		}
 		poseRelative = Mat4.multiply( Mat4.translate( new Mat4(), tLocal ), orient.toMat4() );
-		//localTranslation = 
 	}
 	
 	public void update( double dt ) {
@@ -81,7 +80,10 @@ public class JointNode extends SceneNode<JointNode> {
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
 			if( cFrame != null ) {
-				//joint = Mat4.multiply( joint, Mat4.multiply( cFrame.getCurrentRotation(), inverse ) );
+				tGlobal = cFrame.getCurrentTranslation();
+				rGlobal = Quat4.multiply( parent.rGlobal, cFrame.getCurrentRotation().toQuat4() );
+				joint = Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), joint );
+				joint = Mat4.multiply( joint, cFrame.getCurrentRotation() );
 				//rLocal = cFrame.getCurrentRotation().toQuat4();
 				//skin = cFrame.getCurrentTransform();
 				/*Vec3 tmp = Mat4.getPos( Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), orient ) );
