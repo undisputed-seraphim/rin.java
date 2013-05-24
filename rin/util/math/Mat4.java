@@ -13,12 +13,15 @@ public class Mat4 {
 	/* array that holds the values of the matrix */
 	public float[] m = new float[16];
 	
+	/* buffer for operations */
+	private float[] b = new float[16];
+	
+	/* floatbuffer just in case... */
+	private FloatBuffer glBuffer = Buffer.toBuffer( new float[16] );
+	
 	/* create an identity matrix */
 	public Mat4() {
-		this(	1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f );
+		identity();
 	}
 	
 	/* create a matrix from 16 floats */
@@ -26,43 +29,83 @@ public class Mat4 {
 					float m04, float m05, float m06, float m07,
 					float m08, float m09, float m10, float m11,
 					float m12, float m13, float m14, float m15 ) {
-		
-		this.m = new float[]{	m00, m01, m02, m03,
-								m04, m05, m06, m07,
-								m08, m09, m10, m11,
-								m12, m13, m14, m15 };
+		m[ 0] = m00; m[ 1] = m01; m[ 2] = m02; m[ 3] = m03;
+		m[ 4] = m04; m[ 5] = m05; m[ 6] = m06; m[ 7] = m07;
+		m[ 8] = m08; m[ 9] = m09; m[10] = m10; m[11] = m11;
+		m[12] = m12; m[13] = m13; m[14] = m14; m[15] = m15;
 	}
 	
 	/* create a matrix from another matrix */
-	public Mat4( Mat4 m ) {
-		this(	m.m[ 0], m.m[ 1], m.m[ 2], m.m[ 3],
-				m.m[ 4], m.m[ 5], m.m[ 6], m.m[ 7],
-				m.m[ 8], m.m[ 9], m.m[10], m.m[11],
-				m.m[12], m.m[13], m.m[14], m.m[15] );
+	public Mat4( Mat4 n ) {
+		m[ 0] = n.m[ 0]; m[ 1] = n.m[ 1]; m[ 2] = n.m[ 2]; m[ 3] = n.m[ 3];
+		m[ 4] = n.m[ 4]; m[ 5] = n.m[ 5]; m[ 6] = n.m[ 6]; m[ 7] = n.m[ 7];
+		m[ 8] = n.m[ 8]; m[ 9] = n.m[ 9]; m[10] = n.m[10]; m[11] = n.m[11];
+		m[12] = n.m[12]; m[13] = n.m[13]; m[14] = n.m[14]; m[15] = n.m[15];
 	}
 	
-	public Mat4( FloatBuffer m ) {
-		this(	m.get(0), m.get(1), m.get(2), m.get(3),
-				m.get(4), m.get(5), m.get(6), m.get(7),
-				m.get(8), m.get(9), m.get(10), m.get(11),
-				m.get(12), m.get(13), m.get(14), m.get(15) );
+	public Mat4( FloatBuffer n ) {
+		m[ 0] = n.get( 0); m[ 1] = n.get( 1); m[ 2] = n.get( 2); m[ 3] = n.get( 3);
+		m[ 4] = n.get( 4); m[ 5] = n.get( 5); m[ 6] = n.get( 6); m[ 7] = n.get( 7);
+		m[ 8] = n.get( 8); m[ 9] = n.get( 9); m[10] = n.get(10); m[11] = n.get(11);
+		m[12] = n.get(12); m[13] = n.get(13); m[14] = n.get(14); m[15] = n.get(15);
 	}
 	
-	public Mat4( float[] m ) {
-		this(	m[ 0], m[ 1], m[ 2], m[ 3],
-				m[ 4], m[ 5], m[ 6], m[ 7],
-				m[ 8], m[ 9], m[10], m[11],
-				m[12], m[13], m[14], m[15] );
+	public Mat4( float[] n ) {
+		m[ 0] = n[ 0];	m[ 1] = n[ 1];	m[ 2] = n[ 2];	m[ 3] = n[ 3];
+		m[ 4] = n[ 4];	m[ 5] = n[ 5];	m[ 6] = n[ 6];	m[ 7] = n[ 7];
+		m[ 8] = n[ 8];	m[ 9] = n[ 9];	m[10] = n[10];	m[11] = n[11];
+		m[12] = n[12];	m[13] = n[13];	m[14] = n[14];	m[15] = n[15];
+	}
+	
+	public Mat4 identity() {
+		m[ 0] = 1; m[ 1] = 0; m[ 2] = 0; m[ 3] = 0;
+		m[ 4] = 0; m[ 5] = 1; m[ 6] = 0; m[ 7] = 0;
+		m[ 8] = 0; m[ 9] = 0; m[10] = 1; m[11] = 0;
+		m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+		return this;
+	}
+	
+	private Mat4 applyBuffer() {
+		m[ 0] = b[ 0];	m[ 1] = b[ 1];	m[ 2] = b[ 2];	m[ 3] = b[ 3];
+		m[ 4] = b[ 4];	m[ 5] = b[ 5];	m[ 6] = b[ 6];	m[ 7] = b[ 7];
+		m[ 8] = b[ 8];	m[ 9] = b[ 9];	m[10] = b[10];	m[11] = b[11];
+		m[12] = b[12];	m[13] = b[13];	m[14] = b[14];	m[15] = b[15];
+		return this;
+	}
+	
+	private FloatBuffer updateFloatBuffer() {
+		glBuffer.position( 0 );
+		glBuffer.put( m[ 0] ).put( m[ 4] ).put( m[ 8] ).put( m[12] );
+		glBuffer.put( m[ 1] ).put( m[ 5] ).put( m[ 9] ).put( m[13] );
+		glBuffer.put( m[ 2] ).put( m[ 6] ).put( m[10] ).put( m[14] );
+		glBuffer.put( m[ 3] ).put( m[ 7] ).put( m[11] ).put( m[15] );
+		glBuffer.flip();
+		return glBuffer;
 	}
 	
 	/* return the matrix flattened (column/row swap) */
 	public static Mat4 flatten( Mat4 m ) {
-		return new Mat4(	m.m[ 0], m.m[ 4], m.m[ 8], m.m[12],
-				    		m.m[ 1], m.m[ 5], m.m[ 9], m.m[13],
-				    		m.m[ 2], m.m[ 6], m.m[10], m.m[14],
-				    		m.m[ 3], m.m[ 7], m.m[11], m.m[15] );
+		return m.flattenInto( new Mat4() );
 	}
 
+	public float[] flattenInto( float[] $r ) {
+		$r[ 0] = m[ 0]; $r[ 1] = m[ 4]; $r[ 2] = m[ 8]; $r[ 3] = m[12];
+		$r[ 4] = m[ 1]; $r[ 5] = m[ 5]; $r[ 6] = m[ 9]; $r[ 7] = m[13];
+		$r[ 8] = m[ 2]; $r[ 9] = m[ 6]; $r[10] = m[10]; $r[11] = m[14];
+		$r[12] = m[ 3]; $r[13] = m[ 7]; $r[14] = m[11]; $r[15] = m[15];
+		return $r;
+	}
+	
+	public Mat4 flattenInto( Mat4 $m ) {
+		flattenInto( $m.m );
+		return $m;
+	}
+	
+	public Mat4 flatten() {
+		flattenInto( b );
+		return applyBuffer();
+	}
+	
 	/* return a matrix dealing with perspective */
 	public static Mat4 frustum( float left, float right, float bottom, float top, float znear, float zfar ) {
 		float	X = 2 * znear / ( right - left );
@@ -125,121 +168,8 @@ public class Mat4 {
 		}
 		return r;
 	}
-	/*void gluLookAt(GLfloat eyex, GLfloat eyey, GLfloat eyez,
-                  GLfloat centerx, GLfloat centery, GLfloat centerz,
-                  GLfloat upx, GLfloat upy, GLfloat upz)
-{
-        GLfloat m[16];
-        GLfloat x[3], y[3], z[3];
-        GLfloat mag;
-        
-        z[0] = eyex - centerx;
-        z[1] = eyey - centery;
-        z[2] = eyez - centerz;
-        mag = sqrt(z[0] * z[0] + z[1] * z[1] + z[2] * z[2]);
-        if (mag) {                     
-                z[0] /= mag;
-                z[1] /= mag;
-                z[2] /= mag;
-        }
-        
-        y[0] = upx;
-        y[1] = upy;
-        y[2] = upz;
-        
-        x[0] = y[1] * z[2] - y[2] * z[1];
-        x[1] = -y[0] * z[2] + y[2] * z[0];
-        x[2] = y[0] * z[1] - y[1] * z[0];
-        
-        y[0] = z[1] * x[2] - z[2] * x[1];
-        y[1] = -z[0] * x[2] + z[2] * x[0];
-        y[2] = z[0] * x[1] - z[1] * x[0];
 
-        
-        mag = sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
-        if (mag) {
-                x[0] /= mag;
-                x[1] /= mag;
-                x[2] /= mag;
-        }
-        
-        mag = sqrt(y[0] * y[0] + y[1] * y[1] + y[2] * y[2]);
-        if (mag) {
-                y[0] /= mag;
-                y[1] /= mag;
-                y[2] /= mag;
-        }
-        
-#define M(row,col)  m[col*4+row]
-        M(0, 0) = x[0];
-        M(0, 1) = x[1];
-        M(0, 2) = x[2];
-        M(0, 3) = 0.0;
-        M(1, 0) = y[0];
-        M(1, 1) = y[1];
-        M(1, 2) = y[2];
-        M(1, 3) = 0.0;
-        M(2, 0) = z[0];
-        M(2, 1) = z[1];
-        M(2, 2) = z[2];
-        M(2, 3) = 0.0;
-        M(3, 0) = 0.0;
-        M(3, 1) = 0.0;
-        M(3, 2) = 0.0;
-        M(3, 3) = 1.0;
-#undef M
-        glMultMatrixf(m);
-        
-        glTranslatef(-eyex, -eyey, -eyez);*/
 	public static Mat4 lookAt( float eyex, float eyey, float eyez, float centerx, float centery, float centerz, float upx, float upy, float upz ) {
-		/*float mag;
-        
-        Vec3 z = new Vec3( eyex - centerx, eyey - centery, eyez - centerz );
-        mag = Vec3.magnitude( z );
-        if( mag != 0 ) {                     
-                z.x /= mag;
-                z.y /= mag;
-                z.z /= mag;
-        }
-        
-        Vec3 y = new Vec3( upx, upy, upz );
-        
-        Vec3 x = new Vec3(y.y * z.z - y.z * z.y, -y.x * z.z + y.z * z.x, y.x * z.y - y.y * z.x );
-        y.redefine( z.y * x.z - z.z * x.y, -z.x * x.z + z.z * x.x, z.x * x.y - z.y * x.x );
-
-        
-        mag = Vec3.magnitude( x );
-        if( mag != 0 ) {
-                x.x /= mag;
-                x.y /= mag;
-                x.z /= mag;
-        }
-        
-        mag = Vec3.magnitude( y );
-        if( mag != 0 ) {
-                y.x /= mag;
-                y.y /= mag;
-                y.z /= mag;
-        }
-        
-        Mat4 m = new Mat4( x.x, x.y, x.z, 0.0f,
-        				y.x, y.y, y.z, 0.0f,
-        				z.x, z.y, z.z, 0.0f,
-        				0.0f, 0.0f, 0.0f, 1.0f );
-        
-        Mat4 t = Mat4.translate( new Mat4(), new Vec3( -eyex, -eyey, -eyez ) );
-        
-        return Mat4.multiply( t, m );*/
-		
-		/*zaxis = normal(At - Eye)
-xaxis = normal(cross(Up, zaxis))
-yaxis = cross(zaxis, xaxis)
-
- xaxis.x           yaxis.x           zaxis.x          0
- xaxis.y           yaxis.y           zaxis.y          0
- xaxis.z           yaxis.z           zaxis.z          0
--dot(xaxis, eye)  -dot(yaxis, eye)  -dot(zaxis, eye)  l*/
-		
 		Vec3 eye = new Vec3( eyex, eyey, eyez );
 		Vec3 center = new Vec3( centerx, centery, centerz );
 		Vec3 zaxis = Vec3.normalize( Vec3.subtract( center, eye ) );
@@ -288,6 +218,39 @@ yaxis = cross(zaxis, xaxis)
 				Quat4.create( Vec3.Y_AXIS, v.y ) ), Quat4.create( Vec3.Z_AXIS, v.z ) ).toMat4() );
 	}
 	
+	public static float[] translateInto( float[] m, float x, float y, float z, float[] $r ) {
+		return $r;
+	}
+	
+	public static float[] translateInto( float[] m, Vec3 v, float[] $r ) {
+		translateInto( m, v.x, v.y, v.z, $r );
+		return $r;
+	}
+	
+	public static float[] translateInto( float[] m, float[] v, float[] $r ) {
+		translateInto( m, v[0], v[1], v[2], $r );
+		return $r;
+	}
+	
+	public static float[] translate( float[] m, float[] v ) {
+		return translateInto( m, v, new float[16] );
+	}
+
+	public float[] translateInto( float[] v, float[] $r ) {
+		translateInto( m, v, $r );
+		return $r;
+	}
+	
+	public Mat4 translate( float[] v ) {
+		translateInto( m, v, b );
+		return applyBuffer();
+	}
+	
+	public static Mat4 translateInto( Mat4 m, Vec3 v, Mat4 $r ) {
+		translateInto( m.m, v, $r.m );
+		return $r;
+	}
+	
 	/* returns a matrix used to translate other matrices */
 	public static Mat4 translate( Mat4 m, Vec3 v ) {
 		Mat4 t = new Mat4();
@@ -297,6 +260,14 @@ yaxis = cross(zaxis, xaxis)
 		t.m[15] = 1.0f;
 		
 		return Mat4.multiply( m, t );
+	}
+	
+	public Mat4 translate( Vec3 v ) {
+	}
+	
+	public Mat4 translateInto( Vec3 v, Mat4 $r ) {
+		translateInto( m, v, $r.m );
+		return $r;
 	}
 	
 	public static Vec3 transform( Mat4 m, Vec3 v ) {
@@ -321,22 +292,57 @@ yaxis = cross(zaxis, xaxis)
 		return Mat4.multiply( new Mat4(), Mat4.translate( new Mat4(), Vec3.scale( dir, f ) ) );
 	}
 	
-	/* returns the product of two matrices */
-	public static float mh( float[] v, float[] w ) { return v[0] * w[0] + v[1] * w[1] + v[2] * w[2] + v[3] * w[3]; }
+	public static float[] multiplyInto( float[] m, float[] n, float[] $r ) {
+		$r[ 0] = m[ 0] * n[ 0] + m[ 1] * n[ 4] + m[ 2] * n[ 8] + m[ 3] * n[12];
+		$r[ 1] = m[ 0] * n[ 1] + m[ 1] * n[ 5] + m[ 2] * n[ 9] + m[ 3] * n[13];
+		$r[ 2] = m[ 0] * n[ 2] + m[ 1] * n[ 6] + m[ 2] * n[10] + m[ 3] * n[14];
+		$r[ 3] = m[ 0] * n[ 3] + m[ 1] * n[ 7] + m[ 2] * n[11] + m[ 3] * n[15];
+		$r[ 4] = m[ 4] * n[ 0] + m[ 5] * n[ 4] + m[ 6] * n[ 8] + m[ 7] * n[12];
+		$r[ 5] = m[ 4] * n[ 1] + m[ 5] * n[ 5] + m[ 6] * n[ 9] + m[ 7] * n[13];
+		$r[ 6] = m[ 4] * n[ 2] + m[ 5] * n[ 6] + m[ 6] * n[10] + m[ 7] * n[14];
+		$r[ 7] = m[ 4] * n[ 3] + m[ 5] * n[ 7] + m[ 6] * n[11] + m[ 7] * n[15];
+		$r[ 8] = m[ 8] * n[ 0] + m[ 9] * n[ 4] + m[10] * n[ 8] + m[11] * n[12];
+		$r[ 9] = m[ 8] * n[ 1] + m[ 9] * n[ 5] + m[10] * n[ 9] + m[11] * n[13];
+		$r[10] = m[ 8] * n[ 2] + m[ 9] * n[ 6] + m[10] * n[10] + m[11] * n[14];
+		$r[11] = m[ 8] * n[ 3] + m[ 9] * n[ 7] + m[10] * n[11] + m[11] * n[15];
+		$r[12] = m[12] * n[ 0] + m[13] * n[ 4] + m[14] * n[ 8] + m[15] * n[12];
+		$r[13] = m[12] * n[ 1] + m[13] * n[ 5] + m[14] * n[ 9] + m[15] * n[13];
+		$r[14] = m[12] * n[ 2] + m[13] * n[ 6] + m[14] * n[10] + m[15] * n[14];
+		$r[15] = m[12] * n[ 3] + m[13] * n[ 7] + m[14] * n[11] + m[15] * n[15];
+		return $r;
+	}
+	
+	public static float[] multiply( float[] m, float[] n ) {
+		return multiplyInto( m, n, new float[16] );
+	}
+	
+	public Mat4 multiply( float[] n ) {
+		multiplyInto( m, n, b );
+		return applyBuffer();
+	}
+	
+	public float[] multiplyInto( float[] n, float[] $r ) {
+		multiplyInto( m, n, $r );
+		return $r;
+	}
+	
+	public static Mat4 multiplyInto( Mat4 m, Mat4 n, Mat4 $result ) {
+		multiplyInto( m.m, n.m, $result.m );
+		return $result;
+	}
+	
 	public static Mat4 multiply( Mat4 m, Mat4 n ) {
-		float[] A1 = { m.m[0], m.m[1], m.m[2], m.m[3]  };
-		float[] A2 = { m.m[4], m.m[5], m.m[6], m.m[7]  };
-		float[] A3 = { m.m[8], m.m[9], m.m[10],m.m[11] };
-		float[] A4 = { m.m[12],m.m[13],m.m[14],m.m[15] };
-		float[] B1 = { n.m[0], n.m[4], n.m[8], n.m[12] };
-		float[] B2 = { n.m[1], n.m[5], n.m[9], n.m[13] };
-		float[] B3 = { n.m[2], n.m[6], n.m[10],n.m[14] };
-		float[] B4 = { n.m[3], n.m[7], n.m[11],n.m[15] };
-		
-		return new Mat4(	Mat4.mh(A1, B1), Mat4.mh(A1, B2), Mat4.mh(A1, B3), Mat4.mh(A1, B4),
-							Mat4.mh(A2, B1), Mat4.mh(A2, B2), Mat4.mh(A2, B3), Mat4.mh(A2, B4),
-							Mat4.mh(A3, B1), Mat4.mh(A3, B2), Mat4.mh(A3, B3), Mat4.mh(A3, B4),
-							Mat4.mh(A4, B1), Mat4.mh(A4, B2), Mat4.mh(A4, B3), Mat4.mh(A4, B4) );
+		return multiplyInto( m, n, new Mat4() );
+	}
+	
+	public Mat4 multiply( Mat4 n ) {
+		multiplyInto( m, n.m, b );
+		return applyBuffer();
+	}
+	
+	public Mat4 multiplyInto( Mat4 n, Mat4 $r ) {
+		multiplyInto( m, n.m, $r.m );
+		return $r;
 	}
 	
 	public static Mat4 inverse( Mat4 m ) {
@@ -389,36 +395,41 @@ yaxis = cross(zaxis, xaxis)
 	}
 	
 	public Quat4 toQuat4() {
-		float T = m[0] + m[5] + m[10], S = 0, X = 0, Y = 0, Z = 0, W = 0;
+		return toQuat4( new Quat4() );
+	}
+	
+	public Quat4 toQuat4( Quat4 $q ) {
+		float T = m[0] + m[5] + m[10];
+		float S = 0;
 		if ( T > 0.00000001 ) {
 	    	S = (float)(0.5f / Math.sqrt( T + 1 ));
-	    	X = ( m[9] - m[6] ) * S;
-		    Y = ( m[2] - m[8] ) * S;
-	    	Z = ( m[4] - m[1] ) * S;
-	    	W = 0.25f / S;
+	    	$q.x = ( m[9] - m[6] ) * S;
+		    $q.y = ( m[2] - m[8] ) * S;
+	    	$q.z = ( m[4] - m[1] ) * S;
+	    	$q.w = 0.25f / S;
 		} else {
 			if ( m[0] > m[5] && m[0] > m[10] ) {
 	    		S = (float)(Math.sqrt( 1.0 + m[0] - m[5] - m[10] ) * 2);
-			    X = 0.25f * S;
-		    	Y = ( m[4] + m[1] ) / S;
-		    	Z = ( m[2] + m[8] ) / S;
-		    	W = ( m[9] - m[6] ) / S;
+			    $q.x = 0.25f * S;
+		    	$q.y = ( m[4] + m[1] ) / S;
+		    	$q.z = ( m[2] + m[8] ) / S;
+		    	$q.w = ( m[9] - m[6] ) / S;
 			} else if ( m[5] > m[10] ) {
 		    	S = (float)(Math.sqrt( 1.0 + m[5] - m[0] - m[10] ) * 2);
-		    	X = ( m[4] + m[1] ) / S;
-    			Y = 0.25f * S;
-		    	Z = ( m[9] + m[6] ) / S;
-	    		W = ( m[2] - m[8] ) / S;
+		    	$q.x = ( m[4] + m[1] ) / S;
+    			$q.y = 0.25f * S;
+		    	$q.z = ( m[9] + m[6] ) / S;
+	    		$q.w = ( m[2] - m[8] ) / S;
 			} else {
 			    S = (float)(Math.sqrt( 1.0 + m[10] - m[0] - m[5] ) * 2);
-		    	X = ( m[2] + m[8] ) / S;
-			    Y = ( m[9] + m[6] ) / S;
-			    Z = 0.25f * S;
-			    W = ( m[4] - m[1] ) / S;
+		    	$q.x = ( m[2] + m[8] ) / S;
+			    $q.y = ( m[9] + m[6] ) / S;
+			    $q.z = 0.25f * S;
+			    $q.w = ( m[4] - m[1] ) / S;
 			}
 		}
 		
-		return new Quat4( X, Y, Z, W );
+		return $q;
 	}
 	
 	/* returns a FloatBuffer representing the matrix */
@@ -443,7 +454,8 @@ yaxis = cross(zaxis, xaxis)
 
 	/* returns a flattened floatbuffer of the matrix */
 	public FloatBuffer gl() {
-		return Mat4.fb( Mat4.flatten( this ) );
+		//return Mat4.fb( Mat4.flatten( this ) );
+		return updateFloatBuffer();
 	}
 	
 	/*lerp: function( m, n, dt ) {

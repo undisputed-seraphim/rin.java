@@ -11,6 +11,7 @@ public class JointNode extends SceneNode<JointNode> {
 	protected Mat4 joint = new Mat4();
 	protected Mat4 world = new Mat4();
 	protected Mat4 inverse = new Mat4();
+	protected Mat4 absoluteInverse = new Mat4();
 	protected Mat4 skin = new Mat4();
 	protected Mat4 transform = new Mat4();
 	protected Mat4 poseRelative = new Mat4();
@@ -22,6 +23,7 @@ public class JointNode extends SceneNode<JointNode> {
 	protected Quat4 orientZ = Quat4.create( new Vec3( 0.0f, 0.0f, 1.0f ), 0 );
 	
 	protected Mat4 translate = new Mat4();
+	protected Quat4 gOrient = new Quat4();
 	protected Quat4 orient = new Quat4( 0, 0, 0, 1 );
 	protected Mat4 rotate = new Mat4();
 	
@@ -65,25 +67,31 @@ public class JointNode extends SceneNode<JointNode> {
 	public void finish() {
 		if( parent != null && parent != tree.getRoot() ) {
 			rBaseGlobal = Quat4.multiply( Quat4.multiply( parent.rBaseGlobal, orient ), rLocal );
-			tBaseGlobal = Vec3.add( parent.tBaseGlobal, tLocal );
+			tBaseGlobal = Vec3.add( parent.tBaseGlobal, Vec3.rotate( tLocal, parent.rBaseGlobal ) );
 		} else {
 			rBaseGlobal = Quat4.multiply( orient, rLocal );
 			tBaseGlobal = new Vec3( tLocal );
 		}
-		poseRelative = Mat4.multiply( Mat4.translate( new Mat4(), tLocal ), orient.toMat4() );
+		//poseRelative = Mat4.multiply( Mat4.translate( new Mat4(), tLocal ), orient.toMat4() );
+		//if( parent != null && parent != tree.getRoot() )
+			//poseRelative = Mat4.multiply( parent.poseRelative, poseRelative );
+		//Mat4 rot = Mat4.flatten( rBaseGlobal.toMat4() );
+		//Vec3 tmp = Vec3.rotate( tBaseGlobal, rot.toQuat4() );
+		//absoluteInverse = Mat4.multiply( Mat4.translate( new Mat4(), Vec3.inverse( tmp ) ), rot );
 	}
 	
 	public void update( double dt ) {
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
-		//skin = new Mat4( joint );
-		joint = new Mat4( poseRelative );
+		
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
 			if( cFrame != null ) {
-				tGlobal = cFrame.getCurrentTranslation();
-				rGlobal = Quat4.multiply( parent.rGlobal, cFrame.getCurrentRotation().toQuat4() );
-				joint = Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), joint );
-				joint = Mat4.multiply( joint, cFrame.getCurrentRotation() );
+				//tGlobal = cFrame.getCurrentTranslation();
+				//rGlobal = Quat4.multiply( parent.rGlobal, cFrame.getCurrentRotation().toQuat4() );
+				//joint = Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), cFrame.getCurrentRotation() );
+				tLocal = cFrame.getCurrentTranslation();
+				rLocal = cFrame.getCurrentRotation().toQuat4();
+				//joint = Mat4.multiply( joint, cFrame.getCurrentRotation() );
 				//rLocal = cFrame.getCurrentRotation().toQuat4();
 				//skin = cFrame.getCurrentTransform();
 				/*Vec3 tmp = Mat4.getPos( Mat4.multiply( Mat4.translate( new Mat4(), cFrame.getCurrentTranslation() ), orient ) );
@@ -101,19 +109,21 @@ public class JointNode extends SceneNode<JointNode> {
 			}
 		}
 		
-		if( parent != null && parent != tree.getRoot() ) {
+		/*if( parent != null && parent != tree.getRoot() ) {
 			poseAbsolute = Mat4.multiply( parent.poseAbsolute, joint );
 		} else {
 			poseAbsolute = joint;
 		}
+		poseAbsolute = Mat4.multiply( poseAbsolute, orient.toMat4() );*/
 		
-		/*if( parent != null && parent != tree.getRoot() ) {
+		if( parent != null && parent != tree.getRoot() ) {
 			rGlobal = Quat4.multiply( Quat4.multiply( parent.rGlobal, orient ), rLocal );
 			tGlobal = Vec3.add( parent.tGlobal, Vec3.rotate( tLocal, parent.rGlobal ) );
 		} else {
 			rGlobal = Quat4.multiply( orient, rLocal );
 			tGlobal = new Vec3( tLocal );
-		}*/
+		}
+		poseAbsolute = Mat4.multiply( Mat4.translate( new Mat4(), tGlobal ), rGlobal.toMat4() );
 		//if( parent != null && parent != tree.getRoot() )
 			//skin = Mat4.multiply( parent.skin, skin );
 	}

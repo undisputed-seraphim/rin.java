@@ -152,25 +152,33 @@ public class Quat4 {
 	}
 	
 	public static Quat4 slerp( Quat4 q, Quat4 r, float t ) {
-		Quat4 s = new Quat4( r.x, r.y, r.z, r.w );
-		float dot = dot( q, s );
-		if( dot < 0 ) {
-			s.x = -s.x;
-			s.y = -s.y;
-			s.z = -s.z;
-			dot = -dot;
+		float cosTheta = 0.0f;
+		float sinTheta = 0.0f;
+		float beta = 0.0f;
+		float[] res = new float[4];
+		
+		res[0] = r.x;
+		res[1] = r.y;
+		res[2] = r.z;
+		res[3] = r.w;
+		
+		cosTheta = q.x * r.x + q.y * r.y + q.z * r.z + q.w * r.w;
+		if( cosTheta < 0.0f ) {
+			res[0] = -res[0];
+			res[1] = -res[1];
+			res[2] = -res[2];
+			res[3] = -res[3];
+			cosTheta = -cosTheta;
 		}
 		
-		if( Math.abs( dot ) >= 1.0 )
-			return q;
+		beta = 1.0f - t;
+		if( 1.0f - cosTheta > 0.001f ) {
+			cosTheta = (float)Math.acos( cosTheta );
+			sinTheta = 1.0f / (float)Math.sin( cosTheta );
+			beta = (float)Math.sin( cosTheta * beta ) * sinTheta;
+			t = (float)Math.sin( cosTheta * t ) * sinTheta;
+		}
 		
-		double halfTheta = Math.acos( dot );
-		double sinHalfTheta = Math.sqrt( 1.0 - dot * dot );
-		if( Math.abs( sinHalfTheta ) < 0 )
-			return new Quat4( (float)(q.x*0.5+s.x*0.5),(float)(q.y*0.5+s.y*0.5),(float)(q.z*0.5+s.z*0.5),(float)(q.w*0.5+s.w*0.5) );
-		double a = Math.sin( (1-t) * halfTheta ) / sinHalfTheta;
-		double b = Math.sin( t * halfTheta ) / sinHalfTheta;
-		return new Quat4( (float)(q.x*a+s.x*b), (float)(q.y*a+s.y*b), (float)(q.z*a+s.z*b), (float)(q.w*a+s.w*b) );
-		
+		return new Quat4( beta * q.x + t * res[0], beta * q.y + t * res[1], beta * q.z + t * res[2], beta * q.w + t * res[3] );
 	}
 }

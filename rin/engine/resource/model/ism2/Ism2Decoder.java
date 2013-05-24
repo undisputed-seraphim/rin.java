@@ -759,16 +759,18 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	}
 	
 	private void getC124( int offset, int hsize, String tab ) {
-		debug( tab + "C124 ["+toHex(124)+"]" + stringMap[ hsize ] + " " + offset );
+		if( TEMP ) debug.writeLine( tab + "C124 ["+toHex(124)+"]" + stringMap[ hsize ] + " " + offset );
+		if( TEMP ) debug.writeLine( tab + "::" + readInt32() + " " + readInt32() + " " + readFloat32() );
 	}
 	
 	private void getC125( int offset, int hsize, String tab ) {
-		debug( tab + "C125 ["+toHex(125)+"]" + stringMap[ hsize ] + " " + offset );
+		if( TEMP ) debug.writeLine( tab + "C125 ["+toHex(125)+"]" + stringMap[ hsize ] + " " + offset );
+		if( TEMP ) debug.writeLine( tab + "::" + readInt32() + " " + readInt32() + " " + readFloat32() );
 	}
 	
 	private void getC126( int offset, int hsize, String tab ) {
 		if( TEMP ) debug.writeLine( tab + "C126 ["+toHex(126)+"]" + hsize + " " + offset );
-		if( TEMP ) debug.writeLine( tab + "::" + ArrayUtils.asString( readInt32( 4 ) ) );
+		if( TEMP ) debug.writeLine( tab + "::" + readInt32() + " " + readInt32() + " " + readFloat32() );
 	}
 	
 	private void getMaterialList( int offset, int hsize, String tab ) {
@@ -815,11 +817,12 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		cAnimation = cActor.getSkeleton().addAnimation( cAnimationName );
 		
 		int count = readInt32();
-		debug( tab + "::?: " + readInt32() );
-		debug( tab + "::?: " + readInt32() );
-		debug( tab + "::?: " + readInt32() );
-		debug( tab + "::?: " + readInt32() );
-		debug( tab + "::?: " + readInt32() );
+		debug.writeLine( tab + "::?: " + readInt32() );
+		debug.writeLine( tab + "::?: " + readFloat32() ); // start?
+		debug.writeLine( tab + "::?: " + readFloat32() ); // end?
+		debug.writeLine( tab + "::?: " + readInt16() ); //TODO: mysterious float32...
+		debug.writeLine( tab + "::?: " + readInt16() );
+		debug.writeLine( tab + "::?: " + readInt32() );
 		if( TEMP ) debug.writeLine( tab + "Animation " + cAnimationName );
 		
 		int[] offsets = getOffsets( count );
@@ -849,6 +852,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "FRAMETRANSFORM" + " [" + offset + "]" );
 		debug( tab + "::?: " + readInt32() );
 		String id = stringMap[ readInt32() ];
+		if( TEMP ) debug.writeLine( tab + "::" + id );
 		debug( tab + "::id: " + id );
 		debug( tab + "::?: " + readInt32() );
 		debug( tab + "::?: " + readInt32() );
@@ -874,6 +878,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		int type = readInt32();
 		int hsize = readInt32();
 		
+		//debug.writeLine( "chunk " + toHex( type ) + " started at " + offset );
 		switch( type ) {
 		
 		case C_STRINGS: getStrings( offset, hsize, tab ); break;
@@ -934,6 +939,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			System.out.println( "unknown chunk type: " + type + " [" + String.format( "0x%02x", type ) + "] at " + offset );
 			debug( tab + String.format( "0x%02x", type ) + " [UNIMPLEMENTED]" );
 		}
+		
+		//debug.writeLine( "chunk " + toHex( type ) + " ended at " + position() );
 	}
 	
 	private Resource debug;
