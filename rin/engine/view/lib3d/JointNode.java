@@ -35,9 +35,9 @@ public class JointNode extends SceneNode<JointNode> {
 	//public void setJointRotateX( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
 	//public void setJointRotateY( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
 	//public void setJointRotateZ( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
-	public void setJointRotateX( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.X_AXIS , r[3] * Quat4.PIOVER180 ) ); }
-	public void setJointRotateY( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Y_AXIS , r[3] * Quat4.PIOVER180 ) ); }
-	public void setJointRotateZ( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Z_AXIS , r[3] * Quat4.PIOVER180 ) ); }
+	public void setJointRotateX( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.X_AXIS , r[3] ) ); }
+	public void setJointRotateY( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Y_AXIS , r[3] ) ); }
+	public void setJointRotateZ( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Z_AXIS , r[3] ) ); }
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
 	protected Quat4 rLocal = new Quat4( 0, 0, 0, 1 );

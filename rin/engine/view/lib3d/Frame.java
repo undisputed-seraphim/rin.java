@@ -14,8 +14,6 @@ public class Frame {
 	protected float[] tTime;
 	protected float[][] tData;
 	protected HashMap<Float, float[]> btData = new HashMap<Float, float[]>();
-	private int btIndex = 0;
-	private int btNext = 0;
 	
 	protected float[] sTime;
 	protected float[][] sData;
@@ -68,8 +66,6 @@ public class Frame {
 	private int ryIndex = -1;
 	private int rzIndex = -1;
 	private void updateIndices( double dt ) {
-		//System.out.println( "START " + parent.start );
-		//System.out.println( "END " + parent.end );
 		
 		int offset = 0;
 		if( tTime != null ) {
@@ -79,7 +75,7 @@ public class Frame {
 					break;
 				} else tIndex = i;
 			}
-			//System.out.println( "TIME: " + tTime[tIndex] + " " + tIndex + " " + dt + " " + tTime.length );
+
 			if( tTime.length > tIndex+1 ) {
 				float t = tTime[tIndex+1] - tTime[tIndex];
 				t = (float)dt / t;
@@ -89,14 +85,7 @@ public class Frame {
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cTranslation = new Vec3( tData[tIndex][0+offset], tData[tIndex][4+offset], tData[tIndex][8+offset] );
-				//Mat4 m1 = new Mat4( tData[tIndex][0],tData[tIndex][1],tData[tIndex][2],tData[tIndex][3],tData[tIndex][4],tData[tIndex][5],tData[tIndex][6],tData[tIndex][7],tData[tIndex][8],tData[tIndex][9],tData[tIndex][10],tData[tIndex][11],0,0,0,1 );
-				//Mat4 m2 = new Mat4( tData[tIndex+1][0],tData[tIndex+1][1],tData[tIndex+1][2],tData[tIndex+1][3],tData[tIndex+1][4],tData[tIndex+1][5],tData[tIndex+1][6],tData[tIndex+1][7],tData[tIndex+1][8],tData[tIndex+1][9],tData[tIndex+1][10],tData[tIndex+1][11],0,0,0,1 );
-				//cTranslation = Vec3.lerp( new Vec3( tData[tIndex][0],tData[tIndex][4],tData[tIndex][8] ), new Vec3(tData[tIndex+1][0],tData[tIndex+1][4],tData[tIndex+1][8]), t );
-				//cTranslation = Vec3.lerp( new Vec3( tData[tIndex][0], tData[tIndex][4], tData[tIndex][8] ), new Vec3( tData[tIndex+1][0], tData[tIndex+1][4], tData[tIndex+1][8] ), t );
-				//cTranslation = new Vec3( tData[tIndex][0], tData[tIndex][4], tData[tIndex][8] );
-				//cTranslation = Mat4.lerp( m1, m2, t )
-				//System.out.println( "translate: " + tIndex );
+				cTranslation.redefine( tData[tIndex][0+offset], tData[tIndex][4+offset], tData[tIndex][8+offset] );
 			}
 		}
 		
@@ -118,7 +107,7 @@ public class Frame {
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][offset] * Quat4.PIOVER180 ).toMat4() );
+				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][offset] ).toMat4() );
 				/*Quat4 q1 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/
@@ -146,7 +135,7 @@ public class Frame {
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] * Quat4.PIOVER180 ).toMat4() );
+				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
 				/*Quat4 q1 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/
@@ -173,7 +162,7 @@ public class Frame {
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] * Quat4.PIOVER180 ).toMat4() );
+				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
 				/*Quat4 q1 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][0] * Quat4.PIOVER180 );
 				Quat4 q2 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex+1][0] * Quat4.PIOVER180 );
 				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/

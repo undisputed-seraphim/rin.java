@@ -50,6 +50,7 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	private volatile Scale scale = new Scale();
 	
 	private Vec3 rotation = new Vec3();
+	private Quat4 qbuf = new Quat4();
 	private volatile Mat4 translate = new Mat4(), rotate = new Mat4(), scaled = new Mat4(), matrix = new Mat4();
 	
 	public Transformation getTransformation() { return new Transformation( this.position.asVec3(), this.rotation, this.scale.asVec3() ); }
@@ -88,10 +89,15 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	}
 	
 	private void updateRotation() {
-		Quat4	rotateX = Quat4.create( Vec3.X_AXIS, this.rotation.x ),
-				rotateY = Quat4.create( Vec3.Y_AXIS, this.rotation.y ),
-				rotateZ = Quat4.create( Vec3.Z_AXIS, this.rotation.z );
-		this.rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();
+		/*Quat4	rotateX = Quat4.create( Vec3.X_AXIS, this.rotation.x * Quat4.PIUNDER180 ),
+				rotateY = Quat4.create( Vec3.Y_AXIS, this.rotation.y * Quat4.PIUNDER180 ),
+				rotateZ = Quat4.create( Vec3.Z_AXIS, this.rotation.z * Quat4.PIUNDER180 );
+		this.rotate = Quat4.multiply( Quat4.multiply( rotateX, rotateY ), rotateZ ).toMat4();*/
+		qbuf.identity();
+		qbuf.applyOrientationRad( Vec3.X_AXIS, rotation.x );
+		qbuf.applyOrientationRad( Vec3.Y_AXIS, rotation.y );
+		qbuf.applyOrientationRad( Vec3.Z_AXIS, rotation.z );
+		rotate = qbuf.intoMat4( rotate );
 	}
 
 	@Override public Scale getScale() { return this.scale; }

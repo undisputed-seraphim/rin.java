@@ -13,7 +13,7 @@ public class Mat4 {
 	/* array that holds the values of the matrix */
 	public float[] m = new float[16];
 	
-	/* buffer for operations */
+	/* buffers for operations */
 	private float[] b = new float[16];
 	
 	/* floatbuffer just in case... */
@@ -219,6 +219,22 @@ public class Mat4 {
 	}
 	
 	public static float[] translateInto( float[] m, float x, float y, float z, float[] $r ) {
+		$r[ 0] = m[ 0];
+		$r[ 1] = m[ 1];
+		$r[ 2] = m[ 2];
+		$r[ 3] = m[ 0] * x + m[ 1] * y + m[ 2] * z + m[ 3] * 1;
+		$r[ 4] = m[ 4];
+		$r[ 5] = m[ 5];
+		$r[ 6] = m[ 6];
+		$r[ 7] = m[ 4] * x + m[ 5] * y + m[ 6] * z + m[ 7] * 1;
+		$r[ 8] = m[ 8];
+		$r[ 9] = m[ 9];
+		$r[10] = m[10];
+		$r[11] = m[ 8] * x + m[ 9] * y + m[10] * z + m[11] * 1;
+		$r[12] = m[12];
+		$r[13] = m[13];
+		$r[14] = m[14];
+		$r[15] = m[12] * x + m[13] * y + m[14] * z + m[15] * 1;
 		return $r;
 	}
 	
@@ -253,16 +269,12 @@ public class Mat4 {
 	
 	/* returns a matrix used to translate other matrices */
 	public static Mat4 translate( Mat4 m, Vec3 v ) {
-		Mat4 t = new Mat4();
-		t.m[ 3] = v.x;
-		t.m[ 7] = v.y;
-		t.m[11] = v.z;
-		t.m[15] = 1.0f;
-		
-		return Mat4.multiply( m, t );
+		return translateInto( m, v, new Mat4() );
 	}
 	
 	public Mat4 translate( Vec3 v ) {
+		translateInto( m, v, b );
+		return applyBuffer();
 	}
 	
 	public Mat4 translateInto( Vec3 v, Mat4 $r ) {
