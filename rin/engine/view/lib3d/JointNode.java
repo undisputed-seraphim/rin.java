@@ -18,9 +18,9 @@ public class JointNode extends SceneNode<JointNode> {
 	protected Mat4 poseAbsolute = new Mat4();
 	
 	protected Vec3 trans = new Vec3( 0, 0, 0 );
-	protected Quat4 orientX = Quat4.create( new Vec3( 1.0f, 0.0f, 0.0f ), 0 );
-	protected Quat4 orientY = Quat4.create( new Vec3( 0.0f, 1.0f, 0.0f ), 0 );
-	protected Quat4 orientZ = Quat4.create( new Vec3( 0.0f, 0.0f, 1.0f ), 0 );
+	protected float orientX = 0.0f;
+	protected float orientY = 0.0f;
+	protected float orientZ = 0.0f;
 	
 	protected Mat4 translate = new Mat4();
 	protected Quat4 gOrient = new Quat4();
@@ -35,9 +35,9 @@ public class JointNode extends SceneNode<JointNode> {
 	//public void setJointRotateX( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
 	//public void setJointRotateY( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
 	//public void setJointRotateZ( float[] r ) { orient = Mat4.multiply( orient, Quat4.create( new Vec3( r[0], r[1], r[2] ), r[3] * Quat4.PIOVER180 ).toMat4() ); }
-	public void setJointRotateX( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.X_AXIS , r[3] ) ); }
-	public void setJointRotateY( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Y_AXIS , r[3] ) ); }
-	public void setJointRotateZ( float[] r ) { orient = Quat4.multiply( orient, Quat4.create( Vec3.Z_AXIS , r[3] ) ); }
+	public void setJointRotateX( float[] r ) { orientX = r[3]; }//orient.applyOrientationDeg( Vec3.X_AXIS, r[3] ); }// = Quat4.multiply( orient, Quat4.create( Vec3.X_AXIS , r[3] ) ); }
+	public void setJointRotateY( float[] r ) { orientY = r[3]; }//orient.applyOrientationDeg( Vec3.Y_AXIS, r[3] ); }// = Quat4.multiply( orient, Quat4.create( Vec3.Y_AXIS , r[3] ) ); }
+	public void setJointRotateZ( float[] r ) { orientZ = r[3]; }//orient.applyOrientationDeg( Vec3.Z_AXIS, r[3] ); }// = Quat4.multiply( orient, Quat4.create( Vec3.Z_AXIS , r[3] ) ); }
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
 	protected Quat4 rLocal = new Quat4( 0, 0, 0, 1 );
@@ -72,6 +72,9 @@ public class JointNode extends SceneNode<JointNode> {
 			rBaseGlobal = Quat4.multiply( orient, rLocal );
 			tBaseGlobal = new Vec3( tLocal );
 		}
+		orient.applyOrientationDeg( Vec3.Z_AXIS, orientZ );
+		orient.applyOrientationDeg( Vec3.Y_AXIS, orientY );
+		orient.applyOrientationDeg( Vec3.X_AXIS, orientX );
 		//poseRelative = Mat4.multiply( Mat4.translate( new Mat4(), tLocal ), orient.toMat4() );
 		//if( parent != null && parent != tree.getRoot() )
 			//poseRelative = Mat4.multiply( parent.poseRelative, poseRelative );
@@ -117,13 +120,16 @@ public class JointNode extends SceneNode<JointNode> {
 		poseAbsolute = Mat4.multiply( poseAbsolute, orient.toMat4() );*/
 		
 		if( parent != null && parent != tree.getRoot() ) {
+			//rGlobal = Quat4.multiply( Quat4.multiply( parent.rGlobal, orient ), rLocal );
 			rGlobal = Quat4.multiply( Quat4.multiply( parent.rGlobal, orient ), rLocal );
 			tGlobal = Vec3.add( parent.tGlobal, Vec3.rotate( tLocal, parent.rGlobal ) );
 		} else {
 			rGlobal = Quat4.multiply( orient, rLocal );
-			tGlobal = new Vec3( tLocal );
+			tGlobal.redefine( tLocal );
 		}
-		poseAbsolute = Mat4.multiply( Mat4.translate( new Mat4(), tGlobal ), rGlobal.toMat4() );
+		rGlobal.intoMat4( rotate );
+		translate.identity().translate( tGlobal );
+		Mat4.multiplyInto( translate, rotate, poseAbsolute );
 		//if( parent != null && parent != tree.getRoot() )
 			//skin = Mat4.multiply( parent.skin, skin );
 	}

@@ -31,12 +31,35 @@ public class Vec3 {
 		this( v.x, v.y, v.z );
 	}
 	
+	/* redefine the values within without creating a new object */
+	public Vec3 redefine( float x, float y, float z ) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+	
+	public Vec3 redefine( Vec3 w ) {
+		x = w.x;
+		y = w.y;
+		z = w.z;
+		return this;
+	}
+	
+	public Vec3 zero() {
+		x = 0;
+		y = 0;
+		z = 0;
+		return this;
+	}
+	
 	public float get( int index ) {
 		if( index == 0 ) return x;
 		if( index == 1 ) return y;
 		if( index == 2 ) return z;
 		return 0.0f;
 	}
+	
 	/* returns the magnitude of the vector */
 	public static float magnitude( Vec3 v ) {
 		return ( v.x * v.x ) + ( v.y * v.y ) + ( v.z * v.z );
@@ -70,6 +93,13 @@ public class Vec3 {
 	/* returns the sum of two vectors */
 	public static Vec3 add( Vec3 v, Vec3 w ) {
 		return new Vec3( v.x + w.x, v.y + w.y, v.z + w.z );
+	}
+	
+	public Vec3 add( Vec3 w ) {
+		x += w.x;
+		y += w.y;
+		z += w.z;
+		return this;
 	}
 	
 	/* returns the difference between two vectors */
@@ -110,15 +140,6 @@ public class Vec3 {
 		float y = v.y - w.y;
 		float z = v.z - w.z;
 		return (float)java.lang.Math.sqrt( x * x + y * y + z * z );
-	}
-	
-	/* redefine the values within without creating a new object */
-	public Vec3 redefine ( float x, float y, float z ) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		
-		return this;
 	}
 	
 	/* returns a string representation of the vector */

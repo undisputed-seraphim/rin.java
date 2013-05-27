@@ -23,7 +23,7 @@ import rin.gl.lib3d.SkinNode;
 
 public class PssgDecoder extends ProfiledBinaryReader implements ModelDecoder {
 
-	private boolean DEBUG = false;
+	private boolean DEBUG = true;
 	
 	private HashMap<Integer, ChunkType> chunkMap = new HashMap<Integer, ChunkType>();
 	String[] cStrings;

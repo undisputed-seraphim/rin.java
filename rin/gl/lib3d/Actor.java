@@ -76,7 +76,11 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 		this.transform();
 	}
 	
-	private void updatePosition() { this.translate = Mat4.translate( new Mat4(), this.position.asVec3() ); }
+	private void updatePosition() {
+		//this.translate = Mat4.translate( new Mat4(), this.position.asVec3() );
+		translate.identity();
+		translate.translate( this.position.asVec3() );
+	}
 
 	@Override public Vec3 getRotation() { return this.rotation; }
 	@Override public Mat4 getRotationMatrix() { return this.rotate; }
@@ -97,7 +101,7 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 		qbuf.applyOrientationRad( Vec3.X_AXIS, rotation.x );
 		qbuf.applyOrientationRad( Vec3.Y_AXIS, rotation.y );
 		qbuf.applyOrientationRad( Vec3.Z_AXIS, rotation.z );
-		rotate = qbuf.intoMat4( rotate );
+		qbuf.intoMat4( rotate );
 	}
 
 	@Override public Scale getScale() { return this.scale; }
@@ -162,7 +166,11 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 		this.updatePosition();
 		this.updateRotation();
 		this.updateScale();
-		this.matrix = Mat4.multiply( Mat4.multiply( Mat4.multiply( new Mat4(), this.scaled ), this.rotate ), this.translate );
+		//this.matrix = Mat4.multiply( Mat4.multiply( Mat4.multiply( new Mat4(), this.scaled ), this.rotate ), this.translate );
+		matrix.identity();
+		matrix.multiply( scaled );
+		matrix.multiply( rotate );
+		matrix.multiply( translate );
 	}
 
 	@Override public Actor destroy() {

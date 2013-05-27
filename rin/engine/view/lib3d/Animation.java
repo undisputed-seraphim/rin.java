@@ -28,7 +28,7 @@ public class Animation {
 	}
 	
 	private void updateDt( double dt ) {
-		animDt += dt / 100;
+		animDt += dt;
 		if( animDt > end )
 			animDt = animDt - end;
 	}
