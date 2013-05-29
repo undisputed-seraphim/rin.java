@@ -23,8 +23,8 @@ import rin.engine.view.lib3d.JointNode;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
-	private boolean DEBUG = false;
-	private boolean TEMP = true;
+	private boolean DEBUG = true;
+	private boolean TEMP = false;
 	
 	private int chunkCount;
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
@@ -325,10 +325,10 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				if( TEMP ) debug.writeLine( tab + "time: " + time[i] + ", data: "+ ArrayUtils.asString( data[i] ) );
 			}
 			switch( cFrameType ) {
-			case T_FRAME_TRANSLATE: if( TEMP ) debug.writeLine( tab + "translate" ); cFrame.setTranslateData( time, data ); break;
-			case T_FRAME_ROTATEX: if( TEMP ) debug.writeLine( tab + "rotateX" ); cFrame.setRotateXData( time, data ); break;
-			case T_FRAME_ROTATEY: if( TEMP ) debug.writeLine( tab + "rotateY" ); cFrame.setRotateYData( time, data ); break;
-			case T_FRAME_ROTATEZ: if( TEMP ) debug.writeLine( tab + "rotateZ" ); cFrame.setRotateZData( time, data ); break;
+			case T_FRAME_TRANSLATE: if( TEMP ) debug.writeLine( tab + "translate" ); if( cFrame != null ) cFrame.setTranslateData( time, data ); break;
+			case T_FRAME_ROTATEX: if( TEMP ) debug.writeLine( tab + "rotateX" ); if( cFrame != null ) cFrame.setRotateXData( time, data ); break;
+			case T_FRAME_ROTATEY: if( TEMP ) debug.writeLine( tab + "rotateY" ); if( cFrame != null ) cFrame.setRotateYData( time, data ); break;
+			case T_FRAME_ROTATEZ: if( TEMP ) debug.writeLine( tab + "rotateZ" ); if( cFrame != null ) cFrame.setRotateZData( time, data ); break;
 			case T_FRAME_SCALE: if( TEMP ) debug.writeLine( tab + "scale" ); break;
 			default:
 				System.out.println( "UNKNOWN ANIMATION FRAME TYPE: " + cFrameType );
@@ -840,7 +840,12 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "::?: " + readInt32() );
 		debug( tab + "::?: " + readInt32() );
 		//cFrame = cAnimation.addFrame( frame );
-		cFrame = cAnimation.addFrame( cActor.getSkeleton().find( frame ) );
+		if( cActor.getSkeleton().find( frame ) != null )
+			cFrame = cAnimation.addFrame( cActor.getSkeleton().find( frame ) );
+		else {
+			System.out.println( "BONE " + frame + " DOES NOT EXIST IN SKELETON?!" );
+			cFrame = null;
+		}
 		if( TEMP ) debug.writeLine( tab + "joint: " + frame );
 		
 		int[] offsets = getOffsets( count );
@@ -868,7 +873,6 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "::?: " + readInt32() );
 		//cTransform = cFrame.addTransform( mesh );
 		
-		System.err.println( position() == (offset+hsize) );
 		position( offset + hsize );
 		processChunk( position(), tab + " " );
 	}
@@ -1000,7 +1004,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			if( dir.containsDirectory( opts.getAnimationDirectory() ) ) {
 				Directory animDir = dir.getDirectory( opts.getAnimationDirectory() );
 				if( animDir.containsResource( "001.ism2" ) ) {
-					Resource anim = animDir.getResource( "081.ism2" );
+					Resource anim = animDir.getResource( "001.ism2" );
 					cAnimationName = anim.getBaseName();
 					load( anim );
 					

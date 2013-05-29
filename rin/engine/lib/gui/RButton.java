@@ -22,6 +22,8 @@ public class RButton extends RComponent<JButton, RButton> implements GUIActionLi
 	@Override
 	protected RButton actual() { return this; }
 	
+	public String getText() { return this.swing().getText(); }
+	
 	@RinChainable
 	public RButton setText( String text ) {
 		this.swing().setText( text );

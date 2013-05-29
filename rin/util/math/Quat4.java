@@ -14,30 +14,16 @@ public class Quat4 {
 	public float x, y, z, w;
 
 	public Quat4() {
-		this( 0.0f, 0.0f, 0.0f, 1.0f );
+		identity();
 	}
 
-	public Quat4( float[] q ) {
-		x = q[0];
-		y = q[1];
-		z = q[2];
-		w = q[3];
+	public Quat4( float[] r ) {
+		redefine( r );
 	}
 
 	/* constructor used by create methods */
 	public Quat4( float x, float y, float z, float w ) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-	}
-
-	protected Quat4 applyBuffer() {
-		x = b[0];
-		y = b[1];
-		z = b[2];
-		w = b[3];
-		return this;
+		redefine( x, y, z, w );
 	}
 	
 	public Quat4 identity() {
@@ -45,6 +31,38 @@ public class Quat4 {
 		y = 0;
 		z = 0;
 		w = 1;
+		return this;
+	}
+	
+	public Quat4 redefine( float x, float y, float z, float w ) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+		return this;
+	}
+	
+	public Quat4 redefine( float[] r ) {
+		x = r[0];
+		y = r[1];
+		z = r[2];
+		w = r[3];
+		return this;
+	}
+	
+	public Quat4 redefine( Quat4 r ) {
+		x = r.x;
+		y = r.y;
+		z = r.z;
+		w = r.w;
+		return this;
+	}
+	
+	protected Quat4 applyBuffer() {
+		x = b[0];
+		y = b[1];
+		z = b[2];
+		w = b[3];
 		return this;
 	}
 	
@@ -237,30 +255,7 @@ public class Quat4 {
 
 	/* return the matrix representation of a quaternion */
 	public Mat4 toMat4() {
-		float	x2 = this.x * this.x,
-				y2 = this.y * this.y,
-				z2 = this.z * this.z,
-				xy = this.x * this.y,
-				xz = this.x * this.z,
-				yz = this.y * this.z,
-				wx = this.w * this.x,
-				wy = this.w * this.y,
-				wz = this.w * this.z;
-
-		return new Mat4(	1.0f - 2.0f * (y2 + z2), 2.0f * (xy - wz), 2.0f * (xz + wy), 0.0f,
-							2.0f * (xy + wz), 1.0f - 2.0f * (x2 + z2), 2.0f * (yz - wx), 0.0f,
-							2.0f * (xz - wy), 2.0f * (yz + wx), 1.0f - 2.0f * (x2 + y2), 0.0f,
-							0.0f, 0.0f, 0.0f, 1.0f );
-	}
-
-	/* redefine values in this object */
-	public Quat4 redefine( float x, float y, float z, float w ) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-
-		return this;
+		return intoMat4( new Mat4() );
 	}
 
 	public static Quat4 inverse( Quat4 q ) {

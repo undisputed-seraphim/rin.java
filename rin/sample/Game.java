@@ -9,6 +9,7 @@ import rin.engine.resource.FormatManager;
 import rin.engine.resource.Resource;
 import rin.engine.resource.ResourceManager;
 import rin.engine.resource.audio.acb.AcbDecoder;
+import rin.engine.resource.formats.cl3.CL3Extractor;
 import rin.engine.resource.image.ImageOptions;
 import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
@@ -68,7 +69,7 @@ public class Game {
 		}*/
 		
 		init( 900, 600 );
-		GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
+		GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "006", "002.ism2" ) );
 		//GL.addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		start();
 		

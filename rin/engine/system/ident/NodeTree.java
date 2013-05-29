@@ -9,8 +9,8 @@ public class NodeTree<T extends AbstractNode<T>> implements Iterable<T> {
 	protected T root;
 	protected boolean cached = false;
 	protected boolean dirty = true;
-	private ArrayList<T> stack;
 	
+	private ArrayList<T> stack = new ArrayList<T>();
 	private HashMap<String, T> idCache = new HashMap<String, T>();
 	
 	public NodeTree( T r ) { this( r, false ); }
@@ -50,7 +50,7 @@ public class NodeTree<T extends AbstractNode<T>> implements Iterable<T> {
 	
 	private void updateStack() {
 		if( dirty ) {
-			stack = new ArrayList<T>();
+			stack.clear();
 			addToList( root );
 			dirty = false;
 		}

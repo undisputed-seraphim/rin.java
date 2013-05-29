@@ -95,6 +95,13 @@ public class Vec3 {
 		return new Vec3( v.x + w.x, v.y + w.y, v.z + w.z );
 	}
 	
+	public Vec3 add( float X, float Y, float Z ) {
+		x += X;
+		y += Y;
+		z += Z;
+		return this;
+	}
+	
 	public Vec3 add( Vec3 w ) {
 		x += w.x;
 		y += w.y;
@@ -154,5 +161,14 @@ public class Vec3 {
 	public static Vec3 rotate( Vec3 v, Quat4 q ) {
 		Quat4 res = Quat4.multiply( Quat4.multiply( q, new Quat4( v.x, v.y, v.z, 0 ) ), Quat4.inverse( q ) );
 		return new Vec3( res.x, res.y, res.z );
+	}
+	
+	public Vec3 rotate( Quat4 r ) {
+		Quat4.multiplyInto( r.x, r.y, r.z, r.w, x, y, z, 0, r.b );
+		Quat4.multiplyInto( r.b[0], r.b[1], r.b[2], r.b[3], -r.x, -r.y, -r.z, r.w, r.b );
+		x = r.b[0];
+		y = r.b[1];
+		z = r.b[2];
+		return this;
 	}
 }

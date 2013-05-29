@@ -27,13 +27,13 @@ public class Frame {
 	protected float[] rzTime;
 	protected float[][] rzData;
 	
-	public Mat4 cRotation = new Mat4();
+	public Quat4 cRotation = new Quat4( 0, 0, 0, 1 );
 	public Vec3 cTranslation = new Vec3( 0, 0, 0 );
 	private Mat4 cTransform = new Mat4();
 	
 	public Frame( JointNode jn ) { target = jn; }
 	
-	public Mat4 getCurrentRotation() { return cRotation; }
+	public Quat4 getCurrentRotation() { return cRotation; }
 	public Vec3 getCurrentTranslation() { return cTranslation; }
 	public Mat4 getCurrentTransform() { return cTransform; }
 	
@@ -66,6 +66,7 @@ public class Frame {
 	private int ryIndex = -1;
 	private int rzIndex = -1;
 	private void updateIndices( double dt ) {
+		//System.out.println( "START FRAME " + target.getId() );
 		
 		int offset = 0;
 		if( tTime != null ) {
@@ -86,35 +87,42 @@ public class Frame {
 				else offset = 3;
 				
 				cTranslation.redefine( tData[tIndex][0+offset], tData[tIndex][4+offset], tData[tIndex][8+offset] );
+				
+				/*System.out.println( "\tTranslation:" );
+				System.out.println( "\t\tIndices: " + tIndex + " [" + tTime[tIndex] +"] - " + (tIndex+1) + " [" + tTime[tIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+			} else {
+				System.err.println( "SEX t" );
 			}
 		}
 		
-		cRotation = new Mat4();
-		if( rxTime != null ) {
-			rxIndex = 0;
-			for( int i = 0; i < rxTime.length; i++ ) {
-				if( dt < rxTime[i] ) {
+		cRotation.identity();
+		if( rzTime != null ) {
+			rzIndex = 0;
+			for( int i = 0; i < rzTime.length; i++ ) {
+				if( dt < rzTime[i] ) {
 					break;
-				} else rxIndex = i;
+				} else rzIndex = i;
 			}
-			//System.out.println( "ROTATEX: " + rxTime[rxIndex] + " " + rxIndex + " " + dt + " " + rxTime.length );
-			if( rxTime.length > rxIndex+1 ) {
-				float t = rxTime[rxIndex+1] - rxTime[rxIndex];
-				t = ((float)dt - rxTime[rxIndex]) / t;
+			if( rzTime.length > rzIndex+1 ) {
+				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
+				t = ((float)dt - rzTime[rzIndex]) / t;
 				
 				if( t <= 0.25f ) offset = 0;
 				else if( t <= 0.5f ) offset = 1;
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][offset] ).toMat4() );
-				/*Quat4 q1 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0] * Quat4.PIOVER180 );
-				Quat4 q2 = Quat4.create( Vec3.X_AXIS, rxData[rxIndex+1][0] * Quat4.PIOVER180 );
-				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/
-				//cRotation = Mat4.multiply( cRotation, Quat4.slerp( Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0] * Quat4.PIOVER180 ),
-						//Quat4.create( Vec3.X_AXIS, rxData[rxIndex+1][0] * Quat4.PIOVER180 ), t ).toMat4() );
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][0]))
-				//System.out.println( "rx time: " + rxTime[rxIndex] + " " + rxTime[rxIndex+1] + " " + dt + " " + rxTime.length + " " + t + " " + rxIndex );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
+				cRotation.applyOrientationDeg( Vec3.Z_AXIS, rzData[rzIndex][offset] );
+				
+				/*System.out.println( "\tRotationZ:" );
+				System.out.println( "\t\tIndices: " + rzIndex + " [" + rzTime[rzIndex] +"] - " + (rzIndex+1) + " [" + rzTime[rzIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+			} else {
+				System.err.println( "SEX rz" );
 			}
 		}
 		
@@ -125,7 +133,6 @@ public class Frame {
 					break;
 				} else ryIndex = i;
 			}
-			//System.out.println( "ROTATEY: " + ryTime[ryIndex] + " " + ryIndex + " " + dt + " " + ryTime.length );
 			if( ryTime.length > ryIndex+1 ) {
 				float t = ryTime[ryIndex+1] - ryTime[ryIndex];
 				t = ((float)dt - ryTime[ryIndex]) / t;
@@ -135,60 +142,48 @@ public class Frame {
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
-				/*Quat4 q1 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][0] * Quat4.PIOVER180 );
-				Quat4 q2 = Quat4.create( Vec3.Y_AXIS, ryData[ryIndex+1][0] * Quat4.PIOVER180 );
-				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/
-				//cRotation = Mat4.multiply( cRotation, Quat4.slerp( Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][0] * Quat4.PIOVER180 ),
-						//Quat4.create( Vec3.Y_AXIS, ryData[ryIndex+1][0] * Quat4.PIOVER180 ), t ).toMat4() );
-				//System.out.println( "ry time: " + ryTime[ryIndex] + " " + ryTime[ryIndex+1] + " " + dt + " " + ryTime.length + " " + t + " " + ryIndex );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
+				cRotation.applyOrientationDeg( Vec3.Y_AXIS, ryData[ryIndex][offset] );
+				
+				/*System.out.println( "\tRotationY:" );
+				System.out.println( "\t\tIndices: " + ryIndex + " [" + ryTime[ryIndex] +"] - " + (ryIndex+1) + " [" + ryTime[ryIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+			} else {
+				System.err.println( "SEX ry" );
 			}
 		}
 		
-		if( rzTime != null ) {
-			rzIndex = 0;
-			for( int i = 0; i < rzTime.length; i++ ) {
-				if( dt < rzTime[i] ) {
+		if( rxTime != null ) {
+			rxIndex = 0;
+			for( int i = 0; i < rxTime.length; i++ ) {
+				if( dt < rxTime[i] ) {
 					break;
-				} else rzIndex = i;
+				} else rxIndex = i;
 			}
-			//System.out.println( "ROTATEZ: " + rzTime[rzIndex] + " " + rzIndex + " " + dt + " " + rzTime.length );
-			if( rzTime.length > rzIndex+1 ) {
-				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
-				t = ((float)dt - rzTime[rzIndex]) / t;
+			if( rxTime.length > rxIndex+1 ) {
+				float t = rxTime[rxIndex+1] - rxTime[rxIndex];
+				t = ((float)dt - rxTime[rxIndex]) / t;
 				
 				if( t <= 0.25f ) offset = 0;
 				else if( t <= 0.5f ) offset = 1;
 				else if( t <= 0.75f ) offset = 2;
 				else offset = 3;
 				
-				cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
-				/*Quat4 q1 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][0] * Quat4.PIOVER180 );
-				Quat4 q2 = Quat4.create( Vec3.Z_AXIS, rzData[rzIndex+1][0] * Quat4.PIOVER180 );
-				cRotation = Mat4.multiply( cRotation, Quat4.slerp( q1, q2, t ).toMat4() );*/
-				//cRotation = Mat4.multiply( cRotation, Quat4.slerp( Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][0] * Quat4.PIOVER180 ),
-						//Quat4.create( Vec3.Z_AXIS, rzData[rzIndex+1][0] * Quat4.PIOVER180 ), t ).toMat4() );
-				//System.out.println( "rz time: " + rzTime[rzIndex] + " " + rzTime[rzIndex+1] + " " + dt + " " + rzTime.length + " " + t + " " + rxIndex );
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][offset] ).toMat4() );
+				cRotation.applyOrientationDeg( Vec3.X_AXIS, rxData[rxIndex][offset] );
+				
+				/*System.out.println( "\tRotationX:" );
+				System.out.println( "\t\tIndices: " + rxIndex + " [" + rxTime[rxIndex] +"] - " + (rxIndex+1) + " [" + rxTime[rxIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+			} else {
+				System.err.println( "SEX rx" );
 			}
 		}
-		
-		cTransform = Mat4.multiply( Mat4.translate( new Mat4(), cTranslation ), cRotation );
-		//cTransform.m[3] += trans.x;
-		//cTransform.m[7] += trans.y;
-		//cTransform.m[11] += trans.z;
 	}
 	
 	public void update( double dt ) {
 		updateIndices( dt );
-		
-		/*cRotation = new Quat4();
-		if( rxTime != null )
-			cRotation = Quat4.multiply( cRotation, new Quat4( rxData[0][0], rxData[0][1], rxData[0][2], rxData[0][3] ) );
-		
-		if( ryTime != null )
-			cRotation = Quat4.multiply( cRotation, new Quat4( ryData[0][0], ryData[0][1], ryData[0][2], ryData[0][3] ) );
-		
-		if( rzTime != null )
-			cRotation = Quat4.multiply( cRotation, new Quat4( rzData[0][0], rzData[0][1], rzData[0][2], rzData[0][3] ) );*/
 	}
 }

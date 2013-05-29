@@ -3,6 +3,7 @@ package rin.engine.view.lib3d;
 import java.util.HashMap;
 
 import rin.engine.lib.gui.GUIFactory;
+import rin.engine.lib.gui.GUIManager;
 import rin.engine.system.ident.NodeTree;
 
 public class Skeleton extends NodeTree<JointNode> {
@@ -13,7 +14,6 @@ public class Skeleton extends NodeTree<JointNode> {
 	public Skeleton( JointNode j ) { super( j, false ); }
 	public Skeleton( JointNode j, boolean cache ) {
 		super( j, cache );
-		//GUIFactory.createWindow( "skeleton" ).show();
 	}
 	
 	public Animation getCurrentAnimation() { return currentAnimation; }
@@ -27,8 +27,18 @@ public class Skeleton extends NodeTree<JointNode> {
 	}
 	
 	public void finish() {
-		for( JointNode n : this )
+		//GUIFactory.createWindow( "skeleton" ).setTitle( "skeleton" );
+		for( final JointNode n : this ) {
+			/*GUIManager.getWindow( "skeleton" ).add( GUIFactory.createButton( n.getId() + " true" ).onClick( new GUIFactory.ButtonEvent() {
+				@Override
+				public void run() {
+					n.update = !n.update;
+					this.target.setText( n.getId() + " " + n.update );
+				}
+			}) );*/
 			n.finish();
+		}
+		//GUIManager.getWindow( "skeleton" ).show();
 	}
 	
 	public void bufferAnimations() {
@@ -57,9 +67,8 @@ public class Skeleton extends NodeTree<JointNode> {
 			currentAnimation.update( dt );
 		
 		// update this skeletons joints, traversing in the proper order by default
-		int k = 0;
 		for( JointNode jn : this ) {
-			//if( !jn.getId().equals( "R_shoulder" ) )
+			//if( jn.update )
 				jn.update( dt );
 			//if( k++ == 5 ) break;
 		}

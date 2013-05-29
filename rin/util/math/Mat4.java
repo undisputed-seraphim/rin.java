@@ -13,7 +13,7 @@ public class Mat4 {
 	/* array that holds the values of the matrix */
 	public float[] m = new float[16];
 	
-	/* buffers for operations */
+	/* buffer for operations */
 	private float[] b = new float[16];
 	
 	/* floatbuffer just in case... */
@@ -37,10 +37,7 @@ public class Mat4 {
 	
 	/* create a matrix from another matrix */
 	public Mat4( Mat4 n ) {
-		m[ 0] = n.m[ 0]; m[ 1] = n.m[ 1]; m[ 2] = n.m[ 2]; m[ 3] = n.m[ 3];
-		m[ 4] = n.m[ 4]; m[ 5] = n.m[ 5]; m[ 6] = n.m[ 6]; m[ 7] = n.m[ 7];
-		m[ 8] = n.m[ 8]; m[ 9] = n.m[ 9]; m[10] = n.m[10]; m[11] = n.m[11];
-		m[12] = n.m[12]; m[13] = n.m[13]; m[14] = n.m[14]; m[15] = n.m[15];
+		redefine( n );
 	}
 	
 	public Mat4( FloatBuffer n ) {
@@ -51,10 +48,7 @@ public class Mat4 {
 	}
 	
 	public Mat4( float[] n ) {
-		m[ 0] = n[ 0];	m[ 1] = n[ 1];	m[ 2] = n[ 2];	m[ 3] = n[ 3];
-		m[ 4] = n[ 4];	m[ 5] = n[ 5];	m[ 6] = n[ 6];	m[ 7] = n[ 7];
-		m[ 8] = n[ 8];	m[ 9] = n[ 9];	m[10] = n[10];	m[11] = n[11];
-		m[12] = n[12];	m[13] = n[13];	m[14] = n[14];	m[15] = n[15];
+		redefine( n );
 	}
 	
 	public Mat4 identity() {
@@ -65,7 +59,23 @@ public class Mat4 {
 		return this;
 	}
 	
-	private Mat4 applyBuffer() {
+	public Mat4 redefine( float[] n ) {
+		m[ 0] = n[ 0]; m[ 1] = n[ 1]; m[ 2] = n[ 2]; m[ 3] = n[ 3];
+		m[ 4] = n[ 4]; m[ 5] = n[ 5]; m[ 6] = n[ 6]; m[ 7] = n[ 7];
+		m[ 8] = n[ 8]; m[ 9] = n[ 9]; m[10] = n[10]; m[11] = n[11];
+		m[12] = n[12]; m[13] = n[13]; m[14] = n[14]; m[15] = n[15];
+		return this;
+	}
+	
+	public Mat4 redefine( Mat4 n ) {
+		m[ 0] = n.m[ 0]; m[ 1] = n.m[ 1]; m[ 2] = n.m[ 2]; m[ 3] = n.m[ 3];
+		m[ 4] = n.m[ 4]; m[ 5] = n.m[ 5]; m[ 6] = n.m[ 6]; m[ 7] = n.m[ 7];
+		m[ 8] = n.m[ 8]; m[ 9] = n.m[ 9]; m[10] = n.m[10]; m[11] = n.m[11];
+		m[12] = n.m[12]; m[13] = n.m[13]; m[14] = n.m[14]; m[15] = n.m[15];
+		return this;
+	}
+	
+	protected Mat4 applyBuffer() {
 		m[ 0] = b[ 0];	m[ 1] = b[ 1];	m[ 2] = b[ 2];	m[ 3] = b[ 3];
 		m[ 4] = b[ 4];	m[ 5] = b[ 5];	m[ 6] = b[ 6];	m[ 7] = b[ 7];
 		m[ 8] = b[ 8];	m[ 9] = b[ 9];	m[10] = b[10];	m[11] = b[11];
@@ -407,10 +417,10 @@ public class Mat4 {
 	}
 	
 	public Quat4 toQuat4() {
-		return toQuat4( new Quat4() );
+		return intoQuat4( new Quat4() );
 	}
 	
-	public Quat4 toQuat4( Quat4 $q ) {
+	public Quat4 intoQuat4( Quat4 $q ) {
 		float T = m[0] + m[5] + m[10];
 		float S = 0;
 		if ( T > 0.00000001 ) {
@@ -440,7 +450,6 @@ public class Mat4 {
 			    $q.w = ( m[4] - m[1] ) / S;
 			}
 		}
-		
 		return $q;
 	}
 	
@@ -466,7 +475,6 @@ public class Mat4 {
 
 	/* returns a flattened floatbuffer of the matrix */
 	public FloatBuffer gl() {
-		//return Mat4.fb( Mat4.flatten( this ) );
 		return updateFloatBuffer();
 	}
 	

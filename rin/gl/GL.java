@@ -13,6 +13,7 @@ import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.Drawable;
+import org.lwjgl.input.Keyboard;
 
 import rin.engine.Engine;
 import static rin.engine.Engine.*;
@@ -290,18 +291,20 @@ public class GL extends SingletonThread<GL> {
 			while( (tmp = sources.poll() ) != null )
 				tmp.run();
 			
-			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-			/* draw the GLGUI object */
-			/*glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
-			glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
-			GLGUIFactory.render( this.getDt() );*/
-			
-			Input.process();
-			//System.out.println( Keyboard.isKeyDown( Keyboard.KEY_W ) );
-			this.camera.update( this.getDt() );
-
-			for( Actor a : actors ) {
-				((Poly)a).render();
+			if( !Keyboard.isKeyDown(Keyboard.KEY_P ) ) {
+				glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+				/* draw the GLGUI object */
+				/*glUniformMatrix4( GL.getUniform( "vMatrix" ), false, Mat4.GUI.gl() );
+				glUniformMatrix4( GL.getUniform( "mMatrix" ), false, Mat4.IDENTITY.gl() );
+				GLGUIFactory.render( this.getDt() );*/
+				
+				Input.process();
+				//System.out.println( Keyboard.isKeyDown( Keyboard.KEY_W ) );
+				this.camera.update( this.getDt() );
+	
+				for( Actor a : actors ) {
+					((Poly)a).render();
+				}
 			}
 			
 			Display.update();
