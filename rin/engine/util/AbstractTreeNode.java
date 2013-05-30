@@ -1,0 +1,44 @@
+package rin.engine.util;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public abstract class AbstractTreeNode<T extends AbstractTreeNode<T>> {
+	protected AbstractTreeNode<T> parent;
+	protected NodeTree<T> tree;
+	protected List<T> nodes = new ArrayList<T>();
+	private HashMap<String, T> idCache = new HashMap<String, T>();
+	
+	public abstract String getId();
+	
+	protected void cache( T node ) {
+		if( idCache.get( node.getId() ) == null )
+			idCache.put( node.getId(), node );
+		else throw new RuntimeException( "ID " + node.getId() + " already exists." );
+	}
+	
+	protected void discard( T node ) {
+		if( idCache.get( node.getId() ) != null )
+			idCache.remove( node.getId() );
+		else System.err.println( "Removed node " + node.getId() + " was not cached...?" );
+	}
+	
+	public T add( T node ) {
+		node.parent = this;
+		node.tree = tree;
+		nodes.add( node );
+		cache( node );
+		tree.cache( node );
+		return idCache.get( node.getId() );
+	}
+	
+	public boolean remove( T node ) {
+		boolean res = nodes.remove( node );
+		node.tree.discard( node );
+		discard( node );
+		return res;
+	}
+	
+	public T find( String id ) { return idCache.get( id ); }
+}
