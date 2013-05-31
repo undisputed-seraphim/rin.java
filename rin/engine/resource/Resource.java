@@ -64,6 +64,11 @@ public class Resource extends ResourcePointer {
 		return FileUtils.toByteArray( target );
 	}
 	
+	@Override
+	public String toString() {
+		return FileUtils.toString( target );
+	}
+	
 	public Resource write( Object ... o ) {
 		if( fos == null )
 			openStream();

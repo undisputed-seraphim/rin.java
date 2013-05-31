@@ -1,11 +1,16 @@
 package rin.engine.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
+import rin.util.IO;
 
 public class FileUtils {
 	
@@ -50,6 +55,40 @@ public class FileUtils {
 		
 		return res;
 	}*/
+	
+	public static String toString( File file ) {
+		StringBuilder source = new StringBuilder();
+		
+		/* create input stream for the file contents */
+		FileInputStream in;
+		try {
+			in = new FileInputStream( file );
+		} catch( FileNotFoundException e1 ) {
+			System.out.println( "FileNotFoundException raised. file = " + file );
+			return "";
+		}
+		
+		/* create a buffer to read the file contents from the input stream */
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader( new InputStreamReader( in, "UTF-8" ) );
+		} catch( UnsupportedEncodingException e1 ) {
+			System.out.println( "UnsupportedEncodingException rased. encoding = utf-8, file = " + file );
+			return "";
+		}
+		
+		/* write the lines to a string */
+		String line;
+		try {
+			while( ( line = reader.readLine() ) != null )
+				source.append(line).append( IO.LS );
+		} catch( IOException e ) {
+			System.out.println( "IOException raisedin asString. [" + file + "]" );
+			return "";
+		}
+		
+		return source.toString();
+	}
 	
 	public static boolean writeBytes( File file, byte[] bytes ) {
 		FileOutputStream fos = getOutputStream( file );

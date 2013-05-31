@@ -2,15 +2,20 @@ package rin.engine.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-public abstract class AbstractTreeNode<T extends AbstractTreeNode<T>> {
-	protected AbstractTreeNode<T> parent;
+public class TreeNode<T extends TreeNode<T>> implements Iterable<T> {
+	protected final String name;
+	protected TreeNode<T> parent;
 	protected NodeTree<T> tree;
+	protected boolean dirty = false;
 	protected List<T> nodes = new ArrayList<T>();
 	private HashMap<String, T> idCache = new HashMap<String, T>();
+	private List<T> stack = new ArrayList<T>();
 	
-	public abstract String getId();
+	public TreeNode( String id ) { name = id; }
+	public String getId() { return name; }
 	
 	protected void cache( T node ) {
 		if( idCache.get( node.getId() ) == null )
@@ -30,15 +35,53 @@ public abstract class AbstractTreeNode<T extends AbstractTreeNode<T>> {
 		nodes.add( node );
 		cache( node );
 		tree.cache( node );
+		tree.dirty = true;
+		dirty = true;
 		return idCache.get( node.getId() );
 	}
 	
 	public boolean remove( T node ) {
 		boolean res = nodes.remove( node );
-		node.tree.discard( node );
 		discard( node );
+		tree.discard( node );
+		tree.dirty = true;
+		dirty = true;
 		return res;
 	}
 	
+	public void clear() {
+		for( T t : nodes ) {
+			t.clear();
+			tree.discard( t );
+			discard( t );
+		}
+		nodes.clear();
+		idCache.clear();
+		stack.clear();
+	}
+	
 	public T find( String id ) { return idCache.get( id ); }
+	
+	private List<T> addToList( T node ) {
+		stack.add( node );
+		for( T t : node.nodes )
+			addToList( t );
+		return stack;
+	}
+
+	private void updateStack() {
+		if( dirty ) {
+			stack.clear();
+			for( T an : nodes )
+				addToList( an );
+			dirty = false;
+		}
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		updateStack();
+		return stack.iterator();
+	}
+	
 }
