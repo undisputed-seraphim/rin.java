@@ -142,6 +142,13 @@ public class Vec3 {
 	
 	public static Vec3 inverse( Vec3 v ) { return new Vec3( -v.x, -v.y, -v.z ); }
 	
+	public Vec3 inverse() {
+		x = -x;
+		y = -y;
+		z = -z;
+		return this;
+	}
+	
 	public static float distance( Vec3 v, Vec3 w ) {
 		float x = v.x - w.x;
 		float y = v.y - w.y;

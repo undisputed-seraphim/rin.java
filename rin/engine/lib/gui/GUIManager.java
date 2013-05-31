@@ -140,5 +140,13 @@ public class GUIManager extends SwingDispatcher {
 			}
 		});
 	}
+	
+	public static RCheckBox getCheckBox( final String id ) {
+		return invokeLaterAndWait( new Callable<RCheckBox>() {
+			@Override public RCheckBox call() {
+				return (RCheckBox)get().components.get( id );
+			}
+		});
+	}
 
 }

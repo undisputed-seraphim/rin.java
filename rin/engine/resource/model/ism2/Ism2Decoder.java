@@ -23,8 +23,8 @@ import rin.engine.view.lib3d.JointNode;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
-	private boolean DEBUG = true;
-	private boolean TEMP = false;
+	private boolean DEBUG = false;
+	private boolean TEMP = true;
 	
 	private int chunkCount;
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
@@ -698,8 +698,28 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		if( TEMP ) debug.writeLine( tab + stringMap[ hsize ] + ": " + ArrayUtils.asString( tmp ) );
 	}
 	
+	// rotateX
 	private void getC93( int offset, int hsize, String tab ) {
 		debug( tab + "C93 ["+toHex(93)+"]" + stringMap[ hsize ] + " " + offset );
+		float[] tmp = readFloat32( 4 );
+		if( cJoint != null ) cJoint.setJointRotateX( tmp );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
+	}
+	
+	// rotateY
+	private void getC94( int offset, int hsize, String tab ) {
+		debug( tab + "C94 ["+toHex(94)+"]" + stringMap[ hsize ] + " " + offset );
+		float[] tmp = readFloat32( 4 );
+		if( cJoint != null ) cJoint.setJointRotateY( tmp );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
+	}
+	
+	// rotateZ
+	private void getC95( int offset, int hsize, String tab ) {
+		debug( tab + "C95 ["+toHex(95)+"]" + stringMap[ hsize ] + " " + offset );
+		float[] tmp = readFloat32( 4 );
+		if( cJoint != null ) cJoint.setJointRotateZ( tmp );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientX
@@ -707,7 +727,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "C103 ["+toHex(103)+"]" + stringMap[ hsize ] + " " + offset );
 		float[] tmp = readFloat32( 4 );
 		cJoint.setJointRotateX( tmp );
-		if( TEMP ) debug.writeLine( tab + stringMap[hsize] + ": " + ArrayUtils.asString( tmp ) );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientY
@@ -715,15 +735,15 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "C104 ["+toHex(104)+"]" + stringMap[ hsize ] + " " + offset );
 		float[] tmp = readFloat32( 4 );
 		cJoint.setJointRotateY( tmp );
-		if( TEMP ) debug.writeLine( tab + stringMap[ hsize ] + ": " + ArrayUtils.asString( tmp ) );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// jointOrientZ
 	private void getC105( int offset, int hsize, String tab ) {
 		debug( tab + "C105 ["+toHex(105)+"]" + stringMap[ hsize ] + " " + offset );
 		float[] tmp = readFloat32( 4 );
-		if( TEMP ) debug.writeLine( tab + stringMap[hsize] + ": " + ArrayUtils.asString( tmp ) );
 		cJoint.setJointRotateZ( tmp );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
 	}
 	
 	private void getC114( int offset, int hsize, String tab ) {
@@ -918,6 +938,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		case C_92: getC92( offset, hsize, tab ); break;
 		case C_20: getC20( offset, hsize, tab ); break;
 		case C_93: getC93( offset, hsize, tab ); break;
+		case C_94: getC94( offset, hsize, tab ); break;
+		case C_95: getC95( offset, hsize, tab ); break;
 		case C_103: getC103( offset, hsize, tab ); break;
 		case C_104: getC104( offset, hsize, tab ); break;
 		case C_105: getC105( offset, hsize, tab ); break;
@@ -1003,8 +1025,8 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			System.out.println( "SEARCHING FOR ANIMATIONS IN " + opts.getAnimationDirectory() );
 			if( dir.containsDirectory( opts.getAnimationDirectory() ) ) {
 				Directory animDir = dir.getDirectory( opts.getAnimationDirectory() );
-				if( animDir.containsResource( "001.ism2" ) ) {
-					Resource anim = animDir.getResource( "001.ism2" );
+				if( animDir.containsResource( "005.ism2" ) ) {
+					Resource anim = animDir.getResource( "005.ism2" );
 					cAnimationName = anim.getBaseName();
 					load( anim );
 					
@@ -1033,7 +1055,6 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				}
 			}
 		}
-		
 		if( DEBUG ) debug.closeStream();
 		return mc;
 	}

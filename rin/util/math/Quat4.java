@@ -66,6 +66,21 @@ public class Quat4 {
 		return this;
 	}
 	
+	/*public static Quat4 fromEuler( float xdeg, float ydeg, float zdeg ) {
+		float halfx = xdeg / 2.0f;
+		float halfy = ydeg / 2.0f;
+		float halfz = zdeg / 2.0f;
+		
+		float sx = (float)Math.sin( halfx );
+		float cx = (float)Math.cos( halfx );
+		float sy = (float)Math.sin( halfy );
+		float cy = (float)Math.cos( halfy );
+		float sz = (float)Math.sin( halfz );
+		float cz = (float)Math.cos( halfz );
+		
+		
+	}*/
+	
 	public static float[] orientRadInto( float xaxis, float yaxis, float zaxis, float rad, float[] $r ) {
 		float f2 = rad * 0.5f;
 		float s = (float)Math.sin( f2 );

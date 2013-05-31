@@ -8,6 +8,7 @@ import rin.util.math.Vec3;
 
 public class JointNode extends SceneNode<JointNode> {
 	protected boolean update = true;
+	protected void setUpdate( boolean val ) { update = val; }
 	
 	protected Mat4 joint = new Mat4();
 	protected Mat4 world = new Mat4();
@@ -29,9 +30,9 @@ public class JointNode extends SceneNode<JointNode> {
 	
 	public void setJointMatrix( float[] m ) { joint = new Mat4( m ); }
 	public void setJointTranslation( float[] t ) { tLocal.add( t[0], t[1], t[2] ); }
-	public void setJointRotateX( float[] r ) { orientX = r[3]; }
-	public void setJointRotateY( float[] r ) { orientY = r[3]; }
-	public void setJointRotateZ( float[] r ) { orientZ = r[3]; }	
+	public void setJointRotateX( float[] r ) { orient.applyOrientationDeg( Vec3.X_AXIS, r[3] ); }
+	public void setJointRotateY( float[] r ) { orient.applyOrientationDeg( Vec3.Y_AXIS, r[3] ); }
+	public void setJointRotateZ( float[] r ) { orient.applyOrientationDeg( Vec3.Z_AXIS, r[3] ); }	
 	public void setInverseBindMatrix( float[] m ) { inverse = new Mat4( m ); }
 	
 	protected Quat4 rLocal = new Quat4( 0, 0, 0, 1 );
@@ -50,20 +51,29 @@ public class JointNode extends SceneNode<JointNode> {
 	}
 	
 	public void finish() {
+		/*System.out.println( "orient: " + orient.toString() + " z: " + orientZ );
+		orient.applyOrientationDeg( Vec3.Z_AXIS, orientZ );
+		System.out.println( "orient: " + orient.toString() + " y: " + orientY );
+		orient.applyOrientationDeg( Vec3.Y_AXIS, orientY );
+		System.out.println( "orient: " + orient.toString() + " x: " + orientX );
+		orient.applyOrientationDeg( Vec3.X_AXIS, orientX );
+		System.out.println( "orient: " + orient.toString() );*/
+		
 		if( parent != null && parent != tree.getRoot() ) {
-			rBaseGlobal = Quat4.multiply( Quat4.multiply( parent.rBaseGlobal, orient ), rLocal );
-			tBaseGlobal = Vec3.add( parent.tBaseGlobal, Vec3.rotate( tLocal, parent.rBaseGlobal ) );
+			rBaseGlobal.redefine( parent.rBaseGlobal ).multiply( orient );
+			tBaseGlobal.redefine( tLocal ).rotate( parent.rBaseGlobal ).add( parent.tBaseGlobal );
 		} else {
-			rBaseGlobal = Quat4.multiply( orient, rLocal );
-			tBaseGlobal = new Vec3( tLocal );
+			rBaseGlobal.redefine( orient );
+			tBaseGlobal.redefine( tLocal );
 		}
 		
-		orient.applyOrientationDeg( Vec3.Z_AXIS, orientZ );
-		orient.applyOrientationDeg( Vec3.Y_AXIS, orientY );
-		orient.applyOrientationDeg( Vec3.X_AXIS, orientX );
+		rBaseGlobal.intoMat4( rotate );
+		translate.identity().translate( tBaseGlobal );
+		Mat4.multiplyInto( translate, rotate, poseAbsolute );
 	}
 	
 	public void update( double dt ) {
+		if( !update ) return;
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
 		
 		if( cAnimation != null ) {

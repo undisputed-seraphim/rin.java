@@ -6,7 +6,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
-import rin.engine.scene.GLScene3D;
+import rin.engine.scene.gl.GLScene3D;
 
 public class GLGame3D implements Game {
 
@@ -61,6 +61,7 @@ public class GLGame3D implements Game {
 	public void start() {
 		running = true;
 		while( !Display.isCloseRequested() && running ) {
+			scene.process();
 			Display.sync( 60 );
 			Display.update();
 		}

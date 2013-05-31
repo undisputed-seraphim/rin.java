@@ -10,11 +10,14 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import rin.engine.lib.gui.RContextMenu;
 import rin.engine.lib.gui.GUIFactory.GUIEvent;
 
 public class GUIEventAdapter<G> implements MouseListener, ActionListener, WindowFocusListener, FocusListener,
-		WindowListener {
+		WindowListener, ChangeListener {
 	
 	// WINDOW FOCUS
 	
@@ -125,6 +128,16 @@ public class GUIEventAdapter<G> implements MouseListener, ActionListener, Window
 	public void actionPerformed( ActionEvent e ) {
 		if( this.runOnAction != null )
 			this.runOnAction.run();
+	}
+	
+	// CHANGE
+	
+	protected GUIEvent<G> runOnChange;
+	
+	@Override
+	public void stateChanged( ChangeEvent e ) {
+		if( runOnChange != null )
+			runOnChange.run();
 	}
 	
 }

@@ -118,4 +118,14 @@ public class GUIFactory extends SwingDispatcher {
 		});
 	}
 	
+	public static abstract class CheckBoxEvent extends GUIEvent<RCheckBox> {}
+	public static RCheckBox getCheckBox( String id ) { return GUIManager.getCheckBox( id ); }
+	public static RCheckBox createCheckBox() { return createCheckBox( getNextId(), null ); }
+	public static RCheckBox createCheckBox( String id ) { return createCheckBox( id, null ); }
+	public static RCheckBox createCheckBox( final String id, final String text ) {
+		return invokeLaterAndWait( new Callable<RCheckBox>() {
+			@Override public RCheckBox call() { return new RCheckBox( id, text ); }
+		});
+	}
+	
 }

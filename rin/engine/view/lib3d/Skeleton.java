@@ -27,18 +27,19 @@ public class Skeleton extends NodeTree<JointNode> {
 	}
 	
 	public void finish() {
-		//GUIFactory.createWindow( "skeleton" ).setTitle( "skeleton" );
+		GUIFactory.createWindow( "skeleton" ).setTitle( "skeleton" ).setSize( 100, 600 );
 		for( final JointNode n : this ) {
-			/*GUIManager.getWindow( "skeleton" ).add( GUIFactory.createButton( n.getId() + " true" ).onClick( new GUIFactory.ButtonEvent() {
-				@Override
-				public void run() {
-					n.update = !n.update;
-					this.target.setText( n.getId() + " " + n.update );
+			GUIManager.getWindow( "skeleton" ).add( GUIFactory.createCheckBox( n.getId(), n.getId() ).check().onChange( new GUIFactory.CheckBoxEvent() {
+				@Override public void run() {
+					if( target.isChecked() ) n.setUpdate( true );
+					else n.setUpdate( false );
 				}
-			}) );*/
+			}) );
 			n.finish();
 		}
-		//GUIManager.getWindow( "skeleton" ).show();
+		GUIManager.getWindow( "skeleton" ).show();
+		for( JointNode n : this )
+			n.finish();
 	}
 	
 	public void bufferAnimations() {

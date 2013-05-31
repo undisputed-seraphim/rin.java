@@ -60,10 +60,10 @@ void main( void ) {
 				pos += weight.z * mtmp * vec4( vertex.xyz, 1.0 );
 				
 				if( weight.w != 0.0 ) {
-					mat4 mtmp = getTransform( int(bone.w) );
+					mtmp = getTransform( int(bone.w) );
 					pos += weight.w * mtmp * vec4( vertex.xyz, 1.0 );
 					
-					/* if more bones than 4 per vertex needed, added more attributes and repeat above */
+					/* if more bones than 4 per vertex needed, add more attributes and repeat above */
 				}
 			}
 		}

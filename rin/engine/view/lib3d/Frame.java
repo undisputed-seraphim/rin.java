@@ -62,13 +62,8 @@ public class Frame {
 	}
 	
 	private int tIndex = -1;
-	private int rxIndex = -1;
-	private int ryIndex = -1;
-	private int rzIndex = -1;
-	private void updateIndices( double dt ) {
-		//System.out.println( "START FRAME " + target.getId() );
-		
-		int offset = 0;
+	private int offset = 0;
+	private void calculateT( double dt ) {
 		if( tTime != null ) {
 			tIndex = 0;
 			for( int i = 0; i < tTime.length; i++ ) {
@@ -96,64 +91,10 @@ public class Frame {
 				System.err.println( "SEX t" );
 			}
 		}
-		
-		cRotation.identity();
-		if( rzTime != null ) {
-			rzIndex = 0;
-			for( int i = 0; i < rzTime.length; i++ ) {
-				if( dt < rzTime[i] ) {
-					break;
-				} else rzIndex = i;
-			}
-			if( rzTime.length > rzIndex+1 ) {
-				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
-				t = ((float)dt - rzTime[rzIndex]) / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
-				cRotation.applyOrientationDeg( Vec3.Z_AXIS, rzData[rzIndex][offset] );
-				
-				/*System.out.println( "\tRotationZ:" );
-				System.out.println( "\t\tIndices: " + rzIndex + " [" + rzTime[rzIndex] +"] - " + (rzIndex+1) + " [" + rzTime[rzIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-			} else {
-				System.err.println( "SEX rz" );
-			}
-		}
-		
-		if( ryTime != null ) {
-			ryIndex = 0;
-			for( int i = 0; i < ryTime.length; i++ ) {
-				if( dt < ryTime[i] ) {
-					break;
-				} else ryIndex = i;
-			}
-			if( ryTime.length > ryIndex+1 ) {
-				float t = ryTime[ryIndex+1] - ryTime[ryIndex];
-				t = ((float)dt - ryTime[ryIndex]) / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
-				cRotation.applyOrientationDeg( Vec3.Y_AXIS, ryData[ryIndex][offset] );
-				
-				/*System.out.println( "\tRotationY:" );
-				System.out.println( "\t\tIndices: " + ryIndex + " [" + ryTime[ryIndex] +"] - " + (ryIndex+1) + " [" + ryTime[ryIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-			} else {
-				System.err.println( "SEX ry" );
-			}
-		}
-		
+	}
+	
+	private int rxIndex = -1;
+	private void calculateRx( double dt ) {
 		if( rxTime != null ) {
 			rxIndex = 0;
 			for( int i = 0; i < rxTime.length; i++ ) {
@@ -181,6 +122,81 @@ public class Frame {
 				System.err.println( "SEX rx" );
 			}
 		}
+	}
+	
+	private int ryIndex = -1;
+	private void calculateRy( double dt ) {
+		if( ryTime != null ) {
+			ryIndex = 0;
+			for( int i = 0; i < ryTime.length; i++ ) {
+				if( dt < ryTime[i] ) {
+					break;
+				} else ryIndex = i;
+			}
+			if( ryTime.length > ryIndex+1 ) {
+				float t = ryTime[ryIndex+1] - ryTime[ryIndex];
+				t = ((float)dt - ryTime[ryIndex]) / t;
+				
+				if( t <= 0.25f ) offset = 0;
+				else if( t <= 0.5f ) offset = 1;
+				else if( t <= 0.75f ) offset = 2;
+				else offset = 3;
+				
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
+				cRotation.applyOrientationDeg( Vec3.Y_AXIS, ryData[ryIndex][offset] );
+				
+				/*System.out.println( "\tRotationY:" );
+				System.out.println( "\t\tIndices: " + ryIndex + " [" + ryTime[ryIndex] +"] - " + (ryIndex+1) + " [" + ryTime[ryIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+				if( ryData[ryIndex][offset] > 180 || ryData[ryIndex][offset] < -180 ) {
+					System.err.println( "large angle on rx: " + target.getId() );
+				}
+			} else {
+				System.err.println( "SEX ry" );
+			}
+		}
+	}
+	
+	private int rzIndex = -1;
+	private void calculateRz( double dt ) {
+		if( rzTime != null ) {
+			rzIndex = 0;
+			for( int i = 0; i < rzTime.length; i++ ) {
+				if( dt < rzTime[i] ) {
+					break;
+				} else rzIndex = i;
+			}
+			if( rzTime.length > rzIndex+1 ) {
+				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
+				t = ((float)dt - rzTime[rzIndex]) / t;
+				
+				if( t <= 0.25f ) offset = 0;
+				else if( t <= 0.5f ) offset = 1;
+				else if( t <= 0.75f ) offset = 2;
+				else offset = 3;
+				
+				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
+				cRotation.applyOrientationDeg( Vec3.Z_AXIS, rzData[rzIndex][offset] );
+				
+				/*System.out.println( "\tRotationZ:" );
+				System.out.println( "\t\tIndices: " + rzIndex + " [" + rzTime[rzIndex] +"] - " + (rzIndex+1) + " [" + rzTime[rzIndex+1] + "]" );
+				System.out.println( "\t\tOffset: " + offset );
+				System.out.println( "\t\tTime: " + dt + " / " + t );*/
+			} else {
+				System.err.println( "SEX rz" );
+			}
+		}
+	}
+	
+	private void updateIndices( double dt ) {
+		//System.out.println( "START FRAME " + target.getId() );
+		
+		calculateT( dt );
+		cRotation.identity();
+		calculateRz( dt );
+		calculateRy( dt );
+		calculateRx( dt );
 	}
 	
 	public void update( double dt ) {
