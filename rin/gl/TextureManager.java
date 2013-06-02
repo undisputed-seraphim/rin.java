@@ -8,9 +8,6 @@ import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
-//import static org.lwjgl.opengl.GL21.*;
-//import static org.lwjgl.opengl.GL12.*;
-//import static org.lwjgl.opengl.GL30.*;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 

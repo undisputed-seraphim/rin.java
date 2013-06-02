@@ -26,7 +26,7 @@ public class UniversalActor extends Poly implements Profiled {
 		
 		if( mesh != null ) {
 			mesh.update( dt );
-			glUniformMatrix4( GL.getUniform( "mMatrix"), false, this.getMatrix().gl() );
+			glUniformMatrix4( GL.getUniform( "mMatrix" ), false, this.getMatrix().gl() );
 			mesh.render();
 		}
 		System.out.println( "Universal actor rendered in " + dt + " seconds" );
@@ -37,7 +37,7 @@ public class UniversalActor extends Poly implements Profiled {
 	
 	private void updateDt() {
 		dt = System.nanoTime() - start;
-		start += dt; 
+		start += dt;
 	}
 	
 	@Override

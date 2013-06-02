@@ -11,7 +11,6 @@ import rin.gl.lib3d.interfaces.Positionable;
 import rin.gl.lib3d.interfaces.Controllable;
 import rin.gl.lib3d.interfaces.Animatable;
 import rin.gl.lib3d.interfaces.Transitionable;
-import rin.gl.GL;
 import rin.gl.event.GLEvent;
 import rin.gl.event.Transition;
 import rin.gl.event.GLEvent.*;
@@ -38,7 +37,7 @@ public class Actor implements Positionable, Controllable, Animatable, Transition
 	public Actor( String name, Properties p ) {
 		this.name = name;
 		this.setTransformation( p.getTransformation() );
-		this.uniqueColor = GL.getNextColor();
+		this.uniqueColor = new float[] { 0.0f, 0.0f, 0.0f };
 	}
 	
 	public Poly asPoly() { return (Poly)this; }

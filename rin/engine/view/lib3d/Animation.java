@@ -14,9 +14,10 @@ public class Animation {
 	public Animation( String id ) { name = id; }
 	public String getName() { return name; }
 	
-	protected void updateTimes( float s, float e ) {
-		start = start > s ? s : start;
-		end = end > e ? end : e;
+	public void setTimes( float s, float e ) {
+		start = s;
+		end = e;
+		animDt = start;
 	}
 	
 	public Frame getFrame( String id ) { return frames.get( id ); }
@@ -27,10 +28,15 @@ public class Animation {
 		return res;
 	}
 	
+	public Animation restart() {
+		animDt = start;
+		return this;
+	}
+	
 	private void updateDt( double dt ) {
 		animDt += dt;
 		if( animDt > end )
-			animDt = animDt - end;
+			animDt = (animDt - end) + start;
 	}
 	
 	public void update( double dt ) {

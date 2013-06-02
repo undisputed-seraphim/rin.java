@@ -18,7 +18,7 @@ public abstract class AbstractNode<T extends AbstractNode<T>> {
 	public NodeTree<T> getTree() { return tree; }
 	public ArrayList<T> getChildren() { return children; }
 	
-	public T add( T node ) {
+	public <R extends T> R add( R node ) {
 		node.tree = tree;
 		node.parent = actual();
 		children.add( node );
@@ -27,7 +27,7 @@ public abstract class AbstractNode<T extends AbstractNode<T>> {
 			tree.dirty = true;
 			tree.cache( node );
 		}
-		return getRecent();
+		return node;
 	}
 	
 	public void remove( T node ) {

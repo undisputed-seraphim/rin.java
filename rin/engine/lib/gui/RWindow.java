@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import rin.engine.meta.RinChainable;
 import rin.engine.lib.gui.GUIFactory.GUIEvent;
 import rin.engine.lib.gui.event.GUIWindowFocusListener;
 import rin.engine.lib.gui.event.GUIWindowListener;
@@ -29,14 +28,12 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	@Override
 	protected RWindow actual() { return this; }
 	
-	@RinChainable
 	public RWindow setTitle( String title ) {
 		this.swing().setTitle( title );
 		return this.update();
 	}
 	
 	@Override
-	@RinChainable
 	public RWindow update() {
 		super.update();
 		this.swing().pack();
@@ -45,7 +42,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	}
 	
 	@Override
-	@RinChainable
 	public RWindow add( RComponent<?, ?> component ) {
 		// RMenuBars must be added in a special way to RWindows
 		if( component instanceof RMenuBar ) {
@@ -69,7 +65,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	public boolean isWindowFocusListening() { return this.isWindowFocusListening; }
 	
 	@Override
-	@RinChainable
 	public RWindow setWindowFocusListening( boolean listen ) {
 		if( !this.isWindowFocusListening && listen ) {
 			this.swing().addWindowFocusListener( this );
@@ -83,7 +78,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	}
 	
 	@Override
-	@RinChainable
 	public RWindow onWindowFocusGained( GUIEvent<RWindow> e ) {
 		this.setWindowFocusListening( true );
 		this.runOnWindowFocusGained = e.setTarget( this );
@@ -91,7 +85,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	}
 	
 	@Override
-	@RinChainable
 	public RWindow onWindowFocusLost( GUIEvent<RWindow> e ) {
 		this.setWindowFocusListening( true );
 		this.runOnWindowFocusLost = e.setTarget( this );
@@ -106,7 +99,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	public boolean isWindowListening() { return this.isWindowListening; }
 	
 	@Override
-	@RinChainable
 	public RWindow setWindowListening( boolean listen ) {
 		if( !this.isWindowListening && listen ) {
 			this.swing().addWindowListener( this );
@@ -120,7 +112,6 @@ public class RWindow extends RComponent<JFrame, RWindow> implements GUIWindowFoc
 	}
 	
 	@Override
-	@RinChainable
 	public RWindow onWindowClosing( GUIEvent<RWindow> e ) {
 		this.setWindowListening( true );
 		this.runOnWindowClosing = e.setTarget( this );

@@ -2,7 +2,6 @@ package rin.engine.lib.gui;
 
 import javax.swing.JButton;
 
-import rin.engine.meta.RinChainable;
 import rin.engine.lib.gui.GUIFactory.GUIEvent;
 import rin.engine.lib.gui.event.GUIActionListener;
 
@@ -24,7 +23,6 @@ public class RButton extends RComponent<JButton, RButton> implements GUIActionLi
 	
 	public String getText() { return this.swing().getText(); }
 	
-	@RinChainable
 	public RButton setText( String text ) {
 		this.swing().setText( text );
 		return this.update();
@@ -38,7 +36,6 @@ public class RButton extends RComponent<JButton, RButton> implements GUIActionLi
 	public boolean isActionListening() { return this.isActionListening; }
 	
 	@Override
-	@RinChainable
 	public RButton setActionListening( boolean listen ) {
 		if( !this.isActionListening && listen ) {
 			this.swing().addActionListener( this );
@@ -52,7 +49,6 @@ public class RButton extends RComponent<JButton, RButton> implements GUIActionLi
 	}
 
 	@Override
-	@RinChainable
 	public RButton onAction( GUIEvent<RButton> e ) {
 		this.setActionListening( true );
 		this.runOnAction = e.setTarget( this );

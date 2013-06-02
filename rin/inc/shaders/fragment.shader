@@ -1,3 +1,4 @@
+#version 120
 uniform sampler2D sampler;
 
 uniform bool useUnique;
@@ -22,7 +23,7 @@ void main( void ) {
 		} else if( useTexture ) {
 			texel = texture2D( sampler, vec2( vTexture.x, vTexture.y ) );
 		}
-	
+		
 		gl_FragColor = texel;
 	}
 }

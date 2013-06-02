@@ -50,28 +50,6 @@ public class JointNode extends SceneNode<JointNode> {
 		glUniform3f( GL.getUniform( "trans["+index+"]" ), world.m[3], world.m[7], world.m[11] );
 	}
 	
-	public void finish() {
-		/*System.out.println( "orient: " + orient.toString() + " z: " + orientZ );
-		orient.applyOrientationDeg( Vec3.Z_AXIS, orientZ );
-		System.out.println( "orient: " + orient.toString() + " y: " + orientY );
-		orient.applyOrientationDeg( Vec3.Y_AXIS, orientY );
-		System.out.println( "orient: " + orient.toString() + " x: " + orientX );
-		orient.applyOrientationDeg( Vec3.X_AXIS, orientX );
-		System.out.println( "orient: " + orient.toString() );*/
-		
-		if( parent != null && parent != tree.getRoot() ) {
-			rBaseGlobal.redefine( parent.rBaseGlobal ).multiply( orient );
-			tBaseGlobal.redefine( tLocal ).rotate( parent.rBaseGlobal ).add( parent.tBaseGlobal );
-		} else {
-			rBaseGlobal.redefine( orient );
-			tBaseGlobal.redefine( tLocal );
-		}
-		
-		rBaseGlobal.intoMat4( rotate );
-		translate.identity().translate( tBaseGlobal );
-		Mat4.multiplyInto( translate, rotate, poseAbsolute );
-	}
-	
 	public void update( double dt ) {
 		if( !update ) return;
 		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
@@ -87,11 +65,11 @@ public class JointNode extends SceneNode<JointNode> {
 		if( parent != null && parent != tree.getRoot() ) {
 			//rGlobal = Quat4.multiply( Quat4.multiply( parent.rGlobal, orient ), rLocal );
 			//tGlobal = Vec3.add( parent.tGlobal, Vec3.rotate( tLocal, parent.rGlobal );
-			rGlobal.redefine( parent.rGlobal ).multiply( orient ).multiply( rLocal );
+			rGlobal.redefine( parent.rGlobal ).multiply( rLocal );
 			tGlobal.redefine( tLocal ).rotate( parent.rGlobal ).add( parent.tGlobal );
 		} else {
 			//rGlobal = Quat4.multiply( orient, rLocal );
-			rGlobal.redefine( orient ).multiply( rLocal );
+			rGlobal.redefine( rLocal );
 			tGlobal.redefine( tLocal );
 		}
 		

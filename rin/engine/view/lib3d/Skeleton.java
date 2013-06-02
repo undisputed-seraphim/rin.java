@@ -17,6 +17,11 @@ public class Skeleton extends NodeTree<JointNode> {
 	}
 	
 	public Animation getCurrentAnimation() { return currentAnimation; }
+	public Animation setCurrentAnimation( String id ) {
+		currentAnimation = animations.get( id );
+		currentAnimation.restart();
+		return currentAnimation;
+	}
 	
 	public Animation addAnimation( String id ) {
 		animations.put( id, new Animation( id ) );
@@ -26,40 +31,21 @@ public class Skeleton extends NodeTree<JointNode> {
 		return animations.get( id );
 	}
 	
-	public void finish() {
-		GUIFactory.createWindow( "skeleton" ).setTitle( "skeleton" ).setSize( 100, 600 );
-		for( final JointNode n : this ) {
-			GUIManager.getWindow( "skeleton" ).add( GUIFactory.createCheckBox( n.getId(), n.getId() ).check().onChange( new GUIFactory.CheckBoxEvent() {
-				@Override public void run() {
-					if( target.isChecked() ) n.setUpdate( true );
-					else n.setUpdate( false );
-				}
-			}) );
-			n.finish();
-		}
-		GUIManager.getWindow( "skeleton" ).show();
-		for( JointNode n : this )
-			n.finish();
-	}
-	
-	public void bufferAnimations() {
+	public void showDebugWindow() {
+		GUIFactory.createWindow( "animations" ).setSize( 500, 500 );
 		for( Animation a : animations.values() ) {
-			for( JointNode jn : this ) {
-				Frame cFrame = a.getFrame( jn.getId() );
-				if( cFrame != null ) {
-					if( cFrame.tTime != null ) {
-						for( int i = 0; i < cFrame.tTime.length; i++ ) {
-							float[] t = new float[3];
-							t[0] = cFrame.tData[i][0];
-							t[1] = cFrame.tData[i][4];
-							t[2] = cFrame.tData[i][8];
-							cFrame.btData.put( cFrame.tTime[i], t );
-						}
-						//cFrame.tData = null;
-					}
+			GUIFactory.getWindow( "animations" ).add( GUIFactory.createCheckBox( a.getName(), a.getName() ).onChange( new GUIFactory.CheckBoxEvent() {
+				
+				@Override
+				public void run() {
+					setCurrentAnimation( target.getId() );
 				}
-			}
+				
+			}) );
+			if( a.getName().equals( currentAnimation.getName() ) )
+				GUIFactory.getCheckBox( a.getName() ).check();
 		}
+		GUIFactory.getWindow( "animations" ).show();
 	}
 	
 	public void update( double dt ) {
@@ -69,9 +55,7 @@ public class Skeleton extends NodeTree<JointNode> {
 		
 		// update this skeletons joints, traversing in the proper order by default
 		for( JointNode jn : this ) {
-			//if( jn.update )
-				jn.update( dt );
-			//if( k++ == 5 ) break;
+			jn.update( dt );
 		}
 	}
 }

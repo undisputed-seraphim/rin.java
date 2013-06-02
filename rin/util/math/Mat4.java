@@ -228,23 +228,31 @@ public class Mat4 {
 				Quat4.create( Vec3.Y_AXIS, v.y ) ), Quat4.create( Vec3.Z_AXIS, v.z ) ).toMat4() );
 	}
 	
+	public Mat4 translateTo( float x, float y, float z ) {
+		m[ 0] = 1; m[ 1] = 0; m[ 2] = 0; m[ 3] = x;
+		m[ 4] = 0; m[ 5] = 1; m[ 6] = 0; m[ 7] = y;
+		m[ 8] = 0; m[ 9] = 0; m[10] = 1; m[11] = z;
+		m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+		return this;
+	}
+	
 	public static float[] translateInto( float[] m, float x, float y, float z, float[] $r ) {
 		$r[ 0] = m[ 0];
 		$r[ 1] = m[ 1];
 		$r[ 2] = m[ 2];
-		$r[ 3] = m[ 0] * x + m[ 1] * y + m[ 2] * z + m[ 3] * 1;
+		$r[ 3] = m[ 0] * x + m[ 1] * y + m[ 2] * z + m[ 3];
 		$r[ 4] = m[ 4];
 		$r[ 5] = m[ 5];
 		$r[ 6] = m[ 6];
-		$r[ 7] = m[ 4] * x + m[ 5] * y + m[ 6] * z + m[ 7] * 1;
+		$r[ 7] = m[ 4] * x + m[ 5] * y + m[ 6] * z + m[ 7];
 		$r[ 8] = m[ 8];
 		$r[ 9] = m[ 9];
 		$r[10] = m[10];
-		$r[11] = m[ 8] * x + m[ 9] * y + m[10] * z + m[11] * 1;
+		$r[11] = m[ 8] * x + m[ 9] * y + m[10] * z + m[11];
 		$r[12] = m[12];
 		$r[13] = m[13];
 		$r[14] = m[14];
-		$r[15] = m[12] * x + m[13] * y + m[14] * z + m[15] * 1;
+		$r[15] = m[12] * x + m[13] * y + m[14] * z + m[15];
 		return $r;
 	}
 	
@@ -297,6 +305,14 @@ public class Mat4 {
 		float y = v.x * m.m[1] + v.y * m.m[5] + v.z * m.m[9] + m.m[13];
 		float z = v.x * m.m[2] + v.y * m.m[6] + v.z * m.m[10] + m.m[14];
 		return new Vec3( x, y, z );
+	}
+	
+	public Mat4 scaleTo( float x, float y, float z ) {
+		m[ 0] = x; m[ 1] = 0; m[ 2] = 0; m[ 3] = 0;
+		m[ 4] = 0; m[ 5] = y; m[ 6] = 0; m[ 7] = 0;
+		m[ 8] = 0; m[ 9] = 0; m[10] = z; m[11] = 0;
+		m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+		return this;
 	}
 	
 	/* returns a matrix used to scale other matrices */

@@ -1,46 +1,19 @@
 package rin.engine.view;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+import rin.engine.scene.Scene;
 
-public class View {
-	public void init() {
-		startGL();
-	}
+public interface View {
+	public static final int DEFAULT_WIDTH = 900;
+	public static final int DEFAULT_HEIGHT = 500;
+	
+	public Scene getScene();
+	
+	public int getWidth();
+	public int getHeight();
+	public void setSize( int width, int height );
+	
+	public void init();
+	public void show();
+	public void destroy();
 
-	public void startGL() {
-		try {
-			Display.setDisplayMode( new DisplayMode( 900, 600 ) );
-			Display.setVSyncEnabled( true );
-			Display.create();
-		} catch( LWJGLException ex ) {
-			System.err.println( "GLCanvas#startGL(): LWJGLException raised." );
-			ex.printStackTrace();
-		}
-	}
-	
-	public void stopGL() {
-		Display.destroy();
-	}
-	
-	public void setSize( int width, int height ) {
-		try {
-			Display.setDisplayMode( new DisplayMode( width, height ) );
-		} catch( LWJGLException ex ) {
-			System.err.println( "GLCanvas#resize(int,int): LWJGLException raised." );
-			ex.printStackTrace();
-		}
-	}
-	
-	public void update() {
-		Display.sync( 60 );
-		Display.update();
-	}
-	
-	public boolean isClosed() { return Display.isCloseRequested(); }
-	
-	public void setTitle( String title ) { Display.setTitle( title ); }
-
-	public void destroy() { stopGL(); }
 }

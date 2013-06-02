@@ -3,8 +3,6 @@ package rin.engine.lib.gui;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
-import rin.engine.meta.RinChainable;
-
 public class RDesktopWindow extends RComponent<JInternalFrame, RDesktopWindow> {
 	
 	private JInternalFrame window;
@@ -23,7 +21,6 @@ public class RDesktopWindow extends RComponent<JInternalFrame, RDesktopWindow> {
 	protected RDesktopWindow actual() { return this; }
 	
 	@Override
-	@RinChainable
 	public RDesktopWindow update() {
 		super.update();
 		this.swing().pack();
@@ -32,7 +29,6 @@ public class RDesktopWindow extends RComponent<JInternalFrame, RDesktopWindow> {
 	}
 	
 	@Override
-	@RinChainable
 	public RDesktopWindow setSize( int width, int height ) {
 		this.swing().setSize( width, height );
 		return this.update();

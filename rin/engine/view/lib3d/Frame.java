@@ -1,19 +1,15 @@
 package rin.engine.view.lib3d;
 
-import java.util.HashMap;
-
-import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
 
 public class Frame {
 
 	protected Animation parent;
-	protected JointNode target;
+	public JointNode target;
 	
 	protected float[] tTime;
 	protected float[][] tData;
-	protected HashMap<Float, float[]> btData = new HashMap<Float, float[]>();
 	
 	protected float[] sTime;
 	protected float[][] sData;
@@ -29,177 +25,135 @@ public class Frame {
 	
 	public Quat4 cRotation = new Quat4( 0, 0, 0, 1 );
 	public Vec3 cTranslation = new Vec3( 0, 0, 0 );
-	private Mat4 cTransform = new Mat4();
 	
 	public Frame( JointNode jn ) { target = jn; }
 	
 	public Quat4 getCurrentRotation() { return cRotation; }
 	public Vec3 getCurrentTranslation() { return cTranslation; }
-	public Mat4 getCurrentTransform() { return cTransform; }
 	
 	public void setTranslateData( float[] time, float[][] data ) {
 		tTime = time;
 		tData = data;
-		parent.updateTimes( time[0], time[ time.length - 1 ] );
 	}
 	
 	public void setRotateXData( float[] time, float[][] data ) {
 		rxTime = time;
 		rxData = data;
-		parent.updateTimes( time[0], time[ time.length - 1 ] );
 	}
 	
 	public void setRotateYData( float[] time, float[][] data ) {
 		ryTime = time;
 		ryData = data;
-		parent.updateTimes( time[0], time[ time.length - 1 ] );
 	}
 	
 	public void setRotateZData( float[] time, float[][] data ) {
 		rzTime = time;
 		rzData = data;
-		parent.updateTimes( time[0], time[ time.length - 1 ] );
 	}
 	
-	private int tIndex = -1;
-	private int offset = 0;
+	private float t = 0.0f;
+	private int i = 0;
+	
+	private int tIndex = 0;
+	private float tEnd = 0.0f;
 	private void calculateT( double dt ) {
 		if( tTime != null ) {
-			tIndex = 0;
-			for( int i = 0; i < tTime.length; i++ ) {
+			tEnd = parent.end;
+			if( tTime[tIndex] > dt )
+				tIndex = 0;
+			
+			for( i = tIndex; i < tTime.length; i++ ) {
 				if( dt < tTime[i] ) {
+					tEnd = tTime[i];
 					break;
 				} else tIndex = i;
 			}
-
-			if( tTime.length > tIndex+1 ) {
-				float t = tTime[tIndex+1] - tTime[tIndex];
-				t = (float)dt / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				cTranslation.redefine( tData[tIndex][0+offset], tData[tIndex][4+offset], tData[tIndex][8+offset] );
-				
-				/*System.out.println( "\tTranslation:" );
-				System.out.println( "\t\tIndices: " + tIndex + " [" + tTime[tIndex] +"] - " + (tIndex+1) + " [" + tTime[tIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-			} else {
-				System.err.println( "SEX t" );
-			}
+			
+			t = ((float)dt - tTime[tIndex]) / (tEnd - tTime[tIndex]);
+			cTranslation.redefine( interp( tData[tIndex][0], tData[tIndex][3], t ), interp( tData[tIndex][4], tData[tIndex][7], t ),
+					interp( tData[tIndex][8], tData[tIndex][11], t ) );
 		}
 	}
 	
-	private int rxIndex = -1;
+	private int rxIndex = 0;
+	private float rxAng = 0.0f;
+	private float rxEnd = 0.0f;
 	private void calculateRx( double dt ) {
 		if( rxTime != null ) {
-			rxIndex = 0;
-			for( int i = 0; i < rxTime.length; i++ ) {
+			rxEnd = parent.end;
+			if( rxTime[rxIndex] > dt )
+				rxIndex = 0;
+			
+			for( i = rxIndex; i < rxTime.length; i++ ) {
 				if( dt < rxTime[i] ) {
+					rxEnd = rxTime[i];
 					break;
 				} else rxIndex = i;
 			}
-			if( rxTime.length > rxIndex+1 ) {
-				float t = rxTime[rxIndex+1] - rxTime[rxIndex];
-				t = ((float)dt - rxTime[rxIndex]) / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.X_AXIS, rxData[rxIndex][offset] ).toMat4() );
-				cRotation.applyOrientationDeg( Vec3.X_AXIS, rxData[rxIndex][offset] );
-				
-				/*System.out.println( "\tRotationX:" );
-				System.out.println( "\t\tIndices: " + rxIndex + " [" + rxTime[rxIndex] +"] - " + (rxIndex+1) + " [" + rxTime[rxIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-			} else {
-				System.err.println( "SEX rx" );
-			}
+			
+			/* rxIndex should always be the proper index by this point */
+			t = ((float)dt - rxTime[rxIndex]) / (rxEnd - rxTime[rxIndex]);
+			rxAng = interp( rxData[rxIndex][0], rxData[rxIndex][3], t );
+			cRotation.applyOrientationDeg( Vec3.X_AXIS, rxAng );
 		}
 	}
 	
-	private int ryIndex = -1;
+	private int ryIndex = 0;
+	private float ryEnd = 0.0f;
+	private float ryAng = 0.0f;
 	private void calculateRy( double dt ) {
 		if( ryTime != null ) {
-			ryIndex = 0;
-			for( int i = 0; i < ryTime.length; i++ ) {
+			ryEnd = parent.end;
+			if( ryTime[ryIndex] > dt )
+				ryIndex = 0;
+			
+			for( i = ryIndex; i < ryTime.length; i++ ) {
 				if( dt < ryTime[i] ) {
+					ryEnd = ryTime[i];
 					break;
 				} else ryIndex = i;
 			}
-			if( ryTime.length > ryIndex+1 ) {
-				float t = ryTime[ryIndex+1] - ryTime[ryIndex];
-				t = ((float)dt - ryTime[ryIndex]) / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Y_AXIS, ryData[ryIndex][offset] ).toMat4() );
-				cRotation.applyOrientationDeg( Vec3.Y_AXIS, ryData[ryIndex][offset] );
-				
-				/*System.out.println( "\tRotationY:" );
-				System.out.println( "\t\tIndices: " + ryIndex + " [" + ryTime[ryIndex] +"] - " + (ryIndex+1) + " [" + ryTime[ryIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-				if( ryData[ryIndex][offset] > 180 || ryData[ryIndex][offset] < -180 ) {
-					System.err.println( "large angle on rx: " + target.getId() );
-				}
-			} else {
-				System.err.println( "SEX ry" );
-			}
+			
+			/* ryIndex should always be the proper index by this point */
+			t = ((float)dt - ryTime[ryIndex]) / (ryEnd - ryTime[ryIndex]);
+			ryAng = interp( ryData[ryIndex][0], ryData[ryIndex][3], t );
+			cRotation.applyOrientationDeg( Vec3.Y_AXIS, ryAng );
 		}
 	}
 	
-	private int rzIndex = -1;
+	private int rzIndex = 0;
+	private float rzEnd = 0.0f;
+	private float rzAng = 0.0f;
 	private void calculateRz( double dt ) {
 		if( rzTime != null ) {
-			rzIndex = 0;
-			for( int i = 0; i < rzTime.length; i++ ) {
+			rzEnd = parent.end;
+			if( rzTime[rzIndex] > dt )
+				rzIndex = 0;
+			
+			for( i = rzIndex; i < rzTime.length; i++ ) {
 				if( dt < rzTime[i] ) {
+					rzEnd = rzTime[i];
 					break;
 				} else rzIndex = i;
 			}
-			if( rzTime.length > rzIndex+1 ) {
-				float t = rzTime[rzIndex+1] - rzTime[rzIndex];
-				t = ((float)dt - rzTime[rzIndex]) / t;
-				
-				if( t <= 0.25f ) offset = 0;
-				else if( t <= 0.5f ) offset = 1;
-				else if( t <= 0.75f ) offset = 2;
-				else offset = 3;
-				
-				//cRotation = Mat4.multiply( cRotation, Quat4.create( Vec3.Z_AXIS, rzData[rzIndex][offset] ).toMat4() );
-				cRotation.applyOrientationDeg( Vec3.Z_AXIS, rzData[rzIndex][offset] );
-				
-				/*System.out.println( "\tRotationZ:" );
-				System.out.println( "\t\tIndices: " + rzIndex + " [" + rzTime[rzIndex] +"] - " + (rzIndex+1) + " [" + rzTime[rzIndex+1] + "]" );
-				System.out.println( "\t\tOffset: " + offset );
-				System.out.println( "\t\tTime: " + dt + " / " + t );*/
-			} else {
-				System.err.println( "SEX rz" );
-			}
+			
+			/* rzIndex should always be the proper index by this point */
+			t = ((float)dt - rzTime[rzIndex]) / (rzEnd - rzTime[rzIndex]);
+			rzAng = interp( rzData[rzIndex][0], rzData[rzIndex][3], t );
+			cRotation.applyOrientationDeg( Vec3.Z_AXIS, rzAng );
 		}
 	}
 	
-	private void updateIndices( double dt ) {
-		//System.out.println( "START FRAME " + target.getId() );
-		
+	private float interp( float x, float y, float t ) {
+		return x * (1-t) + y * t;
+	}
+	
+	public void update( double dt ) {
 		calculateT( dt );
-		cRotation.identity();
+		cRotation.redefine( target.orient );
 		calculateRz( dt );
 		calculateRy( dt );
 		calculateRx( dt );
 	}
 	
-	public void update( double dt ) {
-		updateIndices( dt );
-	}
 }

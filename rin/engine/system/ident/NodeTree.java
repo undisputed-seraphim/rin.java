@@ -23,7 +23,7 @@ public class NodeTree<T extends AbstractNode<T>> implements Iterable<T> {
 	
 	public T getRoot() { return root; }
 	
-	public T add( T node ) { return root.add( node ); }
+	public <R extends T> R add( R node ) { return root.add( node ); }
 	public void remove( T node ) { root.remove( node ); }
 	
 	protected void cache( T node ) {

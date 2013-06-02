@@ -7,6 +7,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.image.PixelFormat;
 
 public class ImageUtils {
@@ -35,6 +36,10 @@ public class ImageUtils {
 	
 	public static void test( int width, int height, PixelFormat pf, short[] rawData ) {
 		new ImagePanel( width, height, pf, rawData );
+	}
+	
+	public static void test( ImageContainer ic ) {
+		new ImagePanel( ic.getWidth(), ic.getHeight(), ic.getFormat(), ic.getData() );
 	}
 	
 	public static short[] convert( PixelFormat src, PixelFormat dest, short[] data ) {

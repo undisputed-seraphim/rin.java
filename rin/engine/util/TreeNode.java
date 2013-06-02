@@ -1,50 +1,39 @@
 package rin.engine.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
-public class TreeNode<T extends TreeNode<T>> implements Iterable<T> {
+public class TreeNode<T extends TreeNode<T>> extends AbstractTreeIterator<T> {
 	protected final String name;
-	protected TreeNode<T> parent;
-	protected NodeTree<T> tree;
-	protected boolean dirty = false;
+	protected T parent;
+	protected AbstractTreeIterator<T> tree;
 	protected List<T> nodes = new ArrayList<T>();
-	private HashMap<String, T> idCache = new HashMap<String, T>();
-	private List<T> stack = new ArrayList<T>();
 	
 	public TreeNode( String id ) { name = id; }
 	public String getId() { return name; }
 	
-	protected void cache( T node ) {
-		if( idCache.get( node.getId() ) == null )
-			idCache.put( node.getId(), node );
-		else throw new RuntimeException( "ID " + node.getId() + " already exists." );
-	}
+	@Override protected List<T> getList() { return nodes; }
 	
-	protected void discard( T node ) {
-		if( idCache.get( node.getId() ) != null )
-			idCache.remove( node.getId() );
-		else System.err.println( "Removed node " + node.getId() + " was not cached...?" );
-	}
-	
-	public T add( T node ) {
-		node.parent = this;
+	@SuppressWarnings("unchecked")
+	public <R extends T> R add( R node ) {
+		//TODO: if parent is not null, remove this child from its parent before inserting
+		node.parent = (T)this;
 		node.tree = tree;
 		nodes.add( node );
-		cache( node );
-		tree.cache( node );
-		tree.dirty = true;
+		if( tree instanceof CachedNodeTree )
+			((CachedNodeTree<T>)tree).cache( node );
+		
+		if( tree != null ) tree.dirty = true;
 		dirty = true;
-		return idCache.get( node.getId() );
+		return node;
 	}
 	
 	public boolean remove( T node ) {
 		boolean res = nodes.remove( node );
-		discard( node );
-		tree.discard( node );
-		tree.dirty = true;
+		if( tree instanceof CachedNodeTree )
+			((CachedNodeTree<T>)tree).discard( node );
+		
+		if( tree != null ) tree.dirty = true;
 		dirty = true;
 		return res;
 	}
@@ -52,36 +41,26 @@ public class TreeNode<T extends TreeNode<T>> implements Iterable<T> {
 	public void clear() {
 		for( T t : nodes ) {
 			t.clear();
-			tree.discard( t );
-			discard( t );
+			if( tree instanceof CachedNodeTree )
+				((CachedNodeTree<T>)tree).discard( t );
 		}
 		nodes.clear();
-		idCache.clear();
 		stack.clear();
 	}
 	
-	public T find( String id ) { return idCache.get( id ); }
+	public T find( String id ) {
+		for( T t : nodes )
+			if( t.getId().equals( id ) )
+				return t;
+		return null;
+	}
 	
-	private List<T> addToList( T node ) {
-		stack.add( node );
-		for( T t : node.nodes )
-			addToList( t );
-		return stack;
-	}
-
-	private void updateStack() {
-		if( dirty ) {
-			stack.clear();
-			for( T an : nodes )
-				addToList( an );
-			dirty = false;
-		}
-	}
-
-	@Override
-	public Iterator<T> iterator() {
-		updateStack();
-		return stack.iterator();
+	public <R extends T> R find( String id, Class<R> cls ) {
+		for( T t : nodes )
+			if( t.getId().equals( id ) )
+				if( cls.isInstance( t ) )
+					return cls.cast( t );
+		return null;
 	}
 	
 }

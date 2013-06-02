@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 import javax.swing.JComponent;
 
-import rin.engine.meta.RinChainable;
 import rin.engine.lib.gui.GUIFactory.GUIEvent;
 import rin.engine.lib.gui.GUIFactory.WindowEvent;
 import rin.engine.lib.gui.event.GUIEventAdapter;
@@ -84,19 +83,16 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	public boolean isEnabled() { return this.target.isEnabled(); }
 	public boolean isFocused() { return this.target.hasFocus(); }
 	
-	@RinChainable
 	public G setWidth( int width ) {
 		this.target.setPreferredSize( new Dimension( width, this.getHeight() ) );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G setHeight( int height ) {
 		this.target.setPreferredSize( new Dimension( this.getWidth(), height ) );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G setSize( int width, int height ) {
 		this.setWidth( width );
 		this.setHeight( height );
@@ -104,7 +100,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.update();
 	}
 	
-	@RinChainable
 	public G setContextMenu( RContextMenu menu ) {
 		if( this.target instanceof JComponent ) {
 			((JComponent)this.target).setComponentPopupMenu( menu.swing() );
@@ -115,37 +110,31 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.actual();
 	}
 	
-	@RinChainable
 	public G show() {
 		this.swing().setVisible( true );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G hide() {
 		this.swing().setVisible( false );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G enable() {
 		this.swing().setEnabled( true );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G disable() {
 		this.swing().setEnabled( false );
 		return this.update();
 	}
 	
-	@RinChainable
 	public G focus() {
 		this.swing().requestFocusInWindow();
 		return this.actual();
 	}
 	
-	@RinChainable
 	public G update() {
 		this.swing().validate();
 		this.swing().repaint();
@@ -153,7 +142,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.actual();
 	}
 	
-	@RinChainable
 	public G add( RComponent<?, ?> ... components ) {		
 		for( RComponent<?, ?> component : components )
 			this.add( component );
@@ -167,7 +155,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	 * @param component RComponent to be added
 	 * @return calling instance
 	 */
-	@RinChainable
 	public G add( RComponent<?, ?> component ) {
 		// ensure component being added is a valid child
 		if( !this.isValidChild( component ) )
@@ -184,7 +171,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.update();
 	}
 
-	@RinChainable
 	public G remove( RComponent<?,?> component ) {
 		if( this.children.containsKey( component.getId() ) ) {
 			this.children.remove( component.getId() );
@@ -197,7 +183,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.update();
 	}
 	
-	@RinChainable
 	public G removeAndDestroy( RComponent<?,?> component ) {
 		this.remove( component );
 		component.destroy();
@@ -205,7 +190,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 		return this.update();
 	}
 	
-	@RinChainable
 	public G removeAndDestroyAll() {
 		LinkedList<String> childs = new LinkedList<String>();
 		for( String s : this.children.keySet() )
@@ -230,7 +214,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	public boolean isMouseListening() { return this.isMouseListening; }
 	
 	@Override
-	@RinChainable
 	public G setMouseListening( boolean listen ) {
 		if( !this.isMouseListening && listen ) {
 			this.swing().addMouseListener( this );
@@ -244,7 +227,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onClick( GUIEvent<G> e ) {
 		this.setMouseListening( true );
 		this.runOnClick = e.setTarget( this.actual() );
@@ -252,7 +234,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onMouseIn( GUIEvent<G> e ) {
 		this.setMouseListening( true );
 		this.runOnMouseIn = e.setTarget( this.actual() );
@@ -260,7 +241,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onMouseOut( GUIEvent<G> e ) {
 		this.setMouseListening( true );
 		this.runOnMouseOut = e.setTarget( this.actual() );
@@ -268,7 +248,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onMouseUp( GUIEvent<G> e ) {
 		this.setMouseListening( true );
 		this.runOnMouseUp = e.setTarget( this.actual() );
@@ -276,7 +255,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onMouseDown( GUIEvent<G> e ) {
 		this.setMouseListening( true );
 		this.runOnMouseDown = e.setTarget( this.actual() );
@@ -291,7 +269,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	public boolean isFocusListening() { return this.isFocusListening; }
 	
 	@Override
-	@RinChainable
 	public G setFocusListening( boolean listen ) {
 		if( this instanceof RWindow ) {
 			((RWindow)this).setWindowFocusListening( listen );
@@ -310,7 +287,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onFocusGained( GUIEvent<G> e ) {
 		// if this component is a top level container, promote to onWindowFocusGained
 		if( this instanceof RWindow ) {
@@ -324,7 +300,6 @@ public abstract class RComponent<T extends Component, G extends RComponent<T, G>
 	}
 	
 	@Override
-	@RinChainable
 	public G onFocusLost( GUIEvent<G> e ) {
 		if( this instanceof RWindow ) {
 			((RWindow)this).onWindowFocusLost( (WindowEvent)e );

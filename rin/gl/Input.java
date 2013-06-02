@@ -2,7 +2,6 @@ package rin.gl;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
 
 import rin.gl.event.GLEvent;
 import rin.gl.event.GLEvent.*;

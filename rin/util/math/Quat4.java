@@ -161,15 +161,6 @@ public class Quat4 {
 
 	/* create a quaternion facing the specified direction */
 	public static Quat4 create( Vec3 v, float f ) {
-		/*float f2 = f * 0.5f;
-
-		float result = (float)Math.sin( f2 );
-		float x = v.x * result;
-		float y = v.y * result;
-		float z = v.z * result;
-		float w = (float)Math.cos( f2 );
-
-		return new Quat4( x, y, z, w ).normalize();*/
 		return orientDegInto( v, f, new Quat4() );
 	}
 
@@ -287,24 +278,23 @@ public class Quat4 {
 	public static float dot( Quat4 q, Quat4 r ) {
 		return q.x*r.x + q.x*r.x + q.x*r.x + q.x*r.x;
 	}
-
-	public static Quat4 slerp( Quat4 q, Quat4 r, float t ) {
+	
+	public static Quat4 slerpInto( Quat4 q, Quat4 r, float t, Quat4 $r ) {
 		float cosTheta = 0.0f;
 		float sinTheta = 0.0f;
 		float beta = 0.0f;
-		float[] res = new float[4];
 
-		res[0] = r.x;
-		res[1] = r.y;
-		res[2] = r.z;
-		res[3] = r.w;
+		$r.b[0] = r.x;
+		$r.b[1] = r.y;
+		$r.b[2] = r.z;
+		$r.b[3] = r.w;
 
 		cosTheta = q.x * r.x + q.y * r.y + q.z * r.z + q.w * r.w;
 		if( cosTheta < 0.0f ) {
-			res[0] = -res[0];
-			res[1] = -res[1];
-			res[2] = -res[2];
-			res[3] = -res[3];
+			$r.b[0] = -$r.b[0];
+			$r.b[1] = -$r.b[1];
+			$r.b[2] = -$r.b[2];
+			$r.b[3] = -$r.b[3];
 			cosTheta = -cosTheta;
 		}
 
@@ -316,6 +306,15 @@ public class Quat4 {
 			t = (float)Math.sin( cosTheta * t ) * sinTheta;
 		}
 
-		return new Quat4( beta * q.x + t * res[0], beta * q.y + t * res[1], beta * q.z + t * res[2], beta * q.w + t * res[3] );
+		//return new Quat4( beta * q.x + t * res[0], beta * q.y + t * res[1], beta * q.z + t * res[2], beta * q.w + t * res[3] );
+		$r.x = beta * q.x + t * $r.b[0];
+		$r.y = beta * q.y + t * $r.b[1];
+		$r.z = beta * q.z + t * $r.b[2];
+		$r.w = beta * q.w + t * $r.b[3];
+		return $r;
+	}
+
+	public static Quat4 slerp( Quat4 q, Quat4 r, float t ) {
+		return slerpInto( q, r, t, new Quat4() );
 	}
 }

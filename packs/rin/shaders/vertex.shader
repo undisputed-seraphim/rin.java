@@ -43,27 +43,26 @@ mat4 getTransform( int index ) {
 }
 
 void main( void ) {
-	vec4 pos = vec4( vertex.xyz, 1 );
-	
+	vec4 pos = vec4( vertex.xyz, 1.0 );
 	if( weight.x != 0.0 ) {
 		mat4 mtmp;
 		
 		mtmp = getTransform( int(bone.x) );
-		pos += weight.x * mtmp * vec4( vertex.xyz, 1.0 );
+		pos = mtmp * vec4( vertex.xyz, 1.0 ) * weight.x;
 		
 		if( weight.y != 0.0 ) {
 			mtmp = getTransform( int(bone.y) );
-			pos += weight.y * mtmp * vec4( vertex.xyz, 1.0 );
+			pos += mtmp * vec4( vertex.xyz, 1.0 ) * weight.y;
 			
 			if( weight.z != 0.0 ) {
 				mtmp = getTransform( int(bone.z) );
-				pos += weight.z * mtmp * vec4( vertex.xyz, 1.0 );
+				pos += mtmp * vec4( vertex.xyz, 1.0 ) * weight.z;
 				
 				if( weight.w != 0.0 ) {
 					mtmp = getTransform( int(bone.w) );
-					pos += weight.w * mtmp * vec4( vertex.xyz, 1.0 );
+					pos += mtmp * vec4( vertex.xyz, 1.0 ) * weight.w;
 					
-					/* if more bones than 4 per vertex needed, add more attributes and repeat above */
+					/* if more bones than 4 per vertex needed, added more attributes and repeat above */
 				}
 			}
 		}
@@ -74,6 +73,4 @@ void main( void ) {
 	vColor = color;
 	vNormal = normal;
 	vTexture = texture;
-	/*mat4 nMatrix = mMatrix;
-	vTransformedNormal = nMatrix * vec4( normal.xyz, 1.0 );*/
 }

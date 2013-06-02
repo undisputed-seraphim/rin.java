@@ -13,18 +13,20 @@ import rin.engine.resource.image.ImageContainer;
 import rin.engine.resource.model.ModelContainer;
 import rin.engine.resource.model.ModelDecoder;
 import rin.engine.resource.model.ModelOptions;
+import rin.engine.scene.nodes.SkinNode;
+import rin.engine.scene.nodes.JointNode;
+import rin.engine.scene.nodes.SkinnedMesh;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
 import rin.engine.view.gl.GLSkinNode;
-import rin.engine.view.lib3d.Animation;
-import rin.engine.view.lib3d.Frame;
+import rin.engine.scene.nodes.Animation;
+import rin.engine.scene.nodes.Frame;
 import rin.engine.view.lib3d.UniversalActor;
-import rin.engine.view.lib3d.JointNode;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
-	private boolean DEBUG = false;
-	private boolean TEMP = true;
+	private boolean DEBUG = true;
+	private boolean TEMP = false;
 	
 	private int chunkCount;
 	private TreeMap<Integer, Integer> chunkOffsets = new TreeMap<Integer, Integer>();
@@ -35,11 +37,12 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	private String[] stringMap;
 	
 	private Ism2Model cModel;
-	private UniversalActor cActor;
+	private SkinnedMesh cActor;
+	private SkinNode sn;
 	private JointNode cJoint;
 	
 	private JointNode cSkelRoot;
-	private GLSkinNode cMeshRoot;
+	private SkinNode cMeshRoot;
 	private ArrayList<String> skinNodes = new ArrayList<String>();
 	
 	private String cAnimationName;
@@ -94,7 +97,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		
 		if( cModel == null ) {
 			cModel = new Ism2Model();
-			cActor = mc.getActor();
+			cActor = (SkinnedMesh)mc.getGL();
 		}
 		debug( tab + "::Strings: " + ArrayUtils.asString( stringMap ) );
 	}
@@ -315,26 +318,21 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		case T_TRANSFORM_FRAME:
 			float[] time = new float[count];
 			float[][] data = new float[count][cTransform.stride-1];
-			//cTransform.time = new float[count];
-			//cTransform.data = new float[count][cTransform.stride-1];
 			for( int i = 0; i < count; i++ ) {
-				time[i] = readFloat16();
-				//debug( tab + "::time: " + cTransform.time[i] );
+				time[i] = Math.abs( readFloat16() );
 				for( int j = 0; j < cTransform.stride - 1; j++ )
 					data[i][j] = readFloat16();
-				if( TEMP ) debug.writeLine( tab + "time: " + time[i] + ", data: "+ ArrayUtils.asString( data[i] ) );
 			}
 			switch( cFrameType ) {
-			case T_FRAME_TRANSLATE: if( TEMP ) debug.writeLine( tab + "translate" ); if( cFrame != null ) cFrame.setTranslateData( time, data ); break;
-			case T_FRAME_ROTATEX: if( TEMP ) debug.writeLine( tab + "rotateX" ); if( cFrame != null ) cFrame.setRotateXData( time, data ); break;
-			case T_FRAME_ROTATEY: if( TEMP ) debug.writeLine( tab + "rotateY" ); if( cFrame != null ) cFrame.setRotateYData( time, data ); break;
-			case T_FRAME_ROTATEZ: if( TEMP ) debug.writeLine( tab + "rotateZ" ); if( cFrame != null ) cFrame.setRotateZData( time, data ); break;
-			case T_FRAME_SCALE: if( TEMP ) debug.writeLine( tab + "scale" ); break;
+			case T_FRAME_TRANSLATE: if( cFrame != null ) cFrame.setTranslateData( time, data ); break;
+			case T_FRAME_ROTATEX: if( cFrame != null ) cFrame.setRotateXData( time, data ); break;
+			case T_FRAME_ROTATEY: if( cFrame != null ) cFrame.setRotateYData( time, data ); break;
+			case T_FRAME_ROTATEZ: if( cFrame != null ) cFrame.setRotateZData( time, data ); break;
+			case T_FRAME_SCALE: break;
 			default:
 				System.out.println( "UNKNOWN ANIMATION FRAME TYPE: " + cFrameType );
 				break;
 			}
-			if( TEMP ) debug.writeLine( "ENDED: " + position() );
 			break;
 		default:
 			exitWithError( "UNKOWN transform TYPE " + cTransform.type );
@@ -354,9 +352,9 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			cVertexData = cModel.vdata[ i ];
 			processChunk( offsets[i], tab + " " );
 			System.out.println( cVertexData.v.length );
-			mc.setVertices( cVertexData.v );
-			mc.setNormals( cVertexData.n );
-			mc.setTexcoords( cVertexData.t );
+			//mc.setVertices( cVertexData.v );
+			//mc.setNormals( cVertexData.n );
+			//mc.setTexcoords( cVertexData.t );
 		}
 	}
 	
@@ -370,14 +368,19 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		advance( 3 * 4 ); //unknown
 		
 		// create the root render node for this mesh
-		cMeshRoot = new GLSkinNode( id );
-		cActor.getMesh().add( cMeshRoot );
+		cMeshRoot = cActor.add( new SkinNode( id ) );
+		//sn = sm.getMesh().add( new SkinNode( id ) );
 		
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i , tab + " " );
 		
 		// add obtained vertices to mesh root
+		/*sn.setVertices( cVertexData.v );
+		sn.setNormals( cVertexData.n );
+		sn.setTexcoords( cVertexData.t );
+		sn.setBoneIndices( cVertexData.b );
+		sn.setBoneWeights( cVertexData.w );*/
 		cMeshRoot.setVertices( cVertexData.v );
 		cMeshRoot.setNormals( cVertexData.n );
 		cMeshRoot.setTexcoords( cVertexData.t );
@@ -553,7 +556,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			break;
 		}
 		
-		GLSkinNode skin = new GLSkinNode( skinNodes.get( skinNodes.size() - 1 ) );
+		SkinNode skin = new SkinNode( skinNodes.get( skinNodes.size() - 1 ) );
 		skin.setIndices( in );
 		
 		// add the needed joints to the skin node
@@ -658,8 +661,6 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		int[] offsets = getOffsets( count );
 		for( int i : offsets )
 			processChunk( i, tab + " " );
-		
-		//cJoint.finish();
 	}
 	
 	private void getC91( int offset, int hsize, String tab ) {
@@ -685,7 +686,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "C92 ["+toHex(92)+"]" );
 		
 		//int[] offsets = getOffsets( readInt32() );
-		//  for( int i : offsets )
+		//for( int i : offsets )
 		//	processChunk( i, tab + " " );
 		debug( tab + "C92-END " + position() );
 	}
@@ -695,7 +696,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		debug( tab + "C20 ["+toHex(20)+"]" + stringMap[ hsize ] + " " + offset );
 		float[] tmp = readFloat32( 3 );
 		cJoint.setJointTranslation( tmp );
-		if( TEMP ) debug.writeLine( tab + stringMap[ hsize ] + ": " + ArrayUtils.asString( tmp ) );
+		debug( tab + "data:: " + ArrayUtils.asString( tmp ) );
 	}
 	
 	// rotateX
@@ -838,8 +839,9 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		
 		int count = readInt32();
 		debug.writeLine( tab + "::?: " + readInt32() );
-		debug.writeLine( tab + "::?: " + readFloat32() ); // start?
-		debug.writeLine( tab + "::?: " + readFloat32() ); // end?
+		cAnimation.setTimes( readFloat32(), readFloat32() );
+		//debug.writeLine( tab + "::?: " + readFloat32() ); // start?
+		//debug.writeLine( tab + "::?: " + readFloat32() ); // end?
 		debug.writeLine( tab + "::?: " + readInt16() ); //TODO: mysterious float32...
 		debug.writeLine( tab + "::?: " + readInt16() );
 		debug.writeLine( tab + "::?: " + readInt32() );
@@ -1007,6 +1009,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			opts = (Ism2Options)options;
 		
 		mc = new ModelContainer();
+		mc.setActor( new SkinnedMesh( resource.getBaseName() ) );
 		
 		if( DEBUG || TEMP ) {
 			debug = resource.getDirectory().createResource( resource.getBaseName() + ".debug", true );
@@ -1025,24 +1028,33 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 			System.out.println( "SEARCHING FOR ANIMATIONS IN " + opts.getAnimationDirectory() );
 			if( dir.containsDirectory( opts.getAnimationDirectory() ) ) {
 				Directory animDir = dir.getDirectory( opts.getAnimationDirectory() );
-				if( animDir.containsResource( "005.ism2" ) ) {
-					Resource anim = animDir.getResource( "005.ism2" );
+				/*for( Resource r : animDir.resources( ".ism2" ) ) {
+					cAnimationName = r.getBaseName();
+					load( r );
+					
+					header();
+					chunkList();
+				}*/
+				if( animDir.containsResource( "001.ism2" ) ) {
+					Resource anim = animDir.getResource( "081.ism2" );
 					cAnimationName = anim.getBaseName();
 					load( anim );
 					
 					header();
 					chunkList();
-					cActor.getSkeleton().finish();
 				}
 			}
 		//}
+		
+		cActor.setScale( 1.5f, 1.5f, 1.5f );
+		// bcActor.getSkeleton().showDebugWindow();
 		
 		//check for and apply texture files
 		if( dir.containsDirectory( opts.getTextureDirectory() ) ) {
 			Directory textureDir = dir.getDirectory( opts.getTextureDirectory() );
 			if( textureDir != null ) {
 				for( String s : skinNodes ) {
-					GLSkinNode sk = (GLSkinNode)cMeshRoot.find( s );
+					SkinNode sk = cMeshRoot.find( s, SkinNode.class );
 					String tex = sk.getId() + ".tid";
 					if( textureDir.containsResource( tex ) ) {
 						Resource texture = textureDir.getResource( tex );
@@ -1055,7 +1067,9 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 				}
 			}
 		}
+		
 		if( DEBUG ) debug.closeStream();
+		//mc.setActor( sm );
 		return mc;
 	}
 	

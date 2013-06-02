@@ -1,28 +1,17 @@
 package rin.engine;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-
 import rin.engine.game.Game;
 import rin.engine.system.Processor;
-import rin.engine.view.View;
 import rin.engine.lib.gui.GUIManager;
 import rin.gl.GL;
 import rin.gl.GLScene;
-import rin.gl.event.GLEventThread;
 import rin.gl.lib3d.properties.Properties;
 import rin.gl.model.Model;
 import rin.gl.model.ModelDAE;
 import rin.gl.model.ModelGMO;
 import rin.gl.model.ModelISM2;
-import rin.gl.model.ModelManager;
 import rin.gl.model.ModelOBJ;
 import rin.gl.model.ModelPSSG;
-import rin.gui.*;
-import rin.sample.States;
-import rin.util.Buffer;
-import rin.world.WorldController;
 
 public class Engine {
 	
@@ -35,19 +24,6 @@ public class Engine {
 	
 	public static void execute( Game game ) {
 		new Thread( game ).start();
-	}
-	
-	private volatile static View view = null;
-	public static View getView() {
-		if( Engine.view == null )
-			Engine.view = new View();
-		
-		return Engine.view;
-	}
-	
-	public static void setView( View view ) {
-		//TODO: allow switching view's dynamically, just because
-		Engine.view = view;
 	}
 
 	public static GUIManager getGUIManager() {
@@ -114,9 +90,6 @@ public class Engine {
 	public static final String MODEL_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"models"+LS;
 	public static final String FONT_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"fonts"+LS;
 	public static final String IMG_DIR = ROOTDIR+"rin"+LS+"inc"+LS+"img"+LS;
-	
-	private static WorldController wc;
-	public static WorldController getWorldController() { return Engine.wc; }
 	
 	public static GLScene getScene() { return GLScene.get(); }
 	
@@ -218,7 +191,6 @@ public class Engine {
 	}
 	
 	public static void init( int width, int height ) {
-		Engine.wc = new WorldController();
 		GL.init( width, height );
 		//GLScene.init();
 	}
