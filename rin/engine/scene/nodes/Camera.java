@@ -5,51 +5,30 @@ import static org.lwjgl.opengl.GL20.glUniformMatrix4;
 import org.lwjgl.input.Keyboard;
 
 import rin.engine.view.gl.GL;
-import rin.engine.view.View;
 import rin.engine.view.gl.GLEvent.KeyRepeatEvent;
 import rin.util.math.Mat4;
 
 public class Camera extends Actor {
-
-	protected float _fovy = 45.0f;
-	protected float _aspect = View.DEFAULT_WIDTH / View.DEFAULT_HEIGHT;
-	protected float _znear = 0.1f;
-	protected float _zfar = 15.0f;
 	
 	private Mat4 perspective = new Mat4();
 	
-	public Camera() { super( "CAMERA" ); updatePerspective(); }
-	public Camera( float fovy, float aspect, float znear, float zfar ) {
+	public Camera() {
 		super( "CAMERA" );
-		_fovy = fovy;
-		_aspect = aspect;
-		_znear = znear;
-		_zfar = zfar;
 		updatePerspective();
 	}
 	
-	public void setFovy( float fovy ) {
-		_fovy = fovy;
+	public Camera( Mat4 p ) {
+		super( "CAMERA" );
+		perspective.redefine( p );
 		updatePerspective();
 	}
 	
-	public void setAspect( float aspect ) {
-		_aspect = aspect;
-		updatePerspective();
-	}
-	
-	public void setZnear( float znear ) {
-		_znear = znear;
-		updatePerspective();
-	}
-	
-	public void setZfar( float zfar ) {
-		_zfar = zfar;
+	public void setPerspective( Mat4 p ) {
+		perspective.redefine( p );
 		updatePerspective();
 	}
 	
 	private void updatePerspective() {
-		perspective.redefine( Mat4.perspective( _fovy, _aspect, _znear, _zfar ) );
 		glUniformMatrix4( GL.getUniform( "pMatrix" ), false, perspective.gl() );
 	}
 	

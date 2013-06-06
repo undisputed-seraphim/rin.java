@@ -1,13 +1,6 @@
 package rin.engine.resource;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashMap;
-
-import rin.engine.Engine;
-import rin.engine.resource.formats.pssg.PSSGDecoder;
-import rin.engine.util.FileUtils;
 
 public final class ResourceManager {
 

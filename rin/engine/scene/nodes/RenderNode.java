@@ -28,6 +28,8 @@ public class RenderNode extends AbstractSceneNode {
 	public RenderNode( String id ) { super( id ); }
 	
 	public void setTexture( ImageContainer ic ) { texture = ic; }
+	public void setTextureId( int id ) { tex = id; }
+	
 	public void setVertices( float[] vertices ) { v = vertices; }
 	public void setNormals( float[] normals ) { n = normals; }
 	public void setTexcoords( float[] texcoords ) { t = texcoords; }

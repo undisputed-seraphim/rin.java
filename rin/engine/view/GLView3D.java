@@ -33,7 +33,7 @@ public class GLView3D extends ViewAdapter {
 			Display.setVSyncEnabled( true );
 			Display.create();
 			created = true;
-			GL.initDefaults();
+			GL.initDefaults3D();
 			setSize( width, height );
 		} catch( LWJGLException ex ) {
 			System.err.println( "GLView3D#startGL(): LWJGLException raised." );
@@ -93,6 +93,7 @@ public class GLView3D extends ViewAdapter {
 	private void stopGL() {
 		System.out.println( "GLView3D#destroy()" );
 		if( scene != null ) scene.destroy();
+		GL.destroy();
 		Display.destroy();
 	}
 	

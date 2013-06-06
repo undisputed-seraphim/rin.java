@@ -1047,7 +1047,7 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 		//}
 		
 		cActor.setScale( 1.5f, 1.5f, 1.5f );
-		// bcActor.getSkeleton().showDebugWindow();
+		cActor.getSkeleton().showDebugWindow();
 		
 		//check for and apply texture files
 		if( dir.containsDirectory( opts.getTextureDirectory() ) ) {

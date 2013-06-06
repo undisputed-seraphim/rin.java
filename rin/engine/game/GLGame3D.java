@@ -1,5 +1,6 @@
 package rin.engine.game;
 
+import rin.engine.scene.GLScene3D;
 import rin.engine.view.GLView3D;
 
 public class GLGame3D extends GameAdapter {
@@ -13,6 +14,7 @@ public class GLGame3D extends GameAdapter {
 	}
 	
 	@Override public GLView3D getView() { return (GLView3D)view; }
+	public GLScene3D getScene() { return getView().getScene(); }
 	
 	@Override
 	public void start() {

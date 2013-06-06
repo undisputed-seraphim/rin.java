@@ -6,13 +6,14 @@ import rin.engine.resource.model.ModelContainer;
 import rin.engine.scene.nodes.AbstractSceneNode;
 import rin.engine.scene.nodes.Camera;
 import rin.engine.view.View;
+import rin.util.math.Mat4;
 
 public class GLScene3D extends SceneAdapter {
 
 	@Override
 	public void init() {
 		System.out.println( "GLScene3D#init()" );
-		setCamera( new Camera( 45, View.DEFAULT_WIDTH / View.DEFAULT_HEIGHT, 0.1f, 15.0f ) );
+		setCamera( new Camera( Mat4.perspective( 45, View.DEFAULT_WIDTH / View.DEFAULT_HEIGHT, 0.1f, 15.0f ) ) );
 		camera.setPosition( 0.0f, -1.0f, -11.0f );
 		camera.setKeyboardControlled( true );
 	}
