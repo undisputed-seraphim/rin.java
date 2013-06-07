@@ -9,7 +9,7 @@ public class CachedNodeTree<T extends TreeNode<T>> extends NodeTree<T> {
 	protected void cache( T node ) {
 		if( idCache.get( node.getId() ) == null )
 			idCache.put( node.getId(), node );
-		else throw new RuntimeException( "ID " + node.getId() + " already exists." );
+		else throw new RuntimeException( "ID '" + node.getId() + "' already exists." );
 	}
 	
 	protected void discard( T node ) {

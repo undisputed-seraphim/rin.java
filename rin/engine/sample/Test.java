@@ -3,6 +3,7 @@ package rin.engine.sample;
 import rin.engine.game.GLGame2D;
 import rin.engine.game.GLGame3D;
 import rin.engine.resource.ResourceManager;
+import rin.engine.sample.metroid.sprites.Samus;
 
 public class Test {
 	public static void main( String[] args ) {
@@ -21,7 +22,7 @@ public class Test {
 			public void run() {
 				init();
 				
-				getScene().addSprite( 1, ResourceManager.getPackResource( "super_metroid", "sprites", "player", "samus", "power", "right_3.png" ) );
+				getScene().addSprite( 1, Samus.SPRITE_MAP );
 				start();
 				destroy();
 			}

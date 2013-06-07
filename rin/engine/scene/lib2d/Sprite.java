@@ -6,14 +6,31 @@ import rin.engine.view.gl.TextureManager;
 
 public class Sprite extends RenderedActor {
 
+	protected SpriteMap _map;
+	private int w;
+	private int h;
+	
+	protected int tex = -1;
+	
+	protected boolean built = false;
+	protected boolean ready = false;
+	
 	public Sprite( String id, Resource res ) {
 		super( id );
-		test( res );
+		
 	}
 	
-	public void test( Resource res ) {
-		float w = 5.0f;
-		float h = 7.0f;
+	public Sprite( String id, SpriteMap map ) {
+		super( id );
+		_map = map;
+		
+		tex = TextureManager.load( _map.getImage().getPath() );
+		build();
+	}
+	
+	public void build() {
+		float w = _map.getSpriteWidth();
+		float h = _map.getSpriteHeight();
 		
 		float[] v = new float[] {
 				0.0f, 0.0f,
@@ -38,7 +55,7 @@ public class Sprite extends RenderedActor {
 		rn.setVertices( v );
 		rn.setTexcoords( t );
 		rn.setIndices( i );
-		rn.setTextureId( TextureManager.load( res.getPath() ) );
+		rn.setTextureId( tex );
 		
 		add( rn );
 	}

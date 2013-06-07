@@ -1,8 +1,9 @@
 package rin.engine.scene;
 
-import rin.engine.resource.Resource;
+import rin.engine.scene.lib2d.AnimatedSprite;
 import rin.engine.scene.lib2d.Layer;
 import rin.engine.scene.lib2d.Sprite;
+import rin.engine.scene.lib2d.SpriteMap;
 import rin.engine.scene.nodes.AbstractSceneNode;
 import rin.engine.scene.nodes.Camera;
 import rin.util.math.Mat4;
@@ -12,7 +13,7 @@ public class GLScene2D extends SceneAdapter {
 	@Override
 	public void init() {
 		System.out.println( "GLScene2D#init()" );
-		setCamera( new Camera( Mat4.orthographic( -25, 25, -20, 20, 1, -10 ) ) );
+		setCamera( new Camera( Mat4.orthographic( -450, 450, -250, 250, 1, -10 ) ) );
 		camera.setPosition( 0.0f, 0.0f, 2.0f );
 		camera.setKeyboardControlled( true );
 		
@@ -30,9 +31,10 @@ public class GLScene2D extends SceneAdapter {
 		graph.clear();
 	}
 	
-	public void addSprite( int layer, Resource res ) {
-		Sprite spr = new Sprite( "test", res );
+	public Sprite addSprite( int layer, SpriteMap sm ) {
+		Sprite spr = new AnimatedSprite( "test", sm );
 		graph.find( "LAYER"+layer ).add( spr );
+		return spr;
 	}
 	
 }
