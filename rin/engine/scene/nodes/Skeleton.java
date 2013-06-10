@@ -3,9 +3,9 @@ package rin.engine.scene.nodes;
 import java.util.HashMap;
 
 import rin.engine.lib.gui.GUIFactory;
-import rin.engine.util.CachedNodeTree;
+import rin.engine.util.AdvancedNodeTree;
 
-public class Skeleton extends CachedNodeTree<JointNode> {
+public class Skeleton extends AdvancedNodeTree<JointNode> {
 	private HashMap<String, Animation> animations = new HashMap<String, Animation>();
 	private Animation currentAnimation;
 	

@@ -3,6 +3,7 @@ package rin.engine.view;
 import rin.engine.scene.Scene;
 
 public interface View {
+	
 	public static final int DEFAULT_WIDTH = 900;
 	public static final int DEFAULT_HEIGHT = 500;
 	

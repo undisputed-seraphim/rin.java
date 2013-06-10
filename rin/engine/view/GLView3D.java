@@ -11,12 +11,19 @@ import org.lwjgl.input.Keyboard;
 
 import rin.engine.scene.GLScene3D;
 import rin.engine.view.gl.GL;
+import rin.engine.view.gl.GLEvent;
+import rin.engine.view.gl.GLEvent.KeyDownEvent;
+import rin.engine.view.gl.GLEvent.KeyRepeatEvent;
+import rin.engine.view.gl.GLEvent.KeyUpEvent;
+import rin.engine.view.gl.GLEventListener.KeyEventListener;
 
-public class GLView3D extends ViewAdapter {
+public class GLView3D extends ViewAdapter implements KeyEventListener {
 	
 	private boolean created = false;
+	private boolean paused = false;
+	
 	private double dt = 0.0;
-	private double start = System.nanoTime() * 1e-9;
+	private double start = 0.0;
 	
 	@Override public GLScene3D getScene() { return (GLScene3D)scene; }
 	
@@ -25,6 +32,7 @@ public class GLView3D extends ViewAdapter {
 		System.out.println( "GLView3D#init()" );
 		initGL();
 		setScene( new GLScene3D() );
+		setKeyboardControlled( true );
 	}
 	
 	private void initGL() {
@@ -61,6 +69,9 @@ public class GLView3D extends ViewAdapter {
 		start += dt;
 	}
 	
+	private double average = 0.0;
+	private int count = 0;
+	
 	@Override
 	public void show() {
 		if( !created ) {
@@ -68,20 +79,25 @@ public class GLView3D extends ViewAdapter {
 			return;
 		}
 		
+		start = System.nanoTime() * 1e-9;
 		while( !Display.isCloseRequested() ) {
 			updateDt();
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
 			
-			if( !Keyboard.isKeyDown( Keyboard.KEY_P ) ) {
-				glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-				
-				Input.process();
+			Input.process();
+			
+			if( !paused ) {
 				getScene().process( dt );
-				
-				Display.sync( 60 );
-				Display.update();
 			} else {
-				Keyboard.poll();
+				getScene().process( 0.0 );
 			}
+			
+			Display.sync( 60 );
+			Display.update();
+			average += dt;
+			count++;
+			if( count % 100 == 0 )
+				Display.setTitle( "frame " + count + " in " + dt + " seconds (average: " + (average/count) + " sec)" );
 		}
 	}
 	
@@ -98,5 +114,34 @@ public class GLView3D extends ViewAdapter {
 	}
 	
 	public void setTitle( String title ) { Display.setTitle( title ); }
+
+	private boolean keyboardListening = false;	
+	private boolean keyboardControlled = false;
+	
+	public boolean isKeyboardControlled() { return keyboardControlled; }
+	public void setKeyboardControlled( boolean val ) {
+		keyboardControlled = val;
+		if( val && !keyboardListening ) {
+			GLEvent.addKeyEventListener( this );
+			keyboardListening = true;
+		} else if( keyboardListening ) {
+			GLEvent.removeKeyEventListener( this );
+			keyboardListening = false;
+		}
+	}
+	
+	@Override
+	public void processKeyDownEvent( KeyDownEvent e ) {
+		switch( e.key ) {
+		
+		case Keyboard.KEY_P:
+			paused = !paused;
+			break;
+			
+		}
+	}
+
+	@Override public void processKeyUpEvent( KeyUpEvent e ) {}
+	@Override public void processKeyRepeatEvent( KeyRepeatEvent e ) {}
 	
 }

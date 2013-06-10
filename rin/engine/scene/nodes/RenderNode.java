@@ -58,6 +58,11 @@ public class RenderNode extends AbstractSceneNode {
 	}
 	
 	@Override
+	public boolean accept( AbstractSceneNode node ) {
+		return true;
+	}
+	
+	@Override
 	public void process( double dt ) {
 		if( !built ) ready = build();
 		render();

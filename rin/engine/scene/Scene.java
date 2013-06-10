@@ -9,5 +9,5 @@ public interface Scene {
 	public void init();
 	public void process( double dt );
 	public void destroy();
-		
+
 }

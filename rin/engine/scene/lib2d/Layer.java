@@ -10,6 +10,11 @@ public class Layer extends AbstractSceneNode {
 	public Layer( String id, float zindex ) { super( id ); z = zindex; }
 	
 	@Override
+	public boolean accept( AbstractSceneNode node ) {
+		return true;
+	}
+	
+	@Override
 	public void process( double dt ) {
 		glUniform1f( GL.getUniform( "zindex" ), z );
 	}

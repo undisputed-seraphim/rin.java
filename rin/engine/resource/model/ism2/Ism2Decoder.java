@@ -18,10 +18,8 @@ import rin.engine.scene.nodes.JointNode;
 import rin.engine.scene.nodes.SkinnedMesh;
 import rin.engine.util.ArrayUtils;
 import rin.engine.util.binary.ProfiledBinaryReader;
-import rin.engine.view.gl.GLSkinNode;
 import rin.engine.scene.nodes.Animation;
 import rin.engine.scene.nodes.Frame;
-import rin.engine.view.lib3d.UniversalActor;
 
 public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
@@ -38,7 +36,6 @@ public class Ism2Decoder extends ProfiledBinaryReader implements ModelDecoder {
 	
 	private Ism2Model cModel;
 	private SkinnedMesh cActor;
-	private SkinNode sn;
 	private JointNode cJoint;
 	
 	private JointNode cSkelRoot;

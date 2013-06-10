@@ -2,19 +2,17 @@ package rin.engine.scene.nodes;
 
 import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniform4f;
-import rin.engine.util.TreeNode;
+import rin.engine.util.AdvancedTreeNode;
 import rin.engine.view.gl.GL;
 import rin.util.math.Mat4;
 import rin.util.math.Quat4;
 import rin.util.math.Vec3;
 
-public class JointNode extends TreeNode<JointNode> {
+public class JointNode extends AdvancedTreeNode<JointNode> {
 	
-	protected Mat4 joint = new Mat4();
 	protected Mat4 world = new Mat4();
 	protected Quat4 qWorld = new Quat4();
 	protected Mat4 inverse = new Mat4();
-	protected Mat4 transform = new Mat4();
 	protected Mat4 poseAbsolute = new Mat4();
 	
 	protected float orientX = 0.0f;
@@ -27,7 +25,10 @@ public class JointNode extends TreeNode<JointNode> {
 	
 	public JointNode( String id ) { super( id ); }
 	
-	public void setJointMatrix( float[] m ) { joint = new Mat4( m ); }
+	@Override public Skeleton getTree() { return (Skeleton)tree; }
+	@Override public JointNode getParent() { return (JointNode)parent; }
+	
+	//public void setJointMatrix( float[] m ) { joint = new Mat4( m ); }
 	public void setJointTranslation( float[] t ) { tLocal.add( t[0], t[1], t[2] ); }
 	public void setJointRotateX( float[] r ) { orient.applyOrientationDeg( Vec3.X_AXIS, r[3] ); }
 	public void setJointRotateY( float[] r ) { orient.applyOrientationDeg( Vec3.Y_AXIS, r[3] ); }
@@ -50,7 +51,7 @@ public class JointNode extends TreeNode<JointNode> {
 	}
 	
 	public void update( double dt ) {
-		Animation cAnimation = ((Skeleton)tree).getCurrentAnimation();
+		Animation cAnimation = getTree().getCurrentAnimation();
 		
 		if( cAnimation != null ) {
 			Frame cFrame = cAnimation.getFrame( getId() );
@@ -61,8 +62,8 @@ public class JointNode extends TreeNode<JointNode> {
 		}
 		
 		if( parent != null ) {
-			rGlobal.redefine( parent.rGlobal ).multiply( rLocal );
-			tGlobal.redefine( tLocal ).rotate( parent.rGlobal ).add( parent.tGlobal );
+			rGlobal.redefine( getParent().rGlobal ).multiply( rLocal );
+			tGlobal.redefine( tLocal ).rotate( getParent().rGlobal ).add( getParent().tGlobal );
 		} else {
 			rGlobal.redefine( rLocal );
 			tGlobal.redefine( tLocal );

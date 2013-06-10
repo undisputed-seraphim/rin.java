@@ -13,6 +13,7 @@ import rin.engine.resource.formats.cl3.CL3Extractor;
 import rin.engine.resource.image.ImageOptions;
 import rin.engine.resource.image.tid.TidDecoder;
 import rin.engine.util.ArrayUtils;
+import rin.engine.game.GLGame3D;
 import rin.engine.lib.gui.GUIManager;
 import rin.gl.GL;
 import rin.gl.event.Transition;
@@ -68,10 +69,20 @@ public class Game {
 			FormatManager.decodeImage( r, new ImageOptions().saveAs( "png" ).setDeleteOnSave( true ) );
 		}*/
 		
-		init( 900, 600 );
-		GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
+		new GLGame3D() {
+			public void run() {
+				init();
+				
+				getScene().addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
+
+				start();
+				destroy();
+			}
+		}.run();
+		
+		//GL.addModel( ResourceManager.getPackResource( "neptunia_mk2", "models", "player", "001", "002.ism2" ) );
 		//GL.addModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
-		start();
+		//start();
 		
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "meruru", "models", "meruru", "meruru.pssg" ) );
 		//FormatManager.decodeModel( ResourceManager.getPackResource( "neptunia_v", "models", "001", "001.ism2" ) );
